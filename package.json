@@ -1,0 +1,13 @@
+{
+	"name": "online-auction",
+	"private": true,
+	"scripts": {
+	  "dev:all": "concurrently -n CLIENT,SERVER -c cyan,yellow \"pnpm --filter client dev\" \"pnpm --filter server dev\"",
+	  "dev:client": "pnpm --filter client dev",
+	  "dev:server": "pnpm --filter server dev",
+	  "build": "pnpm -r build"
+	},
+	"devDependencies": {
+	  "concurrently": "^8.2.2"
+	}
+  }

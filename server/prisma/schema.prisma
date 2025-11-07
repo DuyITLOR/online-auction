@@ -14,9 +14,18 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum Role {
+  BIDDER
+  ADMIN
+}
 
 model User {
   id        String   @id @default(uuid())
+  fullname  String
   email     String   @unique
+  password  String
+  role      Role
+  ratingPos Int
+  ratingNeg Int
   createdAt DateTime @default(now())
 }

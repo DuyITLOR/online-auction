@@ -26,3 +26,17 @@ export const addBidder = async (
   });
   return user;
 };
+
+export const createEmailVerification = async(email: string, code: string) => {
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+  const record = await prisma.emailVerification.create({
+    data: {
+      email,
+      code,
+      expiresAt,
+      status: 'NOTYET',
+    },
+  });
+
+  return record;
+}

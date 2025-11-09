@@ -29,3 +29,21 @@ model User {
   ratingNeg Int
   createdAt DateTime @default(now())
 }
+
+enum VerificationStatus {
+  NOTYET
+  FAILED
+  SUCCESS
+}
+
+model EmailVerification {
+  id        String             @id @default(uuid())
+  code      String
+  email     String
+  expiresAt DateTime
+  status    VerificationStatus @default(NOTYET)
+  createdAt DateTime           @default(now())
+
+  @@index([email])
+  @@index([expiresAt])
+}

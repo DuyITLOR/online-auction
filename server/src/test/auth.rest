@@ -15,8 +15,14 @@ POST http://localhost:4000/sign-up
 Content-Type: application/json
 
 {
-	"email": "truongthanhdat123@gmail.com",
-	"password": "123",
-	"fullname": "Truong Thanh Dat"
+	"email": "truongthanhdat0305@gmail.com"
+}
+
+###
+POST http://localhost:4000/verify-email
+Content-Type: application/json
+
+{
+	"email": "truongthanhdat6879@gmail.com"
 }
 

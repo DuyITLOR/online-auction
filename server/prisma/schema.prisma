@@ -19,6 +19,19 @@ enum Role {
   ADMIN
 }
 
+enum OrderStatus {
+  UNPAID
+  SHIPPING
+  COMPLETED
+  CANCELED
+}
+
+enum VerificationStatus {
+  NOTYET
+  FAILED
+  SUCCESS
+}
+
 model User {
   id        String   @id @default(uuid())
   fullname  String?
@@ -28,12 +41,50 @@ model User {
   ratingPos Int
   ratingNeg Int
   createdAt DateTime @default(now())
+
+
+  // Other relationship
+  products Products[] @relation("SellerProducts")
+  upgradeRequests UpgradeRequests[]
+  comments Comments[]
+  autoBids AutoBids[]
+  watchList WatchList[]
+  chat Chat[]
+  blockedOn BlockedBidders[] @relation("BlockedUsers")
+  ratingsGiven     Ratings[]       @relation("RatingsGiven")
+  ratingsReceived  Ratings[]       @relation("RatingsReceived")
+  ordersAsSeller   Orders[]        @relation("OrdersSeller")
+  ordersAsBuyer    Orders[]        @relation("OrdersBuyer")
 }
 
-enum VerificationStatus {
-  NOTYET
-  FAILED
-  SUCCESS
+model Products {
+  id          String    @id @default(uuid())
+  sellerId   String
+  categoryId  String
+  title       String
+  description String
+  startPrice Decimal @db.Decimal(10, 2)
+  currentPrice Decimal? @db.Decimal(10, 2)
+  stepPrice  Decimal @db.Decimal(10, 2)
+  buyNowPrice Decimal @db.Decimal(10, 2)
+  autoExtendEnabled Boolean 
+  autoExtendMinutes Int @default(0)
+  startedAt DateTime
+  endAt DateTime
+  updatedAt DateTime @updatedAt
+  highRatingRequired Boolean   @default(false)
+
+  // Other relationship
+  seller  User @relation("SellerProducts", fields: [sellerId], references: [id], onDelete: Cascade)
+  category Categories   @relation(fields: [categoryId], references: [id])
+  comments Comments[]
+  images  ProductImages[]
+  autoBids AutoBids[]
+  watchlistedBy WatchList[]
+  chat Chat[]
+  blockedBidders BlockedBidders[]
+  ratings Ratings[]
+  order Orders?
 }
 
 model EmailVerification {
@@ -46,4 +97,135 @@ model EmailVerification {
 
   @@index([email])
   @@index([expiresAt])
+}
+
+model UpgradeRequests {
+  id String @id @default(uuid())
+  userId String 
+  status String
+  note   String?
+  createdAt DateTime @default(now())
+  decidedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+model Categories{
+  id        String   @id @default(uuid())
+  name      String
+  parentId  String?
+
+  parent Categories? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Categories[] @relation("CategoryHierarchy")
+
+  products Products[]
+}
+
+model Comments {
+  id String @id @default(uuid())
+  productId String
+  senderId String
+  parentId String?
+  content String
+  sendAt DateTime @default(now())
+
+  product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sender  User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  parent   Comments?  @relation("CommentThread", fields: [parentId], references: [id])
+  replies  Comments[] @relation("CommentThread")
+
+}
+
+
+model ProductImages {
+  id String @id @default(uuid())
+  productId String
+  url String
+  sortOrder Int
+
+  product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model AutoBids {
+  id String @id @default(uuid())
+  productId String
+  bidderId String
+  maxAmount Decimal @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+
+  product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+  bidder  User     @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+}
+
+
+model WatchList {
+  userId String
+  productId String
+  createAt DateTime @default(now())
+
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Primary key
+  @@id([userId, productId])
+}
+
+model Chat{
+  id        String   @id @default(uuid())
+  productId String
+  senderId  String
+  content   String
+  sendAt    DateTime @default(now())
+
+  product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sender  User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+
+model BlockedBidders {
+  productId String
+  userId    String
+  reason    String?
+  createdAt DateTime @default(now())
+
+  product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User     @relation("BlockedUsers", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([productId, userId])
+}
+
+
+model Ratings {
+  id        String   @id @default(uuid())
+  raterId   String
+  rateeId   String
+  productId String
+  value     Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  rater   User     @relation("RatingsGiven", fields: [raterId], references: [id], onDelete: Cascade)
+  ratee   User     @relation("RatingsReceived", fields: [rateeId], references: [id], onDelete: Cascade)
+  product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Orders {
+  id                 String      @id @default(uuid())
+  productId          String      @unique
+  sellerId           String
+  buyerId            String
+  phoneNumber        Int
+  status             OrderStatus
+  shippingAddress    String
+  paymentInvoiceUrl  String?
+  shippingInvoiceUrl String?
+  cancelReason       String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  product Products @relation(fields: [productId], references: [id], onDelete: Restrict)
+  seller  User     @relation("OrdersSeller", fields: [sellerId], references: [id], onDelete: Restrict)
+  buyer   User     @relation("OrdersBuyer", fields: [buyerId], references: [id], onDelete: Restrict)
 }

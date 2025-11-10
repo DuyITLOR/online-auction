@@ -13,6 +13,7 @@
     "@radix-ui/react-popover": "^1.1.15",
     "@tailwindcss/vite": "^4.1.17",
     "clsx": "^2.1.1",
+    "lucide-react": "^0.553.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.5",

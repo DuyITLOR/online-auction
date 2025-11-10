@@ -5,4 +5,5 @@ export const API_ROUTES = {
   signIn: '/sign-in',
   signUp: '/sign-up',
   verifyEmail: '/verify-email',
+  updateUser: '/update-user',
 };

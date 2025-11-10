@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../services/db/prisma';
 
 export const getUserByEmail = async (email: string) => {
   const user = await prisma.user.findUnique({
@@ -11,13 +9,13 @@ export const getUserByEmail = async (email: string) => {
 
 export const addBidder = async (
   email: string,
-  password: string,
-  fullname: string
+  fullname: string,
+  password: string
 ) => {
   const user = await prisma.user.create({
     data: {
-      fullname,
       email,
+      fullname,
       password,
       role: 'BIDDER',
       ratingPos: 0,
@@ -27,16 +25,71 @@ export const addBidder = async (
   return user;
 };
 
-export const createEmailVerification = async(email: string, code: string) => {
+export const createEmailVerification = async (email: string, code: string) => {
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+  await prisma.emailVerification.updateMany({
+    where: {
+      email,
+      status: 'NOTYET',
+    },
+    data: {
+      status: 'FAILED',
+    },
+  });
+
   const record = await prisma.emailVerification.create({
     data: {
       email,
       code,
       expiresAt,
-      status: 'NOTYET',
     },
   });
-
   return record;
-}
+};
+
+export const updateVerificationFailed = async (id: string) => {
+  await prisma.emailVerification.update({
+    where: {
+      id,
+    },
+    data: {
+      status: 'FAILED',
+    },
+  });
+};
+
+export const updateVerificationSuccess = async (id: string) => {
+  await prisma.emailVerification.update({
+    where: {
+      id,
+    },
+    data: {
+      status: 'SUCCESS',
+    },
+  });
+};
+
+export const getVerification = async (email: string) => {
+  const record = await prisma.emailVerification.findFirst({
+    where: { email },
+    orderBy: { createdAt: 'desc' },
+  });
+  return record;
+};
+
+export const updateUser = async (
+  email: string,
+  fullname: string,
+  password: string
+) => {
+  await prisma.user.update({
+    where: {
+      email,
+    },
+    data: {
+      fullname,
+      password,
+    },
+  });
+};

@@ -4,40 +4,51 @@ import { sendEmail } from '../utils/sendEmail';
 import * as service from '../services/authService';
 
 export const signIn = async (req: Request, res: Response) => {
-  // const userEmail = req.body.email;
-  // const userPassword = req.body.password;
-  // const isExist = await service.checkExistEmail(userEmail);
-  // if (!isExist) {
-  //   const response = gatewayResponse(
-  //     401,
-  //     null,
-  //     'Email has not been registered'
-  //   );
-  //   res.status(response.code).send(response);
-  // }
-  // const resolve = await service.generateToken(userEmail, userPassword);
-  // if (resolve.success && resolve.token) {
-  //   const response = gatewayResponse<string>(
-  //     200,
-  //     resolve.token,
-  //     'Welcome back'
-  //   );
-  //   res.status(response.code).send(response);
-  // } else {
-  //   const response = gatewayResponse(401, null, resolve.message);
-  //   res.status(response.code).send(response);
-  // }
+  const email = req.body.email;
+  const password = req.body.password;
+  const bidder = await service.getBidder(email);
+  if (!bidder) {
+    const response = gatewayResponse(
+      400,
+      null,
+      'Email has not been registered'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+  if (bidder.password == null) {
+    const response = gatewayResponse(200, null, 'update user first');
+    res.status(response.code).send(response);
+  } else {
+    const isMatched = await service.comparePassword(password, bidder.password);
+    if (isMatched) {
+      const token = await service.generateToken(bidder.id, bidder.email);
+      const response = gatewayResponse(200, { token }, 'Welcome back');
+      res.status(response.code).send(response);
+    } else {
+      const response = gatewayResponse(
+        400,
+        null,
+        'Email or password is invalid'
+      );
+      res.status(response.code).send(response);
+      return;
+    }
+  }
 };
 
 export const signUp = async (req: Request, res: Response) => {
   const email = req.body.email;
+  // Check email has been registered before
   const isExist = await service.checkExistEmail(email);
   if (isExist) {
     const response = gatewayResponse(401, null, 'Email has been registered');
     res.status(response.code).send(response);
     return;
   }
+  // Generate code for verify
   const code = service.generateCode();
+  // Send code to register
   const record = await sendEmail({
     email,
     content: code,
@@ -54,5 +65,38 @@ export const signUp = async (req: Request, res: Response) => {
 
 export const verifyEmail = async (req: Request, res: Response) => {
   const code = req.body.code;
-  console.log('hello from verify');
+  const email = req.body.email;
+  const password = req.body.password;
+  const hashed = await service.hashPassword(password);
+  const fullname = req.body.fullname;
+  const record = await service.verifyCode(code, email);
+  if (record.success) {
+    const bidder = await service.addNewBidder(email, fullname, hashed);
+    const token = await service.generateToken(bidder.message, email); // message here = id of bidder
+    if (bidder.success) {
+      const response = gatewayResponse(200, { token }, bidder.message);
+      res.status(response.code).send(response);
+    } else {
+      const response = gatewayResponse(400, null, bidder.message);
+      res.status(response.code).send(response);
+    }
+  } else {
+    const response = gatewayResponse(400, null, record.message);
+    res.status(response.code).send(response);
+  }
+};
+
+export const updateUser = async (req: Request, res: Response) => {
+  const email = req.body.email;
+  const fullname = req.body.fullname;
+  const password = req.body.password;
+  const hashed = await service.hashPassword(password);
+  const record = await service.updateUser(email, fullname, hashed);
+  if (record) {
+    const response = gatewayResponse(200, null, 'Updated');
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(200, null, 'Update Failed');
+    res.status(response.code).send(response);
+  }
 };

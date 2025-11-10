@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import * as repo from '../repositories/authRepo';
-import { sendEmail } from '../utils/sendEmail';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -11,13 +10,13 @@ type verifyResult = {
   message: string;
 };
 
-const hashPassword = async (password: string) => {
+export const hashPassword = async (password: string) => {
   const saltRound = 5;
   const hashed = await bcrypt.hash(password, saltRound);
   return hashed;
 };
 
-const comparePassword = async (
+export const comparePassword = async (
   plainPassword: string,
   hashedPassword: string
 ) => {
@@ -25,16 +24,17 @@ const comparePassword = async (
   return isMatch;
 };
 
-export const generateToken = async (email: string, password: string) => {
+export const getBidder = async (email: string) => {
+  return await repo.getUserByEmail(email);
+};
+
+export const generateToken = async (id: string, email: string) => {
   if (!JWT_SECRET) {
     throw new Error('Missing JWT_SECRET environment variable');
   }
-  const hashed = await hashPassword(password);
-  const token = jwt.sign(
-    { email, hashed },
-    process.env.JWT_SECRET!,
-    { expiresIn: '15m' } // token hết hạn sau 15 phút
-  );
+  const token = jwt.sign({ id, email }, process.env.JWT_SECRET!, {
+    expiresIn: '15m',
+  });
   return token;
 };
 
@@ -45,22 +45,14 @@ export const checkExistEmail = async (email: string) => {
 
 export const addNewBidder = async (
   email: string,
-  password: string,
-  fullname: string
+  fullname: string,
+  password: string
 ) => {
-  if (!JWT_SECRET) {
-    throw new Error('Missing JWT_SECRET environment variable');
-  }
-  const hashed = await hashPassword(password);
   try {
-    const user = await repo.addBidder(email, hashed, fullname);
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
-      expiresIn: '1h',
-    });
+    const user = await repo.addBidder(email, fullname, password);
     return {
       success: true,
-      token: token,
-      message: 'Create new user',
+      message: user.id,
     };
   } catch (err) {
     if (err instanceof Error) {
@@ -73,6 +65,20 @@ export const addNewBidder = async (
       success: false,
       message: 'unknown error',
     };
+  }
+};
+
+export const updateUser = async (
+  email: string,
+  fullname: string,
+  passwordHashed: string
+) => {
+  try {
+    await repo.updateUser(email, fullname, passwordHashed);
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
   }
 };
 
@@ -95,6 +101,35 @@ export const addEmailVerification = async (code: string, email: string) => {
       message: 'unknown error',
     };
   }
+};
+
+export const verifyCode = async (code: string, email: string) => {
+  const infor = await repo.getVerification(email);
+  const now = new Date();
+  if (!infor?.expiresAt) {
+    return {
+      success: false,
+      message: 'Lost expiration',
+    };
+  }
+  if (now > infor.expiresAt) {
+    await repo.updateVerificationFailed(infor.id);
+    return {
+      success: false,
+      message: 'expired code',
+    };
+  }
+  if (code === infor.code) {
+    await repo.updateVerificationSuccess(infor.id);
+    return {
+      success: true,
+      message: 'Valid code',
+    };
+  }
+  return {
+    success: false,
+    message: 'Unvalid code',
+  };
 };
 
 export function generateCode(): string {

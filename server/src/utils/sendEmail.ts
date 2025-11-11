@@ -34,7 +34,6 @@ export const sendEmail = async (
       html: `<b>${resources.content}</b>`, // HTML body
     });
 
-    console.log(info.messageId);
     return {
       success: true,
       message: 'Send email',

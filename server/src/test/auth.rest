@@ -5,7 +5,7 @@ POST http://localhost:4000/sign-in
 Content-Type: application/json
 
 {
-	"email": "truongthanhdat0305@gmail.com",
+	"email": "ngobaolong0401@gmail.com",
 	"password": "123"
 }
 
@@ -14,7 +14,7 @@ POST http://localhost:4000/sign-up
 Content-Type: application/json
 
 {
-	"email": "truongthanhdat0305@gmail.com"
+	"email": "truongthanhdat6879@gmail.com"
 }
 
 ###
@@ -22,10 +22,10 @@ POST http://localhost:4000/verify-email
 Content-Type: application/json
 
 {
-	"email": "truongthanhdat0305@gmail.com",
-	"fullname": "Truong Dat",
+	"email": "truongthanhdat6879@gmail.com",
+	"fullname": "Truong Thanh Dat",
 	"password": "123",
-	"code": "7VDYN9"
+	"code": "SBUZZV"
 }
 
 

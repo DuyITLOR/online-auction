@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 import { API_ROUTES } from '../utils/apiRoutes';
 import auth from './authentication';
+import test from './test';
 
 const prisma = new PrismaClient();
 
@@ -58,4 +59,5 @@ export function routes(app: Application): void {
 
   // Define your routes here
   app.use('/', auth);
+  app.use('/', test);
 }

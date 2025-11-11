@@ -5,11 +5,6 @@ import * as repo from '../repositories/authRepo';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-type verifyResult = {
-  success: boolean;
-  message: string;
-};
-
 export const hashPassword = async (password: string) => {
   const saltRound = 5;
   const hashed = await bcrypt.hash(password, saltRound);
@@ -33,7 +28,7 @@ export const generateToken = async (id: string, email: string) => {
     throw new Error('Missing JWT_SECRET environment variable');
   }
   const token = jwt.sign({ id, email }, process.env.JWT_SECRET!, {
-    expiresIn: '15m',
+    expiresIn: '1h',
   });
   return token;
 };

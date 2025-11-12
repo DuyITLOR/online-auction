@@ -3,7 +3,7 @@ import type { SignInFormState, SignUpFormState, VerifyFormState } from '../types
 import { SignUpSchema } from '../schema/signUpSchema';
 import { VerifySchema } from '../schema/verifySchema';
 
-export async function SignInFormAction(formData: FormData): Promise<SignInFormState> {
+export async function SignInFormAction(_state: SignInFormState, formData: FormData): Promise<SignInFormState> {
   const signInForm = SignInSchema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
@@ -32,10 +32,12 @@ export async function SignInFormAction(formData: FormData): Promise<SignInFormSt
   window.location.href = '/';
 }
 
-export async function SignUpFormAction(formData: FormData): Promise<SignUpFormState> {
+export async function SignUpFormAction(_state: SignUpFormState, formData: FormData): Promise<SignUpFormState> {
   const signUpForm = SignUpSchema.safeParse({
     email: formData.get('email'),
   });
+
+  console.log(signUpForm);
 
   if (!signUpForm.success) {
     return {
@@ -59,7 +61,7 @@ export async function SignUpFormAction(formData: FormData): Promise<SignUpFormSt
   window.location.href = '/auth/verify';
 }
 
-export async function VerifyFormAction(formData: FormData): Promise<VerifyFormState> {
+export async function VerifyFormAction(_state: VerifyFormState, formData: FormData): Promise<VerifyFormState> {
   const verifyForm = VerifySchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),

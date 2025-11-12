@@ -1,33 +1,25 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../layouts/AuthLayout';
 import { supabase } from '../libs/supabaseClient';
+import { useEffect, useState } from 'react';
+import { getUser } from '../api/user';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Button } from './ui/button';
 
 const Header = () => {
   const { session, user } = useAuth();
+  const [currentUser, setCurrentUser] = useState({ name: '' });
 
-  async function onGoogleSignIn() {
-    try {
-      const redirectTo = `${window.location.origin}/auth/callback`;
-      console.log('Chuyển hướng về:', redirectTo);
+  console.log('session in header:', session);
 
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectTo,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      });
-      if (error) {
-        console.error('[auth-form][form-submit::google]:', error);
-        alert('Đã xảy ra lỗi khi đăng nhập: ' + error.message);
-      }
-    } catch (error) {
-      console.error('[auth-form][form-submit::google]:', error);
-    }
-  }
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userFetch = await getUser(session!.user.id);
+      setCurrentUser(userFetch);
+    };
+
+    fetchUser();
+  }, []);
 
   async function onSignOut() {
     const { error } = await supabase.auth.signOut();
@@ -52,7 +44,7 @@ const Header = () => {
           />
         </div>
 
-        {!session ? (
+        {session ? (
           <div className='flex gap-2 items-center ml-3'>
             <Link to='/auth/signin'>
               <button className='border border-gray-300 px-1 text-sm font-semibold h-10 rounded-md bg-slate-200'>
@@ -67,22 +59,17 @@ const Header = () => {
             </Link>
           </div>
         ) : (
-          <div>
-            <h2 className='text-xl mb-4'>Chào mừng trở lại!</h2>
-            <img src={user?.user_metadata?.avatar_url} alt='Avatar' className='w-20 h-20 rounded-full mx-auto mb-4' />
-            <p className='mb-2'>
-              <strong>Email:</strong> {user?.email}
-            </p>
-            <p className='mb-4'>
-              <strong>Tên:</strong> {user?.user_metadata?.full_name}
-            </p>
+          <div className='flex gap-4 items-center ml-3'>
+            <span className='text-sm'>Xin chào, {currentUser.name}</span>
 
-            <button
-              onClick={onSignOut}
-              className='w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded'
-            >
+            <Avatar>
+              <AvatarImage src='/gg-logo.svg' alt='User Avatar' className='border border-gray-400 rounded-full' />
+              <AvatarFallback>{currentUser.name.charAt(0).toUpperCase()}</AvatarFallback>
+            </Avatar>
+
+            <Button variant={'ghost'} className='underline' onClick={onSignOut}>
               Đăng xuất
-            </button>
+            </Button>
           </div>
         )}
       </div>

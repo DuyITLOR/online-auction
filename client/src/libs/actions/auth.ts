@@ -2,6 +2,7 @@ import { SignInSchema } from '../schema/signInSchema';
 import type { SignInFormState, SignUpFormState, VerifyFormState } from '../types/formState';
 import { SignUpSchema } from '../schema/signUpSchema';
 import { VerifySchema } from '../schema/verifySchema';
+import { createSession } from '../session';
 
 export async function SignInFormAction(_state: SignInFormState, formData: FormData): Promise<SignInFormState> {
   const signInForm = SignInSchema.safeParse({
@@ -23,11 +24,21 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
 
   const data = await res.json();
 
+  console.log('data sign in:', data);
+
   if (!res.ok) {
     return {
       messages: data.message,
     };
   }
+
+  await createSession({
+    user: {
+      name: data.data.user.fullname,
+      email: data.data.user.email,
+    },
+    token: data.data.token,
+  });
 
   window.location.href = '/';
 }
@@ -36,8 +47,6 @@ export async function SignUpFormAction(_state: SignUpFormState, formData: FormDa
   const signUpForm = SignUpSchema.safeParse({
     email: formData.get('email'),
   });
-
-  console.log(signUpForm);
 
   if (!signUpForm.success) {
     return {
@@ -83,8 +92,6 @@ export async function VerifyFormAction(_state: VerifyFormState, formData: FormDa
     body: JSON.stringify(verifyForm.data),
   });
 
-  console.log(res);
-
   const data = await res.json();
   if (!res.ok) {
     return {
@@ -92,5 +99,14 @@ export async function VerifyFormAction(_state: VerifyFormState, formData: FormDa
     };
   }
 
-  window.location.href = '/';
+  await createSession({
+    user: {
+      name: data.name,
+      email: data.email,
+      avatarUrl: data.avatarUrl,
+    },
+    token: data.token,
+  });
+
+  window.location.href = '/auth/sign-in';
 }

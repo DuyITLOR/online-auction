@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/user', userRouter);
+app.use('/api/', userRouter);
 
 // Define routes
 routes(app);

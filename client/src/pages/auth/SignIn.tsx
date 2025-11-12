@@ -3,6 +3,7 @@ import { useActionState } from 'react';
 import { Button } from '../../components/ui/button';
 import { SignInFormAction } from '../../libs/actions/auth';
 import { supabase } from '../../libs/supabaseClient';
+import { CircleAlert } from 'lucide-react';
 
 const SignIn = () => {
   const [state, action] = useActionState(SignInFormAction, undefined);
@@ -10,7 +11,6 @@ const SignIn = () => {
   async function onGoogleSignIn() {
     try {
       const redirectTo = `${window.location.origin}/auth/callback`;
-      console.log('Chuyển hướng về:', redirectTo);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -63,6 +63,13 @@ const SignIn = () => {
 
               {state?.errors?.password && <p className='text-red-500 text-sm'>{state?.errors.password[0]}</p>}
             </div>
+
+            {state?.messages && (
+              <div className='w-full border border-red-300 rounded bg-[#fcc4c4] py-1 px-3 items-center flex gap-2'>
+                <CircleAlert className='w-5 h-5' color='red' />
+                <p className='text-red-500 font-semibold text-sm'>{state?.messages}</p>
+              </div>
+            )}
 
             <Button type='submit' className='bg-teal-600 text-white font-bold mt-2 hover:opacity-80 w-full'>
               Sign In

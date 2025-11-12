@@ -8,11 +8,7 @@ export const signIn = async (req: Request, res: Response) => {
   const password = req.body.password;
   const bidder = await service.getBidder(email);
   if (!bidder) {
-    const response = gatewayResponse(
-      400,
-      null,
-      'Email has not been registered'
-    );
+    const response = gatewayResponse(400, null, 'Email has not been registered');
     res.status(response.code).send(response);
     return;
   }
@@ -23,14 +19,11 @@ export const signIn = async (req: Request, res: Response) => {
     const isMatched = await service.comparePassword(password, bidder.password);
     if (isMatched) {
       const token = await service.generateToken(bidder.id, bidder.email);
-      const response = gatewayResponse(200, { token }, 'Welcome back');
+      const user = await service.getBidder(email);
+      const response = gatewayResponse(200, { token, user }, 'Welcome back');
       res.status(response.code).send(response);
     } else {
-      const response = gatewayResponse(
-        400,
-        null,
-        'Email or password is invalid'
-      );
+      const response = gatewayResponse(400, null, 'Email or password is invalid');
       res.status(response.code).send(response);
       return;
     }

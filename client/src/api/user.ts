@@ -1,4 +1,4 @@
-import { get } from "./api";
+import { get } from './api';
 
 interface User {
   id: string;
@@ -8,5 +8,5 @@ interface User {
 }
 
 export const getUser = async (userId: string) => {
-  return get<User>(`users/${userId}`);
-}
+  return get<User>(`api/user/${userId}`);
+};

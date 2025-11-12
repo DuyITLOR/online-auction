@@ -6,4 +6,6 @@ export const API_ROUTES = {
   signUp: '/sign-up',
   verifyEmail: '/verify-email',
   updateUser: '/update-user',
+
+  userById: '/user/:userId',
 };

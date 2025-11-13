@@ -2,10 +2,29 @@ import { Request, Response } from 'express';
 import { gatewayResponse } from '../utils/response';
 import { sendEmail } from '../utils/sendEmail';
 import * as service from '../services/authService';
+import axios from 'axios';
 
 export const signIn = async (req: Request, res: Response) => {
   const email = req.body.email;
   const password = req.body.password;
+  const recaptchaToken = req.body.recaptchaToken;
+
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY || '';
+
+  const params = new URLSearchParams();
+  params.append('secret', secretKey);
+  params.append('response', recaptchaToken);
+
+  const ggRes = await axios.post('https://www.google.com/recaptcha/api/siteverify', params);
+  const ggData = ggRes.data;
+
+  if (!ggData.success) {
+    return res.status(400).json({
+      message: 'Xác minh reCAPTCHA thất bại. Vui lòng thử lại.',
+      errors: ggData['error-codes'],
+    });
+  }
+
   const bidder = await service.getBidder(email);
   if (!bidder) {
     const response = gatewayResponse(400, null, 'Email has not been registered');

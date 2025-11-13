@@ -15,9 +15,10 @@ const Header = () => {
   useEffect(() => {
     const fetchSession = async () => {
       const s = await getSession();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const name = (s as any)?.user?.name ?? '';
       setLocalSession(name);
-      console.log('Session (from cookies):', localSession);
+      console.log('Session (from cookies):', s);
     };
     fetchSession();
   }, [localSession]);

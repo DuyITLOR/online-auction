@@ -4,6 +4,7 @@ export const API_ROUTES = {
 
   signIn: '/sign-in',
   signUp: '/sign-up',
+  signInViaGoogle: '/google/authentication',
   verifyEmail: '/verify-email',
   updateUser: '/update-user',
 

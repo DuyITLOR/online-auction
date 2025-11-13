@@ -28,5 +28,13 @@ Content-Type: application/json
 	"code": "SBUZZV"
 }
 
+###
+POST http://localhost:4000/google/authentication
+Content-Type: application/json
+
+{
+	"email": "dn156162@gmail.com",
+	"fullname": "thanhDang"
+}
 
 

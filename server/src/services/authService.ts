@@ -48,6 +48,7 @@ export const addNewBidder = async (
     return {
       success: true,
       message: user.id,
+      bidder: user,
     };
   } catch (err) {
     if (err instanceof Error) {

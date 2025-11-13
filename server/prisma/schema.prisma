@@ -42,49 +42,48 @@ model User {
   ratingNeg Int
   createdAt DateTime @default(now())
 
-
   // Other relationship
-  products Products[] @relation("SellerProducts")
+  products        Products[]        @relation("SellerProducts")
   upgradeRequests UpgradeRequests[]
-  comments Comments[]
-  autoBids AutoBids[]
-  watchList WatchList[]
-  chat Chat[]
-  blockedOn BlockedBidders[] @relation("BlockedUsers")
-  ratingsGiven     Ratings[]       @relation("RatingsGiven")
-  ratingsReceived  Ratings[]       @relation("RatingsReceived")
-  ordersAsSeller   Orders[]        @relation("OrdersSeller")
-  ordersAsBuyer    Orders[]        @relation("OrdersBuyer")
+  comments        Comments[]
+  autoBids        AutoBids[]
+  watchList       WatchList[]
+  chat            Chat[]
+  blockedOn       BlockedBidders[]  @relation("BlockedUsers")
+  ratingsGiven    Ratings[]         @relation("RatingsGiven")
+  ratingsReceived Ratings[]         @relation("RatingsReceived")
+  ordersAsSeller  Orders[]          @relation("OrdersSeller")
+  ordersAsBuyer   Orders[]          @relation("OrdersBuyer")
 }
 
 model Products {
-  id          String    @id @default(uuid())
-  sellerId   String
-  categoryId  String
-  title       String
-  description String
-  startPrice Decimal @db.Decimal(10, 2)
-  currentPrice Decimal? @db.Decimal(10, 2)
-  stepPrice  Decimal @db.Decimal(10, 2)
-  buyNowPrice Decimal @db.Decimal(10, 2)
-  autoExtendEnabled Boolean 
-  autoExtendMinutes Int @default(0)
-  startedAt DateTime
-  endAt DateTime
-  updatedAt DateTime @updatedAt
-  highRatingRequired Boolean   @default(false)
+  id                 String   @id @default(uuid())
+  sellerId           String
+  categoryId         String
+  title              String
+  description        String
+  startPrice         Decimal  @db.Decimal(10, 2)
+  currentPrice       Decimal? @db.Decimal(10, 2)
+  stepPrice          Decimal  @db.Decimal(10, 2)
+  buyNowPrice        Decimal  @db.Decimal(10, 2)
+  autoExtendEnabled  Boolean
+  autoExtendMinutes  Int      @default(0)
+  startedAt          DateTime
+  endAt              DateTime
+  updatedAt          DateTime @updatedAt
+  highRatingRequired Boolean  @default(false)
 
   // Other relationship
-  seller  User @relation("SellerProducts", fields: [sellerId], references: [id], onDelete: Cascade)
-  category Categories   @relation(fields: [categoryId], references: [id])
-  comments Comments[]
-  images  ProductImages[]
-  autoBids AutoBids[]
-  watchlistedBy WatchList[]
-  chat Chat[]
+  seller         User             @relation("SellerProducts", fields: [sellerId], references: [id], onDelete: Cascade)
+  category       Categories       @relation(fields: [categoryId], references: [id])
+  comments       Comments[]
+  images         ProductImages[]
+  autoBids       AutoBids[]
+  watchlistedBy  WatchList[]
+  chat           Chat[]
   blockedBidders BlockedBidders[]
-  ratings Ratings[]
-  order Orders?
+  ratings        Ratings[]
+  order          Orders?
 }
 
 model EmailVerification {
@@ -100,79 +99,75 @@ model EmailVerification {
 }
 
 model UpgradeRequests {
-  id String @id @default(uuid())
-  userId String 
-  status String
-  note   String?
-  createdAt DateTime @default(now())
+  id        String    @id @default(uuid())
+  userId    String
+  status    String
+  note      String?
+  createdAt DateTime  @default(now())
   decidedAt DateTime?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Categories {
+  id       String  @id @default(uuid())
+  name     String
+  parentId String?
 
-model Categories{
-  id        String   @id @default(uuid())
-  name      String
-  parentId  String?
-
-  parent Categories? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  parent   Categories?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children Categories[] @relation("CategoryHierarchy")
 
   products Products[]
 }
 
 model Comments {
-  id String @id @default(uuid())
+  id        String   @id @default(uuid())
   productId String
-  senderId String
-  parentId String?
-  content String
-  sendAt DateTime @default(now())
+  senderId  String
+  parentId  String?
+  content   String
+  sendAt    DateTime @default(now())
 
   product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
   sender  User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
-  parent   Comments?  @relation("CommentThread", fields: [parentId], references: [id])
-  replies  Comments[] @relation("CommentThread")
-
+  parent  Comments?  @relation("CommentThread", fields: [parentId], references: [id])
+  replies Comments[] @relation("CommentThread")
 }
 
-
 model ProductImages {
-  id String @id @default(uuid())
+  id        String @id @default(uuid())
   productId String
-  url String
+  url       String
   sortOrder Int
 
   product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model AutoBids {
-  id String @id @default(uuid())
+  id        String   @id @default(uuid())
   productId String
-  bidderId String
-  maxAmount Decimal @db.Decimal(10, 2)
+  bidderId  String
+  maxAmount Decimal  @db.Decimal(10, 2)
   createdAt DateTime @default(now())
 
   product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
   bidder  User     @relation(fields: [bidderId], references: [id], onDelete: Cascade)
 }
 
-
 model WatchList {
-  userId String
+  userId    String
   productId String
-  createAt DateTime @default(now())
+  createAt  DateTime @default(now())
 
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   // Primary key
   @@id([userId, productId])
 }
 
-model Chat{
+model Chat {
   id        String   @id @default(uuid())
   productId String
   senderId  String
@@ -182,7 +177,6 @@ model Chat{
   product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
   sender  User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
-
 
 model BlockedBidders {
   productId String
@@ -195,7 +189,6 @@ model BlockedBidders {
 
   @@id([productId, userId])
 }
-
 
 model Ratings {
   id        String   @id @default(uuid())

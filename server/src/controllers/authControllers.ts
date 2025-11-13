@@ -4,6 +4,19 @@ import { sendEmail } from '../utils/sendEmail';
 import * as service from '../services/authService';
 import axios from 'axios';
 
+interface Bidder {
+  id: string;
+  email: string;
+  fullname?: string;
+  // ...other fields
+}
+
+interface AddBidderResult {
+  success: boolean;
+  bidder?: Bidder | null;
+  message?: string;
+}
+
 export const signIn = async (req: Request, res: Response) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -27,7 +40,11 @@ export const signIn = async (req: Request, res: Response) => {
 
   const bidder = await service.getBidder(email);
   if (!bidder) {
-    const response = gatewayResponse(400, null, 'Email has not been registered');
+    const response = gatewayResponse(
+      400,
+      null,
+      'Email has not been registered'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -42,7 +59,11 @@ export const signIn = async (req: Request, res: Response) => {
       const response = gatewayResponse(200, { token, user }, 'Welcome back');
       res.status(response.code).send(response);
     } else {
-      const response = gatewayResponse(400, null, 'Email or password is invalid');
+      const response = gatewayResponse(
+        400,
+        null,
+        'Email or password is invalid'
+      );
       res.status(response.code).send(response);
       return;
     }
@@ -94,6 +115,64 @@ export const verifyEmail = async (req: Request, res: Response) => {
     }
   } else {
     const response = gatewayResponse(400, null, record.message);
+    res.status(response.code).send(response);
+  }
+};
+
+export const googleAuthentication = async (req: Request, res: Response) => {
+  try {
+    const email = req.body.email as string;
+    const fullname = req.body.fullname as string;
+
+    // đảm bảo service.getBidder trả về Promise<Bidder | null>
+    const bidder = (await service.getBidder(email)) as Bidder | null;
+
+    if (!bidder) {
+      // người dùng chưa tồn tại -> tạo mới
+      const code = service.generateCode(); // Gen temporary password
+      const hashed = await service.hashPassword(code);
+
+      // đảm bảo service.addNewBidder trả về AddBidderResult
+      const newBidder = (await service.addNewBidder(
+        email,
+        fullname,
+        hashed
+      )) as AddBidderResult;
+
+      if (newBidder.success && newBidder.bidder) {
+        // chắc chắn newBidder.bidder tồn tại
+        const token = await service.generateToken(newBidder.bidder.id, email);
+        const response = gatewayResponse(
+          200,
+          { token, fullname, email },
+          'User sign up'
+        );
+        res.status(response.code).send(response);
+        return;
+      }
+
+      // Nếu không thành công tạo user — trả lỗi
+      const response = gatewayResponse(
+        500,
+        null,
+        newBidder.message ?? 'Failed to create user'
+      );
+      res.status(response.code).send(response);
+      return;
+    }
+
+    // Nếu bidder đã tồn tại
+    // (đến đây bidder có kiểu Bidder)
+    const token = await service.generateToken(bidder.id, bidder.email);
+    const response = gatewayResponse(
+      200,
+      { token, fullname: bidder.fullname ?? fullname, email: bidder.email },
+      'Login successful'
+    );
+    res.status(response.code).send(response);
+  } catch (err) {
+    console.error('googleAuthentication error:', err);
+    const response = gatewayResponse(500, null, 'Internal server error');
     res.status(response.code).send(response);
   }
 };

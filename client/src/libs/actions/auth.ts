@@ -1,3 +1,4 @@
+'use server';
 import { SignInSchema } from '../schema/signInSchema';
 import type { SignInFormState, SignUpFormState, VerifyFormState } from '../types/formState';
 import { SignUpSchema } from '../schema/signUpSchema';
@@ -10,6 +11,14 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
     password: formData.get('password'),
   });
 
+  const token = formData.get('recaptcha') as string;
+
+  if (!token) {
+    return {
+      messages: 'Vui lòng hoàn thành reCAPTCHA.',
+    };
+  }
+
   if (!signInForm.success) {
     return {
       errors: signInForm.error.flatten().fieldErrors,
@@ -19,7 +28,7 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
   const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sign-in`, {
     method: 'Post',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(signInForm.data),
+    body: JSON.stringify({ ...signInForm.data, recaptchaToken: token }),
   });
 
   const data = await res.json();
@@ -31,6 +40,8 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
       messages: data.message,
     };
   }
+
+  console.log('data sign in user:', data.data.user);
 
   await createSession({
     user: {
@@ -108,5 +119,5 @@ export async function VerifyFormAction(_state: VerifyFormState, formData: FormDa
     token: data.token,
   });
 
-  window.location.href = '/auth/sign-in';
+  window.location.href = '/auth/signin';
 }

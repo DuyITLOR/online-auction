@@ -28,7 +28,10 @@ export const signIn = async (req: Request, res: Response) => {
   params.append('secret', secretKey);
   params.append('response', recaptchaToken);
 
-  const ggRes = await axios.post('https://www.google.com/recaptcha/api/siteverify', params);
+  const ggRes = await axios.post(
+    'https://www.google.com/recaptcha/api/siteverify',
+    params
+  );
   const ggData = ggRes.data;
 
   if (!ggData.success) {

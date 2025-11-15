@@ -6,118 +6,135 @@ import { VerifySchema } from '../schema/verifySchema';
 import { createSession } from '../session';
 
 export async function SignInFormAction(_state: SignInFormState, formData: FormData): Promise<SignInFormState> {
-  const signInForm = SignInSchema.safeParse({
-    email: formData.get('email'),
-    password: formData.get('password'),
-  });
+  try {
+    const signInForm = SignInSchema.safeParse({
+      email: formData.get('email'),
+      password: formData.get('password'),
+    });
 
-  const token = formData.get('recaptcha') as string;
+    const token = formData.get('recaptcha') as string;
 
-  if (!token) {
+    if (!token) {
+      return {
+        messages: 'Vui lòng hoàn thành reCAPTCHA.',
+      };
+    }
+
+    if (!signInForm.success) {
+      return {
+        errors: signInForm.error.flatten().fieldErrors,
+      };
+    }
+
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sign-in`, {
+      method: 'Post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...signInForm.data, recaptchaToken: token }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return {
+        messages: data.message,
+      };
+    }
+
+    await createSession({
+      user: {
+        name: data.data.user.fullname,
+        email: data.data.user.email,
+      },
+      token: data.data.token,
+    });
+
+    window.location.href = '/';
+  } catch (error) {
+    console.error('[auth-form][form-submit::sign-in]:', error);
     return {
-      messages: 'Vui lòng hoàn thành reCAPTCHA.',
+      messages: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.',
     };
   }
-
-  if (!signInForm.success) {
-    return {
-      errors: signInForm.error.flatten().fieldErrors,
-    };
-  }
-
-  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sign-in`, {
-    method: 'Post',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...signInForm.data, recaptchaToken: token }),
-  });
-
-  const data = await res.json();
-
-  console.log('data sign in:', data);
-
-  if (!res.ok) {
-    return {
-      messages: data.message,
-    };
-  }
-
-  console.log('data sign in user:', data.data.user);
-
-  await createSession({
-    user: {
-      name: data.data.user.fullname,
-      email: data.data.user.email,
-    },
-    token: data.data.token,
-  });
-
-  window.location.href = '/';
 }
 
 export async function SignUpFormAction(_state: SignUpFormState, formData: FormData): Promise<SignUpFormState> {
-  const signUpForm = SignUpSchema.safeParse({
-    email: formData.get('email'),
-  });
+  try {
+    const signUpForm = SignUpSchema.safeParse({
+      email: formData.get('email'),
+    });
 
-  if (!signUpForm.success) {
+    if (!signUpForm.success) {
+      return {
+        errors: signUpForm.error.flatten().fieldErrors,
+      };
+    }
+
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sign-up`, {
+      method: 'Post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(signUpForm.data),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      return {
+        messages: data.message,
+      };
+    }
+
+    window.location.href = '/auth/verify';
+  } catch (error) {
+    console.error('[auth-form][form-submit::sign-up]:', error);
     return {
-      errors: signUpForm.error.flatten().fieldErrors,
+      messages: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.',
     };
   }
-
-  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/sign-up`, {
-    method: 'Post',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(signUpForm.data),
-  });
-
-  const data = await res.json();
-  if (!res.ok) {
-    return {
-      messages: data.message,
-    };
-  }
-
-  window.location.href = '/auth/verify';
 }
 
 export async function VerifyFormAction(_state: VerifyFormState, formData: FormData): Promise<VerifyFormState> {
-  const verifyForm = VerifySchema.safeParse({
-    name: formData.get('name'),
-    email: formData.get('email'),
-    password: formData.get('password'),
-    code: formData.get('code'),
-  });
+  try {
+    const verifyForm = VerifySchema.safeParse({
+      name: formData.get('name'),
+      email: formData.get('email'),
+      password: formData.get('password'),
+      code: formData.get('code'),
+    });
 
-  console.log(verifyForm);
+    console.log(verifyForm);
 
-  if (!verifyForm.success) {
+    if (!verifyForm.success) {
+      return {
+        errors: verifyForm.error.flatten().fieldErrors,
+      };
+    }
+
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/verify-email`, {
+      method: 'Post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(verifyForm.data),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      return {
+        messages: data.message,
+      };
+    }
+
+    await createSession({
+      user: {
+        name: data.name,
+        email: data.email,
+        avatarUrl: data.avatarUrl,
+      },
+      token: data.token,
+    });
+
+    window.location.href = '/auth/signin';
+  } catch (error) {
+    console.error('[auth-form][form-submit::verify]:', error);
     return {
-      errors: verifyForm.error.flatten().fieldErrors,
+      messages: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.',
     };
   }
-
-  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/verify-email`, {
-    method: 'Post',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(verifyForm.data),
-  });
-
-  const data = await res.json();
-  if (!res.ok) {
-    return {
-      messages: data.message,
-    };
-  }
-
-  await createSession({
-    user: {
-      name: data.name,
-      email: data.email,
-      avatarUrl: data.avatarUrl,
-    },
-    token: data.token,
-  });
-
-  window.location.href = '/auth/signin';
 }

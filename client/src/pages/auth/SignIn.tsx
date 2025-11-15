@@ -1,16 +1,25 @@
 'use client';
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { Button } from '../../components/ui/button';
 import { SignInFormAction } from '../../libs/actions/auth';
 import { supabase } from '../../libs/supabaseClient';
 import { CircleAlert } from 'lucide-react';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { toast } from 'sonner';
 
 const SignIn = () => {
   const [state, action] = useActionState(SignInFormAction, undefined);
 
   const [captchaValue, setCaptchaValue] = useState(null);
-  const recaptchaRef = useRef(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+
+  useEffect(() => {
+    if (state?.errors || state?.messages) {
+      toast.error('Đăng nhập thất bại');
+      recaptchaRef.current?.reset();
+      setCaptchaValue(null);
+    }
+  }, [state]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleRecaptcha = (value: any) => {

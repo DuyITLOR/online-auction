@@ -1,4 +1,3 @@
-'use server';
 import { SignInSchema } from '../schema/signInSchema';
 import type { SignInFormState, SignUpFormState, VerifyFormState } from '../types/formState';
 import { SignUpSchema } from '../schema/signUpSchema';
@@ -39,6 +38,7 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
         messages: data.message,
       };
     }
+    console.log('data sign in:', data);
 
     await createSession({
       user: {

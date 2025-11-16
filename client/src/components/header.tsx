@@ -21,7 +21,7 @@ const Header = () => {
       console.log('Session (from cookies):', s);
     };
     fetchSession();
-  }, [localSession]);
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {

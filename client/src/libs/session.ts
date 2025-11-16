@@ -22,10 +22,11 @@ export async function createSession(payload: Session) {
     .setExpirationTime('2h')
     .sign(encoding);
 
+  console.log('session token:', session);
+
   console.log('payload session:', payload);
 
   Cookies.set('session', session, {
-    secure: true,
     sameSite: 'lax',
     path: '/',
   });

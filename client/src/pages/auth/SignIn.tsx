@@ -91,20 +91,6 @@ const SignIn = () => {
               </div>
             )}
 
-            <div className='flex justify-center mt-10 mb-5'>
-              <div
-                style={{
-                  transform: 'scale(1.355)',
-                }}
-              >
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
-                  onChange={handleRecaptcha}
-                />
-              </div>
-            </div>
-
             <Button
               disabled={!captchaValue}
               type='submit'
@@ -122,6 +108,14 @@ const SignIn = () => {
             <img src='/gg-logo.svg' width={18} height={18} />
             <span>Đăng nhập bằng Google</span>
           </Button>
+
+          <div className='flex justify-center mt-5 mb-5'>
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+              onChange={handleRecaptcha}
+            />
+          </div>
 
           <div className='flex items-center gap-1 justify-center'>
             <h3 className='font-semibold text-sm'>Bạn mới biết đến Ebay? </h3>

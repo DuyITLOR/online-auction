@@ -10,7 +10,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:reset": "prisma migrate reset --force",
-    "prisma:update": "pnpm run prisma:generate && pnpm run prisma:migrate"
+    "prisma:update": "pnpm run prisma:generate && pnpm run prisma:migrate",
+    "db:seed": "pnpm exec tsx src/services/db/seed.ts"
   },
   "keywords": [],
   "author": "",

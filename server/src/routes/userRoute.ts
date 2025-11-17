@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getUserById, getUserIdByEmail } from '../controllers/userController';
-import { API_ROUTES } from '../utils/apiRoutes';
+import { API_ROUTES } from '../utils/permission';
 
 const router = Router();
 

@@ -1,7 +1,7 @@
 import type { Application } from 'express';
 import { PrismaClient } from '@prisma/client';
 
-import { API_ROUTES } from '../utils/apiRoutes';
+import { API_ROUTES } from '../utils/permission';
 import auth from './authentication';
 import test from './test';
 

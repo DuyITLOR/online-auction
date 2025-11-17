@@ -3,7 +3,7 @@ import {
   productQueryDto,
   updateProductDto,
 } from "../dto/productDto";
-import { prisma } from "../services/db/prisma";
+import { prisma } from "./db/prisma";
 import { Prisma } from "@prisma/client";
 
 export const createProduct = async (id: string, data: createProductDto) => {

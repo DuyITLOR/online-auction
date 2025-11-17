@@ -1,14 +1,21 @@
-import { dmmfToRuntimeDataModel } from "@prisma/client/runtime/library";
 import * as productService from "../services/productService";
 import { Request, Response } from "express";
-import { productQueryDto } from "../dto/productDto";
+import { productQueryDto, updateProductDto } from "../dto/productDto";
+import { uploadImagesToSupabase } from "../services/uploadImageService";
+import { uploadedImageDto } from "../dto/uploadImageDto";
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
     const sellerId = req.user!.id;
     const body = req.body;
-    
-    const result = await productService.createProduct(sellerId, body);
+    const files = req.files as Express.Multer.File[] | undefined;
+
+    const uploadedImages = await uploadImagesToSupabase(files, "products");
+
+    const result = await productService.createProduct(sellerId, {
+      ...body,
+      images: uploadedImages,
+    });
 
     res.status(201).json({
       success: true,
@@ -52,8 +59,21 @@ export const updateProduct = async (req: Request, res: Response) => {
   try {
     const productId = req.params.id;
     const body = req.body;
+    const files = req.files as Express.Multer.File[] | undefined;
 
-    const result = await productService.updateProduct(productId, body);
+    let uploadedImages: uploadedImageDto[] = [];
+
+    if (files && files.length > 0) {
+      uploadedImages = await uploadImagesToSupabase(files, "products");
+    }
+
+    const payload: Partial<updateProductDto> = {
+      ...body,
+      ...(uploadedImages.length > 0 && { images: uploadedImages }),
+    };
+
+    const result = await productService.updateProduct(productId, payload);
+
     res.status(200).json({
       success: true,
       message: "Product updated successfully",

@@ -17,7 +17,6 @@ export interface createProductDto {
   images: productImageDto[];
 }
 
-
 export interface updateProductDto {
   sellerId?: string;   
   categoryId?: string;
@@ -34,8 +33,6 @@ export interface updateProductDto {
 
   images?: productImageDto[];
 }
-
-
 
 export interface productQueryDto {
   q?: string; // Full-text search

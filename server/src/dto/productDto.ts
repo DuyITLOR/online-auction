@@ -1,6 +1,6 @@
-import { ProductImageDto } from "./productImageDto";
+import { productImageDto } from "./productImageDto";
 
-export interface CreateProductDto {
+export interface createProductDto {
   sellerId: string;
   categoryId: string;
   title: string;
@@ -14,11 +14,11 @@ export interface CreateProductDto {
   autoExtendMinutes?: number;
   highRatingRequired?: boolean;
 
-  images: ProductImageDto[];
+  images: productImageDto[];
 }
 
 
-export interface UpdateProductDTO {
+export interface updateProductDto {
   sellerId?: string;   
   categoryId?: string;
   title?: string;
@@ -32,16 +32,15 @@ export interface UpdateProductDTO {
   autoExtendMinutes?: number;
   highRatingRequired?: boolean;
 
-  images?: ProductImageDto[];
+  images?: productImageDto[];
 }
 
 
 
-export interface ProductQueryDTO {
+export interface productQueryDto {
   q?: string; // Full-text search
   categoryId?: string;
   page?: string; // query params to pagination
   limit?: string;
-  sort?: string; // "price_asc", "price_desc", "endAt_asc", "endAt_desc", "createdAt_desc"
-  highlightMinutes?: string; // Filter: new product
+  sort?: string; // "price_asc", "price_desc", "endAt_asc", "endAt_desc", "startedAt_desc"
 }

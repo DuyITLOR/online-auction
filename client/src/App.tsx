@@ -6,6 +6,7 @@ import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import Verify from './pages/auth/Verify';
 import ProductList from './pages/product/productList';
+import AdminDashboard from './pages/admin/Dashboard';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -16,6 +17,7 @@ const router = createBrowserRouter(
       <Route path='auth/verify' element={<Verify />} />
       <Route path='products' element={<ProductList />} />
       <Route path='auth/callback' element={<AuthCallback />} />
+      <Route path= 'admin/dashboard' element={<AdminDashboard />} />
     </Route>
   )
 );

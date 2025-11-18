@@ -1,38 +1,39 @@
-import { Request, Response } from 'express';
-import { findUserByEmail, findUserById } from '../services/userService';
+import { Request, response, Response } from 'express';
+import { gatewayResponse } from '../utils/response';
+import * as service from '../services/userService';
+import { uploadSingleFile } from '../utils/uploadImage';
 
-export async function getUserIdByEmail(req: Request, res: Response) {
-  try {
-    const email = (req.body?.email as string | undefined)?.trim().toLowerCase();
-    if (!email) {
-      return res.status(400).json({ message: 'Email is required' });
-    }
-
-    const user = await findUserByEmail(email);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    return res.json({ id: user.id, email: user.email });
-  } catch (err) {
-    console.error('Error finding user by email:', err);
-    return res.status(500).json({ message: 'Internal Server Error' });
+export const getUserById = async (req: Request, res: Response) => {
+  if (!req.user) {
+    const response = gatewayResponse(400, null, 'Token Invalid');
+    res.status(response.code).send(response);
+    return;
   }
-}
-
-export async function getUserById(req: Request, res: Response) {
-  const { userId } = req.params;
-
-  console.log('user id', userId);
-  try {
-    const user = await findUserById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    return res.json({ id: user.id, email: user.email, name: user.fullname });
-  } catch (err) {
-    console.error('Error finding user by ID:', err);
-    return res.status(500).json({ message: 'Internal Server Error' });
+  const id = req.user.id;
+  const record = await service.getUserById(id);
+  if (record.success) {
+    const response = gatewayResponse(
+      200,
+      {
+        user: record.user,
+      },
+      'Get user'
+    );
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(400, null, 'Bad request');
+    res.status(response.code).send(response);
   }
-}
+};
+
+export const updateUser = async (req: Request, res: Response) => {
+  if (!req.user) {
+    const response = gatewayResponse(400, null, 'Token Invalid');
+    res.status(response.code).send(response);
+    return;
+  }
+  const record = await uploadSingleFile(req, 'avatar');
+  if (!record.success) console.log(record.fileUrl);
+  res.status(200);
+  // res.status(200).send(req.body.fullname);
+};

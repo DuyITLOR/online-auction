@@ -1,7 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import * as repo from '../repositories/authRepo';
+import { prisma } from './db/prisma';
+import { emailVerificationDto } from '../dto/authenticationDto';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -20,7 +21,7 @@ export const comparePassword = async (
 };
 
 export const getBidder = async (email: string) => {
-  return await repo.getUserByEmail(email);
+  return await getUserByEmail(email);
 };
 
 export const generateToken = async (id: string, email: string) => {
@@ -34,17 +35,18 @@ export const generateToken = async (id: string, email: string) => {
 };
 
 export const checkExistEmail = async (email: string) => {
-  const user = await repo.getUserByEmail(email);
+  const user = await getUserByEmail(email);
   return user ? true : false;
 };
 
 export const addNewBidder = async (
   email: string,
   fullname: string,
-  password: string
+  password: string,
+  avtUrl: string
 ) => {
   try {
-    const user = await repo.addBidder(email, fullname, password);
+    const user = await addBidder(email, fullname, password, avtUrl);
     return {
       success: true,
       message: user.id,
@@ -64,23 +66,29 @@ export const addNewBidder = async (
   }
 };
 
-export const updateUser = async (
-  email: string,
-  fullname: string,
-  passwordHashed: string
-) => {
-  try {
-    await repo.updateUser(email, fullname, passwordHashed);
-    return true;
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-};
+// export const updateUser = async (
+//   email: string,
+//   fullname: string,
+//   passwordHashed: string
+// ) => {
+//   try {
+//     await updateUser(email, fullname, passwordHashed);
+//     return true;
+//   } catch (err) {
+//     console.log(err);
+//     return false;
+//   }
+// };
 
-export const addEmailVerification = async (code: string, email: string) => {
+export const addEmailVerification = async (data: emailVerificationDto) => {
   try {
-    const infor = await repo.createEmailVerification(email, code);
+    await prisma.emailVerification.create({
+      data: {
+        email: data.email,
+        code: data.code,
+        expiresAt: data.expiresAt,
+      },
+    });
     return {
       success: true,
       message: 'create varification',
@@ -100,7 +108,10 @@ export const addEmailVerification = async (code: string, email: string) => {
 };
 
 export const verifyCode = async (code: string, email: string) => {
-  const infor = await repo.getVerification(email);
+  const infor = await prisma.emailVerification.findFirst({
+    where: { email },
+    orderBy: { createdAt: 'desc' },
+  });
   const now = new Date();
   if (!infor?.expiresAt) {
     return {
@@ -109,14 +120,14 @@ export const verifyCode = async (code: string, email: string) => {
     };
   }
   if (now > infor.expiresAt) {
-    await repo.updateVerificationFailed(infor.id);
+    await updateVerificationFailed(infor.id);
     return {
       success: false,
       message: 'expired code',
     };
   }
   if (code === infor.code) {
-    await repo.updateVerificationSuccess(infor.id);
+    await updateVerificationSuccess(infor.id);
     return {
       success: true,
       message: 'Valid code',
@@ -137,3 +148,99 @@ export function generateCode(): string {
   }
   return code;
 }
+
+export const getUserByEmail = async (email: string) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+  return user;
+};
+
+export const addBidder = async (
+  email: string,
+  fullname: string,
+  password: string,
+  avtUrl: string
+) => {
+  const user = await prisma.user.create({
+    data: {
+      email,
+      fullname,
+      password,
+      avtUrl,
+      role: 'BIDDER',
+      ratingPos: 0,
+      ratingNeg: 0,
+    },
+  });
+  return user;
+};
+
+// export const createEmailVerification = async (email: string, code: string) => {
+//   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+//   await prisma.emailVerification.updateMany({
+//     where: {
+//       email,
+//       status: 'NOTYET',
+//     },
+//     data: {
+//       status: 'FAILED',
+//     },
+//   });
+
+//   const record = await prisma.emailVerification.create({
+//     data: {
+//       email,
+//       code,
+//       expiresAt,
+//     },
+//   });
+//   return record;
+// };
+
+const updateVerificationFailed = async (id: string) => {
+  await prisma.emailVerification.update({
+    where: {
+      id,
+    },
+    data: {
+      status: 'FAILED',
+    },
+  });
+};
+
+const updateVerificationSuccess = async (id: string) => {
+  await prisma.emailVerification.update({
+    where: {
+      id,
+    },
+    data: {
+      status: 'SUCCESS',
+    },
+  });
+};
+
+const getVerification = async (email: string) => {
+  const record = await prisma.emailVerification.findFirst({
+    where: { email },
+    orderBy: { createdAt: 'desc' },
+  });
+  return record;
+};
+
+const updateUser = async (
+  email: string,
+  fullname: string,
+  password: string
+) => {
+  await prisma.user.update({
+    where: {
+      email,
+    },
+    data: {
+      fullname,
+      password,
+    },
+  });
+};

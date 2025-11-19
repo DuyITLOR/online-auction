@@ -1,14 +1,25 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import { prisma } from './db/prisma';
+import { updateUserDto } from '../dto/userDto';
 
-export async function findUserById(userId: string) {
-  return prisma.user.findUnique({
-    where: { id: userId },
-  });
-}
+export const getUserById = async (id: string) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+    return {
+      success: true,
+      user: user,
+    };
+  } catch (err) {
+    console.error('Error from userService: ', err);
+    return {
+      success: false,
+    };
+  }
+};
 
-export async function findUserByEmail(email: string) {
-  return prisma.user.findUnique({
-    where: { email },
-  });
-}
+export const updateUser = async (id: string, Data: updateUserDto) => {
+  console.log('hello from user');
+};

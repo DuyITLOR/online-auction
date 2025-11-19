@@ -1,5 +1,3 @@
-import { response } from 'express';
-
 enum Role {
   ADMIN = 'ADMIN',
   BIDDER = 'BIDDER',
@@ -50,6 +48,20 @@ export const API_ROUTES = {
     },
   },
 
-  userById: '/user/:userId',
-  updateUser: '/update-user',
+  getUserById: {
+    path: '/user',
+    role: [Role.BIDDER, Role.ADMIN, Role.SELLER],
+    method: 'GET',
+    request: {},
+  },
+  updateUser: {
+    path: '/user/update',
+    role: [Role.BIDDER, Role.ADMIN, Role.SELLER],
+    method: 'POST',
+    request: {
+      fullname: 'string',
+      password: 'string',
+      avtUrl: 'string',
+    },
+  },
 };

@@ -36,6 +36,7 @@ model User {
   id        String   @id @default(uuid())
   fullname  String?
   email     String   @unique
+  avtUrl    String
   password  String?
   role      Role
   ratingPos Int

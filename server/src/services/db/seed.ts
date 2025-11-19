@@ -131,6 +131,8 @@ if (args.includes('user') || seedAll) {
           fullname: u.fullname,
           email: u.email,
           password: u.password,
+          avtUrl:
+            'https://lqxrdsayuzjybccsuhmb.supabase.co/storage/v1/object/public/images/avatar/765-default-avatar.png',
           role: u.role,
           ratingPos: u.ratingPos,
           ratingNeg: u.ratingNeg,

@@ -4,19 +4,6 @@ import { sendEmail } from '../utils/sendEmail';
 import * as service from '../services/authService';
 import axios from 'axios';
 
-interface Bidder {
-  id: string;
-  email: string;
-  fullname?: string;
-  // ...other fields
-}
-
-interface AddBidderResult {
-  success: boolean;
-  bidder?: Bidder | null;
-  message?: string;
-}
-
 export const signIn = async (req: Request, res: Response) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -90,7 +77,12 @@ export const signUp = async (req: Request, res: Response) => {
     content: code,
   });
   if (record.success) {
-    const _ = await service.addEmailVerification(code, email);
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    const _ = await service.addEmailVerification({
+      code,
+      email,
+      expiresAt,
+    });
     const response = gatewayResponse(200, null, record.message);
     res.status(response.code).send(response);
   } else {
@@ -105,9 +97,11 @@ export const verifyEmail = async (req: Request, res: Response) => {
   const password = req.body.password;
   const hashed = await service.hashPassword(password);
   const fullname = req.body.fullname;
+  const avtUrl =
+    'https://lqxrdsayuzjybccsuhmb.supabase.co/storage/v1/object/public/images/avatar/765-default-avatar.png';
   const record = await service.verifyCode(code, email);
   if (record.success) {
-    const bidder = await service.addNewBidder(email, fullname, hashed);
+    const bidder = await service.addNewBidder(email, fullname, hashed, avtUrl);
     const token = await service.generateToken(bidder.message, email); // message here = id of bidder
     if (bidder.success) {
       const response = gatewayResponse(200, { token }, bidder.message);
@@ -128,7 +122,7 @@ export const googleAuthentication = async (req: Request, res: Response) => {
     const fullname = req.body.fullname as string;
 
     // đảm bảo service.getBidder trả về Promise<Bidder | null>
-    const bidder = (await service.getBidder(email)) as Bidder | null;
+    const bidder = await service.getBidder(email);
 
     if (!bidder) {
       // người dùng chưa tồn tại -> tạo mới
@@ -139,8 +133,9 @@ export const googleAuthentication = async (req: Request, res: Response) => {
       const newBidder = (await service.addNewBidder(
         email,
         fullname,
-        hashed
-      )) as AddBidderResult;
+        hashed,
+        'https://lqxrdsayuzjybccsuhmb.supabase.co/storage/v1/object/public/images/avatar/765-default-avatar.png'
+      ))
 
       if (newBidder.success && newBidder.bidder) {
         // chắc chắn newBidder.bidder tồn tại
@@ -176,21 +171,6 @@ export const googleAuthentication = async (req: Request, res: Response) => {
   } catch (err) {
     console.error('googleAuthentication error:', err);
     const response = gatewayResponse(500, null, 'Internal server error');
-    res.status(response.code).send(response);
-  }
-};
-
-export const updateUser = async (req: Request, res: Response) => {
-  const email = req.body.email;
-  const fullname = req.body.fullname;
-  const password = req.body.password;
-  const hashed = await service.hashPassword(password);
-  const record = await service.updateUser(email, fullname, hashed);
-  if (record) {
-    const response = gatewayResponse(200, null, 'Updated');
-    res.status(response.code).send(response);
-  } else {
-    const response = gatewayResponse(200, null, 'Update Failed');
     res.status(response.code).send(response);
   }
 };

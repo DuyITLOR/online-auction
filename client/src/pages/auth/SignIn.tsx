@@ -79,7 +79,7 @@ const SignIn = () => {
 
           <a
             href={`${import.meta.env.VITE_BACKEND_URL}/auth/google`}
-            className='font-bold mt-2 hover:opacity-80 bg-white border border-gray-300'
+            className='flex items-center justify-center gap-2 rounded-md h-10 text-sm font-bold mt-2 hover:opacity-80 bg-white border border-gray-300'
           >
             <img src='/gg-logo.svg' width={18} height={18} />
             <span>Đăng nhập bằng Google</span>

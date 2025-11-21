@@ -188,7 +188,7 @@ export const googleCallback = async (req: Request, res: Response) => {
       email: profile?.emails?.[0]?.value,
       fullname: profile?.displayName ?? `${profile?.name?.givenName ?? ''} ${profile?.name?.familyName ?? ''}`.trim(),
       avtUrl:
-        profile?.photos?.[0]?.value ||
+        profile?._json.picture ||
         'https://lqxrdsayuzjybccsuhmb.supabase.co/storage/v1/object/public/images/avatar/765-default-avatar.png',
     });
 

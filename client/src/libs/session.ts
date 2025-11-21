@@ -22,10 +22,6 @@ export async function createSession(payload: Session) {
     .setExpirationTime('2h')
     .sign(encoding);
 
-  console.log('session token:', session);
-
-  console.log('payload session:', payload);
-
   Cookies.set('session', session, {
     sameSite: 'lax',
     path: '/',
@@ -35,6 +31,7 @@ export async function createSession(payload: Session) {
 export async function getSession() {
   const session = Cookies.get('session');
 
+  console.log('session in session', session);
   if (!session) return null;
 
   try {
@@ -46,6 +43,6 @@ export async function getSession() {
   }
 }
 
-export async function clearSession() {
+export function clearSession() {
   Cookies.remove('session', { path: '/' });
 }

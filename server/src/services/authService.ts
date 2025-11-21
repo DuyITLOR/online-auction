@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { prisma } from './db/prisma';
-import { emailVerificationDto } from '../dto/authenticationDto';
+import { emailVerificationDto, profileDto } from '../dto/authenticationDto';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -12,10 +12,7 @@ export const hashPassword = async (password: string) => {
   return hashed;
 };
 
-export const comparePassword = async (
-  plainPassword: string,
-  hashedPassword: string
-) => {
+export const comparePassword = async (plainPassword: string, hashedPassword: string) => {
   const isMatch = await bcrypt.compare(plainPassword, hashedPassword);
   return isMatch;
 };
@@ -39,12 +36,7 @@ export const checkExistEmail = async (email: string) => {
   return user ? true : false;
 };
 
-export const addNewBidder = async (
-  email: string,
-  fullname: string,
-  password: string,
-  avtUrl: string
-) => {
+export const addNewBidder = async (email: string, fullname: string, password: string, avtUrl: string) => {
   try {
     const user = await addBidder(email, fullname, password, avtUrl);
     return {
@@ -156,12 +148,7 @@ export const getUserByEmail = async (email: string) => {
   return user;
 };
 
-export const addBidder = async (
-  email: string,
-  fullname: string,
-  password: string,
-  avtUrl: string
-) => {
+export const addBidder = async (email: string, fullname: string, password: string, avtUrl: string) => {
   const user = await prisma.user.create({
     data: {
       email,
@@ -229,11 +216,7 @@ const getVerification = async (email: string) => {
   return record;
 };
 
-const updateUser = async (
-  email: string,
-  fullname: string,
-  password: string
-) => {
+const updateUser = async (email: string, fullname: string, password: string) => {
   await prisma.user.update({
     where: {
       email,
@@ -243,4 +226,22 @@ const updateUser = async (
       password,
     },
   });
+};
+
+export const signInWithGoogle = async (profile: profileDto) => {
+  const email = profile.email;
+  const avtUrl = profile.avtUrl;
+  let bidder = await getBidder(email);
+  if (!bidder) {
+    const code = generateCode(); // Gen temporary password
+    const hashed = await hashPassword(code);
+    bidder = await addBidder(email, profile.fullname, hashed, avtUrl);
+  }
+
+  const token = await generateToken(bidder.id, bidder.email);
+
+  return {
+    bidder,
+    token,
+  };
 };

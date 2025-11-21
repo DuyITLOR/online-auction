@@ -1,3 +1,6 @@
+import { verify } from 'crypto';
+import { googleCallback } from '../controllers/authControllers';
+
 enum Role {
   ADMIN = 'ADMIN',
   BIDDER = 'BIDDER',
@@ -28,13 +31,15 @@ export const API_ROUTES = {
     },
   },
   signInViaGoogle: {
-    path: '/google/authentication',
+    path: '/auth/google',
     role: [Role.ALL],
-    method: 'POST',
-    request: {
-      email: 'string',
-      fullname: 'string',
-    },
+    method: 'GET',
+  },
+
+  googleCallback: {
+    path: '/auth/google/callback',
+    role: [Role.ALL],
+    method: 'GET',
   },
   verifyEmail: {
     path: '/verify-email',
@@ -48,12 +53,19 @@ export const API_ROUTES = {
     },
   },
 
+  verifyToken: {
+    path: '/auth/verify-token',
+    role: [Role.ALL], 
+    method: 'GET'
+  },
+
   getUserById: {
     path: '/user',
     role: [Role.BIDDER, Role.ADMIN, Role.SELLER],
     method: 'GET',
     request: {},
   },
+
   updateUser: {
     path: '/user/update',
     role: [Role.BIDDER, Role.ADMIN, Role.SELLER],

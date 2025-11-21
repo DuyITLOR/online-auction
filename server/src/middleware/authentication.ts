@@ -14,13 +14,13 @@ export interface JwtPayloadCustom extends JwtPayload {
 }
 
 // Mở rộng interface Request của Express để thêm trường `user`
-// declare global {
-//   namespace Express {
-//     interface Request {
-//       user?: JwtPayloadCustom;
-//     }
-//   }
-// }
+declare global {
+  namespace Express {
+    interface Request {
+      user?: JwtPayloadCustom;
+    }
+  }
+}
 
 // Middleware xác thực JWT
 export const authMiddleware = (

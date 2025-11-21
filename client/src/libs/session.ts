@@ -7,7 +7,7 @@ const encoding = new TextEncoder().encode(secretKet);
 export type UserSession = {
   name: string;
   email: string;
-  avatarUrl?: string;
+  avatarUrl: string | undefined;
 };
 
 export type Session = {

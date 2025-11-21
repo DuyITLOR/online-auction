@@ -1,52 +1,25 @@
-import { Link } from 'react-router-dom';
-import { useAuth } from '../layouts/AuthLayout';
-import { supabase } from '../libs/supabaseClient';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
-import { getUser } from '../api/user';
+import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
-import { clearSession, getSession } from '../libs/session';
+import { getSession } from '../libs/session';
 
 const Header = () => {
-  const { session } = useAuth();
-  const [currentUser, setCurrentUser] = useState({ name: '' });
-  const [localSession, setLocalSession] = useState('');
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
-    const fetchSession = async () => {
-      const s = await getSession();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const name = (s as any)?.user?.name ?? '';
-      setLocalSession(name);
-      console.log('Session (from cookies):', s);
-    };
+    async function fetchSession() {
+      const sess = await getSession();
+      setSession(sess);
+    }
     fetchSession();
   }, []);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      console.log('Session (from supabase):', session?.user?.id);
-      if (session?.user?.id) {
-        const userFetch = await getUser(session.user.id);
-        setCurrentUser(userFetch);
-      }
-    };
-
-    fetchUser();
-  }, [session]);
-
-  async function onSignOut() {
-    const { error } = await supabase.auth.signOut();
-    await clearSession();
-    setLocalSession('');
-    if (error) {
-      console.error('Lỗi khi đăng xuất:', error);
-    } else {
-      console.log('Đã đăng xuất!');
-    }
-  }
-
-  const isLoggedIn = !!session || !!localSession;
+  const onSignOut = () => {
+    localStorage.removeItem('session'); // hoặc logic sign out của bạn
+    setSession(null);
+  };
 
   return (
     <header className='sticky top-0 z-50 border-b border-b-gray-200 bg-white'>
@@ -63,7 +36,7 @@ const Header = () => {
           />
         </div>
 
-        {!isLoggedIn ? (
+        {!session ? (
           <div className='flex gap-2 items-center ml-3'>
             <Link to='/auth/signin'>
               <button className='border border-gray-300 px-1 text-sm font-semibold h-10 rounded-md bg-slate-200'>
@@ -79,16 +52,18 @@ const Header = () => {
           </div>
         ) : (
           <div className='flex gap-2 items-center ml-3'>
-            {currentUser.name && <span className='font-semibold'>Xin chào, {currentUser.name}</span>}
-
-            {localSession && <span className='font-semibold'>Xin chào, {localSession}</span>}
+            <span className='font-semibold'>Xin chào, {session.user?.name}</span>
 
             <Button variant={'ghost'} className='underline' onClick={onSignOut}>
               Đăng xuất
             </Button>
             <Avatar>
-              <AvatarImage src='/gg-logo.svg' alt='User Avatar' className='border border-gray-400 rounded-full' />
-              <AvatarFallback>{localSession?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
+              <AvatarImage
+                src={session.user?.avatar || '/gg-logo.svg'}
+                alt='User Avatar'
+                className='border border-gray-400 rounded-full'
+              />
+              <AvatarFallback>{session.user?.name?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
             </Avatar>
           </div>
         )}

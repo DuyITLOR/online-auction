@@ -2,7 +2,6 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { Button } from '../../components/ui/button';
 import { SignInFormAction } from '../../libs/actions/auth';
-import { supabase } from '../../libs/supabaseClient';
 import { CircleAlert } from 'lucide-react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { toast } from 'sonner';
@@ -26,28 +25,6 @@ const SignIn = () => {
     setCaptchaValue(value);
   };
 
-  async function onGoogleSignIn() {
-    try {
-      const redirectTo = `${window.location.origin}/auth/callback`;
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectTo,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      });
-      if (error) {
-        console.error('[auth-form][form-submit::google]:', error);
-        alert('Đã xảy ra lỗi khi đăng nhập: ' + error.message);
-      }
-    } catch (error) {
-      console.error('[auth-form][form-submit::google]:', error);
-    }
-  }
   return (
     <div className='min-h-screen flex items-center'>
       <div className='w-[450px] mx-auto'>
@@ -100,14 +77,13 @@ const SignIn = () => {
             </Button>
           </form>
 
-          <Button
-            onClick={onGoogleSignIn}
-            variant='outline'
+          <a
+            href={`${import.meta.env.VITE_BACKEND_URL}/auth/google`}
             className='font-bold mt-2 hover:opacity-80 bg-white border border-gray-300'
           >
             <img src='/gg-logo.svg' width={18} height={18} />
             <span>Đăng nhập bằng Google</span>
-          </Button>
+          </a>
 
           <div className='flex justify-center mt-5 mb-5'>
             <ReCAPTCHA

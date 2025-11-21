@@ -15,7 +15,7 @@ const router = createBrowserRouter(
       <Route path='auth/signup' element={<SignUp />} />
       <Route path='auth/verify' element={<Verify />} />
       <Route path='products' element={<ProductList />} />
-      <Route path='auth/callback' element={<AuthCallback />} />
+      <Route path='auth/google/callback' element={<AuthCallback />} />
     </Route>
   )
 );

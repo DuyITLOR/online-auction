@@ -14,7 +14,7 @@ router.get(
 router.post(
   API_ROUTES.updateUser.path,
   authMiddleware,
-  upload.array('images', 10),
+  upload.single('avatar'),
   controllers.updateUser
 );
 

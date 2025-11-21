@@ -9,10 +9,12 @@
     "start:worker": "node --loader ts-node/esm src/workers/expireWorker.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
     "prisma:reset": "prisma migrate reset --force",
     "prisma:update": "pnpm run prisma:generate && pnpm run prisma:migrate",
-    "db:seed": "pnpm exec tsx src/services/db/seed.ts"
+    "db:seed": "pnpm exec tsx src/services/db/seed.ts",
+    "check": "pnpm exec tsx src/utils/checkRole.ts"
   },
   "keywords": [],
   "author": "",
@@ -31,9 +33,14 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.10",
+<<<<<<< Updated upstream
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "resend": "^6.4.2"
+=======
+    "resend": "^6.4.2",
+    "slugify": "^1.6.6"
+>>>>>>> Stashed changes
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

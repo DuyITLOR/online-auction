@@ -28,12 +28,31 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   if (!req.user) {
-    const response = gatewayResponse(400, null, 'Token Invalid');
-    res.status(response.code).send(response);
-    return;
+    return res.status(401).json({
+      success: false,
+      message: 'Token invalid',
+    });
   }
-  const record = await uploadSingleFile(req, 'avatar');
-  if (!record.success) console.log(record.fileUrl);
-  res.status(200);
-  // res.status(200).send(req.body.fullname);
+
+  const avt = await uploadSingleFile(req, 'avatar');
+  const avtUrl = avt.fileUrl;
+  const fullname = req.body.fullname;
+  const record = await service.updateUser(req.user.id, {
+    fullname,
+    avtUrl,
+  });
+  if (record.success) {
+    const response = gatewayResponse(
+      200,
+      // {
+      //   data: record.data ?? null,
+      // },
+      null,
+      'update user'
+    );
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(400, null, 'Bad request');
+    res.status(response.code).send(response);
+  }
 };

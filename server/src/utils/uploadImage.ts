@@ -46,24 +46,26 @@ export const uploadSingleFile = async (req: Request, folder: string) => {
       message: 'No file included',
     };
   }
-  const timestamp = Date.now();
-  const uniqueFileName = `${timestamp}-${file.originalname}`;
-  const { data, error } = await supabase.storage
-    .from(folder)
-    .upload(`public/${uniqueFileName}`, file.buffer, {
+  const ext = file.originalname.split('.').pop();
+  const fileName = `${folder}/${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from('images')
+    .upload(fileName, file.buffer, {
       contentType: file.mimetype,
-      upsert: false, // Not overwrite if file already exists
     });
+
   if (error) {
+    console.error('Upload error:', error);
     return {
       success: false,
-      message: error.message,
+      message: 'Upload to supabase unsuccessful',
     };
   }
-  const fileUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/${folder}/${data.path}`;
+  const { data } = supabase.storage.from('images').getPublicUrl(fileName);
   return {
     success: true,
-    fileUrl: fileUrl,
+    fileUrl: data.publicUrl,
     message: 'Upload file successful',
   };
 };

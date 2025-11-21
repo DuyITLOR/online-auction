@@ -13,13 +13,52 @@ export const getUserById = async (id: string) => {
       user: user,
     };
   } catch (err) {
-    console.error('Error from userService: ', err);
+    console.error('Error from userService:', err);
+
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
     return {
       success: false,
+      message: 'Unknown error',
     };
   }
 };
 
 export const updateUser = async (id: string, Data: updateUserDto) => {
-  console.log('hello from user');
+  try {
+    const { fullname, avtUrl } = Data;
+    const data = {
+      ...(fullname !== undefined && { fullname }),
+      ...(avtUrl !== undefined && { avtUrl }),
+    };
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: data,
+    });
+    return {
+      success: true,
+      data: updated,
+      message: 'Update successful',
+    };
+  } catch (err) {
+    console.error('Error from userService:', err);
+
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Unknown error',
+    };
+  }
 };

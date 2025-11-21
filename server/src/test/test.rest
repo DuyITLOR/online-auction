@@ -1,2 +1,9 @@
 GET http://localhost:4000/test
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxODBjMWZkLTRhNmUtNGM3NC05MGZiLTVmOGRlNTNiYjIwNCIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2Mjg4MTM3NywiZXhwIjoxNzYyODg0OTc3fQ.jwhMOReoAR7kMqHVT8zMW4badIGIG5RAEbTqX8pGALg
+###
+
+GET http://localhost:4000/get-free-token/bidder-4
+###
+
+GET http://localhost:4000/decode-token
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci00IiwiZW1haWwiOiJiaWRkZXI0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzNzQyMDExLCJleHAiOjE3NjM3NDU2MTF9.N574hXgnLssG6G_xa65cm92Jwj5Vpd-oX2XI2ghyEyg

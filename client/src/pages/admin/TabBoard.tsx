@@ -6,22 +6,20 @@ import CategoriesTab from "./sections/Categories";
 import ReportsTab from "./sections/ReportsTab";
 import ModerationTab from "./sections/ModerationTab";
 
-
-
 export default function DashboardTabs() {
   const [activeTab, setActiveTab] = useState("nguoidung");
 
   return (
     <div>
       {/* Tabs */}
-      <ul className="flex border-b text-sm font-medium text-center">
+      <ul className="flex border border-gray-300 text-sm font-medium text-center bg-gray-100 rounded">
         <li className="me-2">
           <button
             onClick={() => setActiveTab("tongquan")}
             className={`inline-block p-4 ${
               activeTab === "tongquan"
                 ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-500"
+                : "text-black-500"
             }`}
           >
             Tổng quan
@@ -34,7 +32,7 @@ export default function DashboardTabs() {
             className={`inline-block p-4 ${
               activeTab === "nguoidung"
                 ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-500"
+                : "text-black-500"
             }`}
           >
             Người dùng
@@ -47,7 +45,7 @@ export default function DashboardTabs() {
             className={`inline-block p-4 ${
               activeTab === "sanpham"
                 ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-500"
+                : "text-black-500"
             }`}
           >
             Sản phẩm
@@ -60,7 +58,7 @@ export default function DashboardTabs() {
             className={`inline-block p-4 ${
               activeTab === "danhmuc"
                 ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-500"
+                : "text-black-500"
             }`}
           >
             Danh mục
@@ -73,7 +71,7 @@ export default function DashboardTabs() {
             className={`inline-block p-4 ${
               activeTab === "kiemduyet"
                 ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-500"
+                : "text-black-500"
             }`}
           >
             Kiểm duyệt
@@ -86,7 +84,7 @@ export default function DashboardTabs() {
             className={`inline-block p-4 ${
               activeTab === "baocao"
                 ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-500"
+                : "text-black-500"
             }`}
           >
             Báo cáo

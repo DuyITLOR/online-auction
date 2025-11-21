@@ -29,7 +29,6 @@ const defaultDashboardData: DashboardData = {
 };
 
 const Dashboard: React.FC<DashboardProps> = ({ data }) => {
-
   const usersData = data ?? defaultDashboardData;
 
   return (
@@ -44,11 +43,10 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             Quản lý toàn bộ hệ thống đấu giá AuctionHub
           </p>
         </div>
-
         {/* Hàng 1: 4 thẻ thống kê lớn */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {/* Tổng người dùng */}
-          <div className="bg-card border border-border rounded-lg p-6">
+          <div className="bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-muted-foreground text-sm mb-1">
@@ -58,7 +56,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                   {usersData.totalUsers}
                 </p>
               </div>
-              <div className="bg-blue-100 text-blue-600 p-3 rounded-lg">
+              <div className="bg-blue-300 text-blue-600 p-3 rounded-lg">
                 <svg
                   className="w-6 h-6 text-gray-800 dark:text-white"
                   aria-hidden="true"
@@ -79,7 +77,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </div>
 
           {/* Tổng sản phẩm */}
-          <div className="bg-card border border-border rounded-lg p-6">
+          <div className="bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-muted-foreground text-sm mb-1">
@@ -89,7 +87,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                   {usersData.totalProducts}
                 </p>
               </div>
-              <div className="bg-green-100 text-green-600 p-3 rounded-lg">
+              <div className="bg-green-300 text-green-600 p-3 rounded-lg">
                 <svg
                   className="w-6 h-6 text-gray-800 dark:text-white"
                   aria-hidden="true"
@@ -106,7 +104,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </div>
 
           {/* Đơn hàng hoàn thành */}
-          <div className="bg-card border border-border rounded-lg p-6">
+          <div className="bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-muted-foreground text-sm mb-1">
@@ -116,7 +114,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                   {usersData.completedOrders}
                 </p>
               </div>
-              <div className="bg-purple-100 text-purple-600 p-3 rounded-lg">
+              <div className="bg-purple-300 text-purple-600 p-3 rounded-lg">
                 <svg
                   className="w-6 h-6 text-gray-800 dark:text-white"
                   aria-hidden="true"
@@ -137,7 +135,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </div>
 
           {/* Doanh thu */}
-          <div className="bg-card border border-border rounded-lg p-6">
+          <div className="bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-muted-foreground text-sm mb-1">Doanh thu</p>
@@ -145,7 +143,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                   {usersData.revenue} VND
                 </p>
               </div>
-              <div className="bg-orange-100 text-orange-600 p-3 rounded-lg">
+              <div className="bg-orange-300 text-orange-600 p-3 rounded-lg">
                 <svg
                   className="w-6 h-6 text-gray-800 dark:text-white"
                   aria-hidden="true"
@@ -170,7 +168,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
 
         {/* Hàng 2: các stats nhỏ hơn */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-secondary border border-border rounded-lg p-4">
+          <div className="bg-gray-100 border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
             <p className="text-muted-foreground text-sm">
               Người dùng hoạt động hiện tại
             </p>
@@ -179,7 +177,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             </p>
           </div>
 
-          <div className="bg-secondary border border-border rounded-lg p-4">
+          <div className="bg-gray-100 border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
             <p className="text-muted-foreground text-sm">
               Sản phẩm được thêm hôm nay
             </p>
@@ -188,7 +186,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             </p>
           </div>
 
-          <div className="bg-secondary border border-border rounded-lg p-4">
+          <div className="bg-gray-100 border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
             <p className="text-muted-foreground text-sm">
               Đơn hàng hoàn thành hôm nay
             </p>
@@ -197,7 +195,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
             </p>
           </div>
 
-          <div className="bg-secondary border border-border rounded-lg p-4">
+          <div className="bg-gray-100 border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
             <p className="text-muted-foreground text-sm">
               Lượt giao dịch hôm nay
             </p>

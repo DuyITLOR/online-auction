@@ -36,6 +36,7 @@ model User {
   id        String   @id @default(uuid())
   fullname  String?
   email     String   @unique
+  avtUrl    String
   password  String?
   role      Role
   ratingPos Int
@@ -98,12 +99,20 @@ model EmailVerification {
   @@index([expiresAt])
 }
 
+enum upgradeStatus {
+  NOTYET
+  FAILED
+  EXPIRED
+  VALID
+}
+
 model UpgradeRequests {
-  id        String    @id @default(uuid())
+  id        String        @id @default(uuid())
   userId    String
-  status    String
+  status    upgradeStatus
   note      String?
-  createdAt DateTime  @default(now())
+  createdAt DateTime      @default(now())
+  expiredAt DateTime?
   decidedAt DateTime?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

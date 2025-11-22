@@ -1,3 +1,5 @@
+
+
 import { prisma } from '../services/db/prisma';
 
 export const getUserByEmail = async (email: string) => {
@@ -10,13 +12,15 @@ export const getUserByEmail = async (email: string) => {
 export const addBidder = async (
   email: string,
   fullname: string,
-  password: string
+  password: string,
+  avtUrl: string
 ) => {
   const user = await prisma.user.create({
     data: {
       email,
       fullname,
       password,
+      avtUrl,
       role: 'BIDDER',
       ratingPos: 0,
       ratingNeg: 0,

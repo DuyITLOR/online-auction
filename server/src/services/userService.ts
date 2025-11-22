@@ -1,14 +1,64 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import { prisma } from './db/prisma';
+import { updateUserDto } from '../dto/userDto';
 
-export async function findUserById(userId: string) {
-  return prisma.user.findUnique({
-    where: { id: userId },
-  });
-}
+export const getUserById = async (id: string) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+    return {
+      success: true,
+      user: user,
+    };
+  } catch (err) {
+    console.error('Error from userService:', err);
 
-export async function findUserByEmail(email: string) {
-  return prisma.user.findUnique({
-    where: { email },
-  });
-}
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Unknown error',
+    };
+  }
+};
+
+export const updateUser = async (id: string, Data: updateUserDto) => {
+  try {
+    const { fullname, avtUrl } = Data;
+    const data = {
+      ...(fullname !== undefined && { fullname }),
+      ...(avtUrl !== undefined && { avtUrl }),
+    };
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: data,
+    });
+    return {
+      success: true,
+      data: updated,
+      message: 'Update successful',
+    };
+  } catch (err) {
+    console.error('Error from userService:', err);
+
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Unknown error',
+    };
+  }
+};

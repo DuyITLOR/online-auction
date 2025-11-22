@@ -4,13 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "dev": "nodemon --watch src --ext ts --exec \"tsx src/index.ts\"",
     "start:worker": "node --loader ts-node/esm src/workers/expireWorker.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
     "prisma:reset": "prisma migrate reset --force",
-    "prisma:update": "pnpm run prisma:generate && pnpm run prisma:migrate"
+    "prisma:update": "pnpm run prisma:generate && pnpm run prisma:migrate",
+    "db:seed": "pnpm exec tsx src/services/db/seed.ts",
+    "check": "pnpm exec tsx src/utils/checkRole.ts"
   },
   "keywords": [],
   "author": "",
@@ -18,14 +22,19 @@
   "packageManager": "pnpm@10.18.2",
   "dependencies": {
     "@prisma/client": "6.18.0",
-    "@supabase/supabase-js": "^2.78.0",
+    "@supabase/supabase-js": "^2.80.0",
+    "@types/passport": "^1.0.17",
+    "@types/passport-google-oauth20": "^2.0.17",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "nodemailer": "^7.0.10",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "resend": "^6.4.2"
   },
   "devDependencies": {
@@ -33,6 +42,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
     "@types/node": "^24.9.2",
     "@types/nodemailer": "^7.0.3",
     "nodemon": "^3.1.10",

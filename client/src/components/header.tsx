@@ -1,52 +1,37 @@
-import { Link } from 'react-router-dom';
-import { useAuth } from '../layouts/AuthLayout';
-import { supabase } from '../libs/supabaseClient';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
-import { getUser } from '../api/user';
+import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 import { clearSession, getSession } from '../libs/session';
+import { Popover } from './ui/popover';
+import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
+import { CircleUserRound, LogOut, User, UserRound } from 'lucide-react';
 
 const Header = () => {
-  const { session } = useAuth();
-  const [currentUser, setCurrentUser] = useState({ name: '' });
-  const [localSession, setLocalSession] = useState('');
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
-    const fetchSession = async () => {
-      const s = await getSession();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const name = (s as any)?.user?.name ?? '';
-      setLocalSession(name);
-      console.log('Session (from cookies):', s);
-    };
+    async function fetchSession() {
+      const sess = await getSession();
+      console.log('session: ', sess);
+      setSession(sess);
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'session-updated') {
+        console.log('session updated!');
+        fetchSession();
+      }
+    });
+
     fetchSession();
   }, []);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      console.log('Session (from supabase):', session?.user?.id);
-      if (session?.user?.id) {
-        const userFetch = await getUser(session.user.id);
-        setCurrentUser(userFetch);
-      }
-    };
-
-    fetchUser();
-  }, [session]);
-
-  async function onSignOut() {
-    const { error } = await supabase.auth.signOut();
-    await clearSession();
-    setLocalSession('');
-    if (error) {
-      console.error('Lỗi khi đăng xuất:', error);
-    } else {
-      console.log('Đã đăng xuất!');
-    }
-  }
-
-  const isLoggedIn = !!session || !!localSession;
+  const onSignOut = () => {
+    clearSession();
+    setSession(null);
+  };
 
   return (
     <header className='sticky top-0 z-50 border-b border-b-gray-200 bg-white'>
@@ -63,7 +48,7 @@ const Header = () => {
           />
         </div>
 
-        {!isLoggedIn ? (
+        {!session ? (
           <div className='flex gap-2 items-center ml-3'>
             <Link to='/auth/signin'>
               <button className='border border-gray-300 px-1 text-sm font-semibold h-10 rounded-md bg-slate-200'>
@@ -78,18 +63,58 @@ const Header = () => {
             </Link>
           </div>
         ) : (
-          <div className='flex gap-2 items-center ml-3'>
-            {currentUser.name && <span className='font-semibold'>Xin chào, {currentUser.name}</span>}
-
-            {localSession && <span className='font-semibold'>Xin chào, {localSession}</span>}
+          <div className='flex gap-2 items-center ml-3 text-sm'>
+            <span className='font-semibold'>Xin chào, {session.user?.name}</span>
 
             <Button variant={'ghost'} className='underline' onClick={onSignOut}>
               Đăng xuất
             </Button>
-            <Avatar>
-              <AvatarImage src='/gg-logo.svg' alt='User Avatar' className='border border-gray-400 rounded-full' />
-              <AvatarFallback>{localSession?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
-            </Avatar>
+            <Popover>
+              <PopoverTrigger>
+                <Avatar>
+                  <AvatarImage
+                    src={session.user?.avatarUrl}
+                    alt='User Avatar'
+                    className='border border-gray-400 rounded-full'
+                  />
+                  <AvatarFallback>{session.user?.name?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
+                </Avatar>
+              </PopoverTrigger>
+
+              <PopoverContent className='w-52 mt-1 bg-slate-50 border border-gray-300 shadow-lg rounded-md px-2 py-2 gap-2'>
+                <div className='flex flex-col justify-end gap-1'>
+                  <div className='flex items-center gap-2'>
+                    <Avatar>
+                      <AvatarImage
+                        src={session.user?.avatarUrl}
+                        alt='User Avatar'
+                        className='border border-gray-400 rounded-full'
+                      />
+                      <AvatarFallback>{session.user?.name?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
+                    </Avatar>
+                    <div className='flex flex-col'>
+                      <span className='font-semibold text-start'>{session.user?.name}</span>
+                      <span className='text-xs text-start text-gray-500'>{session.user?.email}</span>
+                    </div>
+                  </div>
+
+                  <Link
+                    className='font-semibold hover:bg-gray-200 p-2 rounded-md text-start mt-2 items-center flex'
+                    to='/profile'
+                  >
+                    <UserRound className='inline-block mr-2' size={16} />
+                    Tài khoản của tôi
+                  </Link>
+                  <button
+                    className='font-semibold hover:bg-gray-200 p-2 rounded-md text-start mt-2 items-center flex'
+                    onClick={onSignOut}
+                  >
+                    <LogOut className='inline-block mr-2' size={16} />
+                    Đăng xuất
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         )}
       </div>

@@ -44,6 +44,7 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
       user: {
         name: data.data.user.fullname,
         email: data.data.user.email,
+        avatarUrl: data.data.user.avtUrl ?? undefined,
       },
       token: data.data.token,
     });

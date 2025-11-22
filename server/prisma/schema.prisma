@@ -100,7 +100,7 @@ model EmailVerification {
 }
 
 enum upgradeStatus {
-  NOTYET
+  PENDING
   FAILED
   EXPIRED
   VALID
@@ -109,7 +109,7 @@ enum upgradeStatus {
 model UpgradeRequests {
   id        String        @id @default(uuid())
   userId    String
-  status    upgradeStatus
+  status    upgradeStatus @default(PENDING)
   note      String?
   createdAt DateTime      @default(now())
   expiredAt DateTime?

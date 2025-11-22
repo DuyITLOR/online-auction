@@ -110,4 +110,5 @@ export const API_PRODUCT_ROUTES = {
     role: [Role.SELLER, Role.ADMIN],
     method: 'DELETE',
   }
+
 }

@@ -37,7 +37,6 @@
     "passport-google-oauth20": "^2.0.0",
     "resend": "^6.4.2",
     "slugify": "^1.6.6"
-    "resend": "^6.4.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

@@ -3,10 +3,20 @@ import { Request, Response } from 'express';
 import { productQueryDto, updateProductDto } from '../dto/productDto';
 import { uploadImagesToSupabase } from '../utils/uploadImage';
 import { uploadedImageDto } from '../dto/uploadImageDto';
+import { checkRole } from '../utils/checkRole';
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
     const sellerId = req.user!.id;
+    let roles = await checkRole(sellerId);
+
+    if (!roles.includes('SELLER')) {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden: User is not a seller',
+      });
+    }
+
     const body = req.body;
     const files = req.files as Express.Multer.File[] | undefined;
 
@@ -57,6 +67,16 @@ export const getProductById = async (req: Request, res: Response) => {
 
 export const updateProduct = async (req: Request, res: Response) => {
   try {
+    const sellerId = req.user!.id;
+    let roles = await checkRole(sellerId);
+
+    if (!roles.includes('SELLER')) {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden: User is not a seller',
+      });
+    }
+
     const productId = req.params.id;
     const body = req.body;
     const files = req.files as Express.Multer.File[] | undefined;
@@ -89,6 +109,16 @@ export const updateProduct = async (req: Request, res: Response) => {
 
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
+    const sellerId = req.user!.id;
+    let roles = await checkRole(sellerId);
+
+    if (!roles.includes('SELLER')) {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden: User is not a seller',
+      });
+    }
+
     const productId = req.params.id;
 
     await productService.deleteProduct(productId);

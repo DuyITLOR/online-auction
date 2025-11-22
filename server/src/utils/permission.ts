@@ -168,3 +168,36 @@ export const HttpStatus = {
   notExtended: 510,
   networkAuthenticationRequired: 511,
 } as const;
+export const API_PRODUCT_ROUTES = {
+  createProduct: {
+    path: '/product',
+    role: [Role.SELLER],
+    method: 'POST',
+  },
+
+
+  updateProduct: {
+      path: '/product/:id',
+      role: [Role.SELLER],
+      method: 'PATCH',
+  },
+
+  getProduct:{
+    path: '/product',
+    role: [Role.ALL],
+    method: 'GET',
+  },
+
+  getProductById: {
+    path: '/product/:id',
+    role: [Role.ALL],
+    method: 'GET',
+  }, 
+
+  deleteProduct: {
+    path: '/product/:id',
+    role: [Role.SELLER, Role.ADMIN],
+    method: 'DELETE',
+  }
+
+}

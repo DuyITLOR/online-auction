@@ -57,7 +57,21 @@ export const updateProduct = async (id: string, data: updateProductDto) => {
   if (data.categoryId !== undefined)
     updateData.category = { connect: { id : data.categoryId } };
   if (data.title !== undefined) updateData.title = data.title;
-  if (data.description !== undefined) updateData.description = data.description;
+  if (data.description !== undefined) {
+    const old = await prisma.products.findUnique({
+      where: {id},
+      select: {description: true}
+    })
+
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, "0");
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const yyyy = now.getFullYear();
+  const formattedDate = `${dd}/${mm}/${yyyy}`;
+
+  updateData.description = `${old?.description ?? " "}  \n\n[Updated on ${formattedDate}]: \n\n${data.description}`; 
+  }
+
 
   if (data.startPrice !== undefined)
     updateData.startPrice = new Prisma.Decimal(data.startPrice);

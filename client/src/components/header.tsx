@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 import { clearSession, getSession } from '../libs/session';
 import { Popover } from './ui/popover';
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
-import { CircleUserRound, LogOut, User, UserRound } from 'lucide-react';
+import { LogOut, UserRound } from 'lucide-react';
 
 const Header = () => {
   const [session, setSession] = useState<any>(null);

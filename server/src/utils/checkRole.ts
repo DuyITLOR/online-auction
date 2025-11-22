@@ -19,7 +19,6 @@ export const checkRole = async (id: string) => {
       break;
     }
   }
-  console.log(roles);
   return roles;
 };
 

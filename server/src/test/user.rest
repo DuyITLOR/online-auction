@@ -1,12 +1,30 @@
-GET http://localhost:4000/user
+GET http://localhost:4000/users
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2MzQ1NTcxNiwiZXhwIjoxNzYzNDU5MzE2fQ.Oq9wFwaYtAPzwRT5lUGH5V-dBTrjQr34KoWQmCExsz8
 ###
 
-POST http://localhost:4000/user/update
+PATCH http://localhost:4000/users/update
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci01IiwiZW1haWwiOiJiaWRkZXI1QGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzNDgxMzg0LCJleHAiOjE3NjM0ODQ5ODR9.xOW9WakSq3hlL3NJO968dF-OfBmaxVKqyEttbOOyvsI
 Content-Type: application/json
 
 {
 	"fullname": "truong thanh dat"
 }
+###
+
+POST http://localhost:4000/users/upgrade
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci01IiwiZW1haWwiOiJiaWRkZXI1QGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzNzk4NzgwLCJleHAiOjE3NjM4MDIzODB9.gb-qmz8dD_6KktyYUCd0ARPbhLFNK9q3m5cvjVvRAwI
+
+{
+	"note": "I want to sell an iphone 13 pro max"
+}
+
+###
+PATCH http://localhost:4000/users/upgrade/2560e8f7-cc53-49f0-9e1f-b4da801d6b2d/accept
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzODE0MDIyLCJleHAiOjE3NjM4MTc2MjJ9.CNTKVXrF9ysn3Cuo-zwiLGjNELstRFI7IjXuhuY-4fY
+###
+PATCH http://localhost:4000/users/upgrade/2560e8f7-cc53-49f0-9e1f-b4da801d6b2d/refuse
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzODE0MDIyLCJleHAiOjE3NjM4MTc2MjJ9.CNTKVXrF9ysn3Cuo-zwiLGjNELstRFI7IjXuhuY-4fY

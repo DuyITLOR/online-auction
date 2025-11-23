@@ -466,7 +466,7 @@ const Profile = () => {
 
           <TabsContent value='activity'>
             <div className='border border-gray-300 mt-5 w-full px-7 py-3 flex flex-col rounded-md'>
-              <h1 className='text-lg font-bold mb-5'>Hoạt động gần đây</h1>
+              <p className='text-lg font-bold mb-5'>Hoạt động gần đây</p>
 
               <div className='flex flex-col gap-3'>
                 {activityData.map((a, index) => (
@@ -488,7 +488,7 @@ const Profile = () => {
 
           <TabsContent value='wishlist'>
             <div className='border border-gray-300 px-8 py-4 rounded-md flex flex-col w-full mt-5'>
-              <h1 className='text-lg font-bold mb-5'>Sản phẩm yêu thích</h1>
+              <p className='text-lg font-bold mb-5'>Sản phẩm yêu thích</p>
               <div className='grid grid-cols-4 gap-3'>
                 {products.map((item) => (
                   <div
@@ -532,21 +532,21 @@ const Profile = () => {
 
           <TabsContent value='review'>
             <div className='border border-gray-300 mt-5 w-full px-7 py-3 flex flex-col rounded-md'>
-              <h1 className='text-lg font-bold'>Đánh giá nhận được</h1>
-              <h1 className='text-sm font-semibold text-gray-400 mb-5'>
+              <p className='text-lg font-bold'>Đánh giá nhận được</p>
+              <p className='text-sm font-semibold text-gray-400 mb-5'>
                 Các đánh giá về sản phẩm và dịch vụ của bạn từ người mua
-              </h1>
+              </p>
 
               <div className='flex items-center gap-5 bg-gray-100 rounded-md py-3 px-5 w-full'>
                 <div className='flex flex-col items-center py-5 gap-2 w-50'>
-                  <h1 className='text-4xl font-bold'>{totalRating().toFixed(1)}</h1>
+                  <p className='text-4xl font-bold'>{totalRating().toFixed(1)}</p>
                   <div className='flex items-center gap-1'>
                     {[...Array(5)].map((_, index) => (
                       <Star key={index} className='w-5 h-5 fill-amber-400 text-amber-400' />
                     ))}
                   </div>
 
-                  <h1 className='text-gray-500 font-semibold text-sm'>{review.length} đánh giá </h1>
+                  <p className='text-gray-500 font-semibold text-sm'>{review.length} đánh giá </p>
                 </div>
 
                 <div className='flex flex-col gap-2 w-full'>
@@ -606,10 +606,10 @@ const Profile = () => {
             <div className='border border-gray-300 mt-5 w-full px-7 py-3 flex flex-col rounded-md'>
               <div className='flex items-center justify-between'>
                 <div>
-                  <h1 className='text-lg font-bold'>Lịch sử đánh giá</h1>
-                  <h1 className='text-sm font-semibold text-gray-400 mb-5'>
+                  <p className='text-lg font-bold'>Lịch sử đánh giá</p>
+                  <p className='text-sm font-semibold text-gray-400 mb-5'>
                     Các đánh giá bạn đã để lại cho người mua và sản phẩm.
-                  </h1>
+                  </p>
                 </div>
                 <Popover>
                   <PopoverTrigger>

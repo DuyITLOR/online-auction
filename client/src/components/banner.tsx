@@ -38,7 +38,7 @@ export default function Banner() {
   return (
     <section className='relative bg-slate-200  py-20 px-20 flex items-center justify-between overflow-hidden mx-10 mt-5 rounded-xl mb-8'>
       <div className='transition-all duration-500 ease-in-out'>
-        <h1 className='text-5xl font-bold mb-4'>{banner.title}</h1>
+        <p className='text-5xl font-bold mb-4'>{banner.title}</p>
         <p className='text-lg mb-6 max-w-md'>{banner.description}</p>
         <button className='bg-green-300 font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition'>
           Get Started

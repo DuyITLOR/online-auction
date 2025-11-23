@@ -11,7 +11,7 @@ const SignUp = () => {
       <form action={action} className='w-[450px] mx-auto'>
         <div className='flex items-center justify-center gap-2'>
           <img src='/vite.svg' width={50} height={50} />
-          <h1 className='font-bold text-4xl text-teal-600'>Ebay</h1>
+          <p className='font-bold text-4xl text-teal-600'>Ebay</p>
         </div>
 
         <div className='font-semibold mt-3 text-teal-700 text-center'>Tạo tài khoản trên nền tảng Ebay</div>

@@ -1,0 +1,17 @@
+GET http://localhost:4000/health
+###
+
+GET http://localhost:4000/categories
+
+###
+GET http://localhost:4000/categories/01
+
+###
+POST http://localhost:4000/categories
+Content-Type: application/json
+
+{
+  "name": "Electronics",
+  "description": "Electronic devices and gadgets",
+  "parentId": null
+}

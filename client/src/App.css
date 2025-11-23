@@ -8,6 +8,16 @@
   border-radius: 5px;
 }
 
+.scroll-container-hidden-scroll {
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scroll-container-hidden-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 .loader {
   width: 48px;
   height: 48px;

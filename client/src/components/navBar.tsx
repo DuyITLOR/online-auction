@@ -80,7 +80,7 @@ const NavBar = () => {
     <div className='flex items-center justify-center gap-20 mt-3'>
       <Link
         className='text-base font-medium font-sans hover:underline hover:text-sky-800'
-        to={'/electronics'}
+        to={'/products'}
         onMouseEnter={() => handleMouseEnter(0)}
         onMouseLeave={handleMouseLeave}
       >
@@ -92,7 +92,7 @@ const NavBar = () => {
 
       <Link
         className='text-base font-medium font-sans hover:underline hover:text-sky-800'
-        to={'/electronics'}
+        to={'/products'}
         onMouseEnter={() => handleMouseEnter(1)}
         onMouseLeave={handleMouseLeave}
       >
@@ -106,7 +106,7 @@ const NavBar = () => {
         <PopoverTrigger asChild>
           <Link
             className='text-base font-medium font-sans hover:underline hover:text-sky-800'
-            to={'/electronics'}
+            to={'/products'}
             onMouseEnter={() => handleMouseEnter(2)}
             onMouseLeave={handleMouseLeave}
           >
@@ -142,7 +142,7 @@ const NavBar = () => {
 
       <Link
         className='text-base font-medium font-sans hover:underline hover:text-sky-800'
-        to={'/electronics'}
+        to={'/products'}
         onMouseEnter={() => handleMouseEnter(3)}
         onMouseLeave={handleMouseLeave}
       >
@@ -154,12 +154,12 @@ const NavBar = () => {
 
       <Link
         className='text-base font-medium font-sans hover:underline hover:text-sky-800'
-        to={'/electronics'}
+        to={'/products'}
         onMouseEnter={() => handleMouseEnter(4)}
         onMouseLeave={handleMouseLeave}
       >
         <div className='flex items-end gap-2'>
-          <span>Sức khỏe</span>
+          <span>Đặc biệt</span>
           <ChevronDown className='w-4 h-4' />
         </div>
       </Link>

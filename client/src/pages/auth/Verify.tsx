@@ -14,11 +14,11 @@ const Verify = () => {
           <h1 className='font-bold text-4xl text-teal-600'>Ebay</h1>
         </div>
 
-        <div className='font-semibold mt-3 text-teal-700 text-center'>Create your eBay account</div>
+        <div className='font-semibold mt-3 text-teal-700 text-center'>Đăng ký tài khoản gia nhập cùng Ebay</div>
 
         <div className='flex flex-col gap-6 bg-slate-200 shadow-md rounded-md mt-7 py-7 px-5'>
           <div className='flex flex-col space-y-2'>
-            <h3 className='font-bold text-sm'>User Name</h3>
+            <h3 className='font-bold text-sm'>Tên đăng nhập</h3>
             <input
               type='text'
               name='name'
@@ -41,7 +41,7 @@ const Verify = () => {
           </div>
 
           <div className='flex flex-col space-y-3'>
-            <h3 className='font-bold text-sm'>Password</h3>
+            <h3 className='font-bold text-sm'>Mật khẩu</h3>
             <input
               type='password'
               name='password'
@@ -69,17 +69,17 @@ const Verify = () => {
             </div>
           )}
 
-          <Button className='bg-teal-600 text-white font-bold mt-2 hover:opacity-80'>Sign Up</Button>
+          <Button className='bg-teal-600 text-white font-bold mt-2 hover:opacity-80'>Đăng ký</Button>
 
           <div className='flex items-center gap-1 justify-center'>
-            <h3 className='font-semibold text-sm'>Already have the account? </h3>
+            <h3 className='font-semibold text-sm'>Bạn đã có tài khoản Ebay rồi? </h3>
             <a href='/auth/signin' className='font-extrabold text-sm text-teal-700'>
-              Sign In
+              Đăng nhập
             </a>
           </div>
         </div>
 
-        <h3 className='text-center text-sm mt-7 font-semibold text-teal-700'>Continue shopping with eBay</h3>
+        <h3 className='text-center text-sm mt-7 font-semibold text-teal-700'>Tiếp tục mua sắp cũng Ebay</h3>
       </form>
     </div>
   );

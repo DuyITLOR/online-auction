@@ -5,7 +5,7 @@ POST http://localhost:4000/sign-in
 Content-Type: application/json
 
 {
-	"email": "ngobaolong0401@gmail.com",
+	"email": "truongthanhdat6879@gmail.com",
 	"password": "123"
 }
 
@@ -25,8 +25,17 @@ Content-Type: application/json
 	"email": "truongthanhdat6879@gmail.com",
 	"fullname": "Truong Thanh Dat",
 	"password": "123",
-	"code": "SBUZZV"
+	"code": "QMKGC0"
 }
 
+###
+POST http://localhost:4000/google/authentication
+Content-Type: application/json
 
+{
+	"email": "bidder5@example.com",
+	"fullname": "Thanh Dat"
+}
 
+###
+GET http://localhost:4000/auth/google

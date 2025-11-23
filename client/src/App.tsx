@@ -5,6 +5,10 @@ import AuthCallback from './pages/auth/AuthCallback';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import Verify from './pages/auth/Verify';
+import ProductList from './pages/product/productList';
+import AdminDashboard from './pages/admin/Dashboard';
+import Profile from './pages/Profile';
+import DetailProduct from './pages/product/DetailProduct';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -13,7 +17,12 @@ const router = createBrowserRouter(
       <Route path='auth/signin' element={<SignIn />} />
       <Route path='auth/signup' element={<SignUp />} />
       <Route path='auth/verify' element={<Verify />} />
-      <Route path='auth/callback' element={<AuthCallback />} />
+      <Route path='products' element={<ProductList />} />
+      <Route path='product/:id' element={<DetailProduct />} />
+      <Route path='admin/dashboard' element={<AdminDashboard />} />
+      <Route path='auth/google/callback' element={<AuthCallback />} />
+      <Route path='products' element={<ProductList />} />
+      <Route path='profile' element={<Profile />} />
     </Route>
   )
 );

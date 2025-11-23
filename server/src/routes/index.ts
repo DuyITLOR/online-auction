@@ -1,8 +1,9 @@
 import type { Application } from 'express';
 import { PrismaClient } from '@prisma/client';
 
-import { API_ROUTES } from '../utils/apiRoutes';
+import { API_ROUTES } from '../utils/permission';
 import auth from './authentication';
+import user from './userRoute';
 import test from './test';
 import cate from './categories';
 
@@ -60,6 +61,7 @@ export function routes(app: Application): void {
 
   // Define your routes here
   app.use('/', auth);
+  app.use('/', user);
   app.use('/', test);
   app.use('/', cate);
 }

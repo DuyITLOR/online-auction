@@ -4,6 +4,7 @@ import cors from 'cors';
 import userRouter from './routes/userRoute';
 import { routes } from './routes';
 import productRouter from './routes/productRoute';
+import categoryRouter from './routes/categories';
 import passport from 'passport';
 require('./config/passport');
 
@@ -14,7 +15,7 @@ app.use(passport.initialize());
 
 app.use('/api/', userRouter);
 app.use('/api/', productRouter);
-
+app.use('/api/', categoryRouter);
 // Define routes
 routes(app);
 

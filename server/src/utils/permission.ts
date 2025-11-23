@@ -1,97 +1,99 @@
-import { verify } from 'crypto';
-import { googleCallback } from '../controllers/authControllers';
-import { acceptRequest, refuseRequest } from '../controllers/userControllers';
+import { verify } from "crypto";
+import { googleCallback } from "../controllers/authControllers";
+import { acceptRequest, refuseRequest } from "../controllers/userControllers";
+import { updateCate } from "../services/cateService";
+import { updateCategory } from "../controllers/categoryControllers";
 
 enum Role {
-  ADMIN = 'ADMIN',
-  BIDDER = 'BIDDER',
-  SELLER = 'SELLER',
-  GUEST = 'GUEST',
-  ALL = 'ALL',
+  ADMIN = "ADMIN",
+  BIDDER = "BIDDER",
+  SELLER = "SELLER",
+  GUEST = "GUEST",
+  ALL = "ALL",
 }
 
 export const API_ROUTES = {
-  root: '/',
-  health: '/health',
+  root: "/",
+  health: "/health",
 
   signIn: {
-    path: '/sign-in',
+    path: "/sign-in",
     role: [Role.ALL],
-    method: 'POST',
+    method: "POST",
     request: {
-      email: 'string',
-      password: 'string',
+      email: "string",
+      password: "string",
     },
   },
   signUp: {
-    path: '/sign-up',
+    path: "/sign-up",
     role: [Role.ALL],
-    method: 'POST',
+    method: "POST",
     request: {
-      email: 'string',
+      email: "string",
     },
   },
   signInViaGoogle: {
-    path: '/auth/google',
+    path: "/auth/google",
     role: [Role.ALL],
-    method: 'GET',
+    method: "GET",
   },
 
   googleCallback: {
-    path: '/auth/google/callback',
+    path: "/auth/google/callback",
     role: [Role.ALL],
-    method: 'GET',
+    method: "GET",
   },
   verifyEmail: {
-    path: '/verify-email',
+    path: "/verify-email",
     role: [Role.ALL],
-    method: 'POST',
+    method: "POST",
     request: {
-      email: 'string',
-      fullename: 'string',
-      password: 'string',
-      code: 'string',
+      email: "string",
+      fullename: "string",
+      password: "string",
+      code: "string",
     },
   },
   verifyToken: {
-    path: '/auth/verify-token',
+    path: "/auth/verify-token",
     role: [Role.ALL],
-    method: 'GET',
+    method: "GET",
   },
 
   getUserById: {
-    path: '/users',
+    path: "/users",
     role: [Role.BIDDER, Role.ADMIN, Role.SELLER],
-    method: 'GET',
+    method: "GET",
     request: {},
   },
   updateUser: {
-    path: '/users/update',
+    path: "/users/update",
     role: [Role.BIDDER, Role.ADMIN, Role.SELLER],
-    method: 'PATCH',
+    method: "PATCH",
     request: {
-      fullname: 'string',
-      password: 'string',
-      avtUrl: 'string',
+      fullname: "string",
+      password: "string",
+      avtUrl: "string",
     },
   },
   requestUpgrade: {
-    path: '/users/upgrade',
+    path: "/users/upgrade",
     role: [Role.BIDDER],
-    method: 'POST',
+    method: "POST",
     request: {
-      note: 'string',
+      note: "string",
     },
   },
   acceptRequest: {
-    path: '/users/upgrade/:requestId/accept',
+    path: "/users/upgrade/:requestId/accept",
     role: [Role.ADMIN],
-    method: 'PATCH',
+    method: "PATCH",
   },
   refuseRequest: {
-    path: '/users/upgrade/:requestId/refuse',
+    path: "/users/upgrade/:requestId/refuse",
     role: [Role.ADMIN],
-    method: 'PATCH',
+    method: "PATCH",
   },
 };
 
@@ -170,34 +172,79 @@ export const HttpStatus = {
 } as const;
 export const API_PRODUCT_ROUTES = {
   createProduct: {
-    path: '/product',
+    path: "/product",
     role: [Role.SELLER],
-    method: 'POST',
+    method: "POST",
   },
-
 
   updateProduct: {
-      path: '/product/:id',
-      role: [Role.SELLER],
-      method: 'PATCH',
+    path: "/product/:id",
+    role: [Role.SELLER],
+    method: "PATCH",
   },
 
-  getProduct:{
-    path: '/product',
+  getProduct: {
+    path: "/product",
     role: [Role.ALL],
-    method: 'GET',
+    method: "GET",
   },
 
   getProductById: {
-    path: '/product/:id',
+    path: "/product/:id",
     role: [Role.ALL],
-    method: 'GET',
-  }, 
+    method: "GET",
+  },
 
   deleteProduct: {
-    path: '/product/:id',
+    path: "/product/:id",
     role: [Role.SELLER, Role.ADMIN],
-    method: 'DELETE',
-  }
+    method: "DELETE",
+  },
+};
 
-}
+export const API_CATEGORY_ROUTES = {
+  createCategory: {
+    path: "/categories",
+    role: [Role.ADMIN],
+    method: "POST",
+  },
+
+  updateCategory: {
+    path: "/categories/:id",
+    role: [Role.ADMIN],
+    method: "PATCH",
+  },
+
+  getAllCategories: {
+    path: "/categories",
+    role: [Role.ALL],
+    method: "GET",
+  },
+
+  getCategoryById: {
+    path: "/categories/:id",
+    role: [Role.ALL],
+    method: "GET",
+  },
+
+  deleteCategory: {
+    path: "/categories/:id",
+    role: [Role.ADMIN],
+    method: "DELETE",
+  },
+  findParentCategories: {
+    path: "/categories/parents",
+    role: [Role.ALL],
+    method: "GET",
+  },
+  findChildCategories: {
+    path: "/categories/children",
+    role: [Role.ALL],
+    method: "GET",
+  },
+  findProductsByCategory: {
+    path: "/categories/:id/products",
+    role: [Role.ALL],
+    method: "GET",
+  },
+};

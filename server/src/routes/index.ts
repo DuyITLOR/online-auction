@@ -5,7 +5,7 @@ import { API_ROUTES } from '../utils/permission';
 import auth from './authentication';
 import user from './userRoute';
 import test from './test';
-import cate from './categories';
+import cate from './category';
 
 const prisma = new PrismaClient();
 
@@ -64,4 +64,5 @@ export function routes(app: Application): void {
   app.use('/', user);
   app.use('/', test);
   app.use('/', cate);
+  
 }

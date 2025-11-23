@@ -4,7 +4,7 @@ import cors from 'cors';
 import userRouter from './routes/userRoute';
 import { routes } from './routes';
 import productRouter from './routes/productRoute';
-import categoryRouter from './routes/categories';
+import categoryRouter from './routes/category';
 import passport from 'passport';
 require('./config/passport');
 

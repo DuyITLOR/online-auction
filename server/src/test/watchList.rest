@@ -1,0 +1,22 @@
+GET http://localhost:4000/watchlist?limit=2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzOTk4NTI0LCJleHAiOjE3NjQwMDIxMjR9._k0IXl1UfPUih4FC7QmTgNDbDAOOwuE1Muevt9FpXGI
+Content-Type: application/json
+
+###
+DELETE http://localhost:4000/watchlist
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzOTk4NTI0LCJleHAiOjE3NjQwMDIxMjR9._k0IXl1UfPUih4FC7QmTgNDbDAOOwuE1Muevt9FpXGI
+
+{
+    "productId": "b6753ac1-1816-4557-bccf-930ec2b7c461"
+}
+
+###
+POST http://localhost:4000/watchlist
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzOTk4NTI0LCJleHAiOjE3NjQwMDIxMjR9._k0IXl1UfPUih4FC7QmTgNDbDAOOwuE1Muevt9FpXGI
+
+{
+    "productId": "b6753ac1-1816-4557-bccf-930ec2b7c461"
+}
+

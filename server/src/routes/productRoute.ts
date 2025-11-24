@@ -1,5 +1,4 @@
 import { authMiddleware } from '../middleware/authentication';
-import { Request, Response } from 'express';
 import { Router } from 'express';
 import *  as productControllers from '../controllers/productControllers';
 import { upload } from '../middleware/upload';

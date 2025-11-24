@@ -3,6 +3,7 @@ import { googleCallback } from "../controllers/authControllers";
 import { acceptRequest, refuseRequest } from "../controllers/userControllers";
 import { updateCate } from "../services/cateService";
 import { updateCategory } from "../controllers/categoryControllers";
+import { get } from "http";
 
 enum Role {
   ADMIN = "ADMIN",
@@ -248,3 +249,24 @@ export const API_CATEGORY_ROUTES = {
     method: "GET",
   },
 };
+
+
+export const API_WATCHLIST_ROUTES = {
+  addWatchList: {
+    path: "/watchlist",
+    method: "POST",
+    role: [Role.ALL],
+  },
+
+  removeWatchList: {
+    path: "/watchlist",
+    method: "DELETE",
+    role: [Role.ALL],
+  },
+
+  getWatchList: {
+    path: "/watchlist",
+    method: "GET",
+    role: [Role.ALL],
+  }
+}

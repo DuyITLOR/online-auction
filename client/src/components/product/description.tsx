@@ -5,17 +5,22 @@ import DOMPurify from 'dompurify';
 import { Button } from '../ui/button';
 import { Edit } from 'lucide-react';
 
-interface Product {
-  id: number;
-  name: string;
-  postDate: string;
-  editDate: string;
-  ownerId: string;
-  owner: string;
-  currentPrice: number;
-  buyNow: number;
+export interface Product {
+  id: string;
+  sellerId: string;
+  categoryId: string;
+  title: string;
   description: string;
-  img: string[];
+  startPrice: number;
+  currentPrice?: number | null;
+  stepPrice: number;
+  buyNowPrice: number;
+  autoExtendEnabled: boolean;
+  autoExtendMinutes: number;
+  startedAt: string;
+  endAt: string;
+  updatedAt: string;
+  highRatingRequired: boolean;
 }
 
 interface User {
@@ -24,7 +29,7 @@ interface User {
 }
 
 const ProductDescription = ({ product, currentUser }: { product: Product; currentUser: User }) => {
-  const isOwner = currentUser && product.ownerId === currentUser.id;
+  const isOwner = currentUser && product.sellerId === currentUser.id;
 
   const [isEditing, setIsEditing] = useState(false);
   const [description, setDescription] = useState(product.description);

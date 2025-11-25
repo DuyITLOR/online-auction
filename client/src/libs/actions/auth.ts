@@ -49,6 +49,8 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
       token: data.data.token,
     });
 
+    return;
+
     window.location.href = '/';
   } catch (error) {
     console.error('[auth-form][form-submit::sign-in]:', error);
@@ -95,7 +97,7 @@ export async function SignUpFormAction(_state: SignUpFormState, formData: FormDa
 export async function VerifyFormAction(_state: VerifyFormState, formData: FormData): Promise<VerifyFormState> {
   try {
     const verifyForm = VerifySchema.safeParse({
-      name: formData.get('name'),
+      fullname: formData.get('name'),
       email: formData.get('email'),
       password: formData.get('password'),
       code: formData.get('code'),

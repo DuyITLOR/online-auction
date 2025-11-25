@@ -22,6 +22,7 @@ const SignIn = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleRecaptcha = (value: any) => {
+    console.log(value);
     setCaptchaValue(value);
   };
 
@@ -94,14 +95,14 @@ const SignIn = () => {
           </div>
 
           <div className='flex items-center gap-1 justify-center'>
-            <h3 className='font-semibold text-sm'>Bạn mới biết đến Ebay? </h3>
+            <p className='font-semibold text-sm'>Bạn mới biết đến Ebay? </p>
             <a href='/auth/signup' className='font-extrabold text-sm text-teal-700'>
               Đăng ký
             </a>
           </div>
         </div>
 
-        <h3 className='text-center text-sm mt-7 font-semibold text-teal-700'>Tiếp tục mua sắp với Ebay</h3>
+        <p className='text-center text-sm mt-7 font-semibold text-teal-700'>Tiếp tục mua sắp với Ebay</p>
       </div>
     </div>
   );

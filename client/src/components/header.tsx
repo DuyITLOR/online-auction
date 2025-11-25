@@ -18,13 +18,6 @@ const Header = () => {
       setSession(sess);
     }
 
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'session-updated') {
-        console.log('session updated!');
-        fetchSession();
-      }
-    });
-
     fetchSession();
   }, []);
 

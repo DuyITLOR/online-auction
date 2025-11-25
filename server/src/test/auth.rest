@@ -6,7 +6,8 @@ Content-Type: application/json
 
 {
 	"email": "truongthanhdat6879@gmail.com",
-	"password": "123"
+	"password": "123",
+	"recaptchaToken": "0cAFcWeA65lGihLV_Vt"  // put recaptcha token here
 }
 
 ###

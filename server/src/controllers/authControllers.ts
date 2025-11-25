@@ -21,9 +21,9 @@ export const signIn = async (req: Request, res: Response) => {
   const ggRes = await axios.post('https://www.google.com/recaptcha/api/siteverify', params);
   const ggData = ggRes.data;
 
-  if (!ggData.success) {
+  if (!ggData.success && process.env.NODE_ENV !== 'development') {
     return res.status(400).json({
-      message: 'Xác minh reCAPTCHA thất bại. Vui lòng thử lại.',
+      message: `Xác minh reCAPTCHA thất bại. Vui lòng thử lại. ${process.env.NODE_ENV}`,
       errors: ggData['error-codes'],
     });
   }

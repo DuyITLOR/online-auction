@@ -1,12 +1,17 @@
 import { ChevronRight, Clock, Heart, SquarePen } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import ProductDescription from './description';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tab';
 import Review from './review';
-import { useEffect, useState } from 'react';
-import { getProduct } from '../../api/product';
+
+import type { Product, ProductImage } from '../../libs/types/types';
+import { useState } from 'react';
+
+interface ProductProp {
+  product: Product;
+}
 
 const similarProducts = [
   {
@@ -100,26 +105,6 @@ function formatDate(isoString: string | undefined, options = { time: false }) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-export interface Product {
-  id: string;
-  sellerId: string;
-  categoryId: string;
-  title: string;
-  description: string;
-  startPrice: number;
-  currentPrice?: number | null;
-  stepPrice: number;
-  buyNowPrice: number;
-  autoExtendEnabled: boolean;
-  autoExtendMinutes: number;
-  seller: any;
-  startedAt: string;
-  endAt: string;
-  updatedAt: string;
-  highRatingRequired: boolean;
-  images: [];
-}
-
 function timeFromNow(dateString: string | Date | undefined) {
   const now = new Date();
   if (!dateString) return;
@@ -140,37 +125,17 @@ function timeFromNow(dateString: string | Date | undefined) {
   return `${diffSeconds} giây trước`;
 }
 
-const currentUser = {
-  id: 'user_123',
-  name: 'Nguyễn Văn A',
-};
+const Detail = ({ product }: ProductProp) => {
+  const [image, setImage] = useState<string>(() => product?.images?.[0]?.url ?? '');
 
-const Detail = () => {
-  const { id } = useParams();
-
-  const [image, setImage] = useState('');
-  const [product, setProduct] = useState<Product>();
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        if (!id) return;
-        const data = await getProduct(id);
-        setProduct(data);
-        setImage(data.images[0].url);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchProduct();
-  }, []);
-
+  if (!product) return <div className='loader' />;
   return (
     <div className='w-full flex flex-col px-10 mt-10 mb-10'>
       <div className='flex gap-5'>
         <div className='flex flex-col'>
           <div className='flex gap-3'>
             <div className='flex flex-col items-center gap-4 w-35 h-140 overflow-y-auto scroll-container-hidden-scroll pt-2'>
-              {product?.images.map((item, index) => (
+              {product?.images?.map((item: ProductImage, index: number) => (
                 <div
                   onClick={() => setImage(item?.url)}
                   key={index}
@@ -256,8 +221,8 @@ const Detail = () => {
             <div className='flex gap-5'>
               <input
                 type='number'
-                defaultValue={41000000}
-                min={40000000 + 1000000}
+                defaultValue={product?.currentPrice}
+                min={product?.currentPrice != null ? product.currentPrice + product?.stepPrice : undefined}
                 step={100000}
                 className='h-10 p-2 border text-lg border-gray-200 rounded-md focus-visible:outline-0.5 focus-visible:outline-gray-600 w-full pl-2'
               />
@@ -266,8 +231,8 @@ const Detail = () => {
             </div>
 
             <p className='text-gray-600 text-xs mt-4 '>
-              Mức giá tối thiểu có thể đặt là: {(41000000).toLocaleString()} VND (Bước giá: {(100000).toLocaleString()}{' '}
-              VND)
+              Mức giá tối thiểu có thể đặt là: {(product?.currentPrice ?? 0).toLocaleString()} VND (Bước giá:{' '}
+              {(product?.stepPrice ?? 0).toLocaleString()} VND)
             </p>
           </div>
 
@@ -326,11 +291,11 @@ const Detail = () => {
         </TabsList>
 
         <TabsContent value='description'>
-          {product ? <ProductDescription product={product} currentUser={currentUser} /> : null}
+          {product ? <ProductDescription product={product} currentUser={product?.seller} /> : null}
         </TabsContent>
       </Tabs>
 
-      <Review />
+      <Review seller={product?.seller} />
     </div>
   );
 };

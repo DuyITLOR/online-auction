@@ -4,29 +4,7 @@ import 'react-quill-new/dist/quill.snow.css';
 import DOMPurify from 'dompurify';
 import { Button } from '../ui/button';
 import { Edit } from 'lucide-react';
-
-export interface Product {
-  id: string;
-  sellerId: string;
-  categoryId: string;
-  title: string;
-  description: string;
-  startPrice: number;
-  currentPrice?: number | null;
-  stepPrice: number;
-  buyNowPrice: number;
-  autoExtendEnabled: boolean;
-  autoExtendMinutes: number;
-  startedAt: string;
-  endAt: string;
-  updatedAt: string;
-  highRatingRequired: boolean;
-}
-
-interface User {
-  id: string;
-  name: string;
-}
+import type { Product, User } from '../../libs/types/types';
 
 const ProductDescription = ({ product, currentUser }: { product: Product; currentUser: User }) => {
   const isOwner = currentUser && product.sellerId === currentUser.id;

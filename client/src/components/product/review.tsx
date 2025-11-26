@@ -2,6 +2,11 @@ import { Avatar } from '@radix-ui/react-avatar';
 
 import { AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Calendar, CircleMinus, CirclePlus } from 'lucide-react';
+import type { User } from '../../libs/types/types';
+
+interface UserProps {
+  seller: User | undefined;
+}
 
 const review = [
   {
@@ -70,7 +75,8 @@ const review = [
   },
 ];
 
-const Review = () => {
+const Review = ({ seller }: UserProps) => {
+  if (!seller) return <div className='loader' />;
   return (
     <div className='bg-gray-100 rounded-xl w-full px-10 py-5 flex'>
       <div className='flex flex-col w-[600px]'>
@@ -83,7 +89,7 @@ const Review = () => {
 
           <div className='flex items-center justify-between w-full'>
             <div className='ml-5'>
-              <p className='text-xl font-semibold'> Official Meta Store </p>
+              <p className='text-xl font-semibold'> {seller?.fullname} </p>
               <div className='flex items-center gap-3'>
                 <p className=' text-gray-500 underline'>Đánh giá: 10</p>
                 <p className=' text-gray-500 underline'>Đã bán: 1000</p>

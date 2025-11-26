@@ -49,8 +49,6 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
       token: data.data.token,
     });
 
-    return;
-
     window.location.href = '/';
   } catch (error) {
     console.error('[auth-form][form-submit::sign-in]:', error);

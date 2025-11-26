@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
 import { gatewayResponse } from '../utils/response';
 import { sendEmail } from '../utils/sendEmail';
+import { sendEmailDto } from '../dto/sendEmailDto';
 import * as service from '../services/authService';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
+import { HttpStatus } from '../utils/permission';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -18,7 +20,10 @@ export const signIn = async (req: Request, res: Response) => {
   params.append('secret', secretKey);
   params.append('response', recaptchaToken);
 
-  const ggRes = await axios.post('https://www.google.com/recaptcha/api/siteverify', params);
+  const ggRes = await axios.post(
+    'https://www.google.com/recaptcha/api/siteverify',
+    params
+  );
   const ggData = ggRes.data;
 
   if (!ggData.success && process.env.NODE_ENV !== 'development') {
@@ -30,7 +35,11 @@ export const signIn = async (req: Request, res: Response) => {
 
   const bidder = await service.getBidder(email);
   if (!bidder) {
-    const response = gatewayResponse(400, null, 'Email has not been registered');
+    const response = gatewayResponse(
+      400,
+      null,
+      'Email has not been registered'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -45,7 +54,11 @@ export const signIn = async (req: Request, res: Response) => {
       const response = gatewayResponse(200, { token, user }, 'Welcome back');
       res.status(response.code).send(response);
     } else {
-      const response = gatewayResponse(400, null, 'Email or password is invalid');
+      const response = gatewayResponse(
+        400,
+        null,
+        'Email or password is invalid'
+      );
       res.status(response.code).send(response);
       return;
     }
@@ -64,12 +77,25 @@ export const signUp = async (req: Request, res: Response) => {
   // Generate code for verify
   const code = service.generateCode();
   // Send code to register
-  const record = await sendEmail({
-    email,
-    content: code,
-  });
+  const data = {
+    email: email,
+    subject: 'Verification code',
+    content: `
+      <div style="max-width:500px;margin:auto;font-family:Arial;background:#f4f6fb;padding:20px;border-radius:10px;">
+        <h2 style="color:#4f46e5;text-align:center;">Mã xác thực</h2>
+        <p>Vui lòng sử dụng mã dưới đây để xác minh tài khoản:</p>
+        <div style="text-align:center;margin:20px 0;">
+          <span style="font-size:28px;letter-spacing:6px;font-weight:bold;background:#fff;padding:10px 20px;border-radius:8px;color:#4f46e5;">
+            ${code}
+          </span>
+        </div>
+        <p style="font-size:13px;color:#777;">Mã có hiệu lực trong 5 phút. Vui lòng không chia sẻ với người khác.</p>
+      </div>
+    `,
+  } as sendEmailDto;
+  const record = await sendEmail(data);
   if (record.success) {
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
     const _ = await service.addEmailVerification({
       code,
       email,
@@ -129,6 +155,82 @@ export const verifyToken = async (req: Request, res: Response) => {
   }
 };
 
+export const forgetPassword = async (req: Request, res: Response) => {
+  const email = req.body.email;
+  const user = await service.getBidder(email);
+  const url = process.env.FRONTEND_URL;
+  if (!user) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Email has not been registered'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+  const id = user.id;
+  const token = jwt.sign({ id, email }, process.env.JWT_SECRET!, {
+    expiresIn: '10m',
+  });
+  const resetLink = `${url}/auth/reset-password?token=${token}`;
+  const data = {
+    email,
+    subject: 'Reset your password',
+    content: `
+      <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;">
+        <h3 style="margin-top:0;">Reset password</h3>
+        <p>Click vào nút bên dưới để đặt lại mật khẩu. Liên kết này sẽ hết hạn sau 15 phút.</p>
+        <p style="text-align:center;margin:20px 0;">
+          <a href="${resetLink}" 
+             style="display:inline-block;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;background:#4f46e5;color:#fff;">
+            Đặt lại mật khẩu
+          </a>
+        </p>
+        <p>Nếu bạn không yêu cầu, hãy bỏ qua email này.</p>
+      </div>
+    `,
+  } as sendEmailDto;
+  const record = await sendEmail(data);
+  if (record.success) {
+    const response = gatewayResponse(HttpStatus.accepted, null, record.message);
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      record.message
+    );
+    res.status(response.code).send(response);
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  if (!req.user) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Token required'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+  const id = req.user.id;
+  const password = req.body.password;
+  const hashed = await service.hashPassword(password);
+  const record = await service.updatePassword(id, hashed);
+  if (record.success) {
+    const response = gatewayResponse(HttpStatus.ok, null, record.message);
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(
+      HttpStatus.serviceUnavailable,
+      null,
+      record.message
+    );
+    res.status(response.code).send(response);
+  }
+};
+
 export const googleAuthentication = async (req: Request, res: Response) => {
   try {
     const email = req.body.email as string;
@@ -153,13 +255,21 @@ export const googleAuthentication = async (req: Request, res: Response) => {
       if (newBidder.success && newBidder.bidder) {
         // chắc chắn newBidder.bidder tồn tại
         const token = await service.generateToken(newBidder.bidder.id, email);
-        const response = gatewayResponse(200, { token, fullname, email }, 'User sign up');
+        const response = gatewayResponse(
+          200,
+          { token, fullname, email },
+          'User sign up'
+        );
         res.status(response.code).send(response);
         return;
       }
 
       // Nếu không thành công tạo user — trả lỗi
-      const response = gatewayResponse(500, null, newBidder.message ?? 'Failed to create user');
+      const response = gatewayResponse(
+        500,
+        null,
+        newBidder.message ?? 'Failed to create user'
+      );
       res.status(response.code).send(response);
       return;
     }
@@ -186,7 +296,11 @@ export const googleCallback = async (req: Request, res: Response) => {
 
     const { bidder, token } = await service.signInWithGoogle({
       email: profile?.emails?.[0]?.value,
-      fullname: profile?.displayName ?? `${profile?.name?.givenName ?? ''} ${profile?.name?.familyName ?? ''}`.trim(),
+      fullname:
+        profile?.displayName ??
+        `${profile?.name?.givenName ?? ''} ${
+          profile?.name?.familyName ?? ''
+        }`.trim(),
       avtUrl:
         profile?._json.picture ||
         'https://lqxrdsayuzjybccsuhmb.supabase.co/storage/v1/object/public/images/avatar/765-default-avatar.png',

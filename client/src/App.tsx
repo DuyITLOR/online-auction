@@ -1,5 +1,10 @@
 import './App.css';
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import AuthCallback from './pages/auth/AuthCallback';
 import SignIn from './pages/auth/SignIn';
@@ -9,6 +14,8 @@ import ProductList from './pages/product/productList';
 import AdminDashboard from './pages/admin/Dashboard';
 import Profile from './pages/Profile';
 import DetailProduct from './pages/product/DetailProduct';
+import ForgetPassword from './pages/auth/ForgetPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -17,6 +24,8 @@ const router = createBrowserRouter(
       <Route path='auth/signin' element={<SignIn />} />
       <Route path='auth/signup' element={<SignUp />} />
       <Route path='auth/verify' element={<Verify />} />
+      <Route path='auth/forget-password' element={<ForgetPassword />} />
+      <Route path='auth/reset-password' element={<ResetPassword />} />
       <Route path='products' element={<ProductList />} />
       <Route path='product/:id' element={<DetailProduct />} />
       <Route path='admin/dashboard' element={<AdminDashboard />} />

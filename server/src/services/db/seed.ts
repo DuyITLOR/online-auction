@@ -144,3 +144,4 @@ if (args.includes('user') || seedAll) {
   }
   console.log('Finnish seeding user');
 }
+

@@ -2,12 +2,19 @@ import { Router } from 'express';
 import { API_ROUTES } from '../utils/permission';
 import * as controllers from '../controllers/authControllers';
 import passport from 'passport';
+import { authMiddleware } from '../middleware/authentication';
 
 const router = Router();
 
 router.post(API_ROUTES.signIn.path, controllers.signIn);
 router.post(API_ROUTES.signUp.path, controllers.signUp);
 router.post(API_ROUTES.verifyEmail.path, controllers.verifyEmail);
+router.post(API_ROUTES.forgetPassword.path, controllers.forgetPassword);
+router.post(
+  API_ROUTES.resetPassword.path,
+  authMiddleware,
+  controllers.resetPassword
+);
 router.get(
   API_ROUTES.signInViaGoogle.path,
   passport.authenticate('google', {

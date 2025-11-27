@@ -12,7 +12,10 @@ export const hashPassword = async (password: string) => {
   return hashed;
 };
 
-export const comparePassword = async (plainPassword: string, hashedPassword: string) => {
+export const comparePassword = async (
+  plainPassword: string,
+  hashedPassword: string
+) => {
   const isMatch = await bcrypt.compare(plainPassword, hashedPassword);
   return isMatch;
 };
@@ -36,7 +39,12 @@ export const checkExistEmail = async (email: string) => {
   return user ? true : false;
 };
 
-export const addNewBidder = async (email: string, fullname: string, password: string, avtUrl: string) => {
+export const addNewBidder = async (
+  email: string,
+  fullname: string,
+  password: string,
+  avtUrl: string
+) => {
   try {
     const user = await addBidder(email, fullname, password, avtUrl);
     return {
@@ -57,20 +65,6 @@ export const addNewBidder = async (email: string, fullname: string, password: st
     };
   }
 };
-
-// export const updateUser = async (
-//   email: string,
-//   fullname: string,
-//   passwordHashed: string
-// ) => {
-//   try {
-//     await updateUser(email, fullname, passwordHashed);
-//     return true;
-//   } catch (err) {
-//     console.log(err);
-//     return false;
-//   }
-// };
 
 export const addEmailVerification = async (data: emailVerificationDto) => {
   try {
@@ -101,7 +95,7 @@ export const addEmailVerification = async (data: emailVerificationDto) => {
 
 export const verifyCode = async (code: string, email: string) => {
   const infor = await prisma.emailVerification.findFirst({
-    where: { email },
+    where: { email, status: 'NOTYET' },
     orderBy: { createdAt: 'desc' },
   });
   const now = new Date();
@@ -148,7 +142,12 @@ export const getUserByEmail = async (email: string) => {
   return user;
 };
 
-export const addBidder = async (email: string, fullname: string, password: string, avtUrl: string) => {
+export const addBidder = async (
+  email: string,
+  fullname: string,
+  password: string,
+  avtUrl: string
+) => {
   const user = await prisma.user.create({
     data: {
       email,
@@ -162,29 +161,6 @@ export const addBidder = async (email: string, fullname: string, password: strin
   });
   return user;
 };
-
-// export const createEmailVerification = async (email: string, code: string) => {
-//   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-
-//   await prisma.emailVerification.updateMany({
-//     where: {
-//       email,
-//       status: 'NOTYET',
-//     },
-//     data: {
-//       status: 'FAILED',
-//     },
-//   });
-
-//   const record = await prisma.emailVerification.create({
-//     data: {
-//       email,
-//       code,
-//       expiresAt,
-//     },
-//   });
-//   return record;
-// };
 
 const updateVerificationFailed = async (id: string) => {
   await prisma.emailVerification.update({
@@ -216,18 +192,6 @@ const getVerification = async (email: string) => {
   return record;
 };
 
-const updateUser = async (email: string, fullname: string, password: string) => {
-  await prisma.user.update({
-    where: {
-      email,
-    },
-    data: {
-      fullname,
-      password,
-    },
-  });
-};
-
 export const signInWithGoogle = async (profile: profileDto) => {
   const email = profile.email;
   const avtUrl = profile.avtUrl;
@@ -244,4 +208,35 @@ export const signInWithGoogle = async (profile: profileDto) => {
     bidder,
     token,
   };
+};
+
+export const updatePassword = async (id: string, password: string) => {
+  try {
+    await prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        password,
+      },
+    });
+    return {
+      success: true,
+      message: 'Update password',
+    };
+  } catch (err) {
+    console.error('Error from userService:', err);
+
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Unknown error',
+    };
+  }
 };

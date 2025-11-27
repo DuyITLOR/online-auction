@@ -22,15 +22,5 @@ router.patch(
   upload.single('avatar'),
   controllers.updateUser
 );
-router.patch(
-  API_ROUTES.acceptRequest.path,
-  authMiddleware,
-  controllers.acceptRequest
-);
-router.patch(
-  API_ROUTES.refuseRequest.path,
-  authMiddleware,
-  controllers.refuseRequest
-);
 
 export default router;

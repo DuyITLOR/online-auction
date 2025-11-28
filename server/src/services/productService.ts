@@ -168,6 +168,8 @@ export const searchProducts = async (query: productQueryDto) => {
     orderBy,
     include: {
       images: true,
+      seller: true,
+      category: true,
     },
   })
 

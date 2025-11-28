@@ -2,8 +2,8 @@ GET http://localhost:4000/test
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxODBjMWZkLTRhNmUtNGM3NC05MGZiLTVmOGRlNTNiYjIwNCIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2Mjg4MTM3NywiZXhwIjoxNzYyODg0OTc3fQ.jwhMOReoAR7kMqHVT8zMW4badIGIG5RAEbTqX8pGALg
 ###
 
-GET http://localhost:4000/get-free-token/admin-1
+GET http://localhost:4000/get-free-token/d5851586-2c43-4f58-868b-7a53fec93116
 ###
 
 GET http://localhost:4000/decode-token
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci00IiwiZW1haWwiOiJiaWRkZXI0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzNzQyMDExLCJleHAiOjE3NjM3NDU2MTF9.N574hXgnLssG6G_xa65cm92Jwj5Vpd-oX2XI2ghyEyg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci00IiwiZW1haWwiOiJiaWRkZXI0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzNzQyMDExLCJleHAiOjE3NjM3NDU2MTF9.N574hXgnLssG6G_xa65cm92Jwj5Vpd-oX2XI2ghyEyg	

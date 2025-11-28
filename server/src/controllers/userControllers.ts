@@ -12,12 +12,17 @@ export const getUserById = async (req: Request, res: Response) => {
     return;
   }
   const id = req.user.id;
+  const roles = await checkRole(id);
   const record = await service.getUserById(id);
   if (record.success) {
+    const newUser = {
+      ...record.user,
+      currentRoles: roles,
+    };
     const response = gatewayResponse(
       200,
       {
-        user: record.user,
+        user: newUser,
       },
       'Get user'
     );

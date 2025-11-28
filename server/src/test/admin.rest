@@ -1,5 +1,5 @@
 GET http://localhost:4000/users/requests
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0MjYwOTI4LCJleHAiOjE3NjQyNjQ1Mjh9.1rqDUP5LiL0iY0kYrY7bjnrKXJDoyp18xqRSMFxnNlE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0MzE2Nzc4LCJleHAiOjE3NjQzMjAzNzh9.zClPkV-oFf_JMtj-0p0xzxDZPOibNDWZihbis61Z3HE
 Content-Type: application/json
 ###
 
@@ -10,3 +10,8 @@ Content-Type: application/json
 {
 
 }
+###
+
+PATCH http://localhost:4000/users/upgrade/bb43988a-e8e4-4f91-b220-1a06c4c7b165/accept
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0MzE2Nzc4LCJleHAiOjE3NjQzMjAzNzh9.zClPkV-oFf_JMtj-0p0xzxDZPOibNDWZihbis61Z3HE
+Content-Type: application/json

@@ -1,13 +1,14 @@
-import type { Application } from "express";
-import { PrismaClient } from "@prisma/client";
+import type { Application } from 'express';
+import { PrismaClient } from '@prisma/client';
 
-import { API_ROUTES } from "../utils/permission";
-import auth from "./authentication";
-import user from "./userRoute";
-import test from "./test";
-import cate from "./categoryRoute";
-import product from "./productRoute";
-import watchList from "./watchListRoute";
+import { API_ROUTES } from '../utils/permission';
+import auth from './authentication';
+import user from './userRoute';
+import test from './test';
+import cate from './categoryRoute';
+import product from './productRoute';
+import watchList from './watchListRoute';
+import admin from './adminRoute';
 
 const prisma = new PrismaClient();
 
@@ -18,55 +19,55 @@ export function routes(app: Application): void {
       .json({ message: `Routes are active! (route: ${API_ROUTES.root})` });
   });
 
-  app.get("/health", async (_req, res) => {
+  app.get('/health', async (_req, res) => {
     const data = {
-      status: "ok",
+      status: 'ok',
       uptime: process.uptime(),
       date: new Date(),
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV,
-      version: process.env.npm_package_version || "1.0.0",
+      version: process.env.npm_package_version || '1.0.0',
       services: {
-        database: "unknown",
+        database: 'unknown',
       },
     };
 
     try {
       // Check database connection
       await prisma.$queryRaw`SELECT 1`;
-      data.services.database = "connected";
+      data.services.database = 'connected';
     } catch {
-      data.status = "not ready";
-      data.services.database = "disconnected";
+      data.status = 'not ready';
+      data.services.database = 'disconnected';
     }
 
     // Check if we're ready to serve requests
-    const isHealthy = data.services.database === "connected";
+    const isHealthy = data.services.database === 'connected';
 
     res.status(isHealthy ? 200 : 503).json(data);
   });
 
   // Add readiness probe for Docker deployments
-  app.get("/ready", async (_req, res) => {
+  app.get('/ready', async (_req, res) => {
     try {
       // Check database connection
       await prisma.$queryRaw`SELECT 1`;
-      res.status(200).json({ status: "ready", database: "connected" });
+      res.status(200).json({ status: 'ready', database: 'connected' });
     } catch (error) {
       res.status(503).json({
-        status: "not ready",
-        database: "disconnected",
-        error: error instanceof Error ? error.message : "Unknown error",
+        status: 'not ready',
+        database: 'disconnected',
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   });
 
   // Define your routes here
-  app.use("/", auth);
-  app.use("/", user);
-  app.use("/", test);
-  app.use("/", cate);
-  app.use("/", product);
-  app.use("/", watchList);
+  app.use('/', auth);
+  app.use('/', admin);
+  app.use('/', user);
+  app.use('/', test);
+  app.use('/', cate);
+  app.use('/', product);
+  app.use('/', watchList);
 }
-

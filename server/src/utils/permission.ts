@@ -1,6 +1,5 @@
 import { verify } from 'crypto';
 import { googleCallback } from '../controllers/authControllers';
-import { acceptRequest, refuseRequest } from '../controllers/userControllers';
 import { updateCate } from '../services/cateService';
 import { updateCategory } from '../controllers/categoryControllers';
 import { get } from 'http';
@@ -77,6 +76,7 @@ export const API_ROUTES = {
     },
   },
 
+  // User permission
   getUserById: {
     path: '/users',
     role: [Role.BIDDER, Role.ADMIN, Role.SELLER],
@@ -101,6 +101,13 @@ export const API_ROUTES = {
       note: 'string',
     },
   },
+
+  // Admin permission
+  getAllRequest: {
+    path: '/users/requests',
+    role: [Role.ADMIN],
+    method: 'GET',
+  },
   acceptRequest: {
     path: '/users/upgrade/:requestId/accept',
     role: [Role.ADMIN],
@@ -110,6 +117,15 @@ export const API_ROUTES = {
     path: '/users/upgrade/:requestId/refuse',
     role: [Role.ADMIN],
     method: 'PATCH',
+  },
+  blockBidder: {
+    path: '/users/:userId/blocked', // userId here is the bidder you want to block from bidding
+    role: [Role.SELLER],
+    method: 'POST',
+    request: {
+      productId: 'string',
+      reason: 'string',
+    },
   },
 };
 

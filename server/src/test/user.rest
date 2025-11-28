@@ -14,17 +14,9 @@ Content-Type: application/json
 
 POST http://localhost:4000/users/upgrade
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci01IiwiZW1haWwiOiJiaWRkZXI1QGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzNzk4NzgwLCJleHAiOjE3NjM4MDIzODB9.gb-qmz8dD_6KktyYUCd0ARPbhLFNK9q3m5cvjVvRAwI
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3NzM3MjFlLWU1NjQtNDQ2Ny05MzYyLTAyMWU3OTlhYjI5YiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQwMzA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NDI1Mzk2NSwiZXhwIjoxNzY0MjU3NTY1fQ.eUhYIo1VgzRG52hOg9r-XJyb3Px0GwH59aKnB0W_GPs
 {
 	"note": "I want to sell an iphone 13 pro max"
 }
 
 ###
-PATCH http://localhost:4000/users/upgrade/2560e8f7-cc53-49f0-9e1f-b4da801d6b2d/accept
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzODE0MDIyLCJleHAiOjE3NjM4MTc2MjJ9.CNTKVXrF9ysn3Cuo-zwiLGjNELstRFI7IjXuhuY-4fY
-###
-PATCH http://localhost:4000/users/upgrade/2560e8f7-cc53-49f0-9e1f-b4da801d6b2d/refuse
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzODE0MDIyLCJleHAiOjE3NjM4MTc2MjJ9.CNTKVXrF9ysn3Cuo-zwiLGjNELstRFI7IjXuhuY-4fY

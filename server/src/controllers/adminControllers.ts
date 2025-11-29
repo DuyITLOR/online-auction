@@ -124,16 +124,3 @@ export const refuseRequest = async (req: Request, res: Response) => {
     res.status(response.code).send(response);
   }
 };
-
-export const blockBidder = async (req: Request, res: Response) => {
-  if (!req.user) {
-    const response = gatewayResponse(
-      HttpStatus.badRequest,
-      null,
-      'Need token before requesting'
-    );
-    res.status(response.code).send(response);
-    return;
-  }
-  const id = req.user.id;
-};

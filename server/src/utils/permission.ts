@@ -101,6 +101,20 @@ export const API_ROUTES = {
       note: 'string',
     },
   },
+  blockBidder: {
+    path: '/users/:userId/blocked', // userId here is the bidder you want to block from bidding
+    role: [Role.SELLER],
+    method: 'POST',
+    request: {
+      productId: 'string',
+      reason: 'string',
+    },
+  },
+  getAllBlockedUser: {
+    path: '/users/blocked/products/:productId',
+    role: [Role.SELLER, Role.ADMIN],
+    method: 'GET',
+  },
 
   // Admin permission
   getAllRequest: {
@@ -117,15 +131,6 @@ export const API_ROUTES = {
     path: '/users/upgrade/:requestId/refuse',
     role: [Role.ADMIN],
     method: 'PATCH',
-  },
-  blockBidder: {
-    path: '/users/:userId/blocked', // userId here is the bidder you want to block from bidding
-    role: [Role.SELLER],
-    method: 'POST',
-    request: {
-      productId: 'string',
-      reason: 'string',
-    },
   },
 };
 

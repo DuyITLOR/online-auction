@@ -29,8 +29,8 @@ model User {
   ratingsGiven    Ratings[]         @relation("RatingsGiven")
   upgradeRequests UpgradeRequests[]
   watchList       WatchList[]
-  productWinner Products[] @relation("ProductWinner")
-  bidHistory    BidHistory[]
+  productWinner   Products[]        @relation("ProductWinner")
+  bidHistory      BidHistory[]
 }
 
 model Products {
@@ -51,7 +51,7 @@ model Products {
   highRatingRequired Boolean  @default(false)
   winnerId           String?
 
-  winner User? @relation("ProductWinner", fields: [winnerId], references: [id], onDelete: Cascade)
+  winner         User?            @relation("ProductWinner", fields: [winnerId], references: [id], onDelete: Cascade)
   bidHistory     BidHistory[]
   autoBids       AutoBids[]
   blockedBidders BlockedBidders[]
@@ -63,7 +63,6 @@ model Products {
   seller         User             @relation("SellerProducts", fields: [sellerId], references: [id], onDelete: Cascade)
   ratings        Ratings[]
   watchlistedBy  WatchList[]
-
 }
 
 model EmailVerification {
@@ -141,7 +140,6 @@ model BidHistory {
   bidder  User     @relation(fields: [bidderId], references: [id], onDelete: Cascade)
 }
 
-
 model WatchList {
   userId    String
   productId String
@@ -164,7 +162,7 @@ model Chat {
 
 model BlockedBidders {
   productId String
-  userId    String
+  userId    String // userId here is the blocked user id
   reason    String?
   createdAt DateTime @default(now())
   product   Products @relation(fields: [productId], references: [id], onDelete: Cascade)

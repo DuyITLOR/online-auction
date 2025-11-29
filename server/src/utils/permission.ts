@@ -1,7 +1,7 @@
 import { verify } from "crypto";
 import { googleCallback } from "../controllers/authControllers";
 import { acceptRequest, refuseRequest } from "../controllers/userControllers";
-import { updateCate } from "../services/cateService";
+import { findCateById, updateCate } from "../services/cateService";
 import { updateCategory } from "../controllers/categoryControllers";
 
 enum Role {
@@ -221,24 +221,25 @@ export const API_CATEGORY_ROUTES = {
     method: "GET",
   },
 
-  getCategoryById: {
-    path: "/categories/:id",
+  findParentCategories: {
+    path: "/category/parents",
     role: [Role.ALL],
     method: "GET",
   },
 
+  getCategoryById: {
+    path: "/categories/:categoryId",
+    role: [Role.ALL],
+    method: "GET",
+  },
   deleteCategory: {
     path: "/categories/:id",
     role: [Role.ADMIN],
     method: "DELETE",
   },
-  findParentCategories: {
-    path: "/categories/parents",
-    role: [Role.ALL],
-    method: "GET",
-  },
+
   findChildCategories: {
-    path: "/categories/children",
+    path: "/categories/children/:parentId",
     role: [Role.ALL],
     method: "GET",
   },

@@ -1,18 +1,46 @@
 import { useState } from "react";
-import OverviewTab from "./sections/OverviewTab";
-import UsersTab from "./sections/UsersTab";
-import ProductsTab from "./sections/ProductsTab";
-import CategoriesTab from "./sections/Categories";
-import ReportsTab from "./sections/ReportsTab";
-import ModerationTab from "./sections/ModerationTab";
+import OverviewTab from "../../components/sections/OverviewTab";
+import UsersTab from "../../components/sections/UsersTab";
+import ProductsTab from "../../components/sections/ProductsTab";
+import CategoriesTab from "../../components/sections/Categories";
+import ReportsTab from "../../components/sections/ReportsTab";
+import ModerationTab from "../../components/sections/ModerationTab";
+
+const TAB_LIST = [
+  { key: "tongquan", label: "Tổng quan" },
+  { key: "nguoidung", label: "Người dùng" },
+  { key: "sanpham", label: "Sản phẩm" },
+  { key: "danhmuc", label: "Danh mục" },
+  { key: "kiemduyet", label: "Kiểm duyệt" },
+  { key: "baocao", label: "Báo cáo" },
+];
 
 export default function DashboardTabs() {
   const [activeTab, setActiveTab] = useState("nguoidung");
 
   return (
     <div>
-      {/* Tabs */}
-      <ul className="flex border border-gray-300 text-sm font-medium text-center bg-gray-100 rounded">
+      {/* Mobile: show select */}
+      <div className="block md:hidden mb-4">
+        <label htmlFor="admin-tab-select" className="sr-only">
+          Chọn tab
+        </label>
+        <select
+          id="admin-tab-select"
+          value={activeTab}
+          onChange={(e) => setActiveTab(e.target.value)}
+          className="w-full p-2 border rounded-md"
+        >
+          {TAB_LIST.map((t) => (
+            <option key={t.key} value={t.key}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Tabs (desktop/tablet) */}
+      <ul className="hidden md:flex border border-gray-300 text-sm font-medium text-center bg-gray-100 rounded">
         <li className="me-2">
           <button
             onClick={() => setActiveTab("tongquan")}

@@ -37,11 +37,8 @@ export async function getAllCates() {
   return prisma.categories.findMany();
 }
 
-// Return top-level categories (parentId is null) when no id provided
-export async function getParentCates(parentId?: string) {
-  if (parentId) {
-    return prisma.categories.findMany({ where: { parentId } });
-  }
+// Return top-level categories (parentId is null)
+export async function getParentCates() {
   return prisma.categories.findMany({ where: { parentId: null } });
 }
 

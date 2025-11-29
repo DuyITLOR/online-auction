@@ -50,7 +50,7 @@ export interface Product {
   comments?: Comments[];
   order?: Orders | null;
   images?: ProductImage[];
-  category: Categories;
+  category: Category;
   seller: User;
   ratings?: Ratings[];
   watchlistedBy?: WatchList[];
@@ -77,13 +77,13 @@ export interface UpgradeRequests {
   user: User;
 }
 
-export interface Categories {
+export interface Category {
   id: string;
   name: string;
   parentId?: string | null;
 
-  parent?: Categories | null;
-  children?: Categories[];
+  parent?: Category | null;
+  children?: Category[];
   products?: Product[];
 }
 

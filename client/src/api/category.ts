@@ -10,8 +10,6 @@ export const getCategories = async () => {
     if (!res.ok) {
       throw new Error(data.message || 'Failed to fetch category api');
     }
-
-    console.log(data);
     return data;
   } catch (err) {
     console.log(err);

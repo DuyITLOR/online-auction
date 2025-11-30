@@ -19,50 +19,49 @@ model User {
   role            Role
   avtUrl          String
   autoBids        AutoBids[]
+  bidHistory      BidHistory[]
   blockedOn       BlockedBidders[]  @relation("BlockedUsers")
   chat            Chat[]
   comments        Comments[]
   ordersAsBuyer   Orders[]          @relation("OrdersBuyer")
   ordersAsSeller  Orders[]          @relation("OrdersSeller")
   products        Products[]        @relation("SellerProducts")
+  productWinner   Products[]        @relation("ProductWinner")
   ratingsReceived Ratings[]         @relation("RatingsReceived")
   ratingsGiven    Ratings[]         @relation("RatingsGiven")
   upgradeRequests UpgradeRequests[]
   watchList       WatchList[]
-  productWinner   Products[]        @relation("ProductWinner")
-  bidHistory      BidHistory[]
 }
 
 model Products {
-  id                 String   @id @default(uuid())
+  id                 String           @id @default(uuid())
   sellerId           String
   categoryId         String
   title              String
   description        String
-  startPrice         Decimal  @db.Decimal(10, 2)
-  currentPrice       Decimal? @db.Decimal(10, 2)
-  stepPrice          Decimal  @db.Decimal(10, 2)
-  buyNowPrice        Decimal  @db.Decimal(10, 2)
+  startPrice         Decimal          @db.Decimal(10, 2)
+  currentPrice       Decimal?         @db.Decimal(10, 2)
+  stepPrice          Decimal          @db.Decimal(10, 2)
+  buyNowPrice        Decimal          @db.Decimal(10, 2)
   autoExtendEnabled  Boolean
-  autoExtendMinutes  Int      @default(0)
+  autoExtendMinutes  Int              @default(0)
   startedAt          DateTime
   endAt              DateTime
-  updatedAt          DateTime @updatedAt
-  highRatingRequired Boolean  @default(false)
+  updatedAt          DateTime         @updatedAt
+  highRatingRequired Boolean          @default(false)
   winnerId           String?
-
-  winner         User?            @relation("ProductWinner", fields: [winnerId], references: [id], onDelete: Cascade)
-  bidHistory     BidHistory[]
-  autoBids       AutoBids[]
-  blockedBidders BlockedBidders[]
-  chat           Chat[]
-  comments       Comments[]
-  order          Orders?
-  images         ProductImages[]
-  category       Categories       @relation(fields: [categoryId], references: [id])
-  seller         User             @relation("SellerProducts", fields: [sellerId], references: [id], onDelete: Cascade)
-  ratings        Ratings[]
-  watchlistedBy  WatchList[]
+  autoBids           AutoBids[]
+  bidHistory         BidHistory[]
+  blockedBidders     BlockedBidders[]
+  chat               Chat[]
+  comments           Comments[]
+  order              Orders?
+  images             ProductImages[]
+  category           Categories       @relation(fields: [categoryId], references: [id])
+  seller             User             @relation("SellerProducts", fields: [sellerId], references: [id], onDelete: Cascade)
+  winner             User?            @relation("ProductWinner", fields: [winnerId], references: [id], onDelete: Cascade)
+  ratings            Ratings[]
+  watchlistedBy      WatchList[]
 }
 
 model EmailVerification {
@@ -126,6 +125,8 @@ model AutoBids {
   createdAt DateTime @default(now())
   bidder    User     @relation(fields: [bidderId], references: [id], onDelete: Cascade)
   product   Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, bidderId])
 }
 
 model BidHistory {
@@ -134,10 +135,8 @@ model BidHistory {
   bidderId  String
   amount    Decimal  @db.Decimal(10, 2)
   createdAt DateTime @default(now())
-
-  // Relation
-  product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
-  bidder  User     @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+  bidder    User     @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+  product   Products @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model WatchList {
@@ -162,7 +161,7 @@ model Chat {
 
 model BlockedBidders {
   productId String
-  userId    String // userId here is the blocked user id
+  userId    String
   reason    String?
   createdAt DateTime @default(now())
   product   Products @relation(fields: [productId], references: [id], onDelete: Cascade)

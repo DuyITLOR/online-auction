@@ -9,6 +9,7 @@ import cate from './categoryRoute';
 import product from './productRoute';
 import watchList from './watchListRoute';
 import admin from './adminRoute';
+import autoBid from './autoBidRoute';
 
 const prisma = new PrismaClient();
 
@@ -70,4 +71,5 @@ export function routes(app: Application): void {
   app.use('/', cate);
   app.use('/', product);
   app.use('/', watchList);
+  app.use('/', autoBid);
 }

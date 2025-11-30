@@ -95,13 +95,16 @@ export const upgradeUser = async (id: string, note: string) => {
 
 
 export const checkRating = async (id: string) => {
+  console.log("Checking rating for user:", id);
   const user = await prisma.user.findUnique({
     where: {id},
   })
 
   if (!user) throw new Error("User not found");
   const total = user.ratingNeg + user.ratingPos;
-
+  // console.log("positive ratings:", user.ratingPos);
+  // console.log("negative ratings:", user.ratingNeg);
+  // console.log("total ratings:", total);
   if (total === 0) return false;
 
   if ( (user.ratingPos / total)  >= 0.8){

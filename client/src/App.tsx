@@ -1,10 +1,5 @@
 import './App.css';
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-  RouterProvider,
-} from 'react-router-dom';
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import AuthCallback from './pages/auth/AuthCallback';
 import SignIn from './pages/auth/SignIn';
@@ -19,20 +14,20 @@ import ResetPassword from './pages/auth/ResetPassword';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path='/'>
-      <Route index element={<Dashboard />} />
-      <Route path='auth/signin' element={<SignIn />} />
-      <Route path='auth/signup' element={<SignUp />} />
-      <Route path='auth/verify' element={<Verify />} />
-      <Route path='auth/forget-password' element={<ForgetPassword />} />
-      <Route path='auth/reset-password' element={<ResetPassword />} />
-      <Route path='products' element={<ProductList />} />
-      <Route path='product/:id' element={<DetailProduct />} />
-      <Route path='admin/dashboard' element={<AdminDashboard />} />
-      <Route path='auth/google/callback' element={<AuthCallback />} />
-      <Route path='products' element={<ProductList />} />
-      <Route path='profile' element={<Profile />} />
-    </Route>
+      <Route path='/'>
+        <Route index element={<Dashboard />} />
+        <Route path='auth/signin' element={<SignIn />} />
+        <Route path='auth/signup' element={<SignUp />} />
+        <Route path='auth/verify' element={<Verify />} />
+        <Route path='auth/forget-password' element={<ForgetPassword />} />
+        <Route path='auth/reset-password' element={<ResetPassword />} />
+        <Route path='products' element={<ProductList />} />
+        <Route path='product/:id' element={<DetailProduct />} />
+        <Route path='admin/dashboard' element={<AdminDashboard />} />
+        <Route path='auth/google/callback' element={<AuthCallback />} />
+        <Route path='products' element={<ProductList />} />
+        <Route path='profile' element={<Profile />} />
+      </Route>
   )
 );
 

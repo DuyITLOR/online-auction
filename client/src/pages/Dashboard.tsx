@@ -42,6 +42,7 @@ const Dashboard = () => {
           <NavBar categories={categories || {}} />
           <Banner />
           <DisplayProduct />
+
           <Footer />
         </>
       )}

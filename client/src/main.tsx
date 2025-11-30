@@ -3,10 +3,13 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
 import { Toaster } from 'sonner';
+import { ProductProvider } from './libs/contexts/product.context.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Toaster />
-    <App />
+    <ProductProvider>
+      <Toaster />
+      <App />
+    </ProductProvider>
   </StrictMode>
 );

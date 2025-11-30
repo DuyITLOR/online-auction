@@ -29,7 +29,7 @@ export const generateToken = async (id: string, email: string) => {
     throw new Error('Missing JWT_SECRET environment variable');
   }
   const token = jwt.sign({ id, email }, process.env.JWT_SECRET!, {
-    expiresIn: '1h',
+    expiresIn: '30d',
   });
   return token;
 };

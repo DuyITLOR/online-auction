@@ -23,7 +23,24 @@ export const computerBidder = async (data: computeBidDto) => {
     orderBy: { maxAmount: "desc" },
   });
 
-  if (bidder.length === 1 && bidder[0].bidderId === data.newBidderId) {
+  // Người đấu giá đầu tiên
+  if (bidder.length === 0) {
+    await prisma.autoBids.create({
+      data: {
+        productId: data.productId,
+        bidderId: data.newBidderId,
+        maxAmount: new Prisma.Decimal(data.newMax),
+      },
+    });
+
+    const bidHistory = await prisma.bidHistory.create({
+      data: {
+        productId: data.productId,
+        bidderId: data.newBidderId,
+        amount: new Prisma.Decimal(product.startPrice),
+      },
+    });
+
     return await prisma.products.update({
       where: { id: data.productId },
       data: {
@@ -33,8 +50,6 @@ export const computerBidder = async (data: computeBidDto) => {
     });
   }
 
-  if (bidder.length === 0) return product;
-
   const oldWinner = bidder[0];
   const oldWinnerMax = Number(oldWinner.maxAmount);
 
@@ -43,17 +58,30 @@ export const computerBidder = async (data: computeBidDto) => {
 
   // Case 1: new bidder less than old winner
   if (data.newMax < oldWinnerMax) {
+    console.log("Case 1: new bidder less than old winner");
     newPrice = Math.max(data.newMax, currentPrice);
   }
   // Case 2: new bidder equal old winner
-  else if (data.newMax == oldWinnerMax) {
+  else if (data.newMax === oldWinnerMax) {
+    console.log("Case 2: new bidder equal old winner");
     newPrice = Math.max(oldWinnerMax, currentPrice);
   }
   // Case 3: new bidder greater than old winner
   else if (data.newMax > oldWinnerMax) {
+    console.log("Case 3: new bidder greater than old winner");
+    console.log("oldWinnerMax:", oldWinnerMax);
     newPrice = oldWinnerMax + stepPrice;
     winnerId = data.newBidderId;
   }
+
+  // After get the winner and new price, create the new record for autoBid
+  await prisma.autoBids.create({
+    data: {
+      productId: data.productId,
+      bidderId: data.newBidderId,
+      maxAmount: new Prisma.Decimal(data.newMax),
+    },
+  });
 
   const oldPrice = Number(product.currentPrice ?? product.startPrice);
   if (newPrice > oldPrice) {
@@ -79,19 +107,20 @@ export const createAutoBid = async (data: autoBidDto) => {
   const checkValid = await validationAutoBid(data);
   if (!checkValid) throw new Error("Auto bid validation failed");
 
-  await prisma.autoBids.create({
-    data: {
-      productId: data.productId,
-      bidderId: data.bidderId,
-      maxAmount: new Prisma.Decimal(data.maxAutoBidAmount),
-    },
-  });
+  const product = await getProductById(data.productId);
+  if (!product) throw new Error("Product not found");
 
-  return computerBidder({
+  if (product?.winnerId === data.bidderId) {
+    throw new Error("You are already the highest bidder");
+  }
+
+  const record = await computerBidder({
     productId: data.productId,
     newBidderId: data.bidderId,
     newMax: data.maxAutoBidAmount,
   });
+
+  return record;
 };
 
 export const getBidHistory = async (productId: string) => {
@@ -134,13 +163,25 @@ export const validationAutoBid = async (data: autoBidDto) => {
   // Check hightRating
   if (product.highRatingRequired) {
     const check = await checkRating(data.bidderId);
+    // console.log("check rating in auto bid:", check);
     if (!check) throw new Error("Cannot bid because you have low rating");
   }
 
   const stepPrice = Number(product.stepPrice);
   const currentPrice = Number(product.currentPrice ?? product.startPrice);
-  if (data.maxAutoBidAmount < currentPrice + stepPrice) {
-    throw new Error("The amount was not enough to bid");
+  const record = await prisma.autoBids.findMany({
+    where: {
+      productId: data.productId,
+    },
+    orderBy: { maxAmount: "desc" },
+  });
+
+  if (record.length > 0) {
+    if (data.maxAutoBidAmount < currentPrice + stepPrice) {
+      console.log("Current Price:", currentPrice);
+      console.log("Step Price:", stepPrice);
+      throw new Error("The amount was not enough to bid");
+    }
   }
 
   return true;

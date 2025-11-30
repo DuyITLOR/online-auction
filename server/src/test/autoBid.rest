@@ -1,0 +1,72 @@
+POST http://localhost:4000/autoBid
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci0xIiwiZW1haWwiOiJiaWRkZXIxQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0NDc0OTk4LCJleHAiOjE3NjQ0Nzg1OTh9.eZyIUEUtVXL3pEXS7Oeflg7mklByW6JADRVrf6CWJpI
+Content-Type: application/json
+
+{
+    "productId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb08",
+    "maxAutoBidAmount": 11000000
+}
+
+
+### Bidder B - 10.9M
+POST http://localhost:4000/autoBid
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci0yIiwiZW1haWwiOiJiaWRkZXIyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0NDc1MDM2LCJleHAiOjE3NjQ0Nzg2MzZ9.fH6RQI_0RItC_JlBVBx_cQ9hm_VhXAS_lYAc7T0xy2U
+Content-Type: application/json
+
+{
+    "productId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb08",
+    "maxAutoBidAmount": 10900000
+}
+
+
+### Bidder C - 11M
+POST http://localhost:4000/autoBid
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci0zIiwiZW1haWwiOiJiaWRkZXIzQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0NDc1MDYyLCJleHAiOjE3NjQ0Nzg2NjJ9.RFDtay43jgD0cX5wpeT2XUmbEAKIcSEeKQPNcDwvhEM
+Content-Type: application/json
+
+{
+    "productId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb08",
+    "maxAutoBidAmount": 11000000
+}
+
+### Bidder D — 11M
+POST http://localhost:4000/autoBid
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci00IiwiZW1haWwiOiJiaWRkZXI0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0NDc1MDgyLCJleHAiOjE3NjQ0Nzg2ODJ9.vF3F6Ekxp1peLNE3otoinN-hOqsvgltOoQqajcQJtas
+Content-Type: application/json
+
+{
+    "productId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb08",
+    "maxAutoBidAmount": 11000000
+}
+
+### Bidder E — 11.4M
+POST http://localhost:4000/autoBid
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci01IiwiZW1haWwiOiJiaWRkZXI1QGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0NDc1MDk1LCJleHAiOjE3NjQ0Nzg2OTV9.ACp8QqAY5QxwBUg9_6GIVUrOtLrUyqdfB8PpeFG4pXQ
+Content-Type: application/json
+
+{
+    "productId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb08",
+    "maxAutoBidAmount": 11400000
+}
+
+### Bidder A return — 11.4M
+POST http://localhost:4000/autoBid
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci0xIiwiZW1haWwiOiJiaWRkZXIxQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0NDc0OTk4LCJleHAiOjE3NjQ0Nzg1OTh9.eZyIUEUtVXL3pEXS7Oeflg7mklByW6JADRVrf6CWJpI
+Content-Type: application/json
+
+{
+    "productId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb08",
+    "maxAutoBidAmount": 11400000
+}
+
+
+### Bidder D return — 12M
+POST http://localhost:4000/autoBid
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci00IiwiZW1haWwiOiJiaWRkZXI0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0NDc1MDgyLCJleHAiOjE3NjQ0Nzg2ODJ9.vF3F6Ekxp1peLNE3otoinN-hOqsvgltOoQqajcQJtas
+Content-Type: application/json
+
+{
+    "productId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb08",
+    "maxAutoBidAmount": 12000000
+}
+

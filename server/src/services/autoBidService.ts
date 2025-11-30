@@ -20,7 +20,10 @@ export const computerBidder = async (data: computeBidDto) => {
     where: {
       productId: data.productId,
     },
-    orderBy: { maxAmount: "desc" },
+    orderBy:[
+      { maxAmount: "desc" },
+      { createdAt: "asc" }
+    ] ,
   });
 
   // Người đấu giá đầu tiên
@@ -104,15 +107,17 @@ export const computerBidder = async (data: computeBidDto) => {
 };
 
 export const createAutoBid = async (data: autoBidDto) => {
-  const checkValid = await validationAutoBid(data);
-  if (!checkValid) throw new Error("Auto bid validation failed");
-
+  
   const product = await getProductById(data.productId);
   if (!product) throw new Error("Product not found");
 
   if (product?.winnerId === data.bidderId) {
     throw new Error("You are already the highest bidder");
   }
+  
+  const checkValid = await validationAutoBid(data);
+  if (!checkValid) throw new Error("Auto bid validation failed");
+
 
   const record = await computerBidder({
     productId: data.productId,

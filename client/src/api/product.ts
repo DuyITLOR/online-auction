@@ -16,9 +16,17 @@ export const getProduct = async (productId: string) => {
   }
 };
 
-export const getAllProduct = async (page: number, coursePerPage: string) => {
+export const getAllProduct = async (page: number, coursePerPage: string, categoryId: string, sort: string) => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product?page=${page}&limit=${coursePerPage}`);
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: coursePerPage,
+    });
+
+    if (categoryId) params.append('categoryId', categoryId);
+    if (sort) params.append('sort', sort);
+
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product?${params}`);
     const data = await res.json();
 
     if (!res.ok) {

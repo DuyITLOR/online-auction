@@ -3,6 +3,7 @@ import { googleCallback } from '../controllers/authControllers';
 import { updateCate } from '../services/cateService';
 import { updateCategory } from '../controllers/categoryControllers';
 import { get } from 'http';
+import { createAutoBid } from '../services/autoBidService';
 
 enum Role {
   ADMIN = 'ADMIN',
@@ -206,6 +207,8 @@ export const HttpStatus = {
   notExtended: 510,
   networkAuthenticationRequired: 511,
 } as const;
+
+
 export const API_PRODUCT_ROUTES = {
   createProduct: {
     path: '/product',
@@ -304,3 +307,17 @@ export const API_WATCHLIST_ROUTES = {
     role: [Role.ALL],
   },
 };
+
+
+export const API_AUTO_BID_ROUTES = {
+  createAutoBid: {
+    path: '/autoBid',
+    method: 'POST',
+    role: [Role.BIDDER],
+  },
+  getHistoryAutoBidByProduct: {
+    path: '/autoBid/:productId/history',
+    method: 'GET',
+    role: [Role.ALL],
+  }
+}

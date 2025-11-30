@@ -1,0 +1,20 @@
+import { authMiddleware } from "../middleware/authentication";
+import { Router } from "express";
+import * as autoBidController from "../controllers/autoBiderController";
+import { API_AUTO_BID_ROUTES } from "../utils/permission";
+
+const router = Router();
+
+router.post(
+  API_AUTO_BID_ROUTES.createAutoBid.path,
+  authMiddleware,
+  autoBidController.createAutoBid
+);
+
+router.get(
+  API_AUTO_BID_ROUTES.getHistoryAutoBidByProduct.path,
+  authMiddleware,
+  autoBidController.getHistoryAutoBisByProduct
+);
+
+export default router;

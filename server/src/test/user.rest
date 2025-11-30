@@ -7,7 +7,7 @@ PATCH http://localhost:4000/users/update
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci01IiwiZW1haWwiOiJiaWRkZXI1QGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzNDgxMzg0LCJleHAiOjE3NjM0ODQ5ODR9.xOW9WakSq3hlL3NJO968dF-OfBmaxVKqyEttbOOyvsI
 Content-Type: application/json
 
-{
+{ 	
 	"fullname": "truong thanh dat"
 }
 ###
@@ -21,3 +21,16 @@ Content-Type: application/json
 }
 
 ###
+GET http://localhost:4000/users/blocked/products/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NDQyMTkyMywiZXhwIjoxNzY0NDI1NTIzfQ.lTnlJLsdY_-sBCXny9prCCr4ejjv0vXvBXTTZGpwG3o
+Content-Type: application/json
+
+###
+POST http://localhost:4000/users/bidder-1/blocked
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NDQyMTkyMywiZXhwIjoxNzY0NDI1NTIzfQ.lTnlJLsdY_-sBCXny9prCCr4ejjv0vXvBXTTZGpwG3o
+Content-Type: application/json
+
+{
+	"productId": "1",
+	"reason": "I hate him too"
+}

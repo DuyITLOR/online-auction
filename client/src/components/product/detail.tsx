@@ -162,7 +162,7 @@ const Detail = ({ product }: ProductProp) => {
         </div>
 
         <div className='flex flex-col w-full'>
-          <p className='text-2xl font-bold line-clamp-1'>{product?.title}</p>
+          <p className='text-2xl font-bold'>{product?.title}</p>
           <div className='flex items-center gap-10 mt-3'>
             <div className='flex items-center gap-1 text-gray-500'>
               <Clock className='w-4 h-4' />

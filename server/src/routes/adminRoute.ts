@@ -11,12 +11,6 @@ router.get(
   controllers.getAllRequest
 );
 
-router.post(
-  API_ROUTES.blockBidder.path,
-  authMiddleware,
-  controllers.blockBidder
-);
-
 router.patch(
   API_ROUTES.acceptRequest.path,
   authMiddleware,

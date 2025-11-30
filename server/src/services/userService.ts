@@ -1,5 +1,5 @@
 import { prisma } from './db/prisma';
-import { updateUserDto } from '../dto/userDto';
+import { blockUserDto, updateUserDto } from '../dto/userDto';
 
 export const getUserById = async (id: string) => {
   try {
@@ -112,3 +112,75 @@ export const checkRating = async (id: string) => {
   } 
   return false;
 }
+export const getAllBlockedUser = async (productId: string) => {
+  try {
+    const record = await prisma.blockedBidders.findMany({
+      where: {
+        productId,
+      },
+    });
+    return {
+      success: true,
+      data: record,
+      message: 'Get successfully',
+    };
+  } catch (err) {
+    console.error('Error from userService:', err);
+
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Unknown error',
+    };
+  }
+};
+
+export const blockUser = async (data: blockUserDto) => {
+  try {
+    const check = await prisma.blockedBidders.findUnique({
+      where: {
+        productId_userId: {
+          productId: data.productId,
+          userId: data.userId,
+        },
+      },
+    });
+    if (check) {
+      return {
+        success: true,
+        data: check,
+        message: 'Already blocked',
+      };
+    }
+    const record = await prisma.blockedBidders.create({
+      data: {
+        productId: data.productId,
+        userId: data.userId,
+        reason: data.reason,
+      },
+    });
+    return {
+      success: true,
+      data: record,
+      message: 'Blocked successfully',
+    };
+  } catch (err) {
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Unknown error',
+    };
+  }
+};

@@ -1,4 +1,4 @@
-import { ChevronRight, Clock, Heart, SquarePen } from 'lucide-react';
+import { ChevronRight, Clock, Heart, Minus, Plus, SquarePen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
@@ -8,6 +8,15 @@ import Review from './review';
 
 import type { Product, ProductImage } from '../../libs/types/types';
 import { useState } from 'react';
+import {
+  DialogFooter,
+  DialogHeader,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
 
 interface ProductProp {
   product: Product;
@@ -105,28 +114,52 @@ function formatDate(isoString: string | undefined, options = { time: false }) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-function timeFromNow(dateString: string | Date | undefined) {
+const formatTimeLeft = (date: string) => {
   const now = new Date();
-  if (!dateString) return;
-  const target = new Date(dateString);
+  const end = new Date(date);
+  const diff = end.getTime() - now.getTime();
 
-  const diffMs = -now.getTime() + target.getTime();
+  if (diff <= 0) return 'Hết hạn';
 
-  if (diffMs < 0) return '';
+  const diffDays = diff / (1000 * 60 * 60 * 24);
+  const diffHours = diff / (1000 * 60 * 60);
+  const diffMinutes = diff / (1000 * 60);
 
-  const diffSeconds = Math.floor(diffMs / 1000);
-  const diffMinutes = Math.floor(diffSeconds / 60);
-  const diffHours = Math.floor(diffMinutes / 60);
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffDays > 0) return `${diffDays} ngày trước`;
-  if (diffHours > 0) return `${diffHours} giờ trước`;
-  if (diffMinutes > 0) return `${diffMinutes} phút trước`;
-  return `${diffSeconds} giây trước`;
-}
+  if (diffDays > 3) {
+    return `Kết thúc: ${end.getDate()}/${end.getMonth() + 1}/${end.getFullYear()}`;
+  } else if (diffDays >= 1) {
+    return `${Math.ceil(diffDays)} ngày`;
+  } else if (diffHours >= 1) {
+    return `${Math.ceil(diffHours)} giờ`;
+  } else {
+    return `${Math.ceil(diffMinutes)} phút`;
+  }
+};
 
 const Detail = ({ product }: ProductProp) => {
   const [image, setImage] = useState<string>(() => product?.images?.[0]?.url ?? '');
+  const [price, setPrice] = useState(Number(product?.currentPrice) + Number(product.stepPrice) || 0);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+
+    value = value.replace(/[^0-9]/g, '');
+
+    const numericValue = Number(value);
+    setPrice(numericValue);
+  };
+
+  const plusPriceHandle = () => {
+    const curPrice = price;
+    const stepPrice = Number(product.stepPrice);
+    setPrice(curPrice + stepPrice);
+  };
+
+  const minusPriceHandle = () => {
+    const curPrice = price;
+    const stepPrice = Number(product.stepPrice);
+    setPrice(curPrice - stepPrice);
+  };
 
   if (!product) return <div className='loader' />;
   return (
@@ -177,7 +210,11 @@ const Detail = ({ product }: ProductProp) => {
           <div className='border-spacing-0.5 border-t border-gray-200 mt-2 mb-4 w-full' />
           <div className='flex justify-start'>
             <Avatar>
-              <AvatarImage src={'/gg-logo.svg'} alt='User Avatar' className='border border-gray-400 rounded-full' />
+              <AvatarImage
+                src={product.seller.avtUrl}
+                alt='User Avatar'
+                className='border border-gray-400 rounded-full'
+              />
               <AvatarFallback>{'Thanh Dang'.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
             </Avatar>
 
@@ -205,12 +242,12 @@ const Detail = ({ product }: ProductProp) => {
           <div className='flex flex-col gap-2'>
             <div className='flex items-end gap-5'>
               <p className='font-semibold text-gray-700'>Giá hiện tại: </p>
-              <span className='text-xl font-bold'>{product?.startPrice.toLocaleString()} VND</span>
+              <span className='text-xl font-bold'>{Number(product?.currentPrice).toLocaleString()} VND</span>
             </div>
 
             <p className='text-gray-700'>Lượt ra giá: 10</p>
 
-            <p className='text-gray-700'>Thời gian còn lại: {timeFromNow(product?.startedAt)} </p>
+            <p className='text-gray-700'>Thời gian còn lại: {formatTimeLeft(product?.endAt)} </p>
           </div>
 
           <div className='border-spacing-0.5 border-t border-gray-200 mt-5 mb-6 w-full' />
@@ -218,20 +255,31 @@ const Detail = ({ product }: ProductProp) => {
           <div className='flex flex-col'>
             <p className='text-gray-700 font-semibold text-lg mb-2'>Đặt mức giá tối đa cho sản phẩm</p>
 
-            <div className='flex gap-5'>
+            <div className='flex gap-3 items-center'>
+              <Plus
+                onClick={plusPriceHandle}
+                className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full'
+              />
               <input
-                type='number'
-                defaultValue={product?.currentPrice}
-                min={product?.currentPrice != null ? product.currentPrice + product?.stepPrice : undefined}
-                step={100000}
-                className='h-10 p-2 border text-lg border-gray-200 rounded-md focus-visible:outline-0.5 focus-visible:outline-gray-600 w-full pl-2'
+                type='text'
+                value={price.toLocaleString('vi-VN')}
+                onChange={handleChange}
+                className='h-10 p-2 border text-lg border-gray-200 rounded-md focus-visible:outline-0.5 focus-visible:outline-gray-600 w-[330px] pl-2'
               />
 
               <div className='bg-gray-400 p-2 font-semibold rounded-md w-15 h-10 text-center'>VND</div>
+
+              {price !== Number(product.currentPrice) + Number(product.stepPrice) && (
+                <Minus
+                  onClick={minusPriceHandle}
+                  className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full'
+                />
+              )}
             </div>
 
             <p className='text-gray-600 text-xs mt-4 '>
-              Mức giá tối thiểu có thể đặt là: {(product?.currentPrice ?? 0).toLocaleString()} VND (Bước giá:{' '}
+              Mức giá tối thiểu có thể đặt là:{' '}
+              {(Number(product?.currentPrice) + Number(product?.stepPrice)).toLocaleString()} VND (Bước giá:{' '}
               {(product?.stepPrice ?? 0).toLocaleString()} VND)
             </p>
           </div>
@@ -243,15 +291,81 @@ const Detail = ({ product }: ProductProp) => {
             Đặt giá ngay
           </Button>
 
-          <Button
-            variant={'outline'}
-            className='bg-teal-500 transition delay-150 duration-200 ease-in-out hover:scale-102 mt-5 text-gray-100 hover:cursor-pointer h-12'
-          >
-            <div>
-              <p className='text-base'>Mua ngay</p>
-              <p>{product?.buyNowPrice.toLocaleString()} VND</p>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant={'outline'}
+                className='bg-teal-500 transition delay-150 duration-200 ease-in-out hover:scale-102 mt-5 text-gray-100 hover:cursor-pointer h-12'
+              >
+                <div>
+                  <p className='text-base'>Mua ngay</p>
+                  <p>{Number(product?.buyNowPrice).toLocaleString()} VND</p>
+                </div>
+              </Button>
+            </DialogTrigger>
+
+            <DialogContent className='sm:max-w-[480px]'>
+              <DialogHeader>
+                <DialogTitle className='text-xl font-semibold text-gray-800'>Xác nhận mua ngay</DialogTitle>
+
+                <div className='mt-3 space-y-3 text-gray-700 leading-relaxed'>
+                  <p>
+                    Bạn đang chọn <span className='font-medium text-teal-600'>Mua ngay</span> với mức giá:
+                  </p>
+
+                  <p className='text-center text-2xl font-bold text-teal-600'>
+                    [{Number(product.buyNowPrice).toLocaleString()}] VND
+                  </p>
+
+                  <p>Sau khi xác nhận, phiên đấu giá sẽ kết thúc và sản phẩm sẽ thuộc về bạn với mức giá này.</p>
+
+                  <p>Bạn có chắc chắn muốn tiếp tục không?</p>
+                </div>
+              </DialogHeader>
+
+              <DialogFooter className='mt-4'>
+                <div className='flex items-center justify-end gap-2 w-full'>
+                  <DialogClose asChild>
+                    <Button variant='outline'>Hủy</Button>
+                  </DialogClose>
+                  <Button className='bg-teal-500 hover:bg-teal-600 text-white px-5' type='submit'>
+                    Xác nhận
+                  </Button>
+                </div>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      <div className='border-spacing-0.5 border-t border-gray-300 mt-20 mb-5' />
+
+      <div className='flex flex-col gap-1'>
+        <p className='text-2xl font-semibold mb-5'>Giao dịch</p>
+        <div className='flex flex-col gap-3'>
+          <div className='border-2 py-2 px-4 border-teal-700 bg-teal-50 flex flex-col rounded-md'>
+            <div className='flex items-center justify-between'>
+              <p className='font-semibold text-lg'>Nguyễn Văn Nam</p>
+              <p className='font-semibold text-xl'>45.000.000 VND</p>
             </div>
-          </Button>
+            <p className='text-gray-500'>10 phút trước</p>
+          </div>
+
+          <div className='border-2 py-2 px-4 border-teal-700 bg-teal-50 flex flex-col rounded-md'>
+            <div className='flex items-center justify-between'>
+              <p className='font-semibold text-lg'>Nguyễn Văn Nam</p>
+              <p className='font-semibold text-xl'>45.000.000 VND</p>
+            </div>
+            <p className='text-gray-500'>10 phút trước</p>
+          </div>
+
+          <div className='border-2 py-2 px-4 border-teal-700 bg-teal-50 flex flex-col rounded-md'>
+            <div className='flex items-center justify-between'>
+              <p className='font-semibold text-lg'>Nguyễn Văn Nam</p>
+              <p className='font-semibold text-xl'>45.000.000 VND</p>
+            </div>
+            <p className='text-gray-500'>10 phút trước</p>
+          </div>
         </div>
       </div>
 

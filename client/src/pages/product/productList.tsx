@@ -28,13 +28,17 @@ const ProductList = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [totalPage, setTotalPage] = useState(1);
+
+  // handle params
   const page = parseInt(searchParams.get('page') || '1', 10);
-  const coursePerPage = '1';
+  const categoryId = searchParams.get('categoryId') || '';
+  const sortType = searchParams.get('sort') || ''; 
+  const coursePerPage = '6';
 
   useEffect(() => {
     const fetchAllProduct = async () => {
       setLoading1(true);
-      const products = await getAllProduct(page, coursePerPage);
+      const products = await getAllProduct(page, coursePerPage, categoryId, sortType);
       setProducts(products.data);
       setTotalPage(products.totalPage);
       setLoading1(false);
@@ -62,7 +66,7 @@ const ProductList = () => {
 
     fetchAllProduct();
     fetchCategories();
-  }, [page]);
+  }, [page, categoryId, sortType]);
 
   const handlePage = (page: string) => {
     const next = new URLSearchParams(searchParams);
@@ -92,48 +96,51 @@ const ProductList = () => {
                   <div className='animate-spin rounded-full h-12 w-12 border-4 border-teal-500 border-t-transparent'></div>
                 </div>
               ) : (
-                <div className='grid grid-cols-3 gap-5 mt-3'>
-                  {products.map((item) => (
-                    <Link
-                      to={`/product/${item.id}`}
-                      key={item.id}
-                      className='flex flex-col gap-2 border border-gray-200 rounded-md px-3 py-2 h-fit w-95 relative cursor-pointer z-0'
-                    >
-                      <img src={item?.images?.[0].url} alt={item.title} className='w-full h-40 object-cover mb-2' />
-                      <p className='font-semibold text-xl line-clamp-1'>{item.title}</p>
+                <div>
+                  <div className='grid grid-cols-3 gap-5 mt-3'>
+                    {products.map((item) => (
+                      <Link
+                        to={`/product/${item.id}`}
+                        key={item.id}
+                        className='flex flex-col gap-2 border border-gray-200 rounded-md px-3 py-2 h-fit w-95 relative cursor-pointer z-0'
+                      >
+                        <img src={item?.images?.[0].url} alt={item.title} className='w-full h-40 object-cover mb-2' />
+                        <p className='font-semibold text-xl line-clamp-1'>{item.title}</p>
 
-                      <span className='font-semibold text-2xl'>{item?.currentPrice.toLocaleString()} VND</span>
+                        <span className='font-semibold text-2xl'>
+                          {Number(item?.currentPrice).toLocaleString()} VND
+                        </span>
 
-                      <span className=' text-gray-700 text-sm'>
-                        {' '}
-                        Mua ngay: {item?.buyNowPrice.toLocaleString()} VND
-                      </span>
+                        <span className=' text-gray-700 text-sm'>
+                          {' '}
+                          Mua ngay: {Number(item?.buyNowPrice).toLocaleString()} VND
+                        </span>
 
-                      <div className='border-t border-gray-300 mt-2 mb-2' />
+                        <div className='border-t border-gray-300 mt-2 mb-2' />
 
-                      <div className='flex items-center justify-between text-sm'>
-                        <span>Lượt ra giá: </span>
-                        <span>10</span>
-                      </div>
+                        <div className='flex items-center justify-between text-sm'>
+                          <span>Lượt ra giá: </span>
+                          <span>10</span>
+                        </div>
 
-                      <div className='flex items-center justify-between text-sm'>
-                        <span>Người bán: </span>
-                        <span>{item.seller.fullname}</span>
-                      </div>
+                        <div className='flex items-center justify-between text-sm'>
+                          <span>Người bán: </span>
+                          <span>{item.seller.fullname}</span>
+                        </div>
 
-                      <Heart
-                        className={`w-10 h-10 ${'stroke-0 fill-red-600'} absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
-                      />
+                        <Heart
+                          className={`w-10 h-10 ${'stroke-0 fill-red-600'} absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
+                        />
 
-                      <div className='w-20 h-7 text-sm bg-gray-800 text-white absolute left-1 top-1 px-2 py-1 rounded-md'>
-                        {convertDay(item.endAt)} Ngày
-                      </div>
-                    </Link>
-                  ))}
+                        <div className='w-20 h-7 text-sm bg-gray-800 text-white absolute left-1 top-1 px-2 py-1 rounded-md'>
+                          {convertDay(item.endAt)} Ngày
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                  <Pagination page={page} totalPage={totalPage} onPageChange={handlePage} />
                 </div>
               )}
-
-              <Pagination page={page} totalPage={totalPage} onPageChange={handlePage} />
             </div>
           </div>
 

@@ -16,7 +16,7 @@ const SideBar = ({ categories }: { categories: Category[] }) => {
             <ul className='flex flex-col gap-1 ml-2'>
               {category?.children?.map((item, index) => (
                 <li key={index}>
-                  <Link to={`/?category=${item.id}`} className='text-sm text-gray-600 hover:text-teal-600'>
+                  <Link to={`/products?categoryId=${item.id}`} className='text-sm text-gray-600 hover:text-teal-600'>
                     {item.name}
                   </Link>
                 </li>

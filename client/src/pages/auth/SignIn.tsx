@@ -5,6 +5,7 @@ import { SignInFormAction } from '../../libs/actions/auth';
 import { CircleAlert } from 'lucide-react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 const SignIn = () => {
   const [state, action] = useActionState(SignInFormAction, undefined);
@@ -22,6 +23,7 @@ const SignIn = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleRecaptcha = (value: any) => {
+    console.log(value);
     setCaptchaValue(value);
   };
 
@@ -33,7 +35,9 @@ const SignIn = () => {
           <p className='font-bold text-4xl text-teal-600'>Ebay</p>
         </div>
 
-        <div className='font-semibold mt-3 text-teal-700 text-center'>Đăng nhập vào tài khoản Ebay của bạn</div>
+        <div className='font-semibold mt-3 text-teal-700 text-center'>
+          Đăng nhập vào tài khoản Ebay của bạn
+        </div>
 
         <div className='flex flex-col gap-3 bg-slate-200 shadow-md rounded-md mt-7 py-5 px-5'>
           <form action={action}>
@@ -45,7 +49,9 @@ const SignIn = () => {
                 placeholder='ThDang@example.com'
                 className=' py-1 px-3 bg-white border border-0.5 border-gray-400 focus-visible:outline-0 focus-visible:border-teal-500 focus-visible:border-2 rounded-lg w-full '
               />
-              {state?.errors?.email && <p className='text-red-500 text-sm'>{state.errors.email}</p>}
+              {state?.errors?.email && (
+                <p className='text-red-500 text-sm'>{state.errors.email}</p>
+              )}
             </div>
 
             <div className='flex flex-col space-y-2 mb-3'>
@@ -56,7 +62,11 @@ const SignIn = () => {
                 className=' py-1 px-3 bg-white border border-0.5 border-gray-400 focus-visible:outline-0 focus-visible:border-teal-500 focus-visible:border-2 rounded-lg w-full '
               />
 
-              {state?.errors?.password && <p className='text-red-500 text-sm'>{state?.errors.password[0]}</p>}
+              {state?.errors?.password && (
+                <p className='text-red-500 text-sm'>
+                  {state?.errors.password[0]}
+                </p>
+              )}
             </div>
 
             <input type='hidden' name='recaptcha' value={captchaValue || ''} />
@@ -64,7 +74,9 @@ const SignIn = () => {
             {state?.messages && (
               <div className='w-full border border-red-300 rounded bg-[#fcc4c4] py-1 px-3 items-center flex gap-2'>
                 <CircleAlert className='w-5 h-5' color='red' />
-                <p className='text-red-500 font-semibold text-sm'>{state?.messages}</p>
+                <p className='text-red-500 font-semibold text-sm'>
+                  {state?.messages}
+                </p>
               </div>
             )}
 
@@ -94,14 +106,25 @@ const SignIn = () => {
           </div>
 
           <div className='flex items-center gap-1 justify-center'>
-            <h3 className='font-semibold text-sm'>Bạn mới biết đến Ebay? </h3>
-            <a href='/auth/signup' className='font-extrabold text-sm text-teal-700'>
+            <p className='font-semibold text-sm'>Bạn mới biết đến Ebay? </p>
+            <a
+              href='/auth/signup'
+              className='font-extrabold text-sm text-teal-700'
+            >
               Đăng ký
             </a>
           </div>
+          <Link
+            to='/auth/forget-password'
+            className='block text-center text-sm text-gray-600 font-semibold hover:text-orange-500 hover:underline transition-all'
+          >
+            Quên mật khẩu?
+          </Link>
         </div>
 
-        <h3 className='text-center text-sm mt-7 font-semibold text-teal-700'>Tiếp tục mua sắp với Ebay</h3>
+        <p className='text-center text-sm mt-7 font-semibold text-teal-700'>
+          Tiếp tục mua sắp với Ebay
+        </p>
       </div>
     </div>
   );

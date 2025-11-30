@@ -95,7 +95,7 @@ export async function SignUpFormAction(_state: SignUpFormState, formData: FormDa
 export async function VerifyFormAction(_state: VerifyFormState, formData: FormData): Promise<VerifyFormState> {
   try {
     const verifyForm = VerifySchema.safeParse({
-      name: formData.get('name'),
+      fullname: formData.get('name'),
       email: formData.get('email'),
       password: formData.get('password'),
       code: formData.get('code'),

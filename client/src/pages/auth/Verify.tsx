@@ -72,14 +72,14 @@ const Verify = () => {
           <Button className='bg-teal-600 text-white font-bold mt-2 hover:opacity-80'>Đăng ký</Button>
 
           <div className='flex items-center gap-1 justify-center'>
-            <h3 className='font-semibold text-sm'>Bạn đã có tài khoản Ebay rồi? </h3>
+            <p className='font-semibold text-sm'>Bạn đã có tài khoản Ebay rồi? </p>
             <a href='/auth/signin' className='font-extrabold text-sm text-teal-700'>
               Đăng nhập
             </a>
           </div>
         </div>
 
-        <h3 className='text-center text-sm mt-7 font-semibold text-teal-700'>Tiếp tục mua sắp cũng Ebay</h3>
+        <p className='text-center text-sm mt-7 font-semibold text-teal-700'>Tiếp tục mua sắp cũng Ebay</p>
       </form>
     </div>
   );

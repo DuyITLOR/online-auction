@@ -22,14 +22,14 @@ export async function createSession(payload: Session) {
     .setExpirationTime('2h')
     .sign(encoding);
 
-  Cookies.set('session', session, {
+  Cookies.set('session-action', session, {
     sameSite: 'lax',
     path: '/',
   });
 }
 
 export async function getSession() {
-  const session = Cookies.get('session');
+  const session = Cookies.get('session-action');
 
   console.log('session in session', session);
   if (!session) return null;

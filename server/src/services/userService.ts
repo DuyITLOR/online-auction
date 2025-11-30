@@ -1,5 +1,5 @@
 import { prisma } from './db/prisma';
-import { updateUserDto } from '../dto/userDto';
+import { blockUserDto, updateUserDto } from '../dto/userDto';
 
 export const getUserById = async (id: string) => {
   try {
@@ -93,24 +93,36 @@ export const upgradeUser = async (id: string, note: string) => {
   }
 };
 
-export const acceptRequest = async (id: string) => {
-  try {
-    const decidedAt = new Date();
-    const expiredAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    const record = await prisma.upgradeRequests.update({
-      where: { id },
-      data: {
-        status: 'VALID',
-        decidedAt,
-        expiredAt,
+export const checkRating = async (id: string) => {
+  console.log("Checking rating for user:", id);
+  const user = await prisma.user.findUnique({
+    where: {id},
+  })
+
+  if (!user) throw new Error("User not found");
+  const total = user.ratingNeg + user.ratingPos;
+  // console.log("positive ratings:", user.ratingPos);
+  // console.log("negative ratings:", user.ratingNeg);
+  // console.log("total ratings:", total);
+  if (total === 0) return false;
+
+  if ( (user.ratingPos / total)  >= 0.8){
+    return true;
+  } 
+  return false;
+}
+export const getAllBlockedUser = async (productId: string) => {
+  try {
+    const record = await prisma.blockedBidders.findMany({
+      where: {
+        productId,
       },
     });
-
     return {
       success: true,
       data: record,
-      message: 'Accept request successfully',
+      message: 'Get successfully',
     };
   } catch (err) {
     console.error('Error from userService:', err);
@@ -129,24 +141,36 @@ export const acceptRequest = async (id: string) => {
   }
 };
 
-export const refuseRequest = async (id: string) => {
+export const blockUser = async (data: blockUserDto) => {
   try {
-    const record = await prisma.upgradeRequests.update({
+    const check = await prisma.blockedBidders.findUnique({
       where: {
-        id,
+        productId_userId: {
+          productId: data.productId,
+          userId: data.userId,
+        },
       },
+    });
+    if (check) {
+      return {
+        success: true,
+        data: check,
+        message: 'Already blocked',
+      };
+    }
+    const record = await prisma.blockedBidders.create({
       data: {
-        status: 'FAILED',
+        productId: data.productId,
+        userId: data.userId,
+        reason: data.reason,
       },
     });
     return {
       success: true,
       data: record,
-      message: 'Refuse request successfully',
+      message: 'Blocked successfully',
     };
   } catch (err) {
-    console.error('Error from userService:', err);
-
     if (err instanceof Error) {
       return {
         success: false,

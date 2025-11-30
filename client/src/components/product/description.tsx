@@ -4,27 +4,10 @@ import 'react-quill-new/dist/quill.snow.css';
 import DOMPurify from 'dompurify';
 import { Button } from '../ui/button';
 import { Edit } from 'lucide-react';
-
-interface Product {
-  id: number;
-  name: string;
-  postDate: string;
-  editDate: string;
-  ownerId: string;
-  owner: string;
-  currentPrice: number;
-  buyNow: number;
-  description: string;
-  img: string[];
-}
-
-interface User {
-  id: string;
-  name: string;
-}
+import type { Product, User } from '../../libs/types/types';
 
 const ProductDescription = ({ product, currentUser }: { product: Product; currentUser: User }) => {
-  const isOwner = currentUser && product.ownerId === currentUser.id;
+  const isOwner = currentUser && product.sellerId === currentUser.id;
 
   const [isEditing, setIsEditing] = useState(false);
   const [description, setDescription] = useState(product.description);

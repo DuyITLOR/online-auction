@@ -5,7 +5,11 @@ import { API_ROUTES } from '../utils/permission';
 import auth from './authentication';
 import user from './userRoute';
 import test from './test';
-import cate from './category';
+import cate from './categoryRoute';
+import product from './productRoute';
+import watchList from './watchListRoute';
+import admin from './adminRoute';
+import autoBid from './autoBidRoute';
 
 const prisma = new PrismaClient();
 
@@ -61,8 +65,11 @@ export function routes(app: Application): void {
 
   // Define your routes here
   app.use('/', auth);
+  app.use('/', admin);
   app.use('/', user);
   app.use('/', test);
   app.use('/', cate);
-  
+  app.use('/', product);
+  app.use('/', watchList);
+  app.use('/', autoBid);
 }

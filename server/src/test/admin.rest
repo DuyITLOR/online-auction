@@ -1,0 +1,17 @@
+GET http://localhost:4000/users/requests
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0MzE2Nzc4LCJleHAiOjE3NjQzMjAzNzh9.zClPkV-oFf_JMtj-0p0xzxDZPOibNDWZihbis61Z3HE
+Content-Type: application/json
+###
+
+POST http://localhost:4000/users/d5851586-2c43-4f58-868b-7a53fec93116/blocked
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3NzM3MjFlLWU1NjQtNDQ2Ny05MzYyLTAyMWU3OTlhYjI5YiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQwMzA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NDI1Mzk2NSwiZXhwIjoxNzY0MjU3NTY1fQ.eUhYIo1VgzRG52hOg9r-XJyb3Px0GwH59aKnB0W_GPs
+Content-Type: application/json
+
+{
+
+}
+###
+
+PATCH http://localhost:4000/users/upgrade/bb43988a-e8e4-4f91-b220-1a06c4c7b165/accept
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0MzE2Nzc4LCJleHAiOjE3NjQzMjAzNzh9.zClPkV-oFf_JMtj-0p0xzxDZPOibNDWZihbis61Z3HE
+Content-Type: application/json

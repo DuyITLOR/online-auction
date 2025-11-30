@@ -12,12 +12,17 @@ export const getUserById = async (req: Request, res: Response) => {
     return;
   }
   const id = req.user.id;
+  const roles = await checkRole(id);
   const record = await service.getUserById(id);
   if (record.success) {
+    const newUser = {
+      ...record.user,
+      currentRoles: roles,
+    };
     const response = gatewayResponse(
       200,
       {
-        user: record.user,
+        user: newUser,
       },
       'Get user'
     );
@@ -81,6 +86,7 @@ export const requestUpgrade = async (req: Request, res: Response) => {
     res.status(response.code).send(response);
     return;
   }
+  //
   const note = req.body.note ?? '';
   const record = await service.upgradeUser(id, note);
   if (record.success) {
@@ -102,7 +108,7 @@ export const requestUpgrade = async (req: Request, res: Response) => {
   }
 };
 
-export const acceptRequest = async (req: Request, res: Response) => {
+export const getAllBlockedUser = async (req: Request, res: Response) => {
   if (!req.user) {
     const response = gatewayResponse(
       HttpStatus.badRequest,
@@ -115,7 +121,7 @@ export const acceptRequest = async (req: Request, res: Response) => {
   const id = req.user.id;
   // Check role
   const roles = await checkRole(id);
-  if (!roles.includes('ADMIN')) {
+  if (!roles.includes('SELLER') && !roles.includes('ADMIN')) {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
@@ -124,18 +130,20 @@ export const acceptRequest = async (req: Request, res: Response) => {
     res.status(response.code).send(response);
     return;
   }
-  const requestId = req.params.requestId;
-  const record = await service.acceptRequest(requestId);
+  const productId = req.params.productId;
+  const record = await service.getAllBlockedUser(productId);
   if (record.success) {
     const response = gatewayResponse(
-      HttpStatus.accepted,
-      { record: record.data },
+      HttpStatus.ok,
+      {
+        blocked_list: record.data,
+      },
       record.message
     );
     res.status(response.code).send(response);
   } else {
     const response = gatewayResponse(
-      HttpStatus.forbidden,
+      HttpStatus.badRequest,
       null,
       record.message
     );
@@ -143,7 +151,7 @@ export const acceptRequest = async (req: Request, res: Response) => {
   }
 };
 
-export const refuseRequest = async (req: Request, res: Response) => {
+export const blockBidder = async (req: Request, res: Response) => {
   if (!req.user) {
     const response = gatewayResponse(
       HttpStatus.badRequest,
@@ -156,7 +164,7 @@ export const refuseRequest = async (req: Request, res: Response) => {
   const id = req.user.id;
   // Check role
   const roles = await checkRole(id);
-  if (!roles.includes('ADMIN')) {
+  if (!roles.includes('SELLER')) {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
@@ -165,18 +173,27 @@ export const refuseRequest = async (req: Request, res: Response) => {
     res.status(response.code).send(response);
     return;
   }
-  const requestId = req.params.requestId;
-  const record = await service.refuseRequest(requestId);
+  const blockedUserId = req.params.userId;
+  const productId = req.body.productId;
+  const reason = req.body.reason;
+  const data = {
+    productId: productId,
+    userId: blockedUserId,
+    reason: reason,
+  };
+  const record = await service.blockUser(data);
   if (record.success) {
     const response = gatewayResponse(
-      HttpStatus.ok,
-      { record: record.data },
+      HttpStatus.accepted,
+      {
+        record: record.data,
+      },
       record.message
     );
     res.status(response.code).send(response);
   } else {
     const response = gatewayResponse(
-      HttpStatus.serviceUnavailable,
+      HttpStatus.badRequest,
       null,
       record.message
     );

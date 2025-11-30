@@ -20,7 +20,6 @@ export default function AuthCallback() {
 
     const verifyToken = async () => {
       try {
-        // 1. Gọi API verify
         const res = await fetch(`${import.meta.env.BACKEND_URL}/auth/verify-token`, {
           method: 'GET',
           headers: {
@@ -30,10 +29,8 @@ export default function AuthCallback() {
 
         if (res.status === 404) {
           console.error('JWT verification failed');
-          // Có thể return hoặc navigate về login nếu lỗi
         }
 
-        // 2. Tạo session (Lưu cookie/localStorage)
         await createSession({
           user: {
             name,
@@ -48,7 +45,6 @@ export default function AuthCallback() {
         setTimeout(() => {
           navigate('/');
         }, 1500);
-
       } catch (err) {
         console.error(err);
         navigate('/login');
@@ -58,6 +54,5 @@ export default function AuthCallback() {
     verifyToken();
   }, [searchParams, navigate]);
 
-  // Bạn có thể làm đẹp giao diện Loading ở đây (ví dụ thêm Spinner)
   return <div className='loader'></div>;
 }

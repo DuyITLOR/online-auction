@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const VerifySchema = z.object({
-  name: z.string().min(1, 'User name can not empty').trim(),
+  fullname: z.string().min(1, 'User name can not empty').trim(),
   email: z.string().email(),
   password: z
     .string()

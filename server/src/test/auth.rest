@@ -6,7 +6,8 @@ Content-Type: application/json
 
 {
 	"email": "truongthanhdat6879@gmail.com",
-	"password": "123"
+	"password": "123",
+	"recaptchaToken": "0cAFcWeA65lGihLV_Vt"  // put recaptcha token here
 }
 
 ###
@@ -14,7 +15,7 @@ POST http://localhost:4000/sign-up
 Content-Type: application/json
 
 {
-	"email": "truongthanhdat6879@gmail.com"
+	"email": "truongthanhdat0305@gmail.com"
 }
 
 ###
@@ -22,10 +23,10 @@ POST http://localhost:4000/verify-email
 Content-Type: application/json
 
 {
-	"email": "truongthanhdat6879@gmail.com",
+	"email": "lenhutduydepzai@gmail.com",
 	"fullname": "Truong Thanh Dat",
 	"password": "123",
-	"code": "QMKGC0"
+	"code": "BZCB84"
 }
 
 ###
@@ -35,6 +36,15 @@ Content-Type: application/json
 {
 	"email": "bidder5@example.com",
 	"fullname": "Thanh Dat"
+}
+
+###
+
+POST http://localhost:4000/forget-password
+Content-Type: application/json
+
+{
+	"email": "truongthanhdat6879@gmail.com"
 }
 
 ###

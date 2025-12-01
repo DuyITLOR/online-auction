@@ -206,6 +206,12 @@ export const validationAutoBid = async (data: autoBidDto) => {
 };
 
 export const getBidCountByProductId = async (productId: string) => {
+  const product = await prisma.products.findUnique({
+    where: { id: productId },
+  });
+
+  if (!product) throw new Error("Product not found");
+
   const count = await prisma.bidHistory.count({
     where: { productId },
   });

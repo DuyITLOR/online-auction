@@ -1,4 +1,4 @@
-import { type FC, useState } from "react";
+import { type FC, useState, useEffect } from "react";
 import {
   Pencil,
   Trash2,
@@ -30,7 +30,11 @@ async function getUserData() {
   return categories;
 }
 
-getUserData();
+// getUserData();
+
+useEffect(() => {
+  getUserData();
+}, []);
 
 // Mock Data (unchanged)
 const initialData: TreeNode[] = [

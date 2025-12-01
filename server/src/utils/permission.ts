@@ -4,6 +4,7 @@ import { updateCate } from '../services/cateService';
 import { updateCategory } from '../controllers/categoryControllers';
 import { get } from 'http';
 import { createAutoBid } from '../services/autoBidService';
+import path from 'path';
 
 enum Role {
   ADMIN = 'ADMIN',
@@ -317,6 +318,11 @@ export const API_AUTO_BID_ROUTES = {
   },
   getHistoryAutoBidByProduct: {
     path: '/autoBid/:productId/history',
+    method: 'GET',
+    role: [Role.ALL],
+  },
+  getBidCountByProductId: {
+    path: '/autoBid/:productId/count',
     method: 'GET',
     role: [Role.ALL],
   }

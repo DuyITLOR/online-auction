@@ -17,4 +17,9 @@ router.get(
   autoBidController.getHistoryAutoBisByProduct
 );
 
+router.get(
+  API_AUTO_BID_ROUTES.getBidCountByProductId.path,
+  autoBidController.getBidCountByProduct
+);
+
 export default router;

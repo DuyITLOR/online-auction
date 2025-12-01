@@ -1,10 +1,5 @@
 import './App.css';
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-  RouterProvider,
-} from 'react-router-dom';
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import AuthCallback from './pages/auth/AuthCallback';
 import SignIn from './pages/auth/SignIn';

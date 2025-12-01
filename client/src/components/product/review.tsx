@@ -8,6 +8,25 @@ interface UserProps {
   seller: User | undefined;
 }
 
+function formatDate(isoString: string | undefined, options = { time: false }) {
+  if (!isoString) return;
+  const d = new Date(isoString);
+
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+
+  if (!options.time) {
+    return `${year}-${month}-${day}`;
+  }
+
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const seconds = String(d.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 const review = [
   {
     id: 1,
@@ -83,7 +102,7 @@ const Review = ({ seller }: UserProps) => {
         <p className='text-2xl font-semibold mb-2'>Người bán</p>
         <div className='flex justify-start'>
           <Avatar>
-            <AvatarImage src={'/gg-logo.svg'} alt='User Avatar' className='w-35 h-35' />
+            <AvatarImage src={seller.avtUrl} alt='User Avatar' className='w-45 rounded-full' />
             <AvatarFallback>{'Thanh Dang'.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
           </Avatar>
 
@@ -100,7 +119,7 @@ const Review = ({ seller }: UserProps) => {
 
         <div className='flex mt-3 items-start gap-2 font-semibold'>
           <Calendar className='w-5 h-5' />
-          <p>Tham gia: 10/12/2024</p>
+          <p>Tham gia: {formatDate(seller.createdAt)}</p>
         </div>
 
         <button className='border border-gray-300 px-2 font-semibold h-10 w-7/8 rounded-2xl mt-5 bg-teal-500 text-white'>

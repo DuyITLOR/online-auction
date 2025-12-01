@@ -85,3 +85,31 @@ export const getHistoryAutoBisByProduct = async (
     return res.status(response.code).send(response);
   }
 };
+
+
+export const getBidCountByProduct = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    if (!productId) {
+      const response = gatewayResponse(
+        HttpStatus.badRequest,
+        null,
+        "Missing productId parameter"
+      );
+      return res.status(response.code).send(response);
+    }
+
+    const data = await autoBidService.getBidCountByProductId(productId);
+    const response = gatewayResponse(
+      HttpStatus.ok,
+      data,
+      "Bid count retrieved successfully"
+    );
+    return res.status(response.code).send(response);
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Internal Server Error";
+    const response = gatewayResponse(HttpStatus.badRequest, null, message);
+    return res.status(response.code).send(response);
+  }
+}

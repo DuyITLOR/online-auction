@@ -89,13 +89,18 @@ export const computerBidder = async (data: computeBidDto) => {
 
     if (newPrice > currentPrice && Number(last?.amount) !== newPrice) {
       // Create history
-      await tx.bidHistory.create({
+      try{
+        await tx.bidHistory.create({
         data: {
           productId: data.productId,
           bidderId: winnerId,
           amount: new Prisma.Decimal(newPrice),
         },
       });
+      } catch (error) {
+        console.error("Error creating bid history:", error);
+        // throw new Error("Failed to create bid history");
+      }
     }
 
     return await tx.products.update({
@@ -199,3 +204,10 @@ export const validationAutoBid = async (data: autoBidDto) => {
 
   return true;
 };
+
+export const getBidCountByProductId = async (productId: string) => {
+  const count = await prisma.bidHistory.count({
+    where: { productId },
+  });
+  return count;
+}

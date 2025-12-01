@@ -1,5 +1,5 @@
-import { prisma } from './db/prisma';
-import { blockUserDto, updateUserDto } from '../dto/userDto';
+import { prisma } from "./db/prisma";
+import { blockUserDto, updateUserDto } from "../dto/userDto";
 
 export const getUserById = async (id: string) => {
   try {
@@ -13,7 +13,7 @@ export const getUserById = async (id: string) => {
       user: user,
     };
   } catch (err) {
-    console.error('Error from userService:', err);
+    console.error("Error from userService:", err);
 
     if (err instanceof Error) {
       return {
@@ -24,7 +24,7 @@ export const getUserById = async (id: string) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: "Unknown error",
     };
   }
 };
@@ -44,10 +44,10 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
     return {
       success: true,
       data: updated,
-      message: 'Update successful',
+      message: "Update successful",
     };
   } catch (err) {
-    console.error('Error from userService:', err);
+    console.error("Error from userService:", err);
 
     if (err instanceof Error) {
       return {
@@ -58,7 +58,7 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: "Unknown error",
     };
   }
 };
@@ -74,10 +74,10 @@ export const upgradeUser = async (id: string, note: string) => {
     return {
       success: true,
       data: record,
-      message: 'Request successfully',
+      message: "Request successfully",
     };
   } catch (err) {
-    console.error('Error from userService:', err);
+    console.error("Error from userService:", err);
 
     if (err instanceof Error) {
       return {
@@ -88,17 +88,16 @@ export const upgradeUser = async (id: string, note: string) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: "Unknown error",
     };
   }
 };
 
-
 export const checkRating = async (id: string) => {
   console.log("Checking rating for user:", id);
   const user = await prisma.user.findUnique({
-    where: {id},
-  })
+    where: { id },
+  });
 
   if (!user) throw new Error("User not found");
   const total = user.ratingNeg + user.ratingPos;
@@ -107,11 +106,11 @@ export const checkRating = async (id: string) => {
   // console.log("total ratings:", total);
   if (total === 0) return false;
 
-  if ( (user.ratingPos / total)  >= 0.8){
+  if (user.ratingPos / total >= 0.8) {
     return true;
-  } 
+  }
   return false;
-}
+};
 export const getAllBlockedUser = async (productId: string) => {
   try {
     const record = await prisma.blockedBidders.findMany({
@@ -122,10 +121,10 @@ export const getAllBlockedUser = async (productId: string) => {
     return {
       success: true,
       data: record,
-      message: 'Get successfully',
+      message: "Get successfully",
     };
   } catch (err) {
-    console.error('Error from userService:', err);
+    console.error("Error from userService:", err);
 
     if (err instanceof Error) {
       return {
@@ -136,10 +135,25 @@ export const getAllBlockedUser = async (productId: string) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: "Unknown error",
     };
   }
 };
+
+export const getBlockUserByProductId = async (productId: string): Promise<string[]> => {
+  try {
+    const record = await prisma.blockedBidders.findMany({
+      where: { productId },
+      select: { userId: true },
+    });
+
+    return record.map((r) => r.userId);
+  } catch (err) {
+    console.error("Error from userService:", err);
+    return [];
+  }
+};
+
 
 export const blockUser = async (data: blockUserDto) => {
   try {
@@ -155,7 +169,7 @@ export const blockUser = async (data: blockUserDto) => {
       return {
         success: true,
         data: check,
-        message: 'Already blocked',
+        message: "Already blocked",
       };
     }
     const record = await prisma.blockedBidders.create({
@@ -168,7 +182,7 @@ export const blockUser = async (data: blockUserDto) => {
     return {
       success: true,
       data: record,
-      message: 'Blocked successfully',
+      message: "Blocked successfully",
     };
   } catch (err) {
     if (err instanceof Error) {
@@ -180,7 +194,7 @@ export const blockUser = async (data: blockUserDto) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: "Unknown error",
     };
   }
 };

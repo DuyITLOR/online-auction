@@ -137,6 +137,8 @@ model BidHistory {
   createdAt DateTime @default(now())
   bidder    User     @relation(fields: [bidderId], references: [id], onDelete: Cascade)
   product   Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, amount])
 }
 
 model WatchList {

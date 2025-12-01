@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Pagination = ({
   page,
@@ -25,19 +25,22 @@ const Pagination = ({
     let end = Math.min(totalPage - 1, page + pagesAroundCurrent);
 
     if (page - start < pagesAroundCurrent) {
-      end = Math.min(totalPage - 1, end + (pagesAroundCurrent - (page - start)));
+      end = Math.min(
+        totalPage - 1,
+        end + (pagesAroundCurrent - (page - start))
+      );
     }
     if (end - page < pagesAroundCurrent) {
       start = Math.max(2, start - (pagesAroundCurrent - (end - page)));
     }
     if (start > 2) {
-      pageNumbers.push('...');
+      pageNumbers.push("...");
     }
     for (let i = start; i <= end; i++) {
       pageNumbers.push(i);
     }
     if (end < totalPage - 1) {
-      pageNumbers.push('...');
+      pageNumbers.push("...");
     }
 
     if (totalPage !== 1) {
@@ -48,32 +51,35 @@ const Pagination = ({
   }
 
   const finalPageNumbers = pageNumbers.filter((p, index, self) => {
-    return !(p === '...' && (index === 0 || self[index - 1] === '...'));
+    return !(p === "..." && (index === 0 || self[index - 1] === "..."));
   });
 
-  if (finalPageNumbers[finalPageNumbers.length - 1] !== totalPage && totalPage > 1) {
+  if (
+    finalPageNumbers[finalPageNumbers.length - 1] !== totalPage &&
+    totalPage > 1
+  ) {
     finalPageNumbers.pop();
     finalPageNumbers.push(totalPage);
   }
-  if (finalPageNumbers[0] === '...' && totalPage > 1) {
+  if (finalPageNumbers[0] === "..." && totalPage > 1) {
     finalPageNumbers.shift();
     finalPageNumbers.unshift(1);
   }
   const uniqueFinalPageNumbers = Array.from(new Set(finalPageNumbers));
   const handlePageClick = (item: number | string) => {
-    if (typeof item === 'number') {
+    if (typeof item === "number") {
       onPageChange(item.toString());
     }
   };
 
   return (
-    <div className='flex items-center gap-3 mt-10 justify-center'>
+    <div className="flex items-center gap-3 mt-5 justify-center">
       {page > 1 && (
         <div
-          className='w-10 h-10 text-center p-2 bg-slate-200 border border-gray-300 font-bold rounded-full cursor-pointer'
+          className="w-10 h-10 text-center p-2 bg-slate-200 border border-gray-300 font-bold rounded-full cursor-pointer"
           onClick={() => onPageChange((page - 1).toString())}
         >
-          <ChevronLeft className='w-5 stroke-3! h-5' />
+          <ChevronLeft className="w-5 stroke-3! h-5" />
         </div>
       )}
 
@@ -81,11 +87,11 @@ const Pagination = ({
         <div
           key={index}
           className={
-            item === '...'
-              ? 'w-10 h-10 text-center p-2 font-bold'
+            item === "..."
+              ? "w-10 h-10 text-center p-2 font-bold"
               : page === item
-              ? 'w-10 h-10 text-center p-2 bg-teal-500 font-bold text-white rounded-full cursor-pointer'
-              : 'w-10 h-10 text-center p-2 bg-slate-200 border border-gray-300 font-bold rounded-full cursor-pointer'
+              ? "w-10 h-10 text-center p-2 bg-teal-500 font-bold text-white rounded-full cursor-pointer"
+              : "w-10 h-10 text-center p-2 bg-slate-200 border border-gray-300 font-bold rounded-full cursor-pointer"
           }
           onClick={() => handlePageClick(item)}
         >
@@ -95,10 +101,10 @@ const Pagination = ({
 
       {page < totalPage && (
         <div
-          className='w-10 h-10 text-center p-2 bg-slate-200 border border-gray-300 font-bold rounded-full cursor-pointer'
+          className="w-10 h-10 text-center p-2 bg-slate-200 border border-gray-300 font-bold rounded-full cursor-pointer"
           onClick={() => onPageChange((page + 1).toString())}
         >
-          <ChevronRight className='w-5 stroke-3! h-5' />
+          <ChevronRight className="w-5 stroke-3! h-5" />
         </div>
       )}
     </div>

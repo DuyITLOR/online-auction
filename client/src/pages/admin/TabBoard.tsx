@@ -1,10 +1,10 @@
 import { useState } from "react";
-import OverviewTab from "../../components/sections/OverviewTab";
-import UsersTab from "../../components/sections/UsersTab";
-import ProductsTab from "../../components/sections/ProductsTab";
-import CategoriesTab from "../../components/sections/Categories";
-import ReportsTab from "../../components/sections/ReportsTab";
-import ModerationTab from "../../components/sections/ModerationTab";
+import OverviewTab from "../../components/admin/OverviewTab";
+import UsersTab from "../../components/admin/UsersTab";
+import ProductsTab from "../../components/admin/ProductsTab";
+import CategoriesTab from "../../components/admin/Categories";
+import ReportsTab from "../../components/admin/ReportsTab";
+import ModerationTab from "../../components/admin/ModerationTab";
 
 const TAB_LIST = [
   { key: "tongquan", label: "Tổng quan" },

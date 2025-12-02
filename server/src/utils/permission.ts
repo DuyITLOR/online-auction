@@ -266,7 +266,6 @@ export const API_CATEGORY_ROUTES = {
     role: [Role.ALL],
     method: 'GET',
   },
-
   deleteCategory: {
     path: '/categories/:id',
     role: [Role.ADMIN],

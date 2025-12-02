@@ -7,7 +7,7 @@ export async function createCategory(req: Request, res: Response) {
   try {
     const userID = req.user!.id;
     let roles = await checkRole(userID);
-    if (!roles.includes('ADMIN')) {
+    if (!roles.includes("ADMIN")) {
       return res.status(403).json({ error: "Forbidden. Admins only." });
     }
 
@@ -23,7 +23,7 @@ export async function updateCategory(req: Request, res: Response) {
   try {
     const userID = req.user!.id;
     let roles = await checkRole(userID);
-    if (!roles.includes('ADMIN')) {
+    if (!roles.includes("ADMIN")) {
       return res.status(403).json({ error: "Forbidden. Admins only." });
     }
 
@@ -40,7 +40,7 @@ export async function deleteCategory(req: Request, res: Response) {
   try {
     const userID = req.user!.id;
     let roles = await checkRole(userID);
-    if (!roles.includes('ADMIN')) {
+    if (!roles.includes("ADMIN")) {
       return res.status(403).json({ error: "Forbidden. Admins only." });
     }
     const { categoryId } = req.params;
@@ -54,7 +54,7 @@ export async function deleteCategory(req: Request, res: Response) {
 export async function getCategoryById(req: Request, res: Response) {
   const { categoryId } = req.params;
   try {
-    const category = await Service.getProductsByCateId(categoryId);
+    const category = await Service.findCateById(categoryId);
     if (!category) return res.status(404).json({ error: "Category not found" });
     return res.status(200).json(category);
   } catch (error) {
@@ -64,6 +64,7 @@ export async function getCategoryById(req: Request, res: Response) {
 
 export async function getAllCategories(_req: Request, res: Response) {
   try {
+    console.log("Fetching parent categories");
     const categories = await Service.getAllCates();
     return res.status(200).json(categories);
   } catch (error) {
@@ -73,6 +74,7 @@ export async function getAllCategories(_req: Request, res: Response) {
 
 export async function findParentCategories(_req: Request, res: Response) {
   try {
+    console.log("Fetching parent categories");
     const parents = await Service.getParentCates();
     return res.status(200).json(parents);
   } catch (error) {

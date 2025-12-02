@@ -157,7 +157,7 @@ export const getBidHistory = async (productId: string) => {
 
   return prisma.bidHistory.findMany({
     where: { productId: productId },
-    orderBy: { createdAt: "desc" },
+    orderBy: { amount: "desc" },
     include: { bidder: true },
   });
 };

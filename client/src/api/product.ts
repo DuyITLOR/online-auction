@@ -16,15 +16,22 @@ export const getProduct = async (productId: string) => {
   }
 };
 
-export const getAllProduct = async (page: number, coursePerPage: string, categoryId: string, sort: string) => {
+export const getAllProduct = async (
+  page: number,
+  coursePerPage: string,
+  categoryId: string,
+  sort: string,
+  q: string
+) => {
   try {
     const params = new URLSearchParams({
-      page: String(page),
+      page:  String(page),
       limit: coursePerPage,
     });
 
     if (categoryId) params.append('categoryId', categoryId);
     if (sort) params.append('sort', sort);
+    if (q) params.append('q', q);
 
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product?${params}`);
     const data = await res.json();

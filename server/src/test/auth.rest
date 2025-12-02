@@ -5,9 +5,9 @@ POST http://localhost:4000/sign-in
 Content-Type: application/json
 
 {
-	"email": "truongthanhdat6879@gmail.com",
-	"password": "123",
-	"recaptchaToken": "0cAFcWeA65lGihLV_Vt"  // put recaptcha token here
+	"email": "dn1561612@gmail.com",
+	"password": "thdang@123",
+	"recaptchaToken": "0cAFcWeA66uxxlDpXH"  // put recaptcha token here
 }
 
 ###

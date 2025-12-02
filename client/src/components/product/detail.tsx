@@ -17,9 +17,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
+import { autoBid } from '../../api/autoBid';
+import { toast } from 'sonner';
 
 interface ProductProp {
   product: Product;
+  token: string;
+  onRefresh: () => void;
 }
 
 const similarProducts = [
@@ -136,9 +140,10 @@ const formatTimeLeft = (date: string) => {
   }
 };
 
-const Detail = ({ product }: ProductProp) => {
+const Detail = ({ product, token, onRefresh }: ProductProp) => {
   const [image, setImage] = useState<string>(() => product?.images?.[0]?.url ?? '');
   const [price, setPrice] = useState(Number(product?.currentPrice) + Number(product.stepPrice) || 0);
+  const [isBidding, setIsBidding] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
@@ -161,7 +166,38 @@ const Detail = ({ product }: ProductProp) => {
     setPrice(curPrice - stepPrice);
   };
 
+  const handleAutoBid = async ({
+    productId,
+    maxAutoBidAmount,
+    token,
+  }: {
+    productId: string;
+    maxAutoBidAmount: number;
+    token: string;
+  }) => {
+    try {
+      setIsBidding(true);
+      await autoBid({ productId, maxAutoBidAmount, token });
+
+      onRefresh();
+
+      setPrice(Number(product?.currentPrice) + Number(product.stepPrice));
+      toast.success('Thành công!', {
+        description: 'Bạn đã đặt giá thành công sản phẩm này.',
+      });
+    } catch (err) {
+      console.error(err);
+      const message = err instanceof Error ? err.message : 'Unexpected error';
+      toast.error('Thất bại', {
+        description: message,
+      });
+    } finally {
+      setIsBidding(false);
+    }
+  };
+
   if (!product) return <div className='loader' />;
+  console.log(token);
   return (
     <div className='w-full flex flex-col px-10 mt-10 mb-10'>
       <div className='flex gap-5'>
@@ -269,7 +305,7 @@ const Detail = ({ product }: ProductProp) => {
 
               <div className='bg-gray-400 p-2 font-semibold rounded-md w-15 h-10 text-center'>VND</div>
 
-              {price !== Number(product.currentPrice) + Number(product.stepPrice) && (
+              {price > Number(product.currentPrice) + Number(product.stepPrice) && (
                 <Minus
                   onClick={minusPriceHandle}
                   className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full'
@@ -287,8 +323,10 @@ const Detail = ({ product }: ProductProp) => {
           <Button
             variant={'outline'}
             className='bg-black text-white transition delay-150 duration-200 ease-in-out hover:scale-102 mt-8 hover:cursor-pointer h-12'
+            onClick={() => handleAutoBid({ productId: product.id, maxAutoBidAmount: price, token })}
+            disabled={isBidding}
           >
-            Đặt giá ngay
+            {isBidding ? 'Đang xử lý...' : 'Đặt giá ngay'}
           </Button>
 
           <Dialog>

@@ -91,7 +91,7 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
       const res = await fetch(
         `http://localhost:4000/categories?parents=${parentNode.id}`
       );
-      const subCategoriesData = await res.json();
+      const subCategoriesData = (await res.json()).data;
 
       let finalChildren: TreeNode[] = [];
 

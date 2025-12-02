@@ -72,8 +72,8 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   const fetchCategories = async () => {
     try {
       const res = await fetch("http://localhost:4000/categories");
-      const data = await res.json();
-      setCategories(data);
+      const jsonData = await res.json();
+      setCategories(jsonData.data);
     } catch (error) {
       console.error("Lỗi lấy danh mục:", error);
     }

@@ -8,6 +8,7 @@ import ModerationTab from "../../components/admin/ModerationTab";
 
 import { ProductProvider } from "../../libs/contexts/productTab.context";
 import { CategoryProvider } from "../../libs/contexts/cateTab.context";
+import { UserProvider } from "../../libs/contexts/userTab.context";
 
 const TAB_LIST = [
   { key: "tongquan", label: "Tổng quan" },
@@ -126,7 +127,11 @@ export default function DashboardTabs() {
       {/* Nội dung tuỳ tab */}
       <div className='mt-6'>
         {activeTab === "tongquan" && <OverviewTab />}
-        {activeTab === "nguoidung" && <UsersTab />}
+        {activeTab === "nguoidung" && (
+          <UserProvider>
+            <UsersTab />
+          </UserProvider>
+        )}
         {activeTab === "sanpham" && (
           <ProductProvider>
             <ProductsTab />

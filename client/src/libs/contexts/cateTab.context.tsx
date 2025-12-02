@@ -92,7 +92,6 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
         `http://localhost:4000/categories?parents=${parentNode.id}`
       );
       const subCategoriesData = (await res.json()).data;
-
       let finalChildren: TreeNode[] = [];
 
       if (Array.isArray(subCategoriesData) && subCategoriesData.length > 0) {
@@ -103,7 +102,10 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
           children: [],
           isLoaded: false,
         }));
-      } else if (parentNode.type === "subcategory") {
+      } else if (
+        parentNode.type === "subcategory" ||
+        finalChildren.length === 0
+      ) {
         const prodRes = await fetch(
           `http://localhost:4000/product?categoryId=${parentNode.id}&limit=100`
         );

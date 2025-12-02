@@ -113,3 +113,44 @@ export const getBidCountByProduct = async (req: Request, res: Response) => {
     return res.status(response.code).send(response);
   }
 }
+
+export const getMaxBidByUser = async (req: Request, res: Response) => {
+  try{
+    const { productId } = req.params;
+    const userId = req.user?.id;
+
+    let roles = await checkRole(userId!);
+
+    if (!roles.includes("BIDDER")) {
+      const response = gatewayResponse(
+        HttpStatus.forbidden,
+        null,
+        "Forbidden: User is not a bidder"
+      );
+      return res.status(response.code).send(response);
+    }
+
+    if (!productId || !userId) {
+      const response = gatewayResponse(
+        HttpStatus.badRequest,
+        null,
+        "Missing productId or userId parameter"
+      );
+      return res.status(response.code).send(response);
+    }
+
+    const data = await autoBidService.getMaxBidByUserId(productId, userId);
+    const response = gatewayResponse(
+      HttpStatus.ok,
+      data,
+      "Get max bid successfully"
+    );
+
+    return res.status(response.code).send(response);
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Internal Server Error";
+    const response = gatewayResponse(HttpStatus.badRequest, null, message);
+    return res.status(response.code).send(response);
+  }
+}

@@ -4,6 +4,7 @@ import { updateCate } from "../services/cateService";
 import { updateCategory } from "../controllers/categoryControllers";
 import { get } from "http";
 import { createAutoBid } from "../services/autoBidService";
+import { getMaxBidByUser } from "../controllers/autoBiderController";
 
 enum Role {
   ADMIN = "ADMIN",
@@ -311,4 +312,9 @@ export const API_AUTO_BID_ROUTES = {
     method: "GET",
     role: [Role.ALL],
   },
+  getMaxBidByUser: {
+    path: "/autoBid/:productId",
+    method: "GET",
+    role: [Role.BIDDER],
+  }
 };

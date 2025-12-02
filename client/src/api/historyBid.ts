@@ -1,0 +1,31 @@
+export const getHistoryBid = async ({
+  productId,
+  token,
+  desc,
+}: {
+  productId: string;
+  token: string;
+  desc: boolean;
+}) => {
+  try {
+    const url = desc ? `autoBid/${productId}/history?amount=desc` : `autoBid/${productId}/history`;
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/${url}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      const message = data.message || data.error || 'Failed to fetch history bid';
+      throw new Error(message);
+    }
+
+    return data.data;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+};

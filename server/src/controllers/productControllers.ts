@@ -68,7 +68,10 @@ export const getProductById = async (req: Request, res: Response) => {
 export const updateProduct = async (req: Request, res: Response) => {
   try {
     const sellerId = req.user!.id;
+    console.log("Seller ID:", sellerId);
+
     let roles = await checkRole(sellerId);
+    console.log(roles);
 
     if (!roles.includes("SELLER")) {
       return res.status(403).json({
@@ -78,6 +81,15 @@ export const updateProduct = async (req: Request, res: Response) => {
     }
 
     const productId = req.params.id;
+    const product = await productService.getProductById(productId);
+
+    if (product?.sellerId !== sellerId) {
+      return res.status(403).json({
+        success: false,
+        message: "Tài khoản không có quyền chỉnh sửa sản phẩm này",
+      });
+    }
+
     const body = req.body;
     const files = req.files as Express.Multer.File[] | undefined;
 

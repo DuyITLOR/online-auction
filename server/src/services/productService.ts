@@ -18,8 +18,9 @@ export const createProduct = async (id: string, data: createProductDto) => {
       stepPrice: new Prisma.Decimal(data.stepPrice),
       buyNowPrice: new Prisma.Decimal(data.buyNowPrice),
 
-      startedAt: new Date(data.startedAt),
+      startedAt: new Date(),
       endAt: new Date(data.endAt),
+      updatedAt: new Date(),
 
       autoExtendEnabled: data.autoExtendEnabled ?? false,
       autoExtendMinutes: data.autoExtendMinutes ?? 0,
@@ -105,6 +106,9 @@ export const updateProduct = async (id: string, data: updateProductDto) => {
       })),
     };
   }
+
+  updateData.updatedAt = new Date();
+  
 
   const updatedProduct = await prisma.products.update({
     where: { id },

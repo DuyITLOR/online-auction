@@ -164,6 +164,9 @@ export const searchProducts = async (query: productQueryDto) => {
     case "endAt_desc":
         orderBy = { endAt: "desc" };
         break;
+    case "countBids_desc":
+        orderBy = { countbids: "desc" };
+        break;
     default:
         orderBy = { startedAt: "desc" };
         break;

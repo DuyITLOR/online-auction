@@ -34,3 +34,25 @@ Content-Type: application/json
 	"productId": "1",
 	"reason": "I hate him too"
 }
+
+### Comment section
+POST http://localhost:4000/products/1/ask
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3NzM3MjFlLWU1NjQtNDQ2Ny05MzYyLTAyMWU3OTlhYjI5YiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQwMzA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NDY5Njc1MSwiZXhwIjoxNzY3Mjg4NzUxfQ.etBhn1RBEGP45Q6rsEOMJq0kWSjzHnqgtXKjb2zcKRA
+
+{
+	"question": "What is the condition of this product?"
+}
+###	
+POST http://localhost:4000/comments/0d7b8551-55e4-4807-9444-98647a1c06ca/answer
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NDY5Njk1MiwiZXhwIjoxNzY3Mjg4OTUyfQ.ad5OvhL1z1d6w7wA7n4dhF2QpRiUFVnHwDGEkDfJbN4
+
+{
+	"productId": "1",
+	"answer": "It need."
+}
+###
+GET http://localhost:4000/comments/products/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NDY5NDQyNywiZXhwIjoxNzY3Mjg2NDI3fQ.cXfls7p3lwhKgFu-Y2Y8JRnHb1psR1r6eUFsO970IOA

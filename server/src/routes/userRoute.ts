@@ -16,6 +16,10 @@ router.get(
   authMiddleware,
   controllers.getAllBlockedUser
 );
+router.get(
+  API_ROUTES.getAllCommentsByProductId.path,
+  controllers.getAllCommentsByProductId
+);
 router.post(
   API_ROUTES.requestUpgrade.path,
   authMiddleware,
@@ -25,6 +29,12 @@ router.post(
   API_ROUTES.blockBidder.path,
   authMiddleware,
   controllers.blockBidder
+);
+router.post(API_ROUTES.askSeller.path, authMiddleware, controllers.askSeller);
+router.post(
+  API_ROUTES.answerBidder.path,
+  authMiddleware,
+  controllers.answerBidder
 );
 router.patch(
   API_ROUTES.updateUser.path,

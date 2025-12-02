@@ -1,15 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 import { clearSession, getSession } from '../libs/session';
 import { Popover } from './ui/popover';
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
-import { LogOut, UserRound } from 'lucide-react';
+import { LogOut, Search, UserRound } from 'lucide-react';
 
 const Header = () => {
   const [session, setSession] = useState<any>(null);
+  const [searchValue, setSearchValue] = useState('');
+
+  const [, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const handleSearch = (value: string) => {
+    if (location.pathname !== '/products') {
+      navigate(`/products?q=${value}`);
+    }
+    const next = new URLSearchParams();
+    if (!value) {
+      next.delete('q');
+    } else {
+      next.set('q', value);
+    }
+    setSearchParams(next);
+  };
 
   useEffect(() => {
     async function fetchSession() {
@@ -28,17 +45,26 @@ const Header = () => {
 
   return (
     <header className='sticky top-0 z-50 border-b border-b-gray-200 bg-white'>
-      <div className='flex flex-1 items-center justify-between mx-10 py-4 lg:px-8'>
+      <div className='flex flex-1 items-center justify-between mx-3 py-4 lg:px-8'>
         <div className='flex items-center gap-10 justify-between'>
           <Link to='/' className='flex items-center gap-2 text-2xl font-bold mr-10'>
             <div className='w-8 h-8 bg-teal-600 rounded text-white flex items-center justify-center'>⚡</div>
             <span className='hidden sm:inline text-teal-600'>Ebay</span>
           </Link>
 
-          <input
-            className='w-3xl h-8 border border-gray-300 rounded-xl focus:outline-teal-400 px-3 ml-10 py-2'
-            placeholder='Search...'
-          />
+          <div className='relative ml-5'>
+            <input
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              className='h-10 border border-gray-300 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 pl-4 pr-10 py-2  transition-all w-3xl'
+              placeholder='Search...'
+            />
+
+            <Search
+              className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 cursor-pointer hover:text-teal-500 transition-colors'
+              onClick={() => handleSearch(searchValue)}
+            />
+          </div>
         </div>
 
         {!session ? (

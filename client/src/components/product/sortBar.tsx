@@ -45,7 +45,7 @@ const SortBar = () => {
     setPopover(false);
   };
   return (
-    <div className='flex items-center justify-between'>
+    <div className='flex items-center justify-between '>
       <p className='font-semibold text-2xl'>Danh sách sản phẩm</p>
       <Popover open={isPopover} onOpenChange={setPopover}>
         <PopoverTrigger asChild>

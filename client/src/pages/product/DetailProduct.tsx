@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import Footer from '../../components/footer';
 import Header from '../../components/header';
 import Detail from '../../components/product/detail';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { type BidHistory, type Product } from '../../libs/types/types';
 import { getProduct } from '../../api/product';
 import { getSession } from '../../libs/session';
@@ -10,52 +10,62 @@ import { getHistoryBid } from '../../api/historyBid';
 
 const DetailProduct = () => {
   const { id } = useParams();
+
+  const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState('');
-
   const [product, setProduct] = useState<Product | undefined>(undefined);
-
   const [historyBid, setHistoryBid] = useState<BidHistory[]>([]);
 
-  const fetchProduct = async () => {
+  const fetchData = useCallback(async (currentId: string, accessToken: string) => {
     try {
-      if (!id) return;
-      const data = await getProduct(id);
-      setProduct(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+      const [productData, historyData] = await Promise.all([
+        getProduct(currentId),
+        getHistoryBid({ productId: currentId, token: accessToken, desc: true }),
+      ]);
 
-  const fetchHistoryBid = async (accessToken: string) => {
-    try {
-      if (!id) return;
-      const data = await getHistoryBid({ productId: id, token: accessToken, desc: true });
-      setHistoryBid(data);
+      setProduct(productData);
+      setHistoryBid(historyData);
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching data:', err);
     }
-  };
-
-  const handleFetch = async () => {
-    await fetchHistoryBid(token);
-    await fetchProduct();
-  };
+  }, []);
 
   useEffect(() => {
-    const getToken = async () => {
-      const session = await getSession();
-      setToken(typeof session?.token === 'string' ? session.token : '');
-    };
-    getToken();
-    fetchProduct();
-    fetchHistoryBid(token);
-  }, [token]);
+    const init = async () => {
+      if (!id) return;
 
-  if (!product) return <div className='loader' />;
+      setIsLoading(true);
+      setProduct(undefined);
+
+      try {
+        const session = await getSession();
+        const accessToken = typeof session?.token === 'string' ? session.token : '';
+        setToken(accessToken);
+
+        await fetchData(id, accessToken);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    init();
+  }, [id, fetchData]);
+
+  const handleRefresh = async () => {
+    if (id) {
+      await fetchData(id, token);
+    }
+  };
+
+  if (isLoading) return <div className='loader' />;
+  if (!product) return <div>Không tìm thấy sản phẩm</div>;
+
   return (
     <>
       <Header />
-      <Detail product={product} historyBid={historyBid} token={token} onRefresh={handleFetch} />
+      <Detail product={product} historyBid={historyBid} token={token} onRefresh={handleRefresh} />
       <Footer />
     </>
   );

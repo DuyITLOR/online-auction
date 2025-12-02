@@ -79,7 +79,7 @@ const DisplayProduct = () => {
                 key={item.id}
                 className='flex flex-col gap-2 max-w-[250px] min-w-[250px] relative'
               >
-                <img src={item?.images?.[0].url} className='rounded-md w-[250px] h-[250px] object-cover' />
+                <img src={item?.images?.[0]?.url} className='rounded-md w-[250px] h-[250px] object-cover' />
                 <p className='line-clamp-2'>{item.title}</p>
                 <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
                 <div
@@ -109,7 +109,7 @@ const DisplayProduct = () => {
                 key={item.id}
                 className='flex flex-col gap-2 max-w-[250px] min-w-[250px] relative'
               >
-                <img src={item?.images?.[0].url} className='rounded-md w-[250px] h-[250px] object-cover' />
+                <img src={item?.images?.[0]?.url} className='rounded-md w-[250px] h-[250px] object-cover' />
                 <p className='line-clamp-2'>{item.title}</p>
                 <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
                 <div
@@ -139,7 +139,7 @@ const DisplayProduct = () => {
                 key={item.id}
                 className='flex flex-col gap-2 max-w-[250px] min-w-[250px] relative'
               >
-                <img src={item?.images?.[0].url} className='rounded-md w-[250px]  h-[250px] object-cover' />
+                <img src={item?.images?.[0]?.url} className='rounded-md w-[250px]  h-[250px] object-cover' />
                 <p className='line-clamp-2'>{item.title}</p>
                 <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
                 <div

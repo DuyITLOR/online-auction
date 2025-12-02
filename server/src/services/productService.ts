@@ -140,6 +140,10 @@ export const searchProducts = async (query: productQueryDto) => {
       mode: "insensitive",
     };
   }
+  
+  if (query.sellerId) {
+    where.sellerId = query.sellerId;
+  }
 
   if (query.categoryId) {
     where.categoryId = query.categoryId;

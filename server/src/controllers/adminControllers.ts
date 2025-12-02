@@ -3,6 +3,55 @@ import { gatewayResponse } from '../utils/response';
 import * as service from '../services/adminService';
 import { HttpStatus } from '../utils/permission';
 import { checkRole } from '../utils/checkRole';
+import { getAllUsersServiceDto } from '../dto/adminDto';
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  if (!req.user) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Need token before requesting'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+  const id = req.user.id;
+  const roles = await checkRole(id);
+  if (!roles.includes('ADMIN')) {
+    const response = gatewayResponse(
+      HttpStatus.forbidden,
+      null,
+      'You do not have permission for requesting'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+
+  const limit = req.query.limit || 0;
+  const page = req.query.page || 0;
+  const data = {
+    limit: Number(limit),
+    page: Number(page),
+  } as getAllUsersServiceDto;
+
+  // Call service
+  const record = await service.getAllUsers(data);
+  if (record.success) {
+    const response = gatewayResponse(
+      HttpStatus.accepted,
+      { users: record.users },
+      'Lấy danh sách người dùng thành công'
+    );
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(
+      HttpStatus.serviceUnavailable,
+      null,
+      record.message
+    );
+    res.status(response.code).send(response);
+  }
+};
 
 export const getAllRequest = async (req: Request, res: Response) => {
   if (!req.user) {

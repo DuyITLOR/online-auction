@@ -1,4 +1,37 @@
 import { prisma } from './db/prisma';
+import { getAllUsersServiceDto } from '../dto/adminDto';
+
+export const getAllUsers = async (data: getAllUsersServiceDto) => {
+  try {
+    let users;
+    if (data.limit <= 0) {
+      users = await prisma.user.findMany();
+    } else {
+      users = await prisma.user.findMany({
+        orderBy: { createdAt: 'asc' }, // hoặc orderBy: { id: 'asc' }
+        skip: data.page * data.limit,
+        take: data.limit,
+      });
+    }
+    return {
+      success: true,
+      users: users,
+      message: 'Get successful',
+    };
+  } catch (err) {
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Unknown error',
+    };
+  }
+};
 
 export const getAllRequest = async () => {
   try {

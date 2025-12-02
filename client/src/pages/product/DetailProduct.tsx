@@ -29,7 +29,7 @@ const DetailProduct = () => {
   const fetchHistoryBid = async (accessToken: string) => {
     try {
       if (!id) return;
-      const data = await getHistoryBid({ productId: id, token: accessToken });
+      const data = await getHistoryBid({ productId: id, token: accessToken, desc: true });
       setHistoryBid(data);
     } catch (err) {
       console.error(err);

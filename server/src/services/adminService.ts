@@ -13,9 +13,17 @@ export const getAllUsers = async (data: getAllUsersServiceDto) => {
         take: data.limit,
       });
     }
+    const totalItems = await prisma.user.count();
+    let pages = Math.ceil(totalItems / data.limit);
+    if (data.limit <= 0) {
+      pages = 1;
+    }
     return {
       success: true,
-      users: users,
+      users: {
+        users,
+        totalPages: pages,
+      },
       message: 'Get successful',
     };
   } catch (err) {
@@ -33,12 +41,30 @@ export const getAllUsers = async (data: getAllUsersServiceDto) => {
   }
 };
 
-export const getAllRequest = async () => {
+export const getAllRequest = async (data: getAllUsersServiceDto) => {
   try {
-    const requests = await prisma.upgradeRequests.findMany();
+    let requests;
+    if (data.limit <= 0) {
+      requests = await prisma.upgradeRequests.findMany();
+    } else {
+      requests = await prisma.upgradeRequests.findMany({
+        orderBy: { createdAt: 'asc' }, // hoặc orderBy: { id: 'asc' }
+        skip: data.page * data.limit,
+        take: data.limit,
+      });
+    }
+
+    const totalItems = await prisma.upgradeRequests.count();
+    let pages = Math.ceil(totalItems / data.limit);
+    if (data.limit <= 0) {
+      pages = 1;
+    }
     return {
       success: true,
-      requests: requests,
+      requests: {
+        requests,
+        totalPages: pages,
+      },
       message: 'Get successful',
     };
   } catch (err) {

@@ -74,7 +74,13 @@ export const getAllRequest = async (req: Request, res: Response) => {
     res.status(response.code).send(response);
     return;
   }
-  const record = await service.getAllRequest();
+  const limit = req.query.limit || 0;
+  const page = req.query.page || 0;
+  const data = {
+    limit: Number(limit),
+    page: Number(page),
+  };
+  const record = await service.getAllRequest(data);
   if (record.success) {
     const response = gatewayResponse(
       HttpStatus.ok,

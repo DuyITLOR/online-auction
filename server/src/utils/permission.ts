@@ -111,6 +111,14 @@ export const API_ROUTES = {
       reason: "string",
     },
   },
+  askSeller: {
+    path: '/products/:productId/ask',
+    role: [Role.BIDDER],
+    method: 'POST',
+    request: {
+      question: 'string',
+    },
+  },
   getAllBlockedUser: {
     path: "/users/blocked/products/:productId",
     role: [Role.SELLER, Role.ADMIN],

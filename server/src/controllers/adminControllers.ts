@@ -39,7 +39,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
   if (record.success) {
     const response = gatewayResponse(
       HttpStatus.accepted,
-      { users: record.users },
+      { data: record.users },
       'Lấy danh sách người dùng thành công'
     );
     res.status(response.code).send(response);
@@ -84,7 +84,7 @@ export const getAllRequest = async (req: Request, res: Response) => {
   if (record.success) {
     const response = gatewayResponse(
       HttpStatus.ok,
-      { requests: record.requests },
+      { data: record.requests },
       'Get successfully'
     );
     res.status(response.code).send(response);

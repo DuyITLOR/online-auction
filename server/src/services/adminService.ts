@@ -23,6 +23,7 @@ export const getAllUsers = async (data: getAllUsersServiceDto) => {
       users: {
         users,
         totalPages: pages,
+        totalUsers: totalItems,
       },
       message: 'Get successful',
     };
@@ -64,6 +65,7 @@ export const getAllRequest = async (data: getAllUsersServiceDto) => {
       requests: {
         requests,
         totalPages: pages,
+        totalRequests: totalItems,
       },
       message: 'Get successful',
     };

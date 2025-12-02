@@ -50,6 +50,7 @@ model Products {
   updatedAt          DateTime         @updatedAt
   highRatingRequired Boolean          @default(false)
   winnerId           String?
+  countbids          Int              @default(0)
   autoBids           AutoBids[]
   bidHistory         BidHistory[]
   blockedBidders     BlockedBidders[]

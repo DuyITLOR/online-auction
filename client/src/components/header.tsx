@@ -41,6 +41,7 @@ const Header = () => {
   const onSignOut = () => {
     clearSession();
     setSession(null);
+    navigate('/');
   };
 
   return (

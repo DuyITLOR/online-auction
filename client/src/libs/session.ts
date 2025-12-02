@@ -46,5 +46,5 @@ export async function getSession() {
 }
 
 export function clearSession() {
-  Cookies.remove("session", { path: "/" });
+  Cookies.remove('session-action', { path: '/' });
 }

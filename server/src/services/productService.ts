@@ -18,8 +18,9 @@ export const createProduct = async (id: string, data: createProductDto) => {
       stepPrice: new Prisma.Decimal(data.stepPrice),
       buyNowPrice: new Prisma.Decimal(data.buyNowPrice),
 
-      startedAt: new Date(data.startedAt),
+      startedAt: new Date(),
       endAt: new Date(data.endAt),
+      updatedAt: new Date(),
 
       autoExtendEnabled: data.autoExtendEnabled ?? false,
       autoExtendMinutes: data.autoExtendMinutes ?? 0,
@@ -106,6 +107,9 @@ export const updateProduct = async (id: string, data: updateProductDto) => {
     };
   }
 
+  updateData.updatedAt = new Date();
+  
+
   const updatedProduct = await prisma.products.update({
     where: { id },
     data: updateData,
@@ -136,6 +140,10 @@ export const searchProducts = async (query: productQueryDto) => {
       mode: "insensitive",
     };
   }
+  
+  if (query.sellerId) {
+    where.sellerId = query.sellerId;
+  }
 
   if (query.categoryId) {
     where.categoryId = query.categoryId;
@@ -155,6 +163,9 @@ export const searchProducts = async (query: productQueryDto) => {
         break;
     case "endAt_desc":
         orderBy = { endAt: "desc" };
+        break;
+    case "countBids_desc":
+        orderBy = { countbids: "desc" };
         break;
     default:
         orderBy = { startedAt: "desc" };

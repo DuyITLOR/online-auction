@@ -16,17 +16,23 @@ export const getProduct = async (productId: string) => {
   }
 };
 
-export const getAllProduct = async (
-  page: number,
-  coursePerPage: string,
-  categoryId: string,
-  sort: string,
-  q: string
-) => {
+export const getAllProduct = async ({
+  page = 1,
+  limit = '10',
+  categoryId,
+  sort,
+  q,
+}: {
+  page?: number;
+  limit?: string;
+  categoryId?: string;
+  sort?: string;
+  q?: string;
+}) => {
   try {
     const params = new URLSearchParams({
-      page:  String(page),
-      limit: coursePerPage,
+      page: String(page),
+      limit: limit,
     });
 
     if (categoryId) params.append('categoryId', categoryId);

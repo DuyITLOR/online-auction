@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import { ChevronRight, Clock, Crown, Heart, Minus, Plus, SquarePen } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Avatar, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import ProductDescription from './description';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tab';
 import Review from './review';
 
-import type { BidHistory, Product, ProductImage } from '../../libs/types/types';
-import { useState } from 'react';
+import type { BidHistory, Product, ProductImage, WatchList } from '../../libs/types/types';
+import { useContext, useEffect, useState } from 'react';
 import {
   DialogFooter,
   DialogHeader,
@@ -20,6 +20,8 @@ import {
 } from '../ui/dialog';
 import { autoBid } from '../../api/autoBid';
 import { toast } from 'sonner';
+import { ProductContext } from '../../libs/contexts/product.context';
+import { getAllProduct } from '../../api/product';
 
 interface ProductProp {
   product: Product;
@@ -27,79 +29,6 @@ interface ProductProp {
   token: string;
   onRefresh: () => void;
 }
-
-const similarProducts = [
-  {
-    id: 1,
-    name: 'Chia Harvester / JBOD Kit | Up to 44x 3.5" HDDs! | Custom Frame, Cables, & PSU',
-    price: 7892737,
-    isLike: false,
-    thumbnail: 'https://i.ebayimg.com/images/g/JBsAAeSwsttpDQoH/s-l1600.webp',
-  },
-  {
-    id: 2,
-    name: 'Thermaltake Micro ATX Mini ITX PC Case Dual Tempered Glass Compact Tower Black',
-    price: 13999000,
-    isLike: false,
-    thumbnail: 'https://i.ebayimg.com/images/g/O68AAeSwiC1pBjeg/s-l1600.webp',
-  },
-  {
-    id: 3,
-    name: 'NVIDIA GeForce RTX 4090 Founders Edition | 24GB GDDR6X',
-    price: 44990000,
-    isLike: true,
-    thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=1200&q=80',
-  },
-  {
-    id: 4,
-    name: 'Corsair Vengeance DDR5 32GB (2x16GB) 6000MHz RGB RAM Kit',
-    price: 4390000,
-    isLike: false,
-    thumbnail: 'https://images.unsplash.com/photo-1593642532973-d31b6557fa68?auto=format&fit=crop&w=1200&q=80',
-  },
-  {
-    id: 5,
-    name: 'Meta Quest 3S 256GB (Refurbished)',
-    price: 4990000,
-    isLike: true,
-    thumbnail: 'https://i.ebayimg.com/images/g/E-4AAOSwFsJoGMRU/s-l1600.webp',
-  },
-  {
-    id: 6,
-    name: 'UMIDIGI G9 5G 6GB+128GB 6.75 Android 14 Unlocked 18W Octa Core Smartphone Good',
-    price: 10990000,
-    isLike: false,
-    thumbnail: 'https://i.ebayimg.com/images/g/1K4AAOSwQY5mqHz6/s-l1600.webp',
-  },
-  {
-    id: 7,
-    name: '[Near MINT] Nikon AF NIKKOR 80-200mm F2.8 ED Zoom Telephoto Lens From JAPAN',
-    price: 3190000,
-    isLike: true,
-    thumbnail: 'https://i.ebayimg.com/images/g/elAAAeSwZilpDuiw/s-l1600.webp',
-  },
-  {
-    id: 8,
-    name: 'Lian Li O11 Dynamic EVO Case | Tempered Glass | White Edition',
-    price: 3990000,
-    isLike: false,
-    thumbnail: 'https://images.unsplash.com/photo-1593642634367-d91a135587b5?auto=format&fit=crop&w=1200&q=80',
-  },
-  {
-    id: 9,
-    name: 'Noctua NH-D15 Chromax Black | Dual Tower CPU Cooler',
-    price: 2990000,
-    isLike: false,
-    thumbnail: 'https://images.unsplash.com/photo-1620207418302-439b387441b0?auto=format&fit=crop&w=1200&q=80',
-  },
-  {
-    id: 10,
-    name: 'Raspberry Pi 5 (8GB) Developer Kit | Cooling Fan + Power Adapter',
-    price: 2590000,
-    isLike: true,
-    thumbnail: 'https://images.unsplash.com/photo-1587202372775-98927aab2cae?auto=format&fit=crop&w=1200&q=80',
-  },
-];
 
 const maskName = (fullname: string | undefined) => {
   if (!fullname) return 'Người dùng ẩn danh';
@@ -155,9 +84,34 @@ const formatTimeLeft = (date: string) => {
 };
 
 const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
+  const minBidPrice = Number(product?.currentPrice) + Number(product?.stepPrice);
   const [image, setImage] = useState<string>(() => product?.images?.[0]?.url ?? '');
-  const [price, setPrice] = useState(Number(product?.currentPrice) + Number(product.stepPrice) || 0);
+  const [price, setPrice] = useState(minBidPrice);
+  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [isBidding, setIsBidding] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const { watchList, toggleWatchList } = useContext(ProductContext);
+  const isLike = (id: string) => {
+    return watchList.some((item: WatchList) => item.productId === id);
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const products = await getAllProduct({ categoryId: product.categoryId });
+      const filterProducts = products.data.filter((item: Product) => item.id !== product.id);
+      setSimilarProducts(filterProducts);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+    setPrice((prev) => Math.max(prev, minBidPrice));
+  }, [product?.currentPrice, minBidPrice]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
@@ -189,13 +143,20 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
     maxAutoBidAmount: number;
     token: string;
   }) => {
+    if (price < minBidPrice) {
+      toast.error('Giá không hợp lệ', {
+        description: `Mức giá tối thiểu phải là ${minBidPrice.toLocaleString()} VND`,
+      });
+      setPrice(minBidPrice); // Reset về giá sàn
+      return;
+    }
     try {
       setIsBidding(true);
+
       await autoBid({ productId, maxAutoBidAmount, token });
 
       onRefresh();
 
-      setPrice(Number(product?.currentPrice) + Number(product.stepPrice));
       toast.success('Thành công!', {
         description: 'Bạn đã đặt giá thành công sản phẩm này.',
       });
@@ -237,9 +198,19 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
                 </div>
               ))}
             </div>
-
-            <div className='border border-gray-300 rounded-xl w-190 h-140 bg-gray-200 flex justify-center items-center'>
-              <img src={image} className='w-170 h-full' />
+            <div className='relative'>
+              <div className='border border-gray-300 rounded-xl w-190 h-140 bg-gray-200 flex justify-center items-center'>
+                <img src={image} className='w-170 h-full' />
+              </div>
+              <Heart
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleWatchList(product?.id);
+                }}
+                className={`w-10 h-10 ${
+                  isLike(product?.id) ? 'stroke-0 fill-red-600' : 'stroke-2'
+                } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
+              />
             </div>
           </div>
         </div>
@@ -265,7 +236,6 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
                 alt='User Avatar'
                 className='border border-gray-400 rounded-full'
               />
-              <AvatarFallback>{'Thanh Dang'.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
             </Avatar>
 
             <div className='flex items-center justify-between w-full'>
@@ -330,7 +300,7 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
             <p className='text-gray-600 text-xs mt-4 '>
               Mức giá tối thiểu có thể đặt là:{' '}
               {(Number(product?.currentPrice) + Number(product?.stepPrice)).toLocaleString()} VND (Bước giá:{' '}
-              {(product?.stepPrice ?? 0).toLocaleString()} VND)
+              {Number(product.stepPrice).toLocaleString()} VND)
             </p>
           </div>
 
@@ -458,19 +428,41 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
       </div>
 
       <div className='flex flex-1 items-center gap-3 overflow-x-auto scroll-container h-[400px] pb-5'>
-        {similarProducts.map((item) => (
-          <div key={item.id} className='flex flex-col gap-2 min-w-[250px] relative'>
-            <img src={item.thumbnail} className='rounded-md w-[250px] h-[250px] object-cover' />
-            <p className='line-clamp-2'>{item.name}</p>
-            <span className='font-semibold text-xl'>{item.price.toLocaleString()} VND</span>
-
-            <Heart
-              className={`w-10 h-10 ${
-                item.isLike ? 'stroke-0 fill-red-600' : 'stroke-2'
-              } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
-            />
+        {loading && (
+          <div className='flex items-center justify-center py-20 min-w-full'>
+            <div className='animate-spin rounded-full h-12 w-12 border-4 border-teal-500 border-t-transparent'></div>
           </div>
-        ))}
+        )}
+        {!loading && (
+          <div className='flex flex-1 items-center gap-3 overflow-x-auto scroll-container h-[400px] pb-5'>
+            {similarProducts.map((item: Product) => (
+              <Link
+                to={`/product/${item.id}`}
+                key={item.id}
+                className='flex flex-col gap-2 min-w-[250px] max-w-[250px] relative'
+              >
+                <img src={item?.images?.[0].url} className='rounded-md w-[250px] h-[250px] object-cover' />
+                <p className='line-clamp-2'>{item.title}</p>
+                <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
+                <div
+                  className={`font-semibold h-7 absolute text-xs left-1 top-1 bg-white hover:bg-gray-100 px-2 py-1 rounded-full`}
+                >
+                  {formatTimeLeft(item.endAt)}
+                </div>
+
+                <Heart
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleWatchList(item.id);
+                  }}
+                  className={`w-10 h-10 ${
+                    isLike(item?.id) ? 'stroke-0 fill-red-600' : 'stroke-2'
+                  } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
+                />
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       <Tabs className='mt-15' defaultValue='description'>

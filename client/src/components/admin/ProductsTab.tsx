@@ -25,7 +25,10 @@ interface Product {
 }
 
 const formatCurrency = (v: number) =>
-  v.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+  new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(v);
 
 const ProductsTab: FC = () => {
   // 2. Lấy toàn bộ dữ liệu và hàm từ Context thông qua useProducts

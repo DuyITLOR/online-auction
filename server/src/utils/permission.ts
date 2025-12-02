@@ -4,6 +4,7 @@ import { updateCate } from "../services/cateService";
 import { updateCategory } from "../controllers/categoryControllers";
 import { get } from "http";
 import { createAutoBid } from "../services/autoBidService";
+import { getMaxBidByUser } from "../controllers/autoBiderController";
 
 enum Role {
   ADMIN = "ADMIN",
@@ -109,6 +110,14 @@ export const API_ROUTES = {
     request: {
       productId: "string",
       reason: "string",
+    },
+  },
+  askSeller: {
+    path: '/products/:productId/ask',
+    role: [Role.BIDDER],
+    method: 'POST',
+    request: {
+      question: 'string',
     },
   },
   getAllBlockedUser: {
@@ -311,4 +320,9 @@ export const API_AUTO_BID_ROUTES = {
     method: "GET",
     role: [Role.ALL],
   },
+  getMaxBidByUser: {
+    path: "/autoBid/:productId",
+    method: "GET",
+    role: [Role.BIDDER],
+  }
 };

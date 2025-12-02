@@ -1,7 +1,77 @@
 GET http://localhost:4000/test
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxODBjMWZkLTRhNmUtNGM3NC05MGZiLTVmOGRlNTNiYjIwNCIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2Mjg4MTM3NywiZXhwIjoxNzYyODg0OTc3fQ.jwhMOReoAR7kMqHVT8zMW4badIGIG5RAEbTqX8pGALg
 ###
+POST http://localhost:4000/test-send-mail/code
+Content-Type: application/json
 
+{
+  "email": "truongthanhdat6879@gmail.com"
+}
+###
+POST http://localhost:4000/test-send-mail/reset
+Content-Type: application/json
+
+{
+  "email": "truongthanhdat6879@gmail.com"
+}
+###
+POST http://localhost:4000/test-send-mail/bid/success
+Content-Type: application/json
+
+{
+  "email": "truongthanhdat6879@gmail.com",
+  "userName": "Truong Thanh Dat",
+  "productName": "iPhone 14 Pro Max",
+  "price": "25,000,000"
+}
+###
+POST http://localhost:4000/test-send-mail/bid/failed
+Content-Type: application/json
+
+{
+  "email": "truongthanhdat6879@gmail.com",
+  "userName": "Truong Thanh Dat",
+  "productName": "iPhone 14 Pro Max",
+  "reason": "Bạn bị người bán chặn"
+}
+###
+POST http://localhost:4000/test-send-mail/bid/orders/no
+Content-Type: application/json
+
+{
+  "userName": "Truong Thanh Dat",
+  "email": "truongthanhdat6879@gmail.com",
+  "productName": "iPhone 14 Pro Max"
+}
+###
+POST http://localhost:4000/test-send-mail/bid/orders
+Content-Type: application/json
+
+{
+  "productName": "iPhone 14 Pro Max",
+  "winningPrice": "25,000,000",
+  "sellerEmail": "seller@example.com",
+  "winnerEmail": "winner@example.com"
+}
+###
+POST http://localhost:4000/test-send-mail/products/ask
+Content-Type: application/json
+
+{
+  "askerEmail": "asker@example.com",
+  "productName": "iPhone 14 Pro Max",
+  "question": "Is this product brand new?"
+}
+###
+POST http://localhost:4000/test-send-mail/products/answer
+Content-Type: application/json
+
+{
+  "sellerEmail": "seller@example.com",
+  "productName": "iPhone 14 Pro Max",
+  "answer": "Yes, this product is brand new."
+}
+###
 GET http://localhost:4000/get-free-token/bidder-4
 ###
 

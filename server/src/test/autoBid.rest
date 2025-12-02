@@ -17,7 +17,7 @@ Content-Type: application/json
 
 {
     "productId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb08",
-    "maxAutoBidAmount": 10800000
+    "maxAutoBidAmount": 100000000
 }
 
 

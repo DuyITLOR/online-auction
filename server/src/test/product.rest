@@ -11,3 +11,9 @@ Content-Type: application/json
 
     "description": "Dâng gà vãi đái"
 }
+
+
+
+
+### Lấy sản phẩm của seller
+GET http://localhost:4000/product?sellerId=bidder-5

@@ -39,7 +39,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
   if (record.success) {
     const response = gatewayResponse(
       HttpStatus.accepted,
-      { users: record.users },
+      { data: record.users },
       'Lấy danh sách người dùng thành công'
     );
     res.status(response.code).send(response);
@@ -74,11 +74,17 @@ export const getAllRequest = async (req: Request, res: Response) => {
     res.status(response.code).send(response);
     return;
   }
-  const record = await service.getAllRequest();
+  const limit = req.query.limit || 0;
+  const page = req.query.page || 0;
+  const data = {
+    limit: Number(limit),
+    page: Number(page),
+  };
+  const record = await service.getAllRequest(data);
   if (record.success) {
     const response = gatewayResponse(
       HttpStatus.ok,
-      { requests: record.requests },
+      { data: record.requests },
       'Get successfully'
     );
     res.status(response.code).send(response);

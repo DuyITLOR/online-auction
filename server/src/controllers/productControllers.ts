@@ -1,26 +1,26 @@
-import * as productService from '../services/productService';
-import { Request, Response } from 'express';
-import { productQueryDto, updateProductDto } from '../dto/productDto';
-import { uploadImagesToSupabase } from '../utils/uploadImage';
-import { uploadedImageDto } from '../dto/uploadImageDto';
-import { checkRole } from '../utils/checkRole';
+import * as productService from "../services/productService";
+import { Request, Response } from "express";
+import { productQueryDto, updateProductDto } from "../dto/productDto";
+import { uploadImagesToSupabase } from "../utils/uploadImage";
+import { uploadedImageDto } from "../dto/uploadImageDto";
+import { checkRole } from "../utils/checkRole";
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
     const sellerId = req.user!.id;
     let roles = await checkRole(sellerId);
 
-    if (!roles.includes('SELLER')) {
+    if (!roles.includes("SELLER")) {
       return res.status(403).json({
         success: false,
-        message: 'Forbidden: User is not a seller',
+        message: "Forbidden: User is not a seller",
       });
     }
 
     const body = req.body;
     const files = req.files as Express.Multer.File[] | undefined;
 
-    const uploadedImages = await uploadImagesToSupabase(files, 'products');
+    const uploadedImages = await uploadImagesToSupabase(files, "products");
 
     const result = await productService.createProduct(sellerId, {
       ...body,
@@ -29,13 +29,13 @@ export const createProduct = async (req: Request, res: Response) => {
 
     res.status(201).json({
       success: true,
-      message: 'Product created successfully',
+      message: "Product created successfully",
       data: result,
     });
   } catch (err: any) {
     res.status(500).json({
       success: false,
-      message: err?.message ?? 'Internal Server Error',
+      message: err?.message ?? "Internal Server Error",
     });
   }
 };
@@ -48,19 +48,19 @@ export const getProductById = async (req: Request, res: Response) => {
     if (!result) {
       return res.status(404).json({
         success: false,
-        message: 'Product not found',
+        message: "Product not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Product retrieved successfully',
+      message: "Product retrieved successfully",
       data: result,
     });
   } catch (err: any) {
     res.status(500).json({
       success: false,
-      message: err?.message ?? 'Internal Server Error',
+      message: err?.message ?? "Internal Server Error",
     });
   }
 };
@@ -70,10 +70,10 @@ export const updateProduct = async (req: Request, res: Response) => {
     const sellerId = req.user!.id;
     let roles = await checkRole(sellerId);
 
-    if (!roles.includes('SELLER')) {
+    if (!roles.includes("SELLER")) {
       return res.status(403).json({
         success: false,
-        message: 'Forbidden: User is not a seller',
+        message: "Forbidden: User is not a seller",
       });
     }
 
@@ -84,7 +84,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     let uploadedImages: uploadedImageDto[] = [];
 
     if (files && files.length > 0) {
-      uploadedImages = await uploadImagesToSupabase(files, 'products');
+      uploadedImages = await uploadImagesToSupabase(files, "products");
     }
 
     const payload: Partial<updateProductDto> = {
@@ -96,13 +96,13 @@ export const updateProduct = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Product updated successfully',
+      message: "Product updated successfully",
       data: result,
     });
   } catch (err: any) {
     res.status(500).json({
       success: false,
-      message: err?.message ?? 'Internal Server Error',
+      message: err?.message ?? "Internal Server Error",
     });
   }
 };
@@ -112,10 +112,10 @@ export const deleteProduct = async (req: Request, res: Response) => {
     const sellerId = req.user!.id;
     let roles = await checkRole(sellerId);
 
-    if (!roles.includes('SELLER')) {
+    if (!roles.includes("SELLER") && !roles.includes("ADMIN")) {
       return res.status(403).json({
         success: false,
-        message: 'Forbidden: User is not a seller',
+        message: "Forbidden: User is not a seller or admin",
       });
     }
 
@@ -124,12 +124,12 @@ export const deleteProduct = async (req: Request, res: Response) => {
     await productService.deleteProduct(productId);
     res.status(200).json({
       success: true,
-      message: 'Product deleted successfully',
+      message: "Product deleted successfully",
     });
   } catch (err: any) {
     res.status(500).json({
       success: false,
-      message: err?.message ?? 'Internal Server Error',
+      message: err?.message ?? "Internal Server Error",
     });
   }
 };
@@ -142,19 +142,19 @@ export const getAllProducts = async (req: Request, res: Response) => {
     if (!result) {
       return res.status(404).json({
         success: false,
-        message: 'No products found',
+        message: "No products found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Products retrieved successfully',
+      message: "Products retrieved successfully",
       data: result,
     });
   } catch (err: any) {
     res.status(500).json({
       success: false,
-      message: err?.message ?? 'Internal Server Error',
+      message: err?.message ?? "Internal Server Error",
     });
   }
 };

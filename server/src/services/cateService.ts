@@ -1,3 +1,4 @@
+import { promise } from "zod";
 import { createCategoryDto, updateCategoryDto } from "../dto/categoryDto";
 import { prisma } from "./db/prisma";
 
@@ -15,9 +16,38 @@ export async function updateCate(cateId: string, data: updateCategoryDto) {
 }
 
 export async function deleteCate(cateId: string) {
-  return prisma.categories.delete({
+  console.log("Deleting category with IDD:", cateId);
+  // Ensure category exists
+  const existing = await prisma.categories.findUnique({
     where: { id: cateId },
   });
+  if (!existing) {
+    throw new Error("Category not found");
+  }
+
+  // Prevent deletion if products are still assigned to this category
+
+  const childCate = await prisma.categories.findMany({
+    where: { parentId: cateId },
+  });
+
+  const products = await prisma.products.findMany({
+    where: {
+      OR: [
+        { categoryId: cateId },
+        { categoryId: { in: childCate.map((cate) => cate.id) } },
+      ],
+    },
+  });
+  if (products.length > 0) {
+    throw new Error(
+      "Cannot delete category. There are products assigned to this category or its subcategories."
+    );
+  }
+
+  // Safe to delete
+  const deleted = await prisma.categories.delete({ where: { id: cateId } });
+  return deleted;
 }
 
 export async function findCateById(cateId: string) {
@@ -33,31 +63,24 @@ export async function findCateByName(name: string) {
   });
 }
 
-export async function getAllCates() {
-  return prisma.categories.findMany();
-}
-
-// Return top-level categories (parentId is null)
-export async function getParentCates() {
-  return prisma.categories.findMany({ where: { parentId: null } });
-}
-
-// Return child categories: if parentId provided, children of that parent; otherwise all non-root categories
-export async function getChildCates(parentId?: string) {
-  if (parentId) {
-    return prisma.categories.findMany({ where: { parentId } });
+export async function SearchCategories(parents?: string) {
+  // TRƯỜNG HỢP 1: url/categories (parents là undefined)
+  // => Trả về tất cả danh mục
+  if (parents === undefined) {
+    return prisma.categories.findMany();
   }
-  return prisma.categories.findMany({ where: { NOT: { parentId: null } } });
-}
 
-export async function getSiblings(cateId: string) {
-  const cate = await prisma.categories.findUnique({ where: { id: cateId } });
-  if (!cate) return [];
-  return prisma.categories.findMany({ where: { parentId: cate.parentId } });
-}
+  // TRƯỜNG HỢP 2: url/categories?parents (parents là chuỗi rỗng "")
+  // => Trả về các danh mục gốc (parentId là null)
+  if (parents === "") {
+    return prisma.categories.findMany({
+      where: { parentId: null },
+    });
+  }
 
-export async function getProductsByCateId(cateId: string) {
-  return prisma.products.findMany({
-    where: { categoryId: cateId },
+  // TRƯỜNG HỢP 3: url/categories?parents=someId (parents là chuỗi ID)
+  // => Trả về các danh mục con của ID đó
+  return prisma.categories.findMany({
+    where: { parentId: parents },
   });
 }

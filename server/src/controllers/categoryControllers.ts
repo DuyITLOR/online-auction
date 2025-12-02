@@ -2,20 +2,25 @@ import { Request, Response } from "express";
 import * as Service from "../services/cateService";
 import { createCategoryDto, updateCategoryDto } from "../dto/categoryDto";
 import { checkRole } from "../utils/checkRole";
+import { success } from "zod";
 
 export async function createCategory(req: Request, res: Response) {
   try {
     const userID = req.user!.id;
     let roles = await checkRole(userID);
     if (!roles.includes("ADMIN")) {
-      return res.status(403).json({ error: "Forbidden. Admins only." });
+      return res
+        .status(403)
+        .json({ success: false, error: "Forbidden. Admins only." });
     }
 
     const body: createCategoryDto = req.body;
     const category = await Service.createCate(body);
-    return res.status(201).json(category);
+    return res.status(201).json({ success: true, data: category });
   } catch (error) {
-    return res.status(500).json({ error: (error as Error).message });
+    return res
+      .status(500)
+      .json({ success: false, error: (error as Error).message });
   }
 }
 
@@ -24,15 +29,24 @@ export async function updateCategory(req: Request, res: Response) {
     const userID = req.user!.id;
     let roles = await checkRole(userID);
     if (!roles.includes("ADMIN")) {
-      return res.status(403).json({ error: "Forbidden. Admins only." });
+      return res
+        .status(403)
+        .json({ success: false, error: "Forbidden. Admins only." });
     }
 
-    const { categoryId } = req.params;
+    const categoryId = req.params.id;
     const body: updateCategoryDto = req.body;
     const updated = await Service.updateCate(categoryId, body);
-    return res.status(200).json(updated);
+    return res.status(200).json({
+      success: true,
+      message: "Category updated successfully",
+      data: updated,
+    });
   } catch (error) {
-    return res.status(500).json({ error: (error as Error).message });
+    return res.status(500).json({
+      success: false,
+      error: (error as Error).message,
+    });
   }
 }
 
@@ -41,74 +55,55 @@ export async function deleteCategory(req: Request, res: Response) {
     const userID = req.user!.id;
     let roles = await checkRole(userID);
     if (!roles.includes("ADMIN")) {
-      return res.status(403).json({ error: "Forbidden. Admins only." });
+      return res
+        .status(403)
+        .json({ success: false, error: "Forbidden. Admins only." });
     }
-    const { categoryId } = req.params;
-    await Service.deleteCate(categoryId);
-    return res.status(204).send();
+
+    const categoryId = req.params.id;
+    console.log("Deleting category with ID:", categoryId);
+    const deleted = await Service.deleteCate(categoryId);
+    // Return 204 no content on success
+    return res
+      .status(204)
+      .json({ success: true, message: "Category deleted successfully" });
   } catch (error) {
-    return res.status(500).json({ error: (error as Error).message });
+    const msg = (error as Error).message;
+    if (msg.includes("not found")) {
+      return res.status(404).json({ success: false, error: msg });
+    }
+    if (msg.includes("has products")) {
+      return res.status(409).json({ success: false, error: msg });
+    }
+    return res.status(500).json({ success: false, error: msg });
   }
 }
 
 export async function getCategoryById(req: Request, res: Response) {
-  const { categoryId } = req.params;
+  const categoryID = req.params.id;
   try {
-    const category = await Service.findCateById(categoryId);
-    if (!category) return res.status(404).json({ error: "Category not found" });
-    return res.status(200).json(category);
+    const category = await Service.findCateById(categoryID);
+    if (!category)
+      return res
+        .status(404)
+        .json({ success: false, error: "Category not found" });
+    return res.status(200).json({ success: true, data: category });
   } catch (error) {
-    return res.status(500).json({ error: (error as Error).message });
+    return res
+      .status(500)
+      .json({ success: false, error: (error as Error).message });
   }
 }
 
-export async function getAllCategories(_req: Request, res: Response) {
+export async function getAllCategories(req: Request, res: Response) {
   try {
-    console.log("Fetching parent categories");
-    const categories = await Service.getAllCates();
-    return res.status(200).json(categories);
-  } catch (error) {
-    return res.status(500).json({ error: (error as Error).message });
-  }
-}
+    const parents = req.query.parents as string | undefined;
 
-export async function findParentCategories(_req: Request, res: Response) {
-  try {
-    console.log("Fetching parent categories");
-    const parents = await Service.getParentCates();
-    return res.status(200).json(parents);
+    const categories = await Service.SearchCategories(parents);
+    return res.status(200).json({ success: true, data: categories });
   } catch (error) {
-    return res.status(500).json({ error: (error as Error).message });
-  }
-}
-
-export async function findChildCategories(_req: Request, res: Response) {
-  try {
-    const allChildren = await Service.getChildCates();
-    return res.status(200).json(allChildren);
-  } catch (error) {
-    return res.status(500).json({ error: (error as Error).message });
-  }
-}
-
-export async function findSiblings(req: Request, res: Response) {
-  const { categoryId } = req.params;
-  try {
-    const siblings = await Service.getSiblings(categoryId);
-    return res.status(200).json(siblings);
-  } catch (error) {
-    return res.status(500).json({ error: (error as Error).message });
-  }
-}
-
-export async function findProductsByCategory(req: Request, res: Response) {
-  const { categoryId } = req.query;
-  try {
-    if (!categoryId)
-      return res.status(400).json({ error: "categoryId query param required" });
-    const products = await Service.getProductsByCateId(String(categoryId));
-    return res.status(200).json(products);
-  } catch (error) {
-    return res.status(500).json({ error: (error as Error).message });
+    return res
+      .status(500)
+      .json({ success: false, error: (error as Error).message });
   }
 }

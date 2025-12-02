@@ -30,18 +30,5 @@ router.get(
   API_CATEGORY_ROUTES.getCategoryById.path,
   categoryControllers.getCategoryById
 );
-router.get(
-  API_CATEGORY_ROUTES.findParentCategories.path,
-  categoryControllers.findParentCategories
-);
-
-router.get(
-  API_CATEGORY_ROUTES.findChildCategories.path,
-  categoryControllers.findChildCategories
-);
-router.get(
-  API_CATEGORY_ROUTES.findProductsByCategory.path,
-  categoryControllers.findProductsByCategory
-);
 
 export default router;

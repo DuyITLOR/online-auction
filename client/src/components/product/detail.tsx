@@ -1,4 +1,5 @@
-import { ChevronRight, Clock, Heart, Minus, Plus, SquarePen } from 'lucide-react';
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
+import { ChevronRight, Clock, Crown, Heart, Minus, Plus, SquarePen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
@@ -6,7 +7,7 @@ import ProductDescription from './description';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tab';
 import Review from './review';
 
-import type { Product, ProductImage } from '../../libs/types/types';
+import type { BidHistory, Product, ProductImage } from '../../libs/types/types';
 import { useState } from 'react';
 import {
   DialogFooter,
@@ -17,9 +18,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
+import { autoBid } from '../../api/autoBid';
+import { toast } from 'sonner';
 
 interface ProductProp {
   product: Product;
+  historyBid: BidHistory[];
+  token: string;
+  onRefresh: () => void;
 }
 
 const similarProducts = [
@@ -95,6 +101,18 @@ const similarProducts = [
   },
 ];
 
+const maskName = (fullname: string | undefined) => {
+  if (!fullname) return 'Người dùng ẩn danh';
+  const parts = fullname.trim().split(' ');
+
+  if (parts.length === 1) {
+    return parts[0].length > 2 ? parts[0].substring(0, 2) + '***' : '***';
+  }
+  const lastName = parts[0];
+  const maskedParts = parts.slice(1).map(() => '****');
+  return `${lastName} ${maskedParts.join(' ')}`;
+};
+
 function formatDate(isoString: string | undefined, options = { time: false }) {
   if (!isoString) return;
   const d = new Date(isoString);
@@ -136,9 +154,10 @@ const formatTimeLeft = (date: string) => {
   }
 };
 
-const Detail = ({ product }: ProductProp) => {
+const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
   const [image, setImage] = useState<string>(() => product?.images?.[0]?.url ?? '');
   const [price, setPrice] = useState(Number(product?.currentPrice) + Number(product.stepPrice) || 0);
+  const [isBidding, setIsBidding] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
@@ -161,7 +180,38 @@ const Detail = ({ product }: ProductProp) => {
     setPrice(curPrice - stepPrice);
   };
 
+  const handleAutoBid = async ({
+    productId,
+    maxAutoBidAmount,
+    token,
+  }: {
+    productId: string;
+    maxAutoBidAmount: number;
+    token: string;
+  }) => {
+    try {
+      setIsBidding(true);
+      await autoBid({ productId, maxAutoBidAmount, token });
+
+      onRefresh();
+
+      setPrice(Number(product?.currentPrice) + Number(product.stepPrice));
+      toast.success('Thành công!', {
+        description: 'Bạn đã đặt giá thành công sản phẩm này.',
+      });
+    } catch (err) {
+      console.error(err);
+      const message = err instanceof Error ? err.message : 'Unexpected error';
+      toast.error('Thất bại', {
+        description: message,
+      });
+    } finally {
+      setIsBidding(false);
+    }
+  };
+
   if (!product) return <div className='loader' />;
+  console.log(token);
   return (
     <div className='w-full flex flex-col px-10 mt-10 mb-10'>
       <div className='flex gap-5'>
@@ -269,7 +319,7 @@ const Detail = ({ product }: ProductProp) => {
 
               <div className='bg-gray-400 p-2 font-semibold rounded-md w-15 h-10 text-center'>VND</div>
 
-              {price !== Number(product.currentPrice) + Number(product.stepPrice) && (
+              {price > Number(product.currentPrice) + Number(product.stepPrice) && (
                 <Minus
                   onClick={minusPriceHandle}
                   className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full'
@@ -287,8 +337,10 @@ const Detail = ({ product }: ProductProp) => {
           <Button
             variant={'outline'}
             className='bg-black text-white transition delay-150 duration-200 ease-in-out hover:scale-102 mt-8 hover:cursor-pointer h-12'
+            onClick={() => handleAutoBid({ productId: product.id, maxAutoBidAmount: price, token })}
+            disabled={isBidding}
           >
-            Đặt giá ngay
+            {isBidding ? 'Đang xử lý...' : 'Đặt giá ngay'}
           </Button>
 
           <Dialog>
@@ -343,29 +395,56 @@ const Detail = ({ product }: ProductProp) => {
       <div className='flex flex-col gap-1'>
         <p className='text-2xl font-semibold mb-5'>Giao dịch</p>
         <div className='flex flex-col gap-3'>
-          <div className='border-2 py-2 px-4 border-teal-700 bg-teal-50 flex flex-col rounded-md'>
-            <div className='flex items-center justify-between'>
-              <p className='font-semibold text-lg'>Nguyễn Văn Nam</p>
-              <p className='font-semibold text-xl'>45.000.000 VND</p>
+          {historyBid.length === 0 ? (
+            <div className='text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-300'>
+              <p className='text-gray-500'>Chưa có ai đặt giá cho sản phẩm này.</p>
             </div>
-            <p className='text-gray-500'>10 phút trước</p>
-          </div>
+          ) : (
+            historyBid.map((item: BidHistory, index: number) => (
+              <div
+                key={item.id}
+                className={`
+                                    flex items-center justify-between border px-6 py-4 rounded-xl bordertransition-all
+                                    ${
+                                      index === 0
+                                        ? 'bg-linear-to-r from-teal-50 to-white border-teal-400 shadow-md'
+                                        : 'bg-white border-gray-300 hover:border-gray-500'
+                                    }
+                                `}
+              >
+                <div className='flex items-center gap-4'>
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center border border-gray-300 justify-center font-bold text-sm${
+                      index === 0 ? 'bg-yellow-400 text-white shadow-sm' : 'bg-gray-200 text-gray-500'
+                    }`}
+                  >
+                    {index === 0 ? <Crown className='w-5 h-5 fill-yellow-600' /> : index + 1}
+                  </div>
 
-          <div className='border-2 py-2 px-4 border-teal-700 bg-teal-50 flex flex-col rounded-md'>
-            <div className='flex items-center justify-between'>
-              <p className='font-semibold text-lg'>Nguyễn Văn Nam</p>
-              <p className='font-semibold text-xl'>45.000.000 VND</p>
-            </div>
-            <p className='text-gray-500'>10 phút trước</p>
-          </div>
+                  <Avatar className={`${index === 0 ? 'border-2 border-teal-300' : ''}`}>
+                    <AvatarImage src={item.bidder.avtUrl} />
+                  </Avatar>
 
-          <div className='border-2 py-2 px-4 border-teal-700 bg-teal-50 flex flex-col rounded-md'>
-            <div className='flex items-center justify-between'>
-              <p className='font-semibold text-lg'>Nguyễn Văn Nam</p>
-              <p className='font-semibold text-xl'>45.000.000 VND</p>
-            </div>
-            <p className='text-gray-500'>10 phút trước</p>
-          </div>
+                  <div className='flex flex-col'>
+                    <span className={`font-semibold text-lg ${index === 0 ? 'text-gray-900' : 'text-gray-700'}`}>
+                      {maskName(item?.bidder?.fullname!)}
+                      {index === 0 && (
+                        <span className='ml-2 text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full font-bold'>
+                          Dẫn đầu
+                        </span>
+                      )}
+                    </span>
+                    <span className='text-xs text-gray-400'>{formatDate(item.createdAt, { time: true })}</span>
+                  </div>
+                </div>
+                <div className='text-right'>
+                  <p className={`text-xl font-bold font-mono ${index === 0 ? 'text-teal-700' : 'text-gray-600'}`}>
+                    {Number(item.amount).toLocaleString()} VND
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

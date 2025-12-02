@@ -6,6 +6,11 @@ import * as controllers from '../controllers/adminControllers';
 const router = Router();
 
 router.get(
+  API_ROUTES.getAllUsers.path,
+  authMiddleware,
+  controllers.getAllUsers
+)
+router.get(
   API_ROUTES.getAllRequest.path,
   authMiddleware,
   controllers.getAllRequest

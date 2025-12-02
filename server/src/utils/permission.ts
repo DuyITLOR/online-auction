@@ -118,6 +118,11 @@ export const API_ROUTES = {
   },
 
   // Admin permission
+  getAllUsers: {
+    path: '/admin/users', // Có thể thêm query param limit và page để phân trang
+    role: [Role.ADMIN],
+    method: 'GET',
+  },
   getAllRequest: {
     path: "/users/requests",
     role: [Role.ADMIN],

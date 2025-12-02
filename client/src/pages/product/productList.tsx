@@ -32,13 +32,15 @@ const ProductList = () => {
   // handle params
   const page = parseInt(searchParams.get('page') || '1', 10);
   const categoryId = searchParams.get('categoryId') || '';
-  const sortType = searchParams.get('sort') || ''; 
+  const q = searchParams.get('q') || '';
+  const sortType = searchParams.get('sort') || '';
   const coursePerPage = '6';
 
   useEffect(() => {
     const fetchAllProduct = async () => {
       setLoading1(true);
-      const products = await getAllProduct(page, coursePerPage, categoryId, sortType);
+
+      const products = await getAllProduct(page, coursePerPage, categoryId, sortType, q);
       setProducts(products.data);
       setTotalPage(products.totalPage);
       setLoading1(false);
@@ -66,7 +68,7 @@ const ProductList = () => {
 
     fetchAllProduct();
     fetchCategories();
-  }, [page, categoryId, sortType]);
+  }, [page, categoryId, sortType, q]);
 
   const handlePage = (page: string) => {
     const next = new URLSearchParams(searchParams);
@@ -88,21 +90,21 @@ const ProductList = () => {
           <div className='flex mx-10 mb-10'>
             <SideBar categories={categories} />
 
-            <div className='flex flex-col ml-5 mt-10'>
+            <div className='flex flex-col ml-5 mt-10 w-full mr-4'>
               <SortBar />
 
               {loading1 ? (
-                <div className='flex flex-1 items-center justify-center py-20 w-6xl'>
+                <div className='flex items-center justify-center py-20 w-6xl'>
                   <div className='animate-spin rounded-full h-12 w-12 border-4 border-teal-500 border-t-transparent'></div>
                 </div>
               ) : (
-                <div>
+                <div className='flex flex-col justify-between'>
                   <div className='grid grid-cols-3 gap-5 mt-3'>
                     {products.map((item) => (
                       <Link
                         to={`/product/${item.id}`}
                         key={item.id}
-                        className='flex flex-col gap-2 border border-gray-200 rounded-md px-3 py-2 h-fit w-95 relative cursor-pointer z-0'
+                        className='flex flex-col gap-2 border border-gray-200 rounded-md px-3 py-2 h-fit w-97 relative cursor-pointer z-0'
                       >
                         <img src={item?.images?.[0].url} alt={item.title} className='w-full h-40 object-cover mb-2' />
                         <p className='font-semibold text-xl line-clamp-1'>{item.title}</p>

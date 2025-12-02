@@ -6,6 +6,9 @@ import CategoriesTab from "../../components/admin/Categories";
 import ReportsTab from "../../components/admin/ReportsTab";
 import ModerationTab from "../../components/admin/ModerationTab";
 
+import { ProductProvider } from "../../libs/contexts/productTab.context";
+import { CategoryProvider } from "../../libs/contexts/cateTab.context";
+
 const TAB_LIST = [
   { key: "tongquan", label: "Tổng quan" },
   { key: "nguoidung", label: "Người dùng" },
@@ -21,15 +24,15 @@ export default function DashboardTabs() {
   return (
     <div>
       {/* Mobile: show select */}
-      <div className="block md:hidden mb-4">
-        <label htmlFor="admin-tab-select" className="sr-only">
+      <div className='block md:hidden mb-4'>
+        <label htmlFor='admin-tab-select' className='sr-only'>
           Chọn tab
         </label>
         <select
-          id="admin-tab-select"
+          id='admin-tab-select'
           value={activeTab}
           onChange={(e) => setActiveTab(e.target.value)}
-          className="w-full p-2 border rounded-md"
+          className='w-full p-2 border rounded-md'
         >
           {TAB_LIST.map((t) => (
             <option key={t.key} value={t.key}>
@@ -40,8 +43,8 @@ export default function DashboardTabs() {
       </div>
 
       {/* Tabs (desktop/tablet) */}
-      <ul className="hidden md:flex border border-gray-300 text-sm font-medium text-center bg-gray-100 rounded">
-        <li className="me-2">
+      <ul className='hidden md:flex border border-gray-200 text-sm font-medium text-center bg-gray-100 rounded'>
+        <li className='me-2'>
           <button
             onClick={() => setActiveTab("tongquan")}
             className={`inline-block p-4 ${
@@ -54,7 +57,7 @@ export default function DashboardTabs() {
           </button>
         </li>
 
-        <li className="me-2">
+        <li className='me-2'>
           <button
             onClick={() => setActiveTab("nguoidung")}
             className={`inline-block p-4 ${
@@ -67,7 +70,7 @@ export default function DashboardTabs() {
           </button>
         </li>
 
-        <li className="me-2">
+        <li className='me-2'>
           <button
             onClick={() => setActiveTab("sanpham")}
             className={`inline-block p-4 ${
@@ -80,7 +83,7 @@ export default function DashboardTabs() {
           </button>
         </li>
 
-        <li className="me-2">
+        <li className='me-2'>
           <button
             onClick={() => setActiveTab("danhmuc")}
             className={`inline-block p-4 ${
@@ -93,7 +96,7 @@ export default function DashboardTabs() {
           </button>
         </li>
 
-        <li className="me-2">
+        <li className='me-2'>
           <button
             onClick={() => setActiveTab("kiemduyet")}
             className={`inline-block p-4 ${
@@ -106,7 +109,7 @@ export default function DashboardTabs() {
           </button>
         </li>
 
-        <li className="me-2">
+        <li className='me-2'>
           <button
             onClick={() => setActiveTab("baocao")}
             className={`inline-block p-4 ${
@@ -121,11 +124,20 @@ export default function DashboardTabs() {
       </ul>
 
       {/* Nội dung tuỳ tab */}
-      <div className="mt-6">
+      <div className='mt-6'>
         {activeTab === "tongquan" && <OverviewTab />}
         {activeTab === "nguoidung" && <UsersTab />}
-        {activeTab === "sanpham" && <ProductsTab />}
-        {activeTab === "danhmuc" && <CategoriesTab />}
+        {activeTab === "sanpham" && (
+          <ProductProvider>
+            <ProductsTab />
+          </ProductProvider>
+        )}
+
+        {activeTab === "danhmuc" && (
+          <CategoryProvider>
+            <CategoriesTab />
+          </CategoryProvider>
+        )}
         {activeTab === "kiemduyet" && <ModerationTab />}
         {activeTab === "baocao" && <ReportsTab />}
       </div>

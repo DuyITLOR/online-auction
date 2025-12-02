@@ -1,7 +1,7 @@
-import React from 'react';
-import TabBoard from './TabBoard';
-import Header from '../../components/header';
-import Footer from '../../components/footer';
+import React from "react";
+import TabBoard from "./TabBoard";
+import Header from "../../components/header";
+import Footer from "../../components/footer";
 interface DashboardData {
   totalUsers: number;
   totalProducts: number;
@@ -36,17 +36,25 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
       <Header />
       <div className='max-w-7xl mx-auto px-4 py-8'>
         <div className='mb-8'>
-          <p className='text-3xl font-bold text-foreground mb-2'>Quản trị Nền tảng</p>
-          <p className='text-muted-foreground'>Quản lý toàn bộ hệ thống đấu giá AuctionHub</p>
+          <p className='text-3xl font-bold text-foreground mb-2'>
+            Quản trị Nền tảng
+          </p>
+          <p className='text-muted-foreground'>
+            Quản lý toàn bộ hệ thống đấu giá AuctionHub
+          </p>
         </div>
         {/* Hàng 1: 4 thẻ thống kê lớn */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8'>
           {/* Tổng người dùng */}
-          <div className='bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow'>
+          <div className='bg-card border  border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow'>
             <div className='flex items-center justify-between'>
               <div>
-                <p className='text-muted-foreground text-sm mb-1'>Tổng người dùng</p>
-                <p className='text-2xl font-bold text-foreground'>{usersData.totalUsers}</p>
+                <p className='text-muted-foreground text-sm mb-1'>
+                  Tổng người dùng
+                </p>
+                <p className='text-2xl font-bold text-foreground'>
+                  {usersData.totalUsers}
+                </p>
               </div>
               <div className='bg-blue-300 text-blue-600 p-3 rounded-lg'>
                 <svg
@@ -69,11 +77,15 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </div>
 
           {/* Tổng sản phẩm */}
-          <div className='bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow'>
+          <div className='bg-card border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow'>
             <div className='flex items-center justify-between'>
               <div>
-                <p className='text-muted-foreground text-sm mb-1'>Tổng sản phẩm</p>
-                <p className='text-2xl font-bold text-foreground'>{usersData.totalProducts}</p>
+                <p className='text-muted-foreground text-sm mb-1'>
+                  Tổng sản phẩm
+                </p>
+                <p className='text-2xl font-bold text-foreground'>
+                  {usersData.totalProducts}
+                </p>
               </div>
               <div className='bg-green-300 text-green-600 p-3 rounded-lg'>
                 <svg
@@ -92,11 +104,15 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </div>
 
           {/* Đơn hàng hoàn thành */}
-          <div className='bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow'>
+          <div className='bg-card border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow'>
             <div className='flex items-center justify-between'>
               <div>
-                <p className='text-muted-foreground text-sm mb-1'>Đơn hàng hoàn thành</p>
-                <p className='text-2xl font-bold text-foreground'>{usersData.completedOrders}</p>
+                <p className='text-muted-foreground text-sm mb-1'>
+                  Đơn hàng hoàn thành
+                </p>
+                <p className='text-2xl font-bold text-foreground'>
+                  {usersData.completedOrders}
+                </p>
               </div>
               <div className='bg-purple-300 text-purple-600 p-3 rounded-lg'>
                 <svg
@@ -119,11 +135,13 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
           </div>
 
           {/* Doanh thu */}
-          <div className='bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow'>
+          <div className='bg-card border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow'>
             <div className='flex items-center justify-between'>
               <div>
                 <p className='text-muted-foreground text-sm mb-1'>Doanh thu</p>
-                <p className='text-2xl font-bold text-foreground'>{usersData.revenue} VND</p>
+                <p className='text-2xl font-bold text-foreground'>
+                  {usersData.revenue} VND
+                </p>
               </div>
               <div className='bg-orange-300 text-orange-600 p-3 rounded-lg'>
                 <svg
@@ -145,29 +163,6 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
                 </svg>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Hàng 2: các stats nhỏ hơn */}
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8'>
-          <div className='bg-gray-100 border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow'>
-            <p className='text-muted-foreground text-sm'>Người dùng hoạt động hiện tại</p>
-            <p className='text-2xl font-bold text-foreground mt-1'>{usersData.activeUsers}</p>
-          </div>
-
-          <div className='bg-gray-100 border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow'>
-            <p className='text-muted-foreground text-sm'>Sản phẩm được thêm hôm nay</p>
-            <p className='text-2xl font-bold text-foreground mt-1'>{usersData.productsAddedToday}</p>
-          </div>
-
-          <div className='bg-gray-100 border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow'>
-            <p className='text-muted-foreground text-sm'>Đơn hàng hoàn thành hôm nay</p>
-            <p className='text-2xl font-bold text-foreground mt-1'>{usersData.completedOrdersToday}</p>
-          </div>
-
-          <div className='bg-gray-100 border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow'>
-            <p className='text-muted-foreground text-sm'>Lượt giao dịch hôm nay</p>
-            <p className='text-2xl font-bold text-foreground mt-1'>{usersData.transactionsToday}</p>
           </div>
         </div>
 

@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import * as Service from "../services/cateService";
-import { createCategoryDto, updateCategoryDto } from "../dto/categoryDto";
+import {
+  createCategoryDto,
+  updateCategoryDto,
+  categoryQueryDto,
+} from "../dto/categoryDto";
 import { checkRole } from "../utils/checkRole";
 import { success } from "zod";
 
@@ -105,5 +109,28 @@ export async function getAllCategories(req: Request, res: Response) {
     return res
       .status(500)
       .json({ success: false, error: (error as Error).message });
+  }
+}
+
+export async function getAllChildProducts(req: Request, res: Response) {
+  try {
+    const parentId = req.params.parentId;
+    const queryParams = req.query as categoryQueryDto;
+
+    const result = await Service.findAllChildProducts({
+      ...queryParams,
+      parentId,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Products retrieved successfully",
+      ...result, // ⭐ trả về tất cả pagination fields
+    });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      message: err?.message ?? "Internal Server Error",
+    });
   }
 }

@@ -8,6 +8,9 @@ export interface updateCategoryDto {
 }
 
 export interface categoryQueryDto {
-  q?: string; // Full-text search
-  parents?: string; // parent category ID
+  q?: string;
+  parentId?: string; // thêm vào
+  product?: boolean;
+  limit?: number;
+  page?: number;
 }

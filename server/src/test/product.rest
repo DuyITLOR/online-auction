@@ -16,4 +16,4 @@ Content-Type: application/json
 
 
 ### Lấy sản phẩm của seller
-GET http://localhost:4000/product?sort=countBids_desc
+GET http://localhost:4000/product/categories=c0000002-0002-4000-a000-000000000001

@@ -113,12 +113,6 @@ const TreeItem: FC<TreeItemProps> = ({
           >
             {node.name}
           </span>
-
-          {hasChildren && (
-            <span className='px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600'>
-              {node.children?.length}
-            </span>
-          )}
         </div>
 
         {/* Phần phải: Các nút hành động (Chỉ hiện khi hover) */}

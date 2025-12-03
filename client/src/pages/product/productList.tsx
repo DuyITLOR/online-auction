@@ -2,13 +2,14 @@ import Header from '../../components/header';
 import { Heart } from 'lucide-react';
 import SideBar from '../../components/product/sideBar';
 import SortBar from '../../components/product/sortBar';
-import { useEffect, useState } from 'react';
-import type { Category, Product } from '../../libs/types/types';
+import { useContext, useEffect, useState } from 'react';
+import type { Category, Product, WatchList } from '../../libs/types/types';
 import { getAllProduct } from '../../api/product';
 import { getCategories } from '../../api/category';
 import { Link, useSearchParams } from 'react-router-dom';
 import Pagination from '../../components/pagination';
 import Footer from '../../components/footer';
+import { ProductContext } from '../../libs/contexts/product.context';
 
 const convertDay = (date: string) => {
   const now = new Date();
@@ -19,6 +20,11 @@ const convertDay = (date: string) => {
 };
 
 const ProductList = () => {
+  const { watchList, toggleWatchList } = useContext(ProductContext);
+  const isLike = (id: string) => {
+    return watchList.some((item: WatchList) => item.productId === id);
+  };
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading1, setLoading1] = useState(true);
   const [loading2, setLoading2] = useState(true);
@@ -40,7 +46,7 @@ const ProductList = () => {
     const fetchAllProduct = async () => {
       setLoading1(true);
 
-      const products = await getAllProduct(page, coursePerPage, categoryId, sortType, q);
+      const products = await getAllProduct({ page, limit: coursePerPage, categoryId, sort: sortType, q });
       setProducts(products.data);
       setTotalPage(products.totalPage);
       setLoading1(false);
@@ -131,7 +137,13 @@ const ProductList = () => {
                         </div>
 
                         <Heart
-                          className={`w-10 h-10 ${'stroke-0 fill-red-600'} absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            toggleWatchList(item?.id);
+                          }}
+                          className={`w-10 h-10 ${
+                            isLike(item?.id) ? 'stroke-0 fill-red-600' : 'stroke-2'
+                          } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
                         />
 
                         <div className='w-20 h-7 text-sm bg-gray-800 text-white absolute left-1 top-1 px-2 py-1 rounded-md'>

@@ -1,10 +1,6 @@
-import {
-  createProductDto,
-  productQueryDto,
-  updateProductDto,
-} from "../dto/productDto";
-import { prisma } from "./db/prisma";
-import { Prisma } from "@prisma/client";
+import { createProductDto, productQueryDto, updateProductDto } from '../dto/productDto';
+import { prisma } from './db/prisma';
+import { Prisma } from '@prisma/client';
 
 export const createProduct = async (id: string, data: createProductDto) => {
   const product = await prisma.products.create({
@@ -15,6 +11,7 @@ export const createProduct = async (id: string, data: createProductDto) => {
       description: data.description,
 
       startPrice: new Prisma.Decimal(data.startPrice),
+      currentPrice: new Prisma.Decimal(data.startPrice),
       stepPrice: new Prisma.Decimal(data.stepPrice),
       buyNowPrice: new Prisma.Decimal(data.buyNowPrice),
 
@@ -55,47 +52,38 @@ export const getProductById = async (productId: string) => {
 
 export const updateProduct = async (id: string, data: updateProductDto) => {
   const updateData: Partial<Prisma.ProductsUpdateInput> = {};
-  if (data.categoryId !== undefined)
-    updateData.category = { connect: { id : data.categoryId } };
+  if (data.categoryId !== undefined) updateData.category = { connect: { id: data.categoryId } };
   if (data.title !== undefined) updateData.title = data.title;
   if (data.description !== undefined) {
     const old = await prisma.products.findUnique({
-      where: {id},
-      select: {description: true}
-    })
+      where: { id },
+      select: { description: true },
+    });
 
-  const now = new Date();
-  const dd = String(now.getDate()).padStart(2, "0");
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  const yyyy = now.getFullYear();
-  const formattedDate = `${dd}/${mm}/${yyyy}`;
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const yyyy = now.getFullYear();
+    const formattedDate = `${dd}/${mm}/${yyyy}`;
 
-  updateData.description = `${old?.description ?? " "}  \n\n[Updated on ${formattedDate}]: \n\n${data.description}`; 
+    updateData.description = `${old?.description ?? ' '}  \n\n[Updated on ${formattedDate}]: \n\n${data.description}`;
   }
 
+  if (data.startPrice !== undefined) updateData.startPrice = new Prisma.Decimal(data.startPrice);
 
-  if (data.startPrice !== undefined)
-    updateData.startPrice = new Prisma.Decimal(data.startPrice);
+  if (data.stepPrice !== undefined) updateData.stepPrice = new Prisma.Decimal(data.stepPrice);
 
-  if (data.stepPrice !== undefined)
-    updateData.stepPrice = new Prisma.Decimal(data.stepPrice);
+  if (data.buyNowPrice !== undefined) updateData.buyNowPrice = new Prisma.Decimal(data.buyNowPrice);
 
-  if (data.buyNowPrice !== undefined)
-    updateData.buyNowPrice = new Prisma.Decimal(data.buyNowPrice);
-
-  if (data.startedAt !== undefined)
-    updateData.startedAt = new Date(data.startedAt);
+  if (data.startedAt !== undefined) updateData.startedAt = new Date(data.startedAt);
 
   if (data.endAt !== undefined) updateData.endAt = new Date(data.endAt);
 
-  if (data.autoExtendEnabled !== undefined)
-    updateData.autoExtendEnabled = data.autoExtendEnabled;
+  if (data.autoExtendEnabled !== undefined) updateData.autoExtendEnabled = data.autoExtendEnabled;
 
-  if (data.autoExtendMinutes !== undefined)
-    updateData.autoExtendMinutes = data.autoExtendMinutes;
+  if (data.autoExtendMinutes !== undefined) updateData.autoExtendMinutes = data.autoExtendMinutes;
 
-  if (data.highRatingRequired !== undefined)
-    updateData.highRatingRequired = data.highRatingRequired;
+  if (data.highRatingRequired !== undefined) updateData.highRatingRequired = data.highRatingRequired;
 
   if (data.images !== undefined) {
     updateData.images = {
@@ -108,7 +96,6 @@ export const updateProduct = async (id: string, data: updateProductDto) => {
   }
 
   updateData.updatedAt = new Date();
-  
 
   const updatedProduct = await prisma.products.update({
     where: { id },
@@ -137,10 +124,10 @@ export const searchProducts = async (query: productQueryDto) => {
   if (query.q) {
     where.title = {
       contains: query.q,
-      mode: "insensitive",
+      mode: 'insensitive',
     };
   }
-  
+
   if (query.sellerId) {
     where.sellerId = query.sellerId;
   }
@@ -152,28 +139,28 @@ export const searchProducts = async (query: productQueryDto) => {
   let orderBy: Prisma.ProductsOrderByWithRelationInput = {};
 
   switch (query.sort) {
-    case "price_asc":
-        orderBy = { currentPrice: "asc" };
-        break;
-    case "price_desc":
-        orderBy = { currentPrice: "desc" };
-        break;
-    case "endAt_asc":
-        orderBy = { endAt: "asc" };
-        break;
-    case "endAt_desc":
-        orderBy = { endAt: "desc" };
-        break;
-    case "countBids_desc":
-        orderBy = { countbids: "desc" };
-        break;
+    case 'price_asc':
+      orderBy = { currentPrice: 'asc' };
+      break;
+    case 'price_desc':
+      orderBy = { currentPrice: 'desc' };
+      break;
+    case 'endAt_asc':
+      orderBy = { endAt: 'asc' };
+      break;
+    case 'endAt_desc':
+      orderBy = { endAt: 'desc' };
+      break;
+    case 'countBids_desc':
+      orderBy = { countbids: 'desc' };
+      break;
     default:
-        orderBy = { startedAt: "desc" };
-        break;
+      orderBy = { startedAt: 'desc' };
+      break;
   }
 
   const products = await prisma.products.findMany({
-    where, 
+    where,
     skip,
     take: limit,
     orderBy,
@@ -182,15 +169,15 @@ export const searchProducts = async (query: productQueryDto) => {
       seller: true,
       category: true,
     },
-  })
+  });
 
-   const total = await prisma.products.count({ where });
+  const total = await prisma.products.count({ where });
 
-   return {
+  return {
     page,
     limit,
     total,
     totalPages: Math.ceil(total / limit),
     data: products,
-   }
+  };
 };

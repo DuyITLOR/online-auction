@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 import { createProduct } from '../../api/product';
 import type { Category } from '../../libs/types/types';
 import { getCategories } from '../../api/category';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 const PostProduct = () => {
   const [images, setImages] = useState<File[]>([]);
@@ -21,6 +23,10 @@ const PostProduct = () => {
     const value = e.target.value;
     setParentCategoryId(value);
     setFormData((prev) => ({ ...prev, categoryId: '' }));
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, description: value }));
   };
 
   const childCategories = useMemo(() => {
@@ -76,6 +82,24 @@ const PostProduct = () => {
   const removeImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
     setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleResetForm = () => {
+    setFormData({
+      name: '',
+      categoryId: '',
+      description: '',
+      startPrice: '',
+      stepPrice: '',
+      buyNowPrice: '',
+      startTime: '',
+      endTime: '',
+    });
+
+    setImages([]);
+    setPreviewUrls([]);
+
+    setParentCategoryId('');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -144,6 +168,8 @@ const PostProduct = () => {
       console.log(session.token as string);
       await createProduct({ product: payload, token: session.token as string });
 
+      handleResetForm();
+
       toast.success('Đăng bán sản phẩm thành công!');
     } catch (err) {
       console.error(err);
@@ -180,7 +206,7 @@ const PostProduct = () => {
                 <Upload className='w-6 h-6 text-teal-600' />
               </div>
               <p className='text-sm font-medium text-gray-700'>Nhấn để tải ảnh lên</p>
-              <p className='text-xs text-gray-500 mt-1'>Hỗ trợ JPG, PNG, WEBP (Tối đa 5 ảnh)</p>
+              <p className='text-xs text-gray-500 mt-1'>Hỗ trợ JPG, PNG, WEBP (Tối thiểu 1 ảnh)</p>
             </div>
 
             {previewUrls.length > 0 && (
@@ -270,21 +296,19 @@ const PostProduct = () => {
 
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-1'>Mô tả sản phẩm</label>
-              <textarea
-                rows={6}
-                name='description'
-                value={formData.description}
-                onChange={handleChange}
-                placeholder='Mô tả chi tiết về tình trạng, xuất xứ, tính năng...'
-                className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all resize-none'
-              />
+              <div className='mb-10'>
+                <ReactQuill
+                  className='h-64 mb-5'
+                  theme='snow'
+                  value={formData.description}
+                  onChange={handleDescriptionChange}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* CỘT PHẢI: THIẾT LẬP GIÁ & THỜI GIAN (Chiếm 1 phần) */}
         <div className='space-y-6'>
-          {/* Section: Thiết lập giá */}
           <div className='bg-white p-6 rounded-xl shadow-sm border border-gray-200 sticky top-5'>
             <h2 className='text-xl font-semibold mb-4 text-gray-800 flex items-center gap-2'>
               <DollarSign className='w-5 h-5 text-teal-600' /> Thiết lập đấu giá
@@ -328,7 +352,6 @@ const PostProduct = () => {
               </div>
             </div>
 
-            {/* Section: Thời gian */}
             <div className='mt-8 pt-6 border-t border-gray-200'>
               <h2 className='text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2'>
                 <Clock className='w-5 h-5 text-teal-600' /> Thời gian

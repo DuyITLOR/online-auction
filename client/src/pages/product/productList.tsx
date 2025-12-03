@@ -112,7 +112,7 @@ const ProductList = () => {
                         key={item.id}
                         className='flex flex-col gap-2 border border-gray-200 rounded-md px-3 py-2 h-fit w-97 relative cursor-pointer z-0'
                       >
-                        <img src={item?.images?.[0].url} alt={item.title} className='w-full h-40 object-cover mb-2' />
+                        <img src={item?.images?.[0]?.url} alt={item.title} className='w-full h-40 object-cover mb-2' />
                         <p className='font-semibold text-xl line-clamp-1'>{item.title}</p>
 
                         <span className='font-semibold text-2xl'>

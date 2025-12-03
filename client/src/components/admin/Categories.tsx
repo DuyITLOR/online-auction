@@ -1,4 +1,4 @@
-import { type FC, useState, useEffect } from "react";
+import { type FC, useState } from "react";
 import {
   Plus,
   ChevronRight,
@@ -9,7 +9,6 @@ import {
   Pencil,
   Trash2,
   Loader2,
-  MoreVertical,
 } from "lucide-react";
 import {
   Dialog,

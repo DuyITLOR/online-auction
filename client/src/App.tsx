@@ -5,12 +5,13 @@ import AuthCallback from './pages/auth/AuthCallback';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import Verify from './pages/auth/Verify';
-import ProductList from './pages/product/ProductList';
+import ProductList from './pages/product/productList';
 import AdminDashboard from './pages/admin/Dashboard';
 import Profile from './pages/Profile';
 import DetailProduct from './pages/product/DetailProduct';
 import ForgetPassword from './pages/auth/ForgetPassword';
 import ResetPassword from './pages/auth/ResetPassword';
+import PostProduct from './pages/product/PostProduct';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,6 +24,7 @@ const router = createBrowserRouter(
       <Route path='auth/reset-password' element={<ResetPassword />} />
       <Route path='products' element={<ProductList />} />
       <Route path='product/:id' element={<DetailProduct />} />
+      <Route path='post-product' element={<PostProduct />} />
       <Route path='admin/dashboard' element={<AdminDashboard />} />
       <Route path='auth/google/callback' element={<AuthCallback />} />
       <Route path='products' element={<ProductList />} />

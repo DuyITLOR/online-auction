@@ -90,6 +90,7 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [isBidding, setIsBidding] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const { watchList, toggleWatchList } = useContext(ProductContext);
   const isLike = (id: string) => {
@@ -150,6 +151,12 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
       setPrice(minBidPrice); // Reset về giá sàn
       return;
     }
+
+    if (price >= Number(product.buyNowPrice)) {
+      setOpen(true);
+      return;
+    }
+
     try {
       setIsBidding(true);
 
@@ -351,6 +358,47 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
                     <Button variant='outline'>Hủy</Button>
                   </DialogClose>
                   <Button className='bg-teal-500 hover:bg-teal-600 text-white px-5' type='submit'>
+                    Xác nhận
+                  </Button>
+                </div>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className='sm:max-w-[480px]'>
+              <DialogHeader>
+                <DialogTitle className='text-xl font-semibold text-gray-800'>
+                  Giá bạn đặt cao hơn giá Mua ngay
+                </DialogTitle>
+
+                <div className='mt-3 space-y-3 text-gray-700 leading-relaxed'>
+                  <p>
+                    Giá bạn vừa đặt đang <span className='font-medium text-red-600'>cao hơn</span> mức{' '}
+                    <span className='font-medium text-teal-600'>Mua ngay</span> của sản phẩm.
+                  </p>
+
+                  <p className='text-center text-2xl font-bold text-teal-600'>
+                    Giá Mua ngay: [{Number(product.buyNowPrice).toLocaleString()}] VND
+                  </p>
+
+                  <p>
+                    Bạn có muốn <span className='font-medium text-teal-600'>mua ngay</span> sản phẩm với mức giá này để
+                    kết thúc phiên đấu giá không?
+                  </p>
+                </div>
+              </DialogHeader>
+
+              <DialogFooter className='mt-4'>
+                <div className='flex items-center justify-end gap-2 w-full'>
+                  <DialogClose asChild onClick={() => setOpen(false)}>
+                    <Button variant='outline'>Hủy</Button>
+                  </DialogClose>
+                  <Button
+                    onClick={() => setOpen(false)}
+                    className='bg-teal-500 hover:bg-teal-600 text-white px-5'
+                    type='submit'
+                  >
                     Xác nhận
                   </Button>
                 </div>

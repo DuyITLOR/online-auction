@@ -24,7 +24,6 @@ const ProductDescription = ({ product, currentUser }: { product: Product; curren
   return (
     <div className='border border-gray-200 px-3 py-2 mb-5'>
       <div className='flex justify-between ml-3 mb-2'>
-        <div></div>
         {isOwner && !isEditing && (
           <Button onClick={() => setIsEditing(true)} className='hover:bg-gray-200 rounded-md hover:cursor-pointer'>
             <Edit className='w-5! h-5!' />

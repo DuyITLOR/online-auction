@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 import { clearSession, getSession } from '../libs/session';
 import { Popover } from './ui/popover';
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
-import { LogOut, Search, UserRound } from 'lucide-react';
+import { LogOut, Plus, Search, UserRound } from 'lucide-react';
 
 const Header = () => {
   const [session, setSession] = useState<any>(null);
@@ -44,6 +44,9 @@ const Header = () => {
     navigate('/');
   };
 
+  const handleAddProduct = () => {
+    navigate('/post-product');
+  };
   return (
     <header className='sticky top-0 z-50 border-b border-b-gray-200 bg-white'>
       <div className='flex flex-1 items-center justify-between mx-3 py-4 lg:px-8'>
@@ -52,19 +55,21 @@ const Header = () => {
             <div className='w-8 h-8 bg-teal-600 rounded text-white flex items-center justify-center'>⚡</div>
             <span className='hidden sm:inline text-teal-600'>Ebay</span>
           </Link>
+          <div className='flex items-center gap-4'>
+            <div className='relative'>
+              <input
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                className='h-10 border border-gray-300 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 pl-4 pr-10 py-2  transition-all w-3xl'
+                placeholder='Search...'
+              />
 
-          <div className='relative ml-5'>
-            <input
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              className='h-10 border border-gray-300 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 pl-4 pr-10 py-2  transition-all w-3xl'
-              placeholder='Search...'
-            />
-
-            <Search
-              className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 cursor-pointer hover:text-teal-500 transition-colors'
-              onClick={() => handleSearch(searchValue)}
-            />
+              <Search
+                className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 cursor-pointer hover:text-teal-500 transition-colors'
+                onClick={() => handleSearch(searchValue)}
+              />
+            </div>
+            <Plus onClick={handleAddProduct} className='w-8 h-8 stroke-2 text-white p-1 rounded-full bg-teal-500' />
           </div>
         </div>
 

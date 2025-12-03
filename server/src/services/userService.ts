@@ -1,5 +1,13 @@
-import { prisma } from "./db/prisma";
-import { blockUserDto, updateUserDto } from "../dto/userDto";
+import { prisma } from './db/prisma';
+import {
+  blockUserDto,
+  updateUserDto,
+  askSellerDto,
+  askSellerReturnDto,
+  answerBidderDto,
+  answerBidderReturnDto,
+  returnErrorDto,
+} from '../dto/userDto';
 
 export const getUserById = async (id: string) => {
   try {
@@ -13,7 +21,7 @@ export const getUserById = async (id: string) => {
       user: user,
     };
   } catch (err) {
-    console.error("Error from userService:", err);
+    console.error('Error from userService:', err);
 
     if (err instanceof Error) {
       return {
@@ -24,7 +32,7 @@ export const getUserById = async (id: string) => {
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
     };
   }
 };
@@ -44,10 +52,10 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
     return {
       success: true,
       data: updated,
-      message: "Update successful",
+      message: 'Update successful',
     };
   } catch (err) {
-    console.error("Error from userService:", err);
+    console.error('Error from userService:', err);
 
     if (err instanceof Error) {
       return {
@@ -58,7 +66,7 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
     };
   }
 };
@@ -74,10 +82,10 @@ export const upgradeUser = async (id: string, note: string) => {
     return {
       success: true,
       data: record,
-      message: "Request successfully",
+      message: 'Request successfully',
     };
   } catch (err) {
-    console.error("Error from userService:", err);
+    console.error('Error from userService:', err);
 
     if (err instanceof Error) {
       return {
@@ -88,18 +96,18 @@ export const upgradeUser = async (id: string, note: string) => {
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
     };
   }
 };
 
 export const checkRating = async (id: string) => {
-  console.log("Checking rating for user:", id);
+  console.log('Checking rating for user:', id);
   const user = await prisma.user.findUnique({
     where: { id },
   });
 
-  if (!user) throw new Error("User not found");
+  if (!user) throw new Error('User not found');
   const total = user.ratingNeg + user.ratingPos;
   // console.log("positive ratings:", user.ratingPos);
   // console.log("negative ratings:", user.ratingNeg);
@@ -111,6 +119,7 @@ export const checkRating = async (id: string) => {
   }
   return false;
 };
+
 export const getAllBlockedUser = async (productId: string) => {
   try {
     const record = await prisma.blockedBidders.findMany({
@@ -121,10 +130,10 @@ export const getAllBlockedUser = async (productId: string) => {
     return {
       success: true,
       data: record,
-      message: "Get successfully",
+      message: 'Get successfully',
     };
   } catch (err) {
-    console.error("Error from userService:", err);
+    console.error('Error from userService:', err);
 
     if (err instanceof Error) {
       return {
@@ -135,12 +144,14 @@ export const getAllBlockedUser = async (productId: string) => {
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
     };
   }
 };
 
-export const getBlockUserByProductId = async (productId: string): Promise<string[]> => {
+export const getBlockUserByProductId = async (
+  productId: string
+): Promise<string[]> => {
   try {
     const record = await prisma.blockedBidders.findMany({
       where: { productId },
@@ -149,11 +160,10 @@ export const getBlockUserByProductId = async (productId: string): Promise<string
 
     return record.map((r) => r.userId);
   } catch (err) {
-    console.error("Error from userService:", err);
+    console.error('Error from userService:', err);
     return [];
   }
 };
-
 
 export const blockUser = async (data: blockUserDto) => {
   try {
@@ -169,7 +179,7 @@ export const blockUser = async (data: blockUserDto) => {
       return {
         success: true,
         data: check,
-        message: "Already blocked",
+        message: 'Already blocked',
       };
     }
     const record = await prisma.blockedBidders.create({
@@ -182,7 +192,7 @@ export const blockUser = async (data: blockUserDto) => {
     return {
       success: true,
       data: record,
-      message: "Blocked successfully",
+      message: 'Blocked successfully',
     };
   } catch (err) {
     if (err instanceof Error) {
@@ -194,7 +204,137 @@ export const blockUser = async (data: blockUserDto) => {
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
+    };
+  }
+};
+
+export const askSeller = async (
+  data: askSellerDto
+): Promise<askSellerReturnDto | returnErrorDto> => {
+  try {
+    const record = await prisma.comments.create({
+      data: {
+        productId: data.productId,
+        senderId: data.senderId,
+        parentId: null,
+        content: data.question,
+      },
+      include: {
+        product: {
+          select: {
+            title: true,
+            seller: {
+              select: {
+                email: true,
+              },
+            },
+          },
+        },
+        sender: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+    return {
+      success: true,
+      productName: record.product.title,
+      sellerEmail: record.product.seller.email,
+      askerEmail: record.sender.email,
+      question: record.content,
+    };
+  } catch (err) {
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Unknown error',
+    };
+  }
+};
+
+export const answerBidder = async (
+  data: answerBidderDto
+): Promise<answerBidderReturnDto | returnErrorDto> => {
+  try {
+    const record = await prisma.comments.create({
+      data: {
+        productId: data.productId,
+        senderId: data.sellerId,
+        parentId: data.commentId,
+        content: data.answer,
+      },
+      include: {
+        product: {
+          select: {
+            title: true,
+          },
+        },
+        parent: {
+          select: {
+            sender: {
+              select: {
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (record.parent === null) {
+      throw new Error('Câu hỏi không tồn tại');
+    }
+    return {
+      success: true,
+      bidderEmail: record.parent.sender.email,
+      productName: record.product.title,
+      answer: data.answer,
+    };
+  } catch (err) {
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Unknown error',
+    };
+  }
+};
+
+export const getAllCommentsByProductId = async (productId: string) => {
+  try {
+    const comments = await prisma.comments.findMany({
+      where: {
+        productId,
+      },
+    });
+    return {
+      success: true,
+      data: comments,
+      message: 'Get comments successfully',
+    };
+  } catch (err) {
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Unknown error',
     };
   }
 };

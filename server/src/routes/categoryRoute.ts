@@ -11,7 +11,7 @@ router.post(
   authMiddleware,
   categoryControllers.createCategory
 );
-router.put(
+router.patch(
   API_CATEGORY_ROUTES.updateCategory.path,
   authMiddleware,
   categoryControllers.updateCategory

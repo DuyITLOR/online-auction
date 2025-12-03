@@ -14,7 +14,7 @@ export async function createCate(data: createCategoryDto) {
 export async function updateCate(cateId: string, data: updateCategoryDto) {
   return prisma.categories.update({
     where: { id: cateId },
-    data,
+    data: { name: data.name },
   });
 }
 
@@ -30,22 +30,11 @@ export async function deleteCate(cateId: string) {
 
   // Prevent deletion if products are still assigned to this category
 
-  const childCate = await prisma.categories.findMany({
-    where: { parentId: cateId },
+  const productCount = await prisma.products.count({
+    where: { categoryId: cateId },
   });
-
-  const products = await prisma.products.findMany({
-    where: {
-      OR: [
-        { categoryId: cateId },
-        { categoryId: { in: childCate.map((cate) => cate.id) } },
-      ],
-    },
-  });
-  if (products.length > 0) {
-    throw new Error(
-      "Cannot delete category. There are products assigned to this category or its subcategories."
-    );
+  if (productCount > 0) {
+    throw new Error("Category has products and cannot be deleted");
   }
 
   // Safe to delete

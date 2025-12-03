@@ -4,7 +4,6 @@ export interface createCategoryDto {
 }
 export interface updateCategoryDto {
   name?: string;
-  parentId?: string;
 }
 
 export interface categoryQueryDto {

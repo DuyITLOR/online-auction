@@ -1,5 +1,8 @@
-import { promise } from "zod";
-import { createCategoryDto, updateCategoryDto } from "../dto/categoryDto";
+import {
+  createCategoryDto,
+  updateCategoryDto,
+  categoryQueryDto,
+} from "../dto/categoryDto";
 import { prisma } from "./db/prisma";
 
 export async function createCate(data: createCategoryDto) {
@@ -83,4 +86,48 @@ export async function SearchCategories(parents?: string) {
   return prisma.categories.findMany({
     where: { parentId: parents },
   });
+}
+
+export async function findAllChildProducts(query: categoryQueryDto) {
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  // 1) Lấy category con
+  const childCate = await prisma.categories.findMany({
+    where: { parentId: query.parentId },
+    select: { id: true },
+  });
+
+  if (childCate.length === 0) {
+    return {
+      total: 0,
+      page,
+      limit,
+      totalPages: 0,
+      data: [],
+    };
+  }
+
+  const childIds = childCate.map((c) => c.id);
+
+  // 2) Tổng số products
+  const total = await prisma.products.count({
+    where: { categoryId: { in: childIds } },
+  });
+
+  // 3) Query với skip & limit
+  const data = await prisma.products.findMany({
+    where: { categoryId: { in: childIds } },
+    skip,
+    take: limit,
+  });
+
+  return {
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+    data,
+  };
 }

@@ -4,11 +4,12 @@ GET http://localhost:4000/health
 GET http://localhost:4000/categories
 
 ###
-GET http://localhost:4000/categories/01
-
+GET http://localhost:4000/categories/c0000001-0002-4000-a000-0000000000099/products?limit=2&page=1
+# nè dâng 
 ###
 POST http://localhost:4000/categories
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE0MjIyYzc1LTE2OWUtNGJlNi05ZmMxLWZjMTE0NTA3ZGI5MyIsImVtYWlsIjoibnF0MzcyMDA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NDczODkwMCwiZXhwIjoxNzY3MzMwOTAwfQ.RODYeIUqf9punR0BI_ri5BVtWCU5Zi7tbC7_BMN-4kM
 
 {
   "name": "Electronics",

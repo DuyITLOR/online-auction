@@ -475,43 +475,41 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
         </Link>
       </div>
 
-      <div className='flex flex-1 items-center gap-3 overflow-x-auto scroll-container h-[400px] pb-5'>
-        {loading && (
-          <div className='flex items-center justify-center py-20 min-w-full'>
-            <div className='animate-spin rounded-full h-12 w-12 border-4 border-teal-500 border-t-transparent'></div>
-          </div>
-        )}
-        {!loading && (
-          <div className='flex flex-1 items-center gap-3 overflow-x-auto scroll-container h-[400px] pb-5'>
-            {similarProducts.map((item: Product) => (
-              <Link
-                to={`/product/${item.id}`}
-                key={item.id}
-                className='flex flex-col gap-2 min-w-[250px] max-w-[250px] relative'
+      {loading && (
+        <div className='flex items-center justify-center py-20 min-w-full'>
+          <div className='animate-spin rounded-full h-12 w-12 border-4 border-teal-500 border-t-transparent'></div>
+        </div>
+      )}
+      {!loading && (
+        <div className='flex flex-1 items-center gap-3 overflow-x-auto scroll-container h-[400px] pb-5'>
+          {similarProducts.map((item: Product) => (
+            <Link
+              to={`/product/${item.id}`}
+              key={item.id}
+              className='flex flex-col gap-2 min-w-[250px] max-w-[250px] relative'
+            >
+              <img src={item?.images?.[0].url} className='rounded-md w-[250px] h-[250px] object-cover' />
+              <p className='line-clamp-2'>{item.title}</p>
+              <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
+              <div
+                className={`font-semibold h-7 absolute text-xs left-1 top-1 bg-white hover:bg-gray-100 px-2 py-1 rounded-full`}
               >
-                <img src={item?.images?.[0].url} className='rounded-md w-[250px] h-[250px] object-cover' />
-                <p className='line-clamp-2'>{item.title}</p>
-                <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
-                <div
-                  className={`font-semibold h-7 absolute text-xs left-1 top-1 bg-white hover:bg-gray-100 px-2 py-1 rounded-full`}
-                >
-                  {formatTimeLeft(item.endAt)}
-                </div>
+                {formatTimeLeft(item.endAt)}
+              </div>
 
-                <Heart
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleWatchList(item.id);
-                  }}
-                  className={`w-10 h-10 ${
-                    isLike(item?.id) ? 'stroke-0 fill-red-600' : 'stroke-2'
-                  } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
-                />
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
+              <Heart
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleWatchList(item.id);
+                }}
+                className={`w-10 h-10 ${
+                  isLike(item?.id) ? 'stroke-0 fill-red-600' : 'stroke-2'
+                } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
+              />
+            </Link>
+          ))}
+        </div>
+      )}
 
       <Tabs className='mt-15' defaultValue='description'>
         <TabsList className='grid w-1/4 grid-cols-1'>

@@ -14,7 +14,7 @@ export async function createCate(data: createCategoryDto) {
 export async function updateCate(cateId: string, data: updateCategoryDto) {
   return prisma.categories.update({
     where: { id: cateId },
-    data: { name: data.name },
+    data,
   });
 }
 
@@ -29,11 +29,23 @@ export async function deleteCate(cateId: string) {
   }
 
   // Prevent deletion if products are still assigned to this category
-  const productCount = await prisma.products.count({
-    where: { categoryId: cateId },
+
+  const childCate = await prisma.categories.findMany({
+    where: { parentId: cateId },
   });
-  if (productCount > 0) {
-    throw new Error("Category has products and cannot be deleted");
+
+  const products = await prisma.products.findMany({
+    where: {
+      OR: [
+        { categoryId: cateId },
+        { categoryId: { in: childCate.map((cate) => cate.id) } },
+      ],
+    },
+  });
+  if (products.length > 0) {
+    throw new Error(
+      "Cannot delete category. There are products assigned to this category or its subcategories."
+    );
   }
 
   // Safe to delete
@@ -74,4 +86,48 @@ export async function SearchCategories(parents?: string) {
   return prisma.categories.findMany({
     where: { parentId: parents },
   });
+}
+
+export async function findAllChildProducts(query: categoryQueryDto) {
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  // 1) Lấy category con
+  const childCate = await prisma.categories.findMany({
+    where: { parentId: query.parentId },
+    select: { id: true },
+  });
+
+  if (childCate.length === 0) {
+    return {
+      total: 0,
+      page,
+      limit,
+      totalPages: 0,
+      data: [],
+    };
+  }
+
+  const childIds = childCate.map((c) => c.id);
+
+  // 2) Tổng số products
+  const total = await prisma.products.count({
+    where: { categoryId: { in: childIds } },
+  });
+
+  // 3) Query với skip & limit
+  const data = await prisma.products.findMany({
+    where: { categoryId: { in: childIds } },
+    skip,
+    take: limit,
+  });
+
+  return {
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+    data,
+  };
 }

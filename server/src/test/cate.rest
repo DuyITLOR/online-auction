@@ -7,10 +7,12 @@ GET http://localhost:4000/categories
 GET http://localhost:4000/categories/c0000001-0002-4000-a000-0000000000099/products?limit=2&page=1
 # nè dâng 
 ###
-PATCH  http://localhost:4000/categories/21523549-875b-4e8f-b4c5-12ccd6d5baca
+POST http://localhost:4000/categories
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE0MjIyYzc1LTE2OWUtNGJlNi05ZmMxLWZjMTE0NTA3ZGI5MyIsImVtYWlsIjoibnF0MzcyMDA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NDczODkwMCwiZXhwIjoxNzY3MzMwOTAwfQ.RODYeIUqf9punR0BI_ri5BVtWCU5Zi7tbC7_BMN-4kM
 
 {
-  "name": "ystems"
+  "name": "Electronics",
+  "description": "Electronic devices and gadgets",
+  "parentId": null
 }

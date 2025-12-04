@@ -31,7 +31,7 @@ export const authMiddleware = (
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Unauthorized: Missing token' });
+    return res.status(401).json({ message: 'Yêu cầu đăng nhập' });
   }
 
   const token = authHeader.split(' ')[1];
@@ -45,7 +45,7 @@ export const authMiddleware = (
 
     // Kiểm tra payload hợp lệ
     if (!decoded || !decoded.id || !decoded.email) {
-      return res.status(401).json({ message: 'Invalid token payload' });
+      return res.status(401).json({ message: 'Token không hợp lệ' });
     }
 
     // Gắn payload vào req.user để route handler có thể dùng
@@ -54,10 +54,8 @@ export const authMiddleware = (
     next();
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired' });
+      return res.status(401).json({ message: 'Token đã hết hạn' });
     }
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Token không hợp lệ' });
   }
 };
-
-

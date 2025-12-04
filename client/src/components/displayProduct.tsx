@@ -1,8 +1,10 @@
-import { useContext } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ProductContext } from '../libs/contexts/product.context';
 import { Heart } from 'lucide-react';
 import type { WatchList } from '../libs/types/types';
+import { getSession } from '../libs/session';
 
 const formatTimeLeft = (date: string) => {
   const now = new Date();
@@ -27,10 +29,30 @@ const formatTimeLeft = (date: string) => {
 };
 
 const DisplayProduct = () => {
-  const { endingSoonProducts, highestPriceProducts, watchList, toggleWatchList, loading } = useContext(ProductContext);
+  const [session, setSession] = useState<any>(null);
+  const { endingSoonProducts, highestPriceProducts, watchList, toggleWatchList, loading, refresh } =
+    useContext(ProductContext);
   const isLike = (id: string) => {
     return watchList.some((item) => id === item.productId);
   };
+
+  useEffect(() => {
+    const getToken = async () => {
+      const sessionValue = await getSession();
+      if (sessionValue != null) {
+        setSession(sessionValue);
+      } else {
+        setSession({});
+      }
+    };
+
+    getToken();
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [session]);
+
   return (
     <>
       {loading && (

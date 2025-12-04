@@ -23,14 +23,6 @@ const ProductDescription = ({ product, currentUser }: { product: Product; curren
 
   return (
     <div className='border border-gray-200 px-3 py-2 mb-5'>
-      <div className='flex justify-between ml-3 mb-2'>
-        {isOwner && !isEditing && (
-          <Button onClick={() => setIsEditing(true)} className='hover:bg-gray-200 rounded-md hover:cursor-pointer'>
-            <Edit className='w-5! h-5!' />
-          </Button>
-        )}
-      </div>
-
       {isEditing ? (
         <div className='editor-mode'>
           <ReactQuill theme='snow' value={description} onChange={setDescription} />

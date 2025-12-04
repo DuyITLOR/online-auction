@@ -4,7 +4,6 @@ export const getProduct = async (productId: string) => {
   try {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/${productId}`);
     const data = await res.json();
-    console.log(productId);
     if (!res.ok) {
       throw new Error(data.message || 'Failed to fetch product');
     }

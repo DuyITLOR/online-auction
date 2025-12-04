@@ -11,11 +11,11 @@ const sortValue = [
   },
   {
     item: 'Mới nhất',
-    value: 'lastest',
+    value: 'endAt_asc',
   },
   {
     item: 'Giá: Thấp đến cao',
-    value: 'price',
+    value: 'price_asc',
   },
   {
     item: 'Giá: Cao đến thấp',
@@ -23,7 +23,7 @@ const sortValue = [
   },
   {
     item: 'Nhiều lượt ra giá',
-    value: 'bids',
+    value: 'countBids_desc',
   },
 ];
 

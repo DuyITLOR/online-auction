@@ -60,6 +60,7 @@ const Header = () => {
     clearSession();
     setSession(null);
     navigate('/');
+    window.location.reload();
   };
 
   const handleAddProduct = () => {

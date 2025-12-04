@@ -10,6 +10,7 @@ type ProductContextType = {
   watchList: WatchList[];
   loading: boolean;
   toggleWatchList: (productId: string) => Promise<void>;
+  refresh: () => Promise<void>;
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -19,6 +20,7 @@ export const ProductContext = createContext<ProductContextType>({
   watchList: [],
   loading: true,
   toggleWatchList: async () => {},
+  refresh: async () => {},
 });
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
@@ -42,7 +44,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const fetchWatchList = async (currentToken: string) => {
-    if (!currentToken) return;
+    if (currentToken === '') return;
     try {
       const watchs = await getAllWatchList({ token: currentToken });
       setWatchProducts(watchs);
@@ -51,24 +53,26 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const getData = async () => {
+    setLoading(true);
+    try {
+      const session = await getSession();
+      const currentToken = typeof session?.token === 'string' ? session.token : '';
+
+      console.log(currentToken);
+
+      setToken(currentToken);
+
+      await Promise.all([fetchPublicProducts(), fetchWatchList(currentToken)]);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const initData = async () => {
-      setLoading(true);
-      try {
-        const session = await getSession();
-        const currentToken = typeof session?.token === 'string' ? session.token : '';
-
-        setToken(currentToken);
-
-        await Promise.all([fetchPublicProducts(), fetchWatchList(currentToken)]);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initData();
+    getData();
   }, []);
 
   const handleToggleWatchList = async (productId: string) => {
@@ -110,6 +114,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         watchList: watchProducts,
         toggleWatchList: handleToggleWatchList,
         loading,
+        refresh: () => getData(),
       }}
     >
       {children}

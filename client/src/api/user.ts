@@ -13,6 +13,8 @@ export const getRole = async ({ token }: { token: string }) => {
       const message = data.message || data.error || 'Failed in check role api';
       throw new Error(message);
     }
+
+    return data.data.user; 
   } catch (err) {
     console.error(err);
     throw err;

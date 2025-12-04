@@ -7,9 +7,11 @@ import { clearSession, getSession } from '../libs/session';
 import { Popover } from './ui/popover';
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { LogOut, Plus, Search, UserRound } from 'lucide-react';
+import { getRole } from '../api/user';
 
 const Header = () => {
   const [session, setSession] = useState<any>(null);
+  const [roles, setRoles] = useState<string[]>([]);
   const [searchValue, setSearchValue] = useState('');
 
   const [, setSearchParams] = useSearchParams();
@@ -31,12 +33,28 @@ const Header = () => {
   useEffect(() => {
     async function fetchSession() {
       const sess = await getSession();
-      console.log('session: ', sess);
       setSession(sess);
     }
-
     fetchSession();
   }, []);
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        if (!session) {
+          return;
+        }
+        const token = session.token as string;
+
+        const user = await getRole({ token: token });
+        setRoles(user.currentRoles);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchRole();
+  }, [session]);
 
   const onSignOut = () => {
     clearSession();
@@ -69,7 +87,12 @@ const Header = () => {
                 onClick={() => handleSearch(searchValue)}
               />
             </div>
-            <Plus onClick={handleAddProduct} className='w-8 h-8 stroke-2 text-white p-1 rounded-full bg-teal-500' />
+            <Plus
+              onClick={handleAddProduct}
+              className={`w-8 h-8 stroke-2 text-white p-1 rounded-full bg-teal-500 ${
+                roles.includes('SELLER') ? '' : 'hidden'
+              }`}
+            />
           </div>
         </div>
 

@@ -181,7 +181,6 @@ model Ratings {
   value     Int
   comment   String?
   createdAt DateTime @default(now())
-  longngu   String
   product   Products @relation(fields: [productId], references: [id], onDelete: Cascade)
   ratee     User     @relation("RatingsReceived", fields: [rateeId], references: [id], onDelete: Cascade)
   rater     User     @relation("RatingsGiven", fields: [raterId], references: [id], onDelete: Cascade)

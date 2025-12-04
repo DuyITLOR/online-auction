@@ -1,5 +1,5 @@
 ###
-GET http://localhost:4000/product?limti=5&sort=endAt_desc
+GET http://localhost:4000/product?limti=5&sort=countBids_desc
 
 
 ###

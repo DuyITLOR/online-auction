@@ -8,7 +8,8 @@ import React, {
 } from "react";
 
 import { getSession } from "../session";
-// --- 1. Types ---
+
+// --- Types ---
 export type NodeType = "category" | "subcategory" | "product";
 
 export interface TreeNode {
@@ -25,28 +26,31 @@ interface CategoryContextType {
   isInitialLoading: boolean;
   loadChildren: (node: TreeNode) => Promise<void>;
   createCategory: (name: string, parentId?: string | null) => Promise<void>;
-  updateCategory: (id: string, name: string) => Promise<void>; // <-- Mới thêm
-  deleteCategory: (id: string) => Promise<void>; // <-- Bỏ tham số name, bỏ window.confirm
+  updateCategory: (id: string, name: string) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   refreshCategories: () => void;
+
+  // --- Response Dialog ---
+  responseData: { success: boolean; message: string } | null;
+  showResponseModal: boolean;
+  setShowResponseModal: (value: boolean) => void;
 }
 
 const CategoryContext = createContext<CategoryContextType | undefined>(
   undefined
 );
 
-const session = await getSession();
-
-// Helper đệ quy cập nhật cây
+// --- Update tree helper ---
 const updateTreeData = (
   nodes: TreeNode[],
   parentId: string,
   newChildren: TreeNode[]
-): TreeNode[] => {
-  return nodes.map((node) => {
+): TreeNode[] =>
+  nodes.map((node) => {
     if (node.id === parentId) {
       return { ...node, children: newChildren, isLoaded: true };
     }
-    if (node.children && node.children.length > 0) {
+    if (node.children) {
       return {
         ...node,
         children: updateTreeData(node.children, parentId, newChildren),
@@ -54,7 +58,6 @@ const updateTreeData = (
     }
     return node;
   });
-};
 
 export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -62,122 +65,139 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
   const [treeData, setTreeData] = useState<TreeNode[]>([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // 1. Fetch Root Categories
+  // --- Response Dialog States ---
+  const [responseData, setResponseData] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
+
+  const [showResponseModal, setShowResponseModal] = useState(false);
+
+  const [session, setSession] = useState<{ token: string } | null>(null);
+
+  const fetchSession = async () => {
+    const sess = await getSession();
+    setSession(sess);
+  };
+  /** 1. Fetch Root Categories */
   const fetchRootCategories = useCallback(async () => {
     try {
       setIsInitialLoading(true);
       const res = await fetch("http://localhost:4000/categories?parents");
       const data = (await res.json()).data;
 
-      const formattedData: TreeNode[] = data.map((item: any) => ({
-        id: item.id || item._id,
-        name: item.name,
-        type: "category",
-        children: [],
-        isLoaded: false,
-      }));
-
-      setTreeData(formattedData);
-    } catch (error) {
-      console.error("Failed to fetch roots:", error);
+      setTreeData(
+        data.map((item: any) => ({
+          id: item.id || item._id,
+          name: item.name,
+          type: "category",
+          children: [],
+          isLoaded: false,
+        }))
+      );
     } finally {
       setIsInitialLoading(false);
     }
   }, []);
 
-  // 2. Load Children
+  /** 2. Load Children */
   const loadChildren = useCallback(async (parentNode: TreeNode) => {
     try {
       const res = await fetch(
         `http://localhost:4000/categories?parents=${parentNode.id}`
       );
-      const subCategoriesData = (await res.json()).data;
+      const sub = (await res.json()).data;
+
       let finalChildren: TreeNode[] = [];
 
-      if (Array.isArray(subCategoriesData) && subCategoriesData.length > 0) {
-        finalChildren = subCategoriesData.map((item: any) => ({
+      if (sub.length > 0) {
+        finalChildren = sub.map((item: any) => ({
           id: item.id || item._id,
           name: item.name,
           type: "subcategory",
           children: [],
           isLoaded: false,
         }));
-      } else if (
-        parentNode.type === "subcategory" ||
-        finalChildren.length === 0
-      ) {
+      } else {
         const prodRes = await fetch(
           `http://localhost:4000/product?categoryId=${parentNode.id}&limit=100`
         );
-        const prodData = await prodRes.json();
-        const productList = prodData.data?.data || prodData.data || [];
+        const prod = await prodRes.json();
 
-        if (Array.isArray(productList)) {
-          const productNodes: TreeNode[] = productList.map((item: any) => ({
-            id: item.id || item._id,
-            name: item.title || item.name,
-            type: "product",
-            children: [],
-            isLoaded: true,
-          }));
-          finalChildren = productNodes;
-        }
+        finalChildren = (prod.data?.data || prod.data || []).map((p: any) => ({
+          id: p.id || p._id,
+          name: p.title || p.name,
+          type: "product",
+          children: [],
+          isLoaded: true,
+        }));
       }
 
       setTreeData((prev) => updateTreeData(prev, parentNode.id, finalChildren));
-    } catch (error) {
-      console.error("Failed to fetch children:", error);
+    } catch {
       setTreeData((prev) => updateTreeData(prev, parentNode.id, []));
     }
   }, []);
 
-  // 3. Create Category
+  /** 3. Create Category */
   const createCategory = async (
     name: string,
     parentId: string | null = null
   ) => {
+    console.log("token", session?.token);
     const res = await fetch("http://localhost:4000/categories", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.token}`,
+        Authorization: `Bearer ${(await getSession())?.token}`,
       },
       body: JSON.stringify({ name, parentId }),
     });
 
-    if (!res.ok) throw new Error("Failed to create");
+    const data = await res.json();
+    setResponseData(data);
+
+    if (!res.ok) throw new Error("Create failed");
     await fetchRootCategories();
   };
 
-  // 4. Update Category (Mới)
+  /** 4. Update Category */
   const updateCategory = async (id: string, name: string) => {
     const res = await fetch(`http://localhost:4000/categories/${id}`, {
-      method: "PATCH", // Hoặc PUT tùy API của bạn
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.token}`,
+        Authorization: `Bearer ${(await getSession())?.token}`,
       },
       body: JSON.stringify({ name }),
     });
 
-    if (!res.ok) throw new Error("Failed to update");
+    const data = await res.json();
+    setResponseData(data);
+
+    if (!res.ok) throw new Error("Update failed");
     await fetchRootCategories();
   };
 
-  // 5. Delete Category
+  /** 5. Delete Category */
   const deleteCategory = async (id: string) => {
-    console.log("Attempting to delete node:", id);
     const res = await fetch(`http://localhost:4000/categories/${id}`, {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.token}`,
+        Authorization: `Bearer ${(await getSession())?.token}`,
       },
     });
 
-    if (!res.ok) throw new Error("Failed to delete");
+    const data = await res.json();
+    setResponseData(data);
+
+    if (!res.ok) throw new Error("Delete failed");
     await fetchRootCategories();
   };
+
+  useEffect(() => {
+    fetchSession();
+  }, []);
 
   useEffect(() => {
     fetchRootCategories();
@@ -190,9 +210,14 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
         isInitialLoading,
         loadChildren,
         createCategory,
-        updateCategory, // Export hàm mới
+        updateCategory,
         deleteCategory,
         refreshCategories: fetchRootCategories,
+
+        // Response
+        responseData,
+        showResponseModal,
+        setShowResponseModal,
       }}
     >
       {children}
@@ -201,9 +226,7 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
 };
 
 export const useCategories = () => {
-  const context = useContext(CategoryContext);
-  if (!context) {
-    throw new Error("useCategories must be used within a CategoryProvider");
-  }
-  return context;
+  const ctx = useContext(CategoryContext);
+  if (!ctx) throw new Error("useCategories must be inside CategoryProvider");
+  return ctx;
 };

@@ -13,14 +13,19 @@ export async function createCategory(req: Request, res: Response) {
     const userID = req.user!.id;
     let roles = await checkRole(userID);
     if (!roles.includes("ADMIN")) {
-      return res
-        .status(403)
-        .json({ success: false, error: "Forbidden. Admins only." });
+      return res.status(403).json({
+        success: false,
+        error: "Hạn chế truy cập. Bạn không phải ADMIN",
+      });
     }
 
     const body: createCategoryDto = req.body;
     const category = await Service.createCate(body);
-    return res.status(201).json({ success: true, data: category });
+    return res.status(201).json({
+      success: true,
+      message: "Danh mục đã được tạo thành công",
+      data: category,
+    });
   } catch (error) {
     return res
       .status(500)
@@ -33,9 +38,10 @@ export async function updateCategory(req: Request, res: Response) {
     const userID = req.user!.id;
     let roles = await checkRole(userID);
     if (!roles.includes("ADMIN")) {
-      return res
-        .status(403)
-        .json({ success: false, error: "Forbidden. Admins only." });
+      return res.status(403).json({
+        success: false,
+        error: "Hạn chế truy cập. Bạn không phải ADMIN",
+      });
     }
 
     const categoryId = req.params.id;
@@ -43,7 +49,7 @@ export async function updateCategory(req: Request, res: Response) {
     const updated = await Service.updateCate(categoryId, body);
     return res.status(200).json({
       success: true,
-      message: "Category updated successfully",
+      message: "Danh mục đã được cập nhật thành công",
       data: updated,
     });
   } catch (error) {
@@ -59,9 +65,10 @@ export async function deleteCategory(req: Request, res: Response) {
     const userID = req.user!.id;
     let roles = await checkRole(userID);
     if (!roles.includes("ADMIN")) {
-      return res
-        .status(403)
-        .json({ success: false, error: "Forbidden. Admins only." });
+      return res.status(403).json({
+        success: false,
+        error: "Hạn chế truy cập. Bạn không phải ADMIN",
+      });
     }
 
     const categoryId = req.params.id;
@@ -69,8 +76,8 @@ export async function deleteCategory(req: Request, res: Response) {
     const deleted = await Service.deleteCate(categoryId);
     // Return 204 no content on success
     return res
-      .status(204)
-      .json({ success: true, message: "Category deleted successfully" });
+      .status(200)
+      .json({ success: true, message: "Danh mục đã được xóa thành công" });
   } catch (error) {
     const msg = (error as Error).message;
     if (msg.includes("not found")) {
@@ -124,8 +131,8 @@ export async function getAllChildProducts(req: Request, res: Response) {
 
     return res.status(200).json({
       success: true,
-      message: "Products retrieved successfully",
-      ...result, // ⭐ trả về tất cả pagination fields
+      message: "Sản phẩm trong danh mục con đã được lấy thành công",
+      ...result,
     });
   } catch (err: any) {
     return res.status(500).json({

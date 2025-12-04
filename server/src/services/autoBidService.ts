@@ -47,7 +47,7 @@ export const computerBidder = async (data: computeBidDto) => {
         data: {
           currentPrice: new Prisma.Decimal(startPrice),
           winnerId: data.newBidderId,
-          countbids: countBids
+          countbids: countBids,
         },
       });
     }
@@ -107,19 +107,21 @@ export const computerBidder = async (data: computeBidDto) => {
       }
     }
 
-     let countBids = await getBidCountByProductId(data.productId);
+    let countBids = await tx.bidHistory.count({
+      where: { productId: data.productId },
+    });
 
-      if (!countBids) countBids = 0;
+    if (!countBids) countBids = 0;
 
-      // Update product
-      return await tx.products.update({
-        where: { id: data.productId },
-        data: {
-          currentPrice: new Prisma.Decimal(startPrice),
-          winnerId: data.newBidderId,
-          countbids: countBids
-        },
-      });
+    // Update product
+    return await tx.products.update({
+      where: { id: data.productId },
+      data: {
+        currentPrice: new Prisma.Decimal(startPrice),
+        winnerId: data.newBidderId,
+        countbids: countBids,
+      },
+    });
   });
 };
 

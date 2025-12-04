@@ -37,10 +37,14 @@ export const computerBidder = async (data: computeBidDto) => {
           amount: new Prisma.Decimal(startPrice),
         },
       });
-      let countBids = await getBidCountByProductId(data.productId);
+
+      let countBids = await tx.bidHistory.count({
+        where: { productId: data.productId },
+      });
 
       if (!countBids) countBids = 0;
-
+    
+      
       // Update product
       return await tx.products.update({
         where: { id: data.productId },
@@ -117,8 +121,8 @@ export const computerBidder = async (data: computeBidDto) => {
     return await tx.products.update({
       where: { id: data.productId },
       data: {
-        currentPrice: new Prisma.Decimal(startPrice),
-        winnerId: data.newBidderId,
+        currentPrice: new Prisma.Decimal(newPrice),
+        winnerId: winnerId,
         countbids: countBids,
       },
     });

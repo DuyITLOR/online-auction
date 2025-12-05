@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  Camera,
   ChevronDown,
   Gavel,
   Heart,
@@ -30,9 +31,9 @@ import {
   DialogClose,
 } from '../components/ui/dialog';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { clearSession, getSession } from '../libs/session';
-import { getRole, requestToUpgrade } from '../api/user';
+import { getRole, requestToUpgrade, updateUser } from '../api/user';
 import type { User } from '../libs/types/types';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -381,9 +382,32 @@ const Profile = () => {
   const [session, setSession] = useState<any>(null);
   const [user, setUser] = useState<User>();
 
-  // State cho Form
   const [upgradeReason, setUpgradeReason] = useState('');
   const [editName, setEditName] = useState('');
+  const [previewAvatar, setPreviewAvatar] = useState<string | undefined>(undefined);
+  const [image, setImage] = useState<File>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [formData, setFormData] = useState({
+    fullname: '',
+    email: '',
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  useEffect(() => {
+    if (user?.avtUrl) {
+      setPreviewAvatar(user?.avtUrl);
+    }
+
+    if (user?.fullname) {
+      setFormData((prev) => ({ ...prev, ['fullname']: user.fullname! }));
+      setFormData((prev) => ({ ...prev, ['email']: user.email }));
+    }
+  }, [user]);
 
   useEffect(() => {
     async function fetchSession() {
@@ -403,7 +427,7 @@ const Profile = () => {
 
         const user = await getRole({ token: token });
         setUser(user);
-        if (user) setEditName(user.fullname); // Set default value for edit form
+        if (user) setEditName(user.fullname);
       } catch (err) {
         console.error(err);
       }
@@ -421,9 +445,27 @@ const Profile = () => {
     }
   };
 
+  const handleChangeAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setImage(file);
+      const url = URL.createObjectURL(file);
+      setPreviewAvatar(url);
+    }
+  };
+
   const handleUpdateProfile = () => {
-    // Gọi API update profile tại đây
-    console.log('Tên mới:', editName);
+    const payload: any = {
+      fullname: formData.fullname,
+      email: formData.email,
+    };
+
+    if (image) {
+      payload.avatar = image;
+    }
+
+    updateUser({ user: payload, token: session.token });
+    window.location.reload();
   };
 
   const signout = () => {
@@ -521,16 +563,40 @@ const Profile = () => {
                     Thay đổi thông tin cá nhân của bạn tại đây. Nhấn lưu khi hoàn tất.
                   </DialogDescription>
                 </DialogHeader>
+                <div className='flex flex-col items-center justify-center gap-3 py-1'>
+                  <div className='relative group cursor-pointer' onClick={() => fileInputRef.current?.click()}>
+                    <Avatar className='w-24 h-24 border-2 border-gray-200'>
+                      <AvatarImage src={previewAvatar || user?.avtUrl} className='object-cover' />
+                      <AvatarFallback className='text-2xl'>
+                        {user?.fullname ? user.fullname.charAt(0).toUpperCase() : '?'}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className='absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
+                      <Camera className='text-white w-8 h-8' />
+                    </div>
+                  </div>
+                  <span className='text-xs text-gray-500'>Nhấn vào ảnh để thay đổi</span>
+
+                  <input
+                    type='file'
+                    ref={fileInputRef}
+                    className='hidden'
+                    accept='image/*'
+                    onChange={handleChangeAvatar}
+                  />
+                </div>
+
                 <div className='grid gap-4 py-4'>
                   <div className='grid grid-cols-4 items-center gap-2'>
                     <p id='name' className=''>
                       Họ tên
                     </p>
                     <input
-                      id='name'
+                      name='fullname'
                       className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
+                      value={formData.fullname}
+                      onChange={handleChange}
                     />
                   </div>
                   <div className='grid grid-cols-4 items-center gap-2'>
@@ -539,7 +605,7 @@ const Profile = () => {
                     </p>
                     <input
                       id='email'
-                      value={user?.email || ''}
+                      value={formData.email}
                       disabled
                       className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
                     />

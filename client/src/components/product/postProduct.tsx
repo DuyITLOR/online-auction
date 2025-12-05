@@ -72,8 +72,6 @@ const PostProduct = () => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
       setImages((prev) => [...prev, ...filesArray]);
-
-      // Tạo URL preview cho ảnh
       const newPreviewUrls = filesArray.map((file) => URL.createObjectURL(file));
       setPreviewUrls((prev) => [...prev, ...newPreviewUrls]);
     }

@@ -45,3 +45,38 @@ export const requestToUpgrade = async ({ note, token }: { note: string; token: s
     throw err;
   }
 };
+
+interface UpdateUserPayload {
+  fullname: string;
+  email: string;
+  avatar: File;
+}
+
+export const updateUser = async ({ user, token }: { user: UpdateUserPayload; token: string }) => {
+  try {
+    const formData = new FormData();
+
+    formData.append('fullname', user.fullname);
+    formData.append('email', user.email);
+    formData.append('avatar', user.avatar);
+
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/update`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message = data.message || data.error || 'Failed to fetch update user api';
+
+      throw new Error(message);
+    }
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};

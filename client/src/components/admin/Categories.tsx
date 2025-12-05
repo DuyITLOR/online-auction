@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { type FC, useState } from "react";
 import {
   Plus,
   ChevronRight,
@@ -19,20 +19,16 @@ import {
   DialogFooter,
   DialogClose,
 } from "../ui/dialog";
+import { toast } from "sonner"; // <--- IMPORT SONNER
 
-import { useCategories } from "../../libs/contexts/cateTab.context";
+import {
+  useCategories,
+  type TreeNode,
+} from "../../libs/contexts/cateTab.context";
 
 // ===============================
-// TreeItem Component
+// TreeItem Component (GIỮ NGUYÊN)
 // ===============================
-interface TreeNode {
-  id: string;
-  name: string;
-  type: "category" | "subcategory" | "product";
-  children?: TreeNode[];
-  isLoaded?: boolean;
-}
-
 interface TreeItemProps {
   node: TreeNode;
   level: number;
@@ -192,9 +188,7 @@ const CategoriesTab: FC = () => {
     createCategory,
     updateCategory,
     deleteCategory,
-    responseData,
-    showResponseModal,
-    setShowResponseModal,
+    // Không còn lấy responseData và modal từ context nữa
   } = useCategories();
 
   // FORM DIALOG STATES
@@ -228,28 +222,34 @@ const CategoriesTab: FC = () => {
 
   const openDelete = (node: TreeNode) => setDeleteNode(node);
 
-  // SUBMIT FORM -------------------------
+  // SUBMIT FORM (CREATE / EDIT) -------------------------
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim()) return;
 
     setIsSubmitting(true);
+    let result = { success: false, message: "" };
 
     try {
       if (dialogMode === "create_root") {
-        await createCategory(formName, null);
+        result = await createCategory(formName, null);
       } else if (dialogMode === "create_sub" && selectedNode) {
-        await createCategory(formName, selectedNode.id);
+        result = await createCategory(formName, selectedNode.id);
       } else if (dialogMode === "edit" && selectedNode) {
-        await updateCategory(selectedNode.id, formName);
+        result = await updateCategory(selectedNode.id, formName);
       }
 
-      setDialogMode(null);
-      setFormName("");
-
-      setShowResponseModal(true);
+      // Xử lý kết quả trả về
+      if (result.success) {
+        toast.success(result.message);
+        setDialogMode(null); // Chỉ đóng form khi thành công
+        setFormName("");
+      } else {
+        toast.error(result.message);
+      }
     } catch (err) {
       console.error(err);
+      toast.error("Đã có lỗi xảy ra");
     } finally {
       setIsSubmitting(false);
     }
@@ -261,12 +261,18 @@ const CategoriesTab: FC = () => {
     setIsSubmitting(true);
 
     try {
-      await deleteCategory(deleteNode.id);
-      setDeleteNode(null);
+      const result = await deleteCategory(deleteNode.id);
+
+      if (result.success) {
+        toast.success(result.message);
+        setDeleteNode(null); // Đóng dialog xóa
+      } else {
+        toast.error(result.message);
+      }
+    } catch (err) {
+      toast.error("Không thể xoá danh mục");
     } finally {
       setIsSubmitting(false);
-
-      setShowResponseModal(true);
     }
   };
 
@@ -326,7 +332,7 @@ const CategoriesTab: FC = () => {
         </div>
       </div>
 
-      {/* DIALOG: FORM */}
+      {/* DIALOG: FORM (CREATE/EDIT) */}
       <Dialog
         open={!!dialogMode}
         onOpenChange={(open) => !open && setDialogMode(null)}
@@ -354,14 +360,13 @@ const CategoriesTab: FC = () => {
             </div>
 
             <DialogFooter>
-              <DialogClose asChild>
-                <button
-                  type='button'
-                  className='bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200'
-                >
-                  Hủy
-                </button>
-              </DialogClose>
+              <button
+                type='button'
+                onClick={() => setDialogMode(null)}
+                className='bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200'
+              >
+                Hủy
+              </button>
 
               <button
                 type='submit'
@@ -379,7 +384,10 @@ const CategoriesTab: FC = () => {
       {/* DIALOG: DELETE CONFIRM */}
       <Dialog
         open={!!deleteNode}
-        onOpenChange={(open) => !open && setDeleteNode(null)}
+        onOpenChange={(open) => {
+          // Ngăn đóng khi đang xoá để tránh lỗi UI
+          if (!open && !isSubmitting) setDeleteNode(null);
+        }}
       >
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
@@ -401,11 +409,13 @@ const CategoriesTab: FC = () => {
           </div>
 
           <DialogFooter>
-            <DialogClose asChild>
-              <button className='bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200'>
-                Hủy
-              </button>
-            </DialogClose>
+            <button
+              onClick={() => setDeleteNode(null)}
+              disabled={isSubmitting}
+              className='bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 disabled:opacity-50'
+            >
+              Hủy
+            </button>
 
             <button
               onClick={handleDeleteConfirm}
@@ -415,29 +425,6 @@ const CategoriesTab: FC = () => {
               {isSubmitting && <Loader2 className='w-4 h-4 animate-spin' />}
               Xóa vĩnh viễn
             </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* DIALOG: API RESPONSE */}
-      <Dialog
-        open={showResponseModal}
-        onOpenChange={(open) => !open && setShowResponseModal(false)}
-      >
-        <DialogContent className='sm:max-w-[425px]'>
-          <DialogHeader>
-            <DialogTitle>
-              {responseData?.success ? "Thành công" : "Lỗi xảy ra"}
-            </DialogTitle>
-            <DialogDescription>{responseData?.message}</DialogDescription>
-          </DialogHeader>
-
-          <DialogFooter>
-            <DialogClose asChild>
-              <button className='bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700'>
-                Đóng
-              </button>
-            </DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -73,13 +73,13 @@ const Pagination = ({
   };
 
   return (
-    <div className="flex items-center gap-3 mt-5 justify-center">
+    <div className='flex items-center gap-3 justify-center'>
       {page > 1 && (
         <div
-          className="w-10 h-10 text-center p-2 bg-slate-200 border border-gray-300 font-bold rounded-full cursor-pointer"
+          className='w-10 h-10 text-center p-2 bg-slate-200 border border-gray-300 font-bold rounded-full cursor-pointer'
           onClick={() => onPageChange((page - 1).toString())}
         >
-          <ChevronLeft className="w-5 stroke-3! h-5" />
+          <ChevronLeft className='w-5 stroke-3! h-5' />
         </div>
       )}
 
@@ -101,10 +101,10 @@ const Pagination = ({
 
       {page < totalPage && (
         <div
-          className="w-10 h-10 text-center p-2 bg-slate-200 border border-gray-300 font-bold rounded-full cursor-pointer"
+          className='w-10 h-10 text-center p-2 bg-slate-200 border border-gray-300 font-bold rounded-full cursor-pointer'
           onClick={() => onPageChange((page + 1).toString())}
         >
-          <ChevronRight className="w-5 stroke-3! h-5" />
+          <ChevronRight className='w-5 stroke-3! h-5' />
         </div>
       )}
     </div>

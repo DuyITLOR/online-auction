@@ -1,9 +1,10 @@
 import { Prisma } from "@prisma/client";
-import { autoBidDto, computeBidDto } from "../dto/autoBidDto";
+import { autoBidDto, computeBidDto, bidHistoryQueryDto } from "../dto/autoBidDto";
 import { prisma } from "./db/prisma";
 import { getProductById } from "./productService";
 import { checkRating } from "./userService";
 import { getBlockUserByProductId } from "./userService";
+
 
 export const computerBidder = async (data: computeBidDto) => {
   return await prisma.$transaction(async (tx) => {
@@ -248,3 +249,50 @@ export const getMaxBidByUserId = async (productId: string, userId: string) => {
 
   return autoBid.maxAmount;
 };
+
+
+export const getAutoHistory = async (query: bidHistoryQueryDto) => {
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  let where: Prisma.BidHistoryWhereInput = {};
+
+  if (query.productId) {
+    where.productId = query.productId;
+  }
+
+  if (query.userId) {
+    where.bidderId = query.userId;
+  }
+
+  let orderBy: Prisma.BidHistoryOrderByWithRelationInput = {};
+  
+  switch (query.sort) {
+    case 'price_desc':
+      orderBy = { amount: 'desc' };
+      break;
+    case 'price_asc':
+      orderBy = { amount: 'asc' };
+      break;
+    case 'createdAt_asc':
+      orderBy = { createdAt: 'asc' };
+      break;
+    case 'createdAt_desc':
+      orderBy = { createdAt: 'desc' };
+      break;
+    default:
+      orderBy = { createdAt: 'desc' };
+      break;
+  }
+
+
+  const autoBids = await prisma.bidHistory.findMany({
+    where,
+    skip,
+    take: limit,
+    orderBy,
+  });
+
+  return autoBids;
+}

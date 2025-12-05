@@ -1,7 +1,6 @@
 import { supabase } from './supabase';
 import { uploadedImageDto } from '../dto/uploadImageDto';
 import { Request } from 'express';
-import multer from 'multer';
 
 export const uploadImagesToSupabase = async (
   files: Express.Multer.File[] | undefined,

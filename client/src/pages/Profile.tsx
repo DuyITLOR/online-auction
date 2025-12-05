@@ -32,9 +32,10 @@ import {
 
 import { useEffect, useState } from 'react';
 import { clearSession, getSession } from '../libs/session';
-import { getRole } from '../api/user';
+import { getRole, requestToUpgrade } from '../api/user';
 import type { User } from '../libs/types/types';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const activityData = [
   {
@@ -411,9 +412,13 @@ const Profile = () => {
     fetchRole();
   }, [session]);
 
-  const handleUpgradeSubmit = () => {
-    // Gọi API nâng cấp user tại đây
-    console.log('Lý do nâng cấp:', upgradeReason);
+  const handleUpgradeSubmit = async () => {
+    const data = await requestToUpgrade({ note: upgradeReason, token: session.token });
+    if (data) {
+      toast.success('Gửi yêu cầu thành công');
+    } else {
+      toast.error('Gửi yêu cầu thất bại');
+    }
   };
 
   const handleUpdateProfile = () => {

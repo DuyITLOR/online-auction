@@ -7,6 +7,7 @@ export interface User {
   ratingNeg: number;
   ratingPos: number;
   role: 'bidder' | 'admin';
+  currentRoles: string[];
   avtUrl: string;
 
   autoBids?: AutoBids[];
@@ -41,6 +42,7 @@ export interface Product {
   updatedAt: string;
   highRatingRequired: boolean;
   winnerId?: string | null;
+  countbids: string;
 
   winner?: User | null;
   bidHistory?: BidHistory[];

@@ -75,11 +75,11 @@ const formatTimeLeft = (date: string) => {
   if (diffDays > 3) {
     return `Kết thúc: ${end.getDate()}/${end.getMonth() + 1}/${end.getFullYear()}`;
   } else if (diffDays >= 1) {
-    return `${Math.ceil(diffDays)} ngày`;
+    return `Thời gian còn lại: ${Math.ceil(diffDays)} ngày`;
   } else if (diffHours >= 1) {
-    return `${Math.ceil(diffHours)} giờ`;
+    return `Thời gian còn lại: ${Math.ceil(diffHours)} giờ`;
   } else {
-    return `${Math.ceil(diffMinutes)} phút`;
+    return `Thời gian còn lại: ${Math.ceil(diffMinutes)} phút`;
   }
 };
 
@@ -272,9 +272,9 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
               <span className='text-xl font-bold'>{Number(product?.currentPrice).toLocaleString()} VND</span>
             </div>
 
-            <p className='text-gray-700'>Lượt ra giá: 10</p>
+            <p className='text-gray-700'>Lượt ra giá: {product?.countbids}</p>
 
-            <p className='text-gray-700'>Thời gian còn lại: {formatTimeLeft(product?.endAt)} </p>
+            <p className='text-gray-700'> {formatTimeLeft(product?.endAt)} </p>
           </div>
 
           <div className='border-spacing-0.5 border-t border-gray-200 mt-5 mb-6 w-full' />

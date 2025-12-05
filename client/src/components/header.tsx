@@ -8,10 +8,11 @@ import { Popover } from './ui/popover';
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { LogOut, Plus, Search, UserRound } from 'lucide-react';
 import { getRole } from '../api/user';
+import type { User } from '../libs/types/types';
 
 const Header = () => {
   const [session, setSession] = useState<any>(null);
-  const [roles, setRoles] = useState<string[]>([]);
+  const [user, setUser] = useState<User>();
   const [searchValue, setSearchValue] = useState('');
 
   const [, setSearchParams] = useSearchParams();
@@ -39,7 +40,7 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    const fetchRole = async () => {
+    const fetchUser = async () => {
       try {
         if (!session) {
           return;
@@ -47,13 +48,13 @@ const Header = () => {
         const token = session.token as string;
 
         const user = await getRole({ token: token });
-        setRoles(user.currentRoles);
+        setUser(user);
       } catch (err) {
         console.error(err);
       }
     };
 
-    fetchRole();
+    fetchUser();
   }, [session]);
 
   const onSignOut = () => {
@@ -91,7 +92,7 @@ const Header = () => {
             <Plus
               onClick={handleAddProduct}
               className={`w-8 h-8 stroke-2 text-white p-1 rounded-full bg-teal-500 ${
-                roles.includes('SELLER') ? '' : 'hidden'
+                user?.currentRoles.includes('SELLER') ? '' : 'hidden'
               }`}
             />
           </div>
@@ -113,7 +114,7 @@ const Header = () => {
           </div>
         ) : (
           <div className='flex gap-2 items-center ml-3 text-sm'>
-            <span className='font-semibold'>Xin chào, {session.user?.name}</span>
+            <span className='font-semibold'>Xin chào, {user?.fullname}</span>
 
             <Button variant={'ghost'} className='underline' onClick={onSignOut}>
               Đăng xuất
@@ -121,12 +122,8 @@ const Header = () => {
             <Popover>
               <PopoverTrigger>
                 <Avatar>
-                  <AvatarImage
-                    src={session.user?.avatarUrl}
-                    alt='User Avatar'
-                    className='border border-gray-400 rounded-full'
-                  />
-                  <AvatarFallback>{session.user?.name?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
+                  <AvatarImage src={user?.avtUrl} alt='User Avatar' className='border border-gray-400 rounded-full' />
+                  <AvatarFallback>{user?.fullname?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
                 </Avatar>
               </PopoverTrigger>
 
@@ -135,15 +132,15 @@ const Header = () => {
                   <div className='flex items-center gap-2'>
                     <Avatar>
                       <AvatarImage
-                        src={session.user?.avatarUrl}
+                        src={user?.avtUrl}
                         alt='User Avatar'
                         className='border border-gray-400 rounded-full'
                       />
-                      <AvatarFallback>{session.user?.name?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
+                      <AvatarFallback>{user?.fullname?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
                     </Avatar>
                     <div className='flex flex-col'>
-                      <span className='font-semibold text-start'>{session.user?.name}</span>
-                      <span className='text-xs text-start text-gray-500'>{session.user?.email}</span>
+                      <span className='font-semibold text-start'>{user?.fullname}</span>
+                      <span className='text-xs text-start text-gray-500'>{user?.email}</span>
                     </div>
                   </div>
 

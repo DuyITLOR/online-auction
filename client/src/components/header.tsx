@@ -72,8 +72,14 @@ const Header = () => {
       <div className='flex flex-1 items-center justify-between mx-3 py-4 lg:px-8'>
         <div className='flex items-center gap-10 justify-between'>
           <Link to='/' className='flex items-center gap-2 text-2xl font-bold mr-10'>
-            <div className='w-8 h-8 bg-teal-600 rounded text-white flex items-center justify-center'>⚡</div>
-            <span className='hidden sm:inline text-teal-600'>Ebay</span>
+            <img
+              src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rockylinux/rockylinux-original.svg'
+              className='w-10 h-10'
+            />
+
+            <div className='font-bold tracking-tight text-slate-800'>
+              Snap<span className='text-teal-600'>Bid</span>
+            </div>
           </Link>
           <div className='flex items-center gap-4'>
             <div className='relative'>

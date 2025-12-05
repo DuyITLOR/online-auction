@@ -39,6 +39,6 @@ export interface productQueryDto {
   categoryId?: string;
   page?: string; // query params to pagination
   limit?: string;
-  sort?: string; // "price_asc", "price_desc", "endAt_asc", "endAt_desc", "startedAt_desc"
+  sort?: string; // "price_asc", "price_desc", "createdAt_asc", "createdAt_desc"
   sellerId?: string;
 }

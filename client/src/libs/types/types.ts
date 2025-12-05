@@ -7,6 +7,7 @@ export interface User {
   ratingNeg: number;
   ratingPos: number;
   role: 'bidder' | 'admin';
+  currentRoles: string[];
   avtUrl: string;
 
   autoBids?: AutoBids[];

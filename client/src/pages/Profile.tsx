@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ChevronDown,
   Gavel,
@@ -17,7 +18,23 @@ import { TabsTrigger } from '@radix-ui/react-tabs';
 import Rating from '../components/rating';
 import { Progress } from '../components/ui/progress';
 import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
-import { useState } from 'react';
+// Import thêm các component UI cho Dialog và Form
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '../components/ui/dialog';
+
+import { useEffect, useState } from 'react';
+import { clearSession, getSession } from '../libs/session';
+import { getRole } from '../api/user';
+import type { User } from '../libs/types/types';
+import { useNavigate } from 'react-router-dom';
 
 const activityData = [
   {
@@ -176,6 +193,17 @@ const convertDay = (date: string) => {
   const diffTime = Math.abs(endDate.getTime() - now.getTime());
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   return diffDays;
+};
+
+const convertISO = (isoString: string | undefined) => {
+  if (!isoString) return;
+  const date = new Date(isoString);
+
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+
+  return `${dd}-${mm}-${yyyy}`;
 };
 
 const review = [
@@ -347,7 +375,59 @@ const sortValue = [
 ];
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [selectOption, SetSelectOption] = useState(sortValue[0]);
+  const [session, setSession] = useState<any>(null);
+  const [user, setUser] = useState<User>();
+
+  // State cho Form
+  const [upgradeReason, setUpgradeReason] = useState('');
+  const [editName, setEditName] = useState('');
+
+  useEffect(() => {
+    async function fetchSession() {
+      const sess = await getSession();
+      setSession(sess);
+    }
+    fetchSession();
+  }, []);
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        if (!session) {
+          return;
+        }
+        const token = session.token as string;
+
+        const user = await getRole({ token: token });
+        setUser(user);
+        if (user) setEditName(user.fullname); // Set default value for edit form
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchRole();
+  }, [session]);
+
+  const handleUpgradeSubmit = () => {
+    // Gọi API nâng cấp user tại đây
+    console.log('Lý do nâng cấp:', upgradeReason);
+  };
+
+  const handleUpdateProfile = () => {
+    // Gọi API update profile tại đây
+    console.log('Tên mới:', editName);
+  };
+
+  const signout = () => {
+    clearSession();
+    setSession(null);
+    navigate('/');
+    window.location.reload();
+  };
+
   return (
     <>
       <Header />
@@ -355,35 +435,122 @@ const Profile = () => {
         <div className='border border-gray-200 h-[150px] rounded-xl flex items-center justify-between px-10'>
           <div className='flex items-center gap-5'>
             <Avatar className='w-24 h-24'>
-              <AvatarImage src='/gg-logo.svg' alt='User Avatar' className='border border-gray-400 rounded-full' />
+              <AvatarImage src={user?.avtUrl} alt='User Avatar' className='border border-gray-400 rounded-full' />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
 
             <div className='flex flex-col justify-start gap-1'>
               <div className='flex items-center gap-5'>
-                <span className='text-2xl font-bold'>Thanh Dang</span>
-                <div className='border border-blue-400 bg-blue-100 rounded-2xl px-2 py-0.5 text-xs font-semibold text-blue-700'>
-                  Người mua
-                </div>
+                <span className='text-2xl font-bold'>{user?.fullname}</span>
+
+                {user?.currentRoles.includes('SELLER') ? (
+                  <div className='border border-amber-500 bg-amber-100 rounded-2xl px-2 py-0.5 text-xs font-semibold text-amber-700'>
+                    Người bán
+                  </div>
+                ) : (
+                  <div className='border border-blue-400 bg-blue-100 rounded-2xl px-2 py-0.5 text-xs font-semibold text-blue-700'>
+                    Người mua
+                  </div>
+                )}
               </div>
 
-              <span className='text-gray-500'>Dn156162@gmail.com</span>
-              <span className='text-gray-500'>Tham gia từ: 20-10-2023</span>
+              <span className='text-gray-500'>{user?.email}</span>
+              <span className='text-gray-500'>Tham gia từ: {convertISO(user?.createdAt)}</span>
             </div>
           </div>
 
           <div className='flex items-center justify-center gap-5'>
-            <Button variant={'outline'} className='bg-teal-600 text-white'>
-              <ShoppingBasket size={16} />
-              Nâng cấp người bán hàng
-            </Button>
+            {!user?.currentRoles.includes('SELLER') && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant={'outline'} className='bg-teal-600 text-white hover:bg-teal-700 hover:text-white'>
+                    <ShoppingBasket size={16} />
+                    Nâng cấp người bán hàng
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className='sm:max-w-[500px]'>
+                  <DialogHeader>
+                    <DialogTitle>Đăng ký trở thành người bán</DialogTitle>
+                    <DialogDescription>
+                      Vui lòng cho chúng tôi biết lý do bạn muốn trở thành người bán hàng trên nền tảng.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className='grid gap-4 py-4'>
+                    <div className='grid w-full gap-1.5'>
+                      <textarea
+                        id='reason'
+                        placeholder='Tôi muốn bán các sản phẩm...'
+                        className='outline-0 border border-gray-200 rounded-md px-2 py-3'
+                        value={upgradeReason}
+                        onChange={(e) => setUpgradeReason(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button type='button' variant='outline'>
+                        Hủy
+                      </Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                      <Button type='submit' onClick={handleUpgradeSubmit} className='bg-teal-600 text-white border-0'>
+                        Gửi yêu cầu
+                      </Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
 
-            <Button variant='outline' className=''>
-              <UserRound size={16} />
-              Chỉnh sửa hồ sơ
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant='outline' className=''>
+                  <UserRound size={16} />
+                  Chỉnh sửa hồ sơ
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[500px]'>
+                <DialogHeader>
+                  <DialogTitle>Chỉnh sửa hồ sơ</DialogTitle>
+                  <DialogDescription>
+                    Thay đổi thông tin cá nhân của bạn tại đây. Nhấn lưu khi hoàn tất.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className='grid gap-4 py-4'>
+                  <div className='grid grid-cols-4 items-center gap-2'>
+                    <p id='name' className=''>
+                      Họ tên
+                    </p>
+                    <input
+                      id='name'
+                      className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                    />
+                  </div>
+                  <div className='grid grid-cols-4 items-center gap-2'>
+                    <p id='email' className=''>
+                      Email
+                    </p>
+                    <input
+                      id='email'
+                      value={user?.email || ''}
+                      disabled
+                      className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type='submit' className='bg-teal-600 text-white border-0' onClick={handleUpdateProfile}>
+                      Lưu thay đổi
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
-            <Button variant={'outline'} className='text-red-500'>
+            <Button onClick={() => signout()} variant={'outline'} className='text-red-500'>
               <LogOut size={16} />
               Đăng xuất
             </Button>

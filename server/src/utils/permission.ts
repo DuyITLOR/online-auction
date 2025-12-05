@@ -345,4 +345,9 @@ export const API_AUTO_BID_ROUTES = {
     method: "GET",
     role: [Role.BIDDER],
   },
+  getAutoBids: {
+    path: "/autoBid",
+    method: "GET",
+    role: [Role.BIDDER],
+  }
 };

@@ -69,6 +69,10 @@ Content-Type: application/json
 GET http://localhost:4000/autoBid/9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb10
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU1YmM3NzY4LTIxNTctNDhiMi1iM2VhLTAxYzYwYzZlZjAzOCIsImVtYWlsIjoibnRkYW5nMjNAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NDY4NjQ0MSwiZXhwIjoxNzY3Mjc4NDQxfQ.58n_addU49bBqw_4kpelC8TNpuz7CJrGJFxIaWy_Cxw
 
+
+### Lấy lịch sử đấu giá query params
+GET http://localhost:4000/autoBid?userId=c1971d57-98bc-448b-a2d8-b139c1c03ba5&productId=?&limit=1&page=2&sort=price_desc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU1YmM3NzY4LTIxNTctNDhiMi1iM2VhLTAxYzYwYzZlZjAzOCIsImVtYWlsIjoibnRkYW5nMjNAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NDY4NjQ0MSwiZXhwIjoxNzY3Mjc4NDQxfQ.58n_addU49bBqw_4kpelC8TNpuz7CJrGJFxIaWy_Cxw
 ##############################
 
 

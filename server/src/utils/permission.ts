@@ -1,166 +1,194 @@
-import { verify } from "crypto";
-import { googleCallback } from "../controllers/authControllers";
-import { updateCate } from "../services/cateService";
-import { updateCategory } from "../controllers/categoryControllers";
-import { get } from "http";
-import { createAutoBid } from "../services/autoBidService";
-import { getMaxBidByUser } from "../controllers/autoBiderController";
-import path from "path";
-import { getAllCommentsByProductId } from "../controllers/userControllers";
+import { verify } from 'crypto';
+import { googleCallback } from '../controllers/authControllers';
+import { updateCate } from '../services/cateService';
+import { updateCategory } from '../controllers/categoryControllers';
+import { get, request } from 'http';
+import { createAutoBid } from '../services/autoBidService';
+import { getMaxBidByUser } from '../controllers/autoBiderController';
+import path from 'path';
+import { getAllCommentsByProductId } from '../controllers/userControllers';
 
 enum Role {
-  ADMIN = "ADMIN",
-  BIDDER = "BIDDER",
-  SELLER = "SELLER",
-  GUEST = "GUEST",
-  ALL = "ALL",
+  ADMIN = 'ADMIN',
+  BIDDER = 'BIDDER',
+  SELLER = 'SELLER',
+  GUEST = 'GUEST',
+  ALL = 'ALL',
 }
 
 export const API_ROUTES = {
-  root: "/",
-  health: "/health",
+  root: '/',
+  health: '/health',
 
   signIn: {
-    path: "/sign-in",
+    path: '/sign-in',
     role: [Role.ALL],
-    method: "POST",
+    method: 'POST',
     request: {
-      email: "string",
-      password: "string",
+      email: 'string',
+      password: 'string',
     },
   },
   signUp: {
-    path: "/sign-up",
+    path: '/sign-up',
     role: [Role.ALL],
-    method: "POST",
+    method: 'POST',
     request: {
-      email: "string",
+      email: 'string',
     },
   },
   signInViaGoogle: {
-    path: "/auth/google",
+    path: '/auth/google',
     role: [Role.ALL],
-    method: "GET",
+    method: 'GET',
   },
   googleCallback: {
-    path: "/auth/google/callback",
+    path: '/auth/google/callback',
     role: [Role.ALL],
-    method: "GET",
+    method: 'GET',
   },
   verifyEmail: {
-    path: "/verify-email",
+    path: '/verify-email',
     role: [Role.ALL],
-    method: "POST",
+    method: 'POST',
     request: {
-      email: "string",
-      fullename: "string",
-      password: "string",
-      code: "string",
+      email: 'string',
+      fullename: 'string',
+      password: 'string',
+      code: 'string',
     },
   },
   verifyToken: {
-    path: "/auth/verify-token",
+    path: '/auth/verify-token',
     role: [Role.ALL],
-    method: "GET",
+    method: 'GET',
   },
   forgetPassword: {
-    path: "/forget-password",
+    path: '/forget-password',
     role: [Role.ALL],
-    method: "POST",
+    method: 'POST',
     request: {
-      email: "string",
+      email: 'string',
     },
   },
   resetPassword: {
-    path: "/reset-password",
+    path: '/reset-password',
     role: [Role.ADMIN, Role.BIDDER, Role.SELLER],
-    method: "POST",
+    method: 'POST',
     request: {
-      password: "string",
+      password: 'string',
     },
   },
 
   // User permission
   getUserById: {
-    path: "/users",
+    path: '/users',
     role: [Role.BIDDER, Role.ADMIN, Role.SELLER],
-    method: "GET",
+    method: 'GET',
     request: {},
   },
   updateUser: {
-    path: "/users/update",
+    path: '/users/update',
     role: [Role.BIDDER, Role.ADMIN, Role.SELLER],
-    method: "PATCH",
+    method: 'PATCH',
     request: {
-      fullname: "string",
-      password: "string",
-      avtUrl: "string",
+      fullname: 'string',
+      password: 'string',
+      avtUrl: 'string',
     },
   },
   requestUpgrade: {
-    path: "/users/upgrade",
+    path: '/users/upgrade',
     role: [Role.BIDDER],
-    method: "POST",
+    method: 'POST',
     request: {
-      note: "string",
+      note: 'string',
     },
   },
   blockBidder: {
-    path: "/users/:userId/blocked", // userId here is the bidder you want to block from bidding
+    path: '/users/:userId/blocked', // userId here is the bidder you want to block from bidding
     role: [Role.SELLER],
-    method: "POST",
+    method: 'POST',
     request: {
-      productId: "string",
-      reason: "string",
+      productId: 'string',
+      reason: 'string',
     },
   },
   askSeller: {
-    path: "/products/:productId/ask",
+    path: '/products/:productId/ask',
     role: [Role.BIDDER],
-    method: "POST",
+    method: 'POST',
     request: {
-      question: "string",
+      question: 'string',
     },
   },
   answerBidder: {
-    path: "/comments/:commentId/answer",
+    path: '/comments/:commentId/answer',
     role: [Role.SELLER],
-    method: "POST",
+    method: 'POST',
     request: {
-      answer: "string",
+      answer: 'string',
     },
   },
   getAllCommentsByProductId: {
-    path: "/comments/products/:productId",
+    path: '/comments/products/:productId',
     role: [Role.ALL],
-    method: "GET",
+    method: 'GET',
   },
   getAllBlockedUser: {
-    path: "/users/blocked/products/:productId",
+    path: '/users/blocked/products/:productId',
     role: [Role.SELLER, Role.ADMIN],
-    method: "GET",
+    method: 'GET',
   },
 
   // Admin permission
   getAllUsers: {
-    path: "/admin/users", // Có thể thêm query param limit và page để phân trang
+    path: '/admin/users', // Có thể thêm query param limit và page để phân trang
     role: [Role.ADMIN],
-    method: "GET",
+    method: 'GET',
   },
   getAllRequest: {
-    path: "/users/requests",
+    path: '/users/requests',
     role: [Role.ADMIN],
-    method: "GET",
+    method: 'GET',
   },
   acceptRequest: {
-    path: "/users/upgrade/:requestId/accept",
+    path: '/users/upgrade/:requestId/accept',
     role: [Role.ADMIN],
-    method: "PATCH",
+    method: 'PATCH',
   },
   refuseRequest: {
-    path: "/users/upgrade/:requestId/refuse",
+    path: '/users/upgrade/:requestId/refuse',
     role: [Role.ADMIN],
-    method: "PATCH",
+    method: 'PATCH',
+  },
+};
+
+export const API_RATING_ROUTES = {
+  getAllRatings: {
+    path: '/ratings',
+    role: [Role.ADMIN, Role.BIDDER, Role.SELLER],
+    method: 'GET',
+    description: '',
+  },
+  rateUser: {
+    path: '/ratings/users/:rateeId',
+    role: [Role.BIDDER, Role.SELLER],
+    method: 'POST',
+    request: {
+      productId: 'string',
+      value: 'number', // -1 (negative) or 1 (positive)
+      comment: 'string',
+    },
+  },
+  updateRating: {
+    path: '/ratings/:ratingId',
+    role: [Role.BIDDER, Role.SELLER],
+    method: 'PATCH',
+    request: {
+      value: 'number', // -1 (negative) or 1 (positive)
+      comment: 'string',
+    },
   },
 };
 
@@ -239,110 +267,110 @@ export const HttpStatus = {
 
 export const API_PRODUCT_ROUTES = {
   createProduct: {
-    path: "/product",
+    path: '/product',
     role: [Role.SELLER],
-    method: "POST",
+    method: 'POST',
   },
 
   updateProduct: {
-    path: "/product/:id",
+    path: '/product/:id',
     role: [Role.SELLER],
-    method: "PATCH",
+    method: 'PATCH',
   },
 
   getProduct: {
-    path: "/product",
+    path: '/product',
     role: [Role.ALL],
-    method: "GET",
+    method: 'GET',
   },
 
   getProductById: {
-    path: "/product/:id",
+    path: '/product/:id',
     role: [Role.ALL],
-    method: "GET",
+    method: 'GET',
   },
 
   deleteProduct: {
-    path: "/product/:id",
+    path: '/product/:id',
     role: [Role.SELLER, Role.ADMIN],
-    method: "DELETE",
+    method: 'DELETE',
   },
 };
 
 export const API_CATEGORY_ROUTES = {
   createCategory: {
-    path: "/categories",
+    path: '/categories',
     role: [Role.ADMIN],
-    method: "POST",
+    method: 'POST',
   },
 
   updateCategory: {
-    path: "/categories/:id",
+    path: '/categories/:id',
     role: [Role.ADMIN],
-    method: "PATCH",
+    method: 'PATCH',
   },
 
   getAllCategories: {
-    path: "/categories",
+    path: '/categories',
     role: [Role.ALL],
-    method: "GET",
+    method: 'GET',
   },
 
   getCategoryById: {
-    path: "/categories/:id",
+    path: '/categories/:id',
     role: [Role.ALL],
-    method: "GET",
+    method: 'GET',
   },
   deleteCategory: {
-    path: "/categories/:id",
+    path: '/categories/:id',
     role: [Role.ADMIN],
-    method: "DELETE",
+    method: 'DELETE',
   },
   getAllChildProducts: {
-    path: "/categories/:parentId/products",
+    path: '/categories/:parentId/products',
     role: [Role.ALL],
-    method: "GET",
+    method: 'GET',
   },
 };
 export const API_WATCHLIST_ROUTES = {
   addWatchList: {
-    path: "/watchlist",
-    method: "POST",
+    path: '/watchlist',
+    method: 'POST',
     role: [Role.ALL],
   },
 
   removeWatchList: {
-    path: "/watchlist",
-    method: "DELETE",
+    path: '/watchlist',
+    method: 'DELETE',
     role: [Role.ALL],
   },
 
   getWatchList: {
-    path: "/watchlist",
-    method: "GET",
+    path: '/watchlist',
+    method: 'GET',
     role: [Role.ALL],
   },
 };
 
 export const API_AUTO_BID_ROUTES = {
   createAutoBid: {
-    path: "/autoBid",
-    method: "POST",
+    path: '/autoBid',
+    method: 'POST',
     role: [Role.BIDDER],
   },
   getHistoryAutoBidByProduct: {
-    path: "/autoBid/:productId/history",
-    method: "GET",
+    path: '/autoBid/:productId/history',
+    method: 'GET',
     role: [Role.ALL],
   },
   getBidCountByProductId: {
-    path: "/autoBid/:productId/count",
-    method: "GET",
+    path: '/autoBid/:productId/count',
+    method: 'GET',
     role: [Role.ALL],
   },
   getMaxBidByUser: {
-    path: "/autoBid/:productId",
-    method: "GET",
+    path: '/autoBid/:productId',
+    method: 'GET',
     role: [Role.BIDDER],
   },
 };

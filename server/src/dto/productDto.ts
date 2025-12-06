@@ -1,4 +1,4 @@
-import { productImageDto } from "./productImageDto";
+import { productImageDto } from './productImageDto';
 
 export interface createProductDto {
   sellerId: string;
@@ -10,15 +10,15 @@ export interface createProductDto {
   buyNowPrice: string;
   startedAt: string;
   endAt: string;
-  autoExtendEnabled?: boolean;
+  autoExtendEnabled?: string;
   autoExtendMinutes?: number;
-  highRatingRequired?: boolean;
+  highRatingRequired?: string;
 
   images: productImageDto[];
 }
 
 export interface updateProductDto {
-  sellerId?: string;   
+  sellerId?: string;
   categoryId?: string;
   title?: string;
   description?: string;

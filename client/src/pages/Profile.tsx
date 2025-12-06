@@ -492,6 +492,30 @@ const Profile = () => {
                       className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
                     />
                   </div>
+                  <div className='grid grid-cols-4 items-center gap-2'>
+                    <p id='birth' className=''>
+                      Ngày sinh
+                    </p>
+                    <input
+                      type='date'
+                      id='date'
+                      value={formData.email}
+                      disabled
+                      className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
+                    />
+                  </div>
+
+                  <div className='grid grid-cols-4 items-center gap-2'>
+                    <p id='address' className=''>
+                      Địa chỉ
+                    </p>
+                    <input
+                      id='address'
+                      value={formData.email}
+                      disabled
+                      className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
+                    />
+                  </div>
                 </div>
                 <DialogFooter>
                   <DialogClose asChild>

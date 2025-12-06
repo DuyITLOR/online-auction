@@ -19,9 +19,9 @@ export const createProduct = async (id: string, data: createProductDto) => {
       endAt: new Date(data.endAt),
       updatedAt: new Date(),
 
-      autoExtendEnabled: data.autoExtendEnabled ?? false,
-      autoExtendMinutes: data.autoExtendMinutes ?? 0,
-      highRatingRequired: data.highRatingRequired ?? false,
+      autoExtendEnabled: data.autoExtendEnabled === 'true',
+      autoExtendMinutes: Number(data.autoExtendMinutes) ?? 0,
+      highRatingRequired: data.highRatingRequired === 'true',
 
       images: {
         create: data.images.map((img) => ({
@@ -35,7 +35,7 @@ export const createProduct = async (id: string, data: createProductDto) => {
     },
   });
 
-  return product;
+  return product.autoExtendEnabled;
 };
 
 export const getProductById = async (productId: string) => {

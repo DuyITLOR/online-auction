@@ -54,13 +54,12 @@ export default function Banner() {
 
   return (
     <section className='relative bg-slate-200 py-10 px-10 md:py-20 md:px-20 flex flex-col-reverse md:flex-row items-center justify-between overflow-hidden mx-4 md:mx-10 mt-5 rounded-xl mb-8'>
-      {/* Phần Text */}
       <div className='w-full md:w-1/2 transition-all duration-500 ease-in-out z-10'>
         <p className='text-3xl md:text-5xl font-bold mb-4 text-slate-800 leading-tight'>{banner.title}</p>
         <p className='text-base md:text-lg mb-6 max-w-md text-slate-600'>{banner.description}</p>
         <button
           onClick={handleStartShopping}
-          className='bg-green-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-green-700 transition shadow-lg'
+          className='bg-green-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-green-700 duration-300 transition shadow-lg'
         >
           Khám phá ngay
         </button>

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
@@ -7,12 +7,12 @@ import { clearSession, getSession } from '../libs/session';
 import { Popover } from './ui/popover';
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { LogOut, Plus, Search, UserRound } from 'lucide-react';
-import { getRole } from '../api/user';
-import type { User } from '../libs/types/types';
+import { UserContext } from '../libs/contexts/user.context';
 
 const Header = () => {
   const [session, setSession] = useState<any>(null);
-  const [user, setUser] = useState<User>();
+  const { user } = useContext(UserContext);
+  console.log(user);
   const [searchValue, setSearchValue] = useState('');
 
   const [, setSearchParams] = useSearchParams();
@@ -38,24 +38,6 @@ const Header = () => {
     }
     fetchSession();
   }, []);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        if (!session) {
-          return;
-        }
-        const token = session.token as string;
-
-        const user = await getRole({ token: token });
-        setUser(user);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchUser();
-  }, [session]);
 
   const onSignOut = () => {
     clearSession();

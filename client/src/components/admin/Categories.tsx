@@ -19,7 +19,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "../ui/dialog";
-import { toast } from "sonner"; // <--- IMPORT SONNER
+import { toast } from "sonner";
 
 import {
   useCategories,
@@ -27,7 +27,7 @@ import {
 } from "../../libs/contexts/cateTab.context";
 
 // ===============================
-// TreeItem Component (GIỮ NGUYÊN)
+// TreeItem Component
 // ===============================
 interface TreeItemProps {
   node: TreeNode;
@@ -54,13 +54,13 @@ const TreeItem: FC<TreeItemProps> = ({
 
   const handleToggle = async () => {
     if (!isCategory) return;
-
-    if (!isOpen && !node.isLoaded && !hasChildren) {
-      setIsLoading(true);
-      await onLoadData(node);
-      setIsLoading(false);
+    if (!isOpen) {
+      if (!node.isLoaded && !hasChildren) {
+        setIsLoading(true);
+        await onLoadData(node);
+        setIsLoading(false);
+      }
     }
-
     setIsOpen(!isOpen);
   };
 
@@ -69,17 +69,16 @@ const TreeItem: FC<TreeItemProps> = ({
       <div
         onClick={handleToggle}
         className={`
-          group flex items-center justify-between py-3 px-5 cursor-pointer border-b border-gray-200
-          hover:bg-gray-50 select-none
-          ${node.type === "category" ? "bg-gray-50 font-semibold" : ""}
+          group flex items-center justify-between py-3 px-5 cursor-pointer border-b border-gray-100
+          transition hover:bg-gray-50 select-none
+          ${node.type === "category" ? "bg-gray-50/50 font-medium" : ""}
         `}
-        style={{ paddingLeft: `${level * 1.5 + 1}rem` }}
+        style={{ paddingLeft: `${level * 1.5 + 1.25}rem` }}
       >
-        {/* ICON & NAME */}
         <div className='flex items-center gap-3'>
-          <div className='w-5 h-5 text-gray-400 flex items-center justify-center'>
+          <div className='w-5 h-5 text-gray-400 flex items-center justify-center shrink-0'>
             {isLoading ? (
-              <Loader2 className='w-4 h-4 animate-spin text-blue-500' />
+              <Loader2 className='w-4 h-4 animate-spin text-teal-500' />
             ) : isCategory ? (
               isOpen ? (
                 <ChevronDown size={16} />
@@ -92,25 +91,30 @@ const TreeItem: FC<TreeItemProps> = ({
           </div>
 
           {node.type === "category" ? (
-            <Monitor className='w-5 h-5 text-blue-600' />
+            <Monitor className='w-5 h-5 text-blue-600 shrink-0' />
           ) : node.type === "subcategory" ? (
-            <Folder className='w-4 h-4 text-yellow-500' />
+            <Folder className='w-4 h-4 text-yellow-500 shrink-0' />
           ) : (
-            <Box className='w-4 h-4 text-gray-400' />
+            <Box className='w-4 h-4 text-gray-400 shrink-0' />
           )}
 
           <span
-            className={
+            className={`truncate ${
               node.type === "product"
                 ? "text-gray-600 text-sm"
-                : "text-gray-800 font-medium"
-            }
+                : "text-gray-900 font-medium"
+            }`}
           >
             {node.name}
           </span>
+
+          {hasChildren && (
+            <span className='px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600 font-medium'>
+              {node.children?.length}
+            </span>
+          )}
         </div>
 
-        {/* ACTION BUTTONS */}
         {isCategory && (
           <div className='flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity'>
             {node.type === "category" && (
@@ -119,7 +123,8 @@ const TreeItem: FC<TreeItemProps> = ({
                   e.stopPropagation();
                   onAddSub(node);
                 }}
-                className='p-1.5 rounded hover:bg-blue-100 text-blue-600'
+                title='Thêm danh mục con'
+                className='p-1.5 rounded hover:bg-blue-100 text-blue-600 transition'
               >
                 <Plus size={16} />
               </button>
@@ -130,7 +135,8 @@ const TreeItem: FC<TreeItemProps> = ({
                 e.stopPropagation();
                 onEdit(node);
               }}
-              className='p-1.5 rounded hover:bg-yellow-100 text-yellow-600'
+              title='Sửa tên'
+              className='p-1.5 rounded hover:bg-yellow-100 text-yellow-600 transition'
             >
               <Pencil size={16} />
             </button>
@@ -140,7 +146,8 @@ const TreeItem: FC<TreeItemProps> = ({
                 e.stopPropagation();
                 onDelete(node);
               }}
-              className='p-1.5 rounded hover:bg-red-100 text-red-600'
+              title='Xóa'
+              className='p-1.5 rounded hover:bg-red-100 text-red-600 transition'
             >
               <Trash2 size={16} />
             </button>
@@ -148,7 +155,6 @@ const TreeItem: FC<TreeItemProps> = ({
         )}
       </div>
 
-      {/* CHILDREN */}
       {isOpen && hasChildren && (
         <div className='ml-6 border-l border-gray-200 animate-[fadeDown_0.2s_ease]'>
           {node.children!.map((child) => (
@@ -178,7 +184,7 @@ const TreeItem: FC<TreeItemProps> = ({
 };
 
 // ===============================
-// MAIN COMPONENT
+// Main Component
 // ===============================
 const CategoriesTab: FC = () => {
   const {
@@ -188,132 +194,116 @@ const CategoriesTab: FC = () => {
     createCategory,
     updateCategory,
     deleteCategory,
-    // Không còn lấy responseData và modal từ context nữa
   } = useCategories();
 
-  // FORM DIALOG STATES
   const [dialogMode, setDialogMode] = useState<
     "create_root" | "create_sub" | "edit" | null
   >(null);
   const [deleteNode, setDeleteNode] = useState<TreeNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
-
   const [formName, setFormName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // HANDLERS ----------------------------
+  // --- Handlers ---
   const openCreateRoot = () => {
     setDialogMode("create_root");
-    setSelectedNode(null);
     setFormName("");
+    setSelectedNode(null);
   };
 
   const openCreateSub = (node: TreeNode) => {
     setDialogMode("create_sub");
-    setSelectedNode(node);
     setFormName("");
+    setSelectedNode(node);
   };
 
   const openEdit = (node: TreeNode) => {
     setDialogMode("edit");
-    setSelectedNode(node);
     setFormName(node.name);
+    setSelectedNode(node);
   };
 
-  const openDelete = (node: TreeNode) => setDeleteNode(node);
+  const openDelete = (node: TreeNode) => {
+    setDeleteNode(node);
+  };
 
-  // SUBMIT FORM (CREATE / EDIT) -------------------------
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim()) return;
 
-    setIsSubmitting(true);
-    let result = { success: false, message: "" };
-
     try {
+      setIsSubmitting(true);
+
       if (dialogMode === "create_root") {
-        result = await createCategory(formName, null);
+        await createCategory(formName, null);
+        toast.success("Tạo danh mục gốc thành công");
       } else if (dialogMode === "create_sub" && selectedNode) {
-        result = await createCategory(formName, selectedNode.id);
+        await createCategory(formName, selectedNode.id);
+        toast.success("Tạo danh mục con thành công");
       } else if (dialogMode === "edit" && selectedNode) {
-        result = await updateCategory(selectedNode.id, formName);
+        await updateCategory(selectedNode.id, formName);
+        toast.success("Cập nhật thành công");
       }
 
-      // Xử lý kết quả trả về
-      if (result.success) {
-        toast.success(result.message);
-        setDialogMode(null); // Chỉ đóng form khi thành công
-        setFormName("");
-      } else {
-        toast.error(result.message);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Đã có lỗi xảy ra");
+      setDialogMode(null);
+      setFormName("");
+    } catch (error) {
+      console.error(error);
+      toast.error("Có lỗi xảy ra, vui lòng thử lại.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // DELETE CONFIRM ----------------------
   const handleDeleteConfirm = async () => {
     if (!deleteNode) return;
-    setIsSubmitting(true);
-
     try {
-      const result = await deleteCategory(deleteNode.id);
-
-      if (result.success) {
-        toast.success(result.message);
-        setDeleteNode(null); // Đóng dialog xóa
-      } else {
-        toast.error(result.message);
-      }
-    } catch (err) {
-      toast.error("Không thể xoá danh mục");
+      setIsSubmitting(true);
+      await deleteCategory(deleteNode.id);
+      toast.success("Đã xóa danh mục");
+      setDeleteNode(null);
+    } catch (error) {
+      console.error(error);
+      toast.error("Xóa thất bại!");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const getDialogTitle = () => {
-    switch (dialogMode) {
-      case "create_root":
-        return "Tạo danh mục gốc";
-      case "create_sub":
-        return `Thêm danh mục con cho "${selectedNode?.name}"`;
-      case "edit":
-        return "Đổi tên danh mục";
-      default:
-        return "";
-    }
+    if (dialogMode === "create_root") return "Tạo danh mục gốc";
+    if (dialogMode === "create_sub")
+      return `Thêm danh mục con cho "${selectedNode?.name}"`;
+    if (dialogMode === "edit") return "Đổi tên danh mục";
+    return "";
   };
 
-  // ===============================
-  // RENDER
-  // ===============================
   return (
-    <div className='flex-1'>
-      <div className='bg-white rounded-xl border border-gray-200 shadow-sm min-h-[500px] overflow-hidden'>
-        <div className='flex items-center justify-between px-6 py-5 border-b bg-gray-200'>
-          <h2 className='text-lg font-semibold'>Quản lý danh mục</h2>
-
+    <div className='flex-1 space-y-6'>
+      <div className='bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden '>
+        {/* Header */}
+        <div className='flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white'>
+          <h2 className='text-lg font-semibold text-gray-900'>
+            Quản lý danh mục
+          </h2>
           <button
             onClick={openCreateRoot}
-            className='flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition'
+            className='flex items-center gap-2 px-4 py-2 rounded-md bg-teal-600 text-white hover:bg-teal-700 transition text-sm font-medium shadow-sm'
           >
             <Plus size={16} /> Thêm gốc
           </button>
         </div>
-
-        <div className='pb-10'>
+      </div>
+      <div className='bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden min-h-[300px] flex flex-col'>
+        {/* Tree Content */}
+        <div className='flex-1 overflow-y-auto bg-white'>
           {isInitialLoading ? (
             <div className='flex justify-center items-center py-20 text-gray-500'>
-              <Loader2 className='w-6 h-6 animate-spin mr-2' />
+              <Loader2 className='w-6 h-6 animate-spin mr-2 text-teal-600' />{" "}
               Đang tải dữ liệu...
             </div>
           ) : treeData.length === 0 ? (
-            <div className='text-center py-10 text-gray-400'>
+            <div className='text-center py-20 text-gray-400 italic'>
               Chưa có danh mục nào
             </div>
           ) : (
@@ -332,7 +322,7 @@ const CategoriesTab: FC = () => {
         </div>
       </div>
 
-      {/* DIALOG: FORM (CREATE/EDIT) */}
+      {/* --- DIALOG FORM --- */}
       <Dialog
         open={!!dialogMode}
         onOpenChange={(open) => !open && setDialogMode(null)}
@@ -349,11 +339,18 @@ const CategoriesTab: FC = () => {
 
           <form onSubmit={handleFormSubmit} className='grid gap-4 py-4'>
             <div className='grid grid-cols-4 items-center gap-4'>
-              <label className='text-right text-sm font-medium'>Tên DM</label>
+              <label
+                htmlFor='name'
+                className='text-right text-sm font-medium text-gray-700'
+              >
+                Tên DM
+              </label>
               <input
+                id='name'
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
-                className='col-span-3 border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500'
+                className='col-span-3 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500'
+                placeholder='Nhập tên...'
                 required
                 autoFocus
               />
@@ -363,15 +360,14 @@ const CategoriesTab: FC = () => {
               <button
                 type='button'
                 onClick={() => setDialogMode(null)}
-                className='bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200'
+                className='bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500'
               >
                 Hủy
               </button>
-
               <button
                 type='submit'
                 disabled={isSubmitting}
-                className='bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50'
+                className='bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition flex items-center gap-2 disabled:opacity-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500'
               >
                 {isSubmitting && <Loader2 className='w-4 h-4 animate-spin' />}
                 Lưu lại
@@ -381,13 +377,10 @@ const CategoriesTab: FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* DIALOG: DELETE CONFIRM */}
+      {/* --- DIALOG DELETE --- */}
       <Dialog
         open={!!deleteNode}
-        onOpenChange={(open) => {
-          // Ngăn đóng khi đang xoá để tránh lỗi UI
-          if (!open && !isSubmitting) setDeleteNode(null);
-        }}
+        onOpenChange={(open) => !open && setDeleteNode(null)}
       >
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
@@ -397,14 +390,16 @@ const CategoriesTab: FC = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className='py-4'>
+          <div className='py-4 text-sm text-gray-600'>
             <p>
-              Bạn có chắc chắn muốn xóa danh mục:
-              <br />
-              <span className='font-bold text-lg'>{deleteNode?.name}</span>?
+              Bạn có chắc chắn muốn xóa danh mục: <br />
+              <span className='font-bold text-lg text-gray-900'>
+                {deleteNode?.name}
+              </span>
+              ?
             </p>
             <p className='text-xs text-gray-500 mt-2'>
-              Nếu danh mục có chứa danh mục con, chúng cũng sẽ bị xóa.
+              Lưu ý: Nếu danh mục này có chứa con, chúng cũng sẽ bị xóa.
             </p>
           </div>
 
@@ -412,15 +407,14 @@ const CategoriesTab: FC = () => {
             <button
               onClick={() => setDeleteNode(null)}
               disabled={isSubmitting}
-              className='bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 disabled:opacity-50'
+              className='bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500'
             >
               Hủy
             </button>
-
             <button
               onClick={handleDeleteConfirm}
               disabled={isSubmitting}
-              className='bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center gap-2 disabled:opacity-50'
+              className='bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition flex items-center gap-2 disabled:opacity-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-500'
             >
               {isSubmitting && <Loader2 className='w-4 h-4 animate-spin' />}
               Xóa vĩnh viễn

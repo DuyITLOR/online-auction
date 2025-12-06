@@ -30,7 +30,7 @@ export async function createSession(payload: Session) {
 
 export async function getSession() {
   const session = Cookies.get("session-action");
-
+  // console.log("session in getSession", session);
   // console.log('session in session', session);
   if (!session) return null;
 
@@ -38,6 +38,7 @@ export async function getSession() {
     const { payload } = await jwtVerify(session, encoding, {
       algorithms: ["HS256"],
     });
+    console.log("payload in getSession", payload);
     return payload;
   } catch (error) {
     console.error("Invalid session token", error);
@@ -46,5 +47,5 @@ export async function getSession() {
 }
 
 export function clearSession() {
-  Cookies.remove('session-action', { path: '/' });
+  Cookies.remove("session-action", { path: "/" });
 }

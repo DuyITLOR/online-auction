@@ -9,6 +9,7 @@ import ModerationTab from "../../components/admin/ModerationTab";
 import { ProductProvider } from "../../libs/contexts/productTab.context";
 import { CategoryProvider } from "../../libs/contexts/cateTab.context";
 import { UserProvider } from "../../libs/contexts/userTab.context";
+import { ModerationProvider } from "../../libs/contexts/moderationTab.context";
 
 const TAB_LIST = [
   { key: "tongquan", label: "Tổng quan" },
@@ -16,7 +17,6 @@ const TAB_LIST = [
   { key: "sanpham", label: "Sản phẩm" },
   { key: "danhmuc", label: "Danh mục" },
   { key: "kiemduyet", label: "Kiểm duyệt" },
-  { key: "baocao", label: "Báo cáo" },
 ];
 
 export default function DashboardTabs() {
@@ -143,8 +143,11 @@ export default function DashboardTabs() {
             <CategoriesTab />
           </CategoryProvider>
         )}
-        {activeTab === "kiemduyet" && <ModerationTab />}
-        {activeTab === "baocao" && <ReportsTab />}
+        {activeTab === "kiemduyet" && (
+          <ModerationProvider>
+            <ModerationTab />
+          </ModerationProvider>
+        )}
       </div>
     </div>
   );

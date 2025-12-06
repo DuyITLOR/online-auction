@@ -30,13 +30,14 @@ import {
   DialogClose,
 } from '../components/ui/dialog';
 
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { clearSession, getSession } from '../libs/session';
-import { getRole, requestToUpgrade, updateUser } from '../api/user';
-import { type WatchList, type User } from '../libs/types/types';
+import { requestToUpgrade, updateUser } from '../api/user';
+import { type WatchList } from '../libs/types/types';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getAllWatchList } from '../api/watchlist';
+import { UserContext } from '../libs/contexts/user.context';
 
 const activityData = [
   {
@@ -255,9 +256,9 @@ const sortValue = [
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { user, refresh } = useContext(UserContext);
   const [selectOption, SetSelectOption] = useState(sortValue[0]);
   const [session, setSession] = useState<any>(null);
-  const [user, setUser] = useState<User>();
   const [watchList, setWatchList] = useState<WatchList[]>([]);
 
   const [upgradeReason, setUpgradeReason] = useState('');
@@ -290,26 +291,11 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
-    const fetchRole = async () => {
-      try {
-        if (!session) {
-          return;
-        }
-        const token = session.token as string;
-
-        const user = await getRole({ token: token });
-        setUser(user);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
     const fetchWatchList = async () => {
       const data = await getAllWatchList({ token: session.token });
       setWatchList(data);
     };
 
-    fetchRole();
     fetchWatchList();
   }, [session]);
 
@@ -347,6 +333,7 @@ const Profile = () => {
     }
 
     updateUser({ user: payload, token: session.token });
+    refresh();
     window.location.reload();
   };
 

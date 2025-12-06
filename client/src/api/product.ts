@@ -101,3 +101,27 @@ export const createProduct = async ({ product, token }: { product: CreateProduct
 
   return data.data;
 };
+
+export const updateProduct = async ({ id, description, token }: { id: string; description: string; token: string }) => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ description }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      const message = data.message || data.error || 'Failed to fetch in update product';
+      throw new Error(message);
+    }
+
+    return data.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};

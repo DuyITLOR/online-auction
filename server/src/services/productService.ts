@@ -66,7 +66,9 @@ export const updateProduct = async (id: string, data: updateProductDto) => {
     const yyyy = now.getFullYear();
     const formattedDate = `${dd}/${mm}/${yyyy}`;
 
-    updateData.description = `${old?.description ?? ' '}  \n\n[Updated on ${formattedDate}]: \n\n${data.description}`;
+    updateData.description = `${old?.description ?? ' '}  \n\n[Cập nhật ngày ${formattedDate}]: \n\n${
+      data.description
+    }`;
   }
 
   if (data.startPrice !== undefined) updateData.startPrice = new Prisma.Decimal(data.startPrice);

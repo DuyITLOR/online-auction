@@ -7,7 +7,7 @@ import ProductDescription from './description';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tab';
 import Review from './review';
 
-import type { BidHistory, Product, ProductImage, WatchList } from '../../libs/types/types';
+import type { BidHistory, Product, ProductImage, User, WatchList } from '../../libs/types/types';
 import { useContext, useEffect, useState } from 'react';
 import {
   DialogFooter,
@@ -28,6 +28,7 @@ interface ProductProp {
   historyBid: BidHistory[];
   token: string;
   onRefresh: () => void;
+  user: User;
 }
 
 const maskName = (fullname: string | undefined) => {
@@ -83,7 +84,7 @@ const formatTimeLeft = (date: string) => {
   }
 };
 
-const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
+const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) => {
   const minBidPrice = Number(product?.currentPrice) + Number(product?.stepPrice);
   const [image, setImage] = useState<string>(() => product?.images?.[0]?.url ?? '');
   const [price, setPrice] = useState(minBidPrice);
@@ -522,7 +523,7 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
         </TabsList>
 
         <TabsContent value='description'>
-          {product ? <ProductDescription product={product} currentUser={product?.seller} /> : null}
+          {product ? <ProductDescription product={product} currentUser={user} token={token}/> : null}
         </TabsContent>
       </Tabs>
 

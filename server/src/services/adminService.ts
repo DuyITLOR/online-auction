@@ -1,23 +1,39 @@
-import { prisma } from './db/prisma';
-import { getAllUsersServiceDto } from '../dto/adminDto';
+import { prisma } from "./db/prisma";
+import { getAllUsersServiceDto } from "../dto/adminDto";
 
 export const getAllUsers = async (data: getAllUsersServiceDto) => {
   try {
     let users;
+
     if (data.limit <= 0) {
-      users = await prisma.user.findMany();
+      users = await prisma.user.findMany({
+        select: {
+          id: true,
+          email: true,
+          fullname: true,
+          role: true,
+          createdAt: true,
+        },
+      });
     } else {
       users = await prisma.user.findMany({
-        orderBy: { createdAt: 'asc' }, // hoặc orderBy: { id: 'asc' }
+        orderBy: { createdAt: "asc" },
         skip: data.page * data.limit,
         take: data.limit,
+        select: {
+          id: true,
+          email: true,
+          fullname: true,
+          role: true,
+          createdAt: true,
+        },
       });
     }
+
     const totalItems = await prisma.user.count();
     let pages = Math.ceil(totalItems / data.limit);
-    if (data.limit <= 0) {
-      pages = 1;
-    }
+    if (data.limit <= 0) pages = 1;
+
     return {
       success: true,
       users: {
@@ -25,19 +41,12 @@ export const getAllUsers = async (data: getAllUsersServiceDto) => {
         totalPages: pages,
         totalUsers: totalItems,
       },
-      message: 'Get successful',
+      message: "Get users successfully",
     };
   } catch (err) {
-    if (err instanceof Error) {
-      return {
-        success: false,
-        message: err.message,
-      };
-    }
-
     return {
       success: false,
-      message: 'Unknown error',
+      message: err instanceof Error ? err.message : "Unknown error",
     };
   }
 };
@@ -45,21 +54,38 @@ export const getAllUsers = async (data: getAllUsersServiceDto) => {
 export const getAllRequest = async (data: getAllUsersServiceDto) => {
   try {
     let requests;
+
     if (data.limit <= 0) {
-      requests = await prisma.upgradeRequests.findMany();
+      requests = await prisma.upgradeRequests.findMany({
+        include: {
+          user: {
+            select: {
+              fullname: true,
+              email: true,
+            },
+          },
+        },
+      });
     } else {
       requests = await prisma.upgradeRequests.findMany({
-        orderBy: { createdAt: 'asc' }, // hoặc orderBy: { id: 'asc' }
+        orderBy: { createdAt: "asc" },
         skip: data.page * data.limit,
         take: data.limit,
+        include: {
+          user: {
+            select: {
+              fullname: true,
+              email: true,
+            },
+          },
+        },
       });
     }
 
     const totalItems = await prisma.upgradeRequests.count();
     let pages = Math.ceil(totalItems / data.limit);
-    if (data.limit <= 0) {
-      pages = 1;
-    }
+    if (data.limit <= 0) pages = 1;
+
     return {
       success: true,
       requests: {
@@ -67,21 +93,12 @@ export const getAllRequest = async (data: getAllUsersServiceDto) => {
         totalPages: pages,
         totalRequests: totalItems,
       },
-      message: 'Get successful',
+      message: "Get requests successfully",
     };
   } catch (err) {
-    console.error('Error from userService:', err);
-
-    if (err instanceof Error) {
-      return {
-        success: false,
-        message: err.message,
-      };
-    }
-
     return {
       success: false,
-      message: 'Unknown error',
+      message: err instanceof Error ? err.message : "Unknown error",
     };
   }
 };
@@ -94,30 +111,29 @@ export const acceptRequest = async (id: string) => {
     const record = await prisma.upgradeRequests.update({
       where: { id },
       data: {
-        status: 'VALID',
+        status: "VALID",
         decidedAt,
         expiredAt,
+      },
+      include: {
+        user: {
+          select: {
+            fullname: true,
+            email: true,
+          },
+        },
       },
     });
 
     return {
       success: true,
       data: record,
-      message: 'Accept request successfully',
+      message: "Accept request successfully",
     };
   } catch (err) {
-    console.error('Error from userService:', err);
-
-    if (err instanceof Error) {
-      return {
-        success: false,
-        message: err.message,
-      };
-    }
-
     return {
       success: false,
-      message: 'Unknown error',
+      message: err instanceof Error ? err.message : "Unknown error",
     };
   }
 };
@@ -125,31 +141,29 @@ export const acceptRequest = async (id: string) => {
 export const refuseRequest = async (id: string) => {
   try {
     const record = await prisma.upgradeRequests.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: {
-        status: 'FAILED',
+        status: "FAILED",
+      },
+      include: {
+        user: {
+          select: {
+            fullname: true,
+            email: true,
+          },
+        },
       },
     });
+
     return {
       success: true,
       data: record,
-      message: 'Refuse request successfully',
+      message: "Refuse request successfully",
     };
   } catch (err) {
-    console.error('Error from userService:', err);
-
-    if (err instanceof Error) {
-      return {
-        success: false,
-        message: err.message,
-      };
-    }
-
     return {
       success: false,
-      message: 'Unknown error',
+      message: err instanceof Error ? err.message : "Unknown error",
     };
   }
 };

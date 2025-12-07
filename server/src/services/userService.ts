@@ -7,6 +7,7 @@ import {
   answerBidderDto,
   answerBidderReturnDto,
   returnErrorDto,
+  getALlCommentsDto,
 } from '../dto/userDto';
 import { deleteCommentDto } from '../dto/userDto';
 
@@ -313,20 +314,34 @@ export const answerBidder = async (
   }
 };
 
-export const getAllCommentsByProductId = async (productId: string) => {
+export const getAllCommentsByProductId = async (data: getALlCommentsDto) => {
   try {
+    const skip = (data.page - 1) * data.limit;
     const comments = await prisma.comments.findMany({
       where: {
-        productId,
+        productId: data.productId,
+      },
+      skip,
+      take: data.limit,
+      orderBy: {
+        sendAt: 'desc',
       },
       include: {
         sender: true,
+        replies: {
+          orderBy: {
+            sendAt: 'desc',
+          },
+          include: {
+            sender: true,
+          },
+        },
       },
     });
     return {
       success: true,
       data: comments,
-      message: 'Get comments successfully',
+      message: 'Truy cập bình luận thành công',
     };
   } catch (err) {
     if (err instanceof Error) {

@@ -22,6 +22,8 @@ export const getAllRatings = async (req: Request, res: Response) => {
     }
     const userId = req.user.id;
     const type = req.query.type || 'all';
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 100;
     // Check role
     const roles = await checkRole(userId);
     if (!roles.includes('BIDDER') && !roles.includes('ADMIN')) {
@@ -37,6 +39,8 @@ export const getAllRatings = async (req: Request, res: Response) => {
     const data = {
       userId: userId,
       type: type,
+      page: page,
+      limit: limit,
     } as getRatingDto;
     const ratings = await service.getAllRatings(data);
     const response = gatewayResponse(

@@ -7,33 +7,46 @@ import {
 } from '../dto/ratingDto';
 
 export const getAllRatings = async (data: getRatingDto) => {
-  let ratings = [];
-  const rater = await prisma.ratings.findMany({
-    where: {
-      raterId: data.userId,
-    },
-    include: {
-      ratee: true,
-      rater: true,
-    },
-  });
-  const ratee = await prisma.ratings.findMany({
-    where: {
-      rateeId: data.userId,
-    },
-    include: {
-      ratee: true,
-      rater: true,
-    },
-  });
-  if (data.type === 'all') {
-    ratings = [...rater, ...ratee];
-  } else if (data.type === 'received') {
-    ratings = [...ratee];
+  const skip = (data.page - 1) * data.limit;
+
+  let whereCondition: any = {};
+
+  if (data.type === 'received') {
+    whereCondition = { rateeId: data.userId };
+  } else if (data.type === 'given') {
+    whereCondition = { raterId: data.userId };
   } else {
-    ratings = [...rater];
+    whereCondition = {
+      OR: [{ rateeId: data.userId }, { raterId: data.userId }],
+    };
   }
-  return ratings;
+
+  const [ratings, totalItem] = await Promise.all([
+    prisma.ratings.findMany({
+      where: whereCondition,
+      orderBy: {
+        createdAt: 'desc', 
+      },
+      skip,
+      take: data.limit,
+      include: {
+        ratee: true,
+        rater: true,
+      },
+    }),
+
+    prisma.ratings.count({
+      where: whereCondition,
+    }),
+  ]);
+
+  return {
+    page: data.page,
+    limit: data.limit,
+    totalItem,
+    totalPage: Math.ceil(totalItem / data.limit),
+    ratings,
+  };
 };
 
 export const createRating = async (data: ratingDto) => {

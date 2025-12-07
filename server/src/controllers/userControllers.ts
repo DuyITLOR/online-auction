@@ -9,7 +9,7 @@ import {
   loadAnswerTemplate,
   sendEmail,
 } from '../utils/sendEmail';
-import { deleteCommentDto } from '../dto/userDto';
+import { deleteCommentDto, getALlCommentsDto } from '../dto/userDto';
 
 export const getUserById = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -235,7 +235,7 @@ export const askSeller = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      'Bạn cung cấp thiếu id cho product hoặc thiếu nội dung câu hỏi'
+      'Bạn cung cấp thiếu id cho sản phẩm hoặc thiếu nội dung câu hỏi'
     );
     res.status(response.code).send(response);
     return;
@@ -299,7 +299,7 @@ export const answerBidder = async (req: Request, res: Response) => {
   const id = req.user.id;
   // Check role
   const roles = await checkRole(id);
-  if (!roles.includes('SELLER')) {
+  if (!roles.includes('BIDDER')) {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
@@ -345,7 +345,7 @@ export const answerBidder = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.accepted,
         null,
-        'Trả lời câu hỏi thành công và đã gửi email đến người mua'
+        'Trả lời câu hỏi thành công và đã gửi email đến người hỏi'
       );
       res.status(response.code).send(response);
     } else {
@@ -371,7 +371,14 @@ export const getAllCommentsByProductId = async (
   res: Response
 ) => {
   const productId = req.params.productId;
-  const record = await service.getAllCommentsByProductId(productId);
+  const page = Number(req.params.page) || 1;
+  const limit = Number(req.params.limit) || 100;
+  const data = {
+    productId: productId,
+    page: page,
+    limit: limit,
+  } as getALlCommentsDto;
+  const record = await service.getAllCommentsByProductId(data);
   if (record.success) {
     const response = gatewayResponse(
       HttpStatus.ok,

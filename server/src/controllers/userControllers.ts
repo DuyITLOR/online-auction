@@ -9,6 +9,7 @@ import {
   loadAnswerTemplate,
   sendEmail,
 } from '../utils/sendEmail';
+import { deleteCommentDto } from '../dto/userDto';
 
 export const getUserById = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -387,5 +388,44 @@ export const getAllCommentsByProductId = async (
       record.message
     );
     res.status(response.code).send(response);
+  }
+};
+
+export const deleteComment = async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.params.commentId) {
+      const response = gatewayResponse(
+        HttpStatus.badRequest,
+        null,
+        'Nhập đầy đủ thông tin yêu cầu'
+      );
+      return res.status(response.code).send(response);
+    }
+
+    const data = {
+      userId: req.user.id,
+      commentId: req.params.commentId,
+    } as deleteCommentDto;
+
+    const record = await service.deleteComment(data);
+    const response = gatewayResponse(HttpStatus.ok, record, `Xóa thành công`);
+    res.status(response.code).send(response);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.log('From user controller: ', err.message);
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        err.message
+      );
+      res.status(response.code).send(response);
+    } else {
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        'Lỗi từ server'
+      );
+      res.status(response.code).send(response);
+    }
   }
 };

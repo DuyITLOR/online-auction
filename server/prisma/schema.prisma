@@ -104,7 +104,7 @@ model Comments {
   parentId  String?
   content   String
   sendAt    DateTime   @default(now())
-  parent    Comments?  @relation("CommentThread", fields: [parentId], references: [id])
+  parent    Comments?  @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
   replies   Comments[] @relation("CommentThread")
   product   Products   @relation(fields: [productId], references: [id], onDelete: Cascade)
   sender    User       @relation(fields: [senderId], references: [id], onDelete: Cascade)

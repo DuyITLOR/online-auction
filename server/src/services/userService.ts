@@ -8,6 +8,7 @@ import {
   answerBidderReturnDto,
   returnErrorDto,
 } from '../dto/userDto';
+import { deleteCommentDto } from '../dto/userDto';
 
 export const getUserById = async (id: string) => {
   try {
@@ -318,6 +319,9 @@ export const getAllCommentsByProductId = async (productId: string) => {
       where: {
         productId,
       },
+      include: {
+        sender: true,
+      },
     });
     return {
       success: true,
@@ -337,4 +341,21 @@ export const getAllCommentsByProductId = async (productId: string) => {
       message: 'Unknown error',
     };
   }
+};
+
+export const deleteComment = async (data: deleteCommentDto) => {
+  const check = await prisma.comments.findFirst({
+    where: {
+      id: data.commentId,
+      senderId: data.userId,
+    },
+  });
+  if (check === null) {
+    throw new Error('Bạn không đủ thẩm quyền để xóa bình luận này');
+  }
+  return await prisma.comments.delete({
+    where: {
+      id: data.commentId,
+    },
+  });
 };

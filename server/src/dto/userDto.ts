@@ -42,6 +42,11 @@ export interface answerBidderReturnDto {
   answer: string;
 }
 
+export interface deleteCommentDto {
+  userId: string;
+  commentId: string;
+}
+
 export interface returnErrorDto {
   success: false;
   message: string;

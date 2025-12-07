@@ -2,7 +2,11 @@ import { Request, Response } from 'express';
 import { gatewayResponse } from '../utils/response';
 import * as service from '../services/ratingService';
 import { HttpStatus } from '../utils/permission';
-import { getRatingDto, ratingInputDto } from '../dto/ratingDto';
+import {
+  deleteRatingDto,
+  getRatingDto,
+  ratingInputDto,
+} from '../dto/ratingDto';
 import { checkRole } from '../utils/checkRole';
 
 export const getAllRatings = async (req: Request, res: Response) => {
@@ -128,6 +132,48 @@ export const udpateRaing = async (req: Request, res: Response) => {
       HttpStatus.created,
       record,
       `Chỉnh sửa thành công`
+    );
+    res.status(response.code).send(response);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.log('From rating controller: ', err.message);
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        err.message
+      );
+      res.status(response.code).send(response);
+    } else {
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        'Lỗi từ server'
+      );
+      res.status(response.code).send(response);
+    }
+  }
+};
+
+export const deleteRating = async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.params.ratingId) {
+      const response = gatewayResponse(
+        HttpStatus.badRequest,
+        null,
+        'Nhập đầy đủ thông tin yêu cầu'
+      );
+      res.status(response.code).send(response);
+      return;
+    }
+    const data = {
+      ratingId: req.params.ratingId,
+      userId: req.user.id,
+    } as deleteRatingDto;
+    const record = await service.deleteRating(data);
+    const response = gatewayResponse(
+      HttpStatus.created,
+      record,
+      `Xóa thành công`
     );
     res.status(response.code).send(response);
   } catch (err) {

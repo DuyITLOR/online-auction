@@ -36,6 +36,11 @@ router.post(
   authMiddleware,
   controllers.answerBidder
 );
+router.delete(
+  API_ROUTES.deleteComment.path,
+  authMiddleware,
+  controllers.deleteComment
+);
 router.patch(
   API_ROUTES.updateUser.path,
   authMiddleware,

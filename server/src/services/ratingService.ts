@@ -1,5 +1,10 @@
 import { prisma } from './db/prisma';
-import { ratingDto, updateRatingDto, getRatingDto } from '../dto/ratingDto';
+import {
+  ratingDto,
+  updateRatingDto,
+  getRatingDto,
+  deleteRatingDto,
+} from '../dto/ratingDto';
 
 export const getAllRatings = async (data: getRatingDto) => {
   let ratings = [];
@@ -74,5 +79,24 @@ export const updateRating = async (Data: updateRatingDto) => {
   return prisma.ratings.update({
     where: { id },
     data,
+  });
+};
+
+export const deleteRating = async (data: deleteRatingDto) => {
+  const userId = data.userId;
+  const ratingId = data.ratingId;
+  const check = await prisma.ratings.findUnique({
+    where: {
+      id: ratingId,
+      raterId: userId,
+    },
+  });
+  if (check === null) {
+    throw new Error('Bạn không đủ thẩm quyền để xóa đánh giá này');
+  }
+  return await prisma.ratings.delete({
+    where: {
+      id: ratingId,
+    },
   });
 };

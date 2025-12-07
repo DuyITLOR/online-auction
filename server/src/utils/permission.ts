@@ -135,6 +135,11 @@ export const API_ROUTES = {
     role: [Role.ALL],
     method: 'GET',
   },
+  deleteComment: {
+    path: '/comments/:commentId',
+    role: [Role.BIDDER, Role.ADMIN, Role.SELLER],
+    method: 'DELETE',
+  },
   getAllBlockedUser: {
     path: '/users/blocked/products/:productId',
     role: [Role.SELLER, Role.ADMIN],
@@ -196,6 +201,11 @@ export const API_RATING_ROUTES = {
       value: 'number', // -1 (negative) or 1 (positive)
       comment: 'string',
     },
+  },
+  deleteRating: {
+    path: '/ratings/:ratingId',
+    role: [Role.BIDDER, Role.SELLER],
+    method: 'DELETE',
   },
 };
 

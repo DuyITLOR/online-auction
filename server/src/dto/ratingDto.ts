@@ -21,6 +21,8 @@ export interface updateRatingDto {
 export interface getRatingDto {
   userId: string;
   type: string;
+  page: number;
+  limit: number;
 }
 
 export interface deleteRatingDto {

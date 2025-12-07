@@ -47,6 +47,12 @@ export interface deleteCommentDto {
   commentId: string;
 }
 
+export interface getALlCommentsDto {
+  productId: string;
+  page: number;
+  limit: number;
+}
+
 export interface returnErrorDto {
   success: false;
   message: string;

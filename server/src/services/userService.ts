@@ -41,10 +41,11 @@ export const getUserById = async (id: string) => {
 
 export const updateUser = async (id: string, Data: updateUserDto) => {
   try {
-    const { fullname, avtUrl } = Data;
+    const { fullname, avtUrl, dateOfBirth } = Data;
     const data = {
       ...(fullname !== undefined && { fullname }),
       ...(avtUrl !== undefined && { avtUrl }),
+      ...(dateOfBirth !== undefined && { dateOfBirth: new Date(dateOfBirth) }),
     };
 
     const updated = await prisma.user.update({

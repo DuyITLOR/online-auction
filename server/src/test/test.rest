@@ -72,7 +72,7 @@ Content-Type: application/json
   "answer": "Yes, this product is brand new."
 }
 ###
-GET http://localhost:4000/get-free-token/d5851586-2c43-4f58-868b-7a53fec93116
+GET http://localhost:4000/get-free-token/7773721e-e564-4467-9362-021e799ab29b
 ###
 
 GET http://localhost:4000/decode-token

@@ -17,6 +17,7 @@ model User {
   ratingNeg       Int
   ratingPos       Int
   role            Role
+  dateOfBirth     DateTime?
   avtUrl          String
   autoBids        AutoBids[]
   bidHistory      BidHistory[]

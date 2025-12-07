@@ -22,3 +22,8 @@ export interface getRatingDto {
   userId: string;
   type: string;
 }
+
+export interface deleteRatingDto {
+  ratingId: string;
+  userId: string;
+}

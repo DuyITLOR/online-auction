@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { API_RATING_ROUTES } from '../utils/permission';
+import { API_RATING_ROUTES, API_ROUTES } from '../utils/permission';
 import { authMiddleware } from '../middleware/authentication';
 import * as controllers from '../controllers/ratingControllers';
 
@@ -19,6 +19,11 @@ router.patch(
   API_RATING_ROUTES.updateRating.path,
   authMiddleware,
   controllers.udpateRaing
+);
+router.delete(
+  API_RATING_ROUTES.deleteRating.path,
+  authMiddleware,
+  controllers.deleteRating
 );
 
 export default router;

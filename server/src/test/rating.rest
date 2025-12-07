@@ -19,3 +19,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2L
 {
 	"comment": "Uy tín"
 }
+
+###
+DELETE http://localhost:4000/ratings/cd2619ab-a43c-4ad6-9d0b-13a0d9815739
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci0xIiwiZW1haWwiOiJiaWRkZXIxQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY1MTAxMDA5LCJleHAiOjE3Njc2OTMwMDl9.la8ygU-bnm1ceYZYk1cV3VD7sg0kpva6OOb8NEwTqFU

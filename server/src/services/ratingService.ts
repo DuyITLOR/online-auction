@@ -7,13 +7,27 @@ export const getAllRatings = async (data: getRatingDto) => {
     where: {
       raterId: data.userId,
     },
+    include: {
+      ratee: true,
+      rater: true,
+    },
   });
   const ratee = await prisma.ratings.findMany({
     where: {
       rateeId: data.userId,
     },
+    include: {
+      ratee: true,
+      rater: true,
+    },
   });
-  ratings = [...rater, ...ratee];
+  if (data.type === 'all') {
+    ratings = [...rater, ...ratee];
+  } else if (data.type === 'received') {
+    ratings = [...ratee];
+  } else {
+    ratings = [...rater];
+  }
   return ratings;
 };
 

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { gatewayResponse } from '../utils/response';
 import * as service from '../services/ratingService';
 import { HttpStatus } from '../utils/permission';
-import { ratingInputDto } from '../dto/ratingDto';
+import { getRatingDto, ratingInputDto } from '../dto/ratingDto';
 import { checkRole } from '../utils/checkRole';
 
 export const getAllRatings = async (req: Request, res: Response) => {
@@ -17,7 +17,7 @@ export const getAllRatings = async (req: Request, res: Response) => {
       return;
     }
     const userId = req.user.id;
-
+    const type = req.query.type || 'all';
     // Check role
     const roles = await checkRole(userId);
     if (!roles.includes('BIDDER') && !roles.includes('ADMIN')) {
@@ -32,7 +32,8 @@ export const getAllRatings = async (req: Request, res: Response) => {
 
     const data = {
       userId: userId,
-    };
+      type: type,
+    } as getRatingDto;
     const ratings = await service.getAllRatings(data);
     const response = gatewayResponse(
       HttpStatus.created,

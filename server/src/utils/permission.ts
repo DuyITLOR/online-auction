@@ -169,8 +169,15 @@ export const API_RATING_ROUTES = {
     path: '/ratings',
     role: [Role.ADMIN, Role.BIDDER, Role.SELLER],
     method: 'GET',
-    description: '',
+    queryParam: {
+      type: {
+        // type=received, if you do not pass the type, the default is getting all. (This route not include pagination)
+        received: 'returns all ratings that you have received.',
+        given: 'returns all ratings that you have given to others.',
+      },
+    },
   },
+
   rateUser: {
     path: '/ratings/users/:rateeId',
     role: [Role.BIDDER, Role.SELLER],
@@ -374,8 +381,8 @@ export const API_AUTO_BID_ROUTES = {
     role: [Role.BIDDER],
   },
   getAutoBids: {
-    path: "/autoBid",
-    method: "GET",
+    path: '/autoBid',
+    method: 'GET',
     role: [Role.BIDDER],
-  }
+  },
 };

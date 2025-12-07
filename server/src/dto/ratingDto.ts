@@ -20,4 +20,5 @@ export interface updateRatingDto {
 
 export interface getRatingDto {
   userId: string;
+  type: string;
 }

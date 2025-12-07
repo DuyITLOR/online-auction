@@ -9,7 +9,11 @@ import {
   loadAnswerTemplate,
   sendEmail,
 } from '../utils/sendEmail';
-import { deleteCommentDto, getALlCommentsDto } from '../dto/userDto';
+import {
+  deleteCommentDto,
+  getALlCommentsDto,
+  updateUserDto,
+} from '../dto/userDto';
 
 export const getUserById = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -50,10 +54,13 @@ export const updateUser = async (req: Request, res: Response) => {
   const avt = await uploadSingleFile(req, 'avatar');
   const avtUrl = avt.fileUrl;
   const fullname = req.body.fullname;
-  const record = await service.updateUser(req.user.id, {
-    fullname,
-    avtUrl,
-  });
+  const dateOfBirth = req.body.dateOfBirth;
+  const data = {
+    fullname: fullname,
+    dateOfBirth: dateOfBirth,
+    avt: avtUrl,
+  } as updateUserDto;
+  const record = await service.updateUser(req.user.id, data);
   if (record.success) {
     const response = gatewayResponse(
       200,

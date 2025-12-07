@@ -6,6 +6,7 @@ import * as service from '../services/authService';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import { HttpStatus } from '../utils/permission';
+import { verifyDto } from '../dto/authenticationDto';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -115,11 +116,19 @@ export const verifyEmail = async (req: Request, res: Response) => {
   const password = req.body.password;
   const hashed = await service.hashPassword(password);
   const fullname = req.body.fullname;
+  const dateOfBirth = req.body.dateOfBirth;
   const avtUrl =
     'https://lqxrdsayuzjybccsuhmb.supabase.co/storage/v1/object/public/images/avatar/765-default-avatar.png';
+  const data = {
+    email,
+    hashed,
+    fullname,
+    avtUrl,
+    dateOfBirth,
+  } as verifyDto;
   const record = await service.verifyCode(code, email);
   if (record.success) {
-    const bidder = await service.addNewBidder(email, fullname, hashed, avtUrl);
+    const bidder = await service.addNewBidder(data);
     const token = await service.generateToken(bidder.message, email); // message here = id of bidder
     if (bidder.success) {
       const response = gatewayResponse(200, { token }, bidder.message);
@@ -231,64 +240,64 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
-export const googleAuthentication = async (req: Request, res: Response) => {
-  try {
-    const email = req.body.email as string;
-    const fullname = req.body.fullname as string;
+// export const googleAuthentication = async (req: Request, res: Response) => {
+//   try {
+//     const email = req.body.email as string;
+//     const fullname = req.body.fullname as string;
 
-    // đảm bảo service.getBidder trả về Promise<Bidder | null>
-    const bidder = await service.getBidder(email);
+//     // đảm bảo service.getBidder trả về Promise<Bidder | null>
+//     const bidder = await service.getBidder(email);
 
-    if (!bidder) {
-      // người dùng chưa tồn tại -> tạo mới
-      const code = service.generateCode(); // Gen temporary password
-      const hashed = await service.hashPassword(code);
+//     if (!bidder) {
+//       // người dùng chưa tồn tại -> tạo mới
+//       const code = service.generateCode(); // Gen temporary password
+//       const hashed = await service.hashPassword(code);
 
-      // đảm bảo service.addNewBidder trả về AddBidderResult
-      const newBidder = await service.addNewBidder(
-        email,
-        fullname,
-        hashed,
-        'https://lqxrdsayuzjybccsuhmb.supabase.co/storage/v1/object/public/images/avatar/765-default-avatar.png'
-      );
+//       // đảm bảo service.addNewBidder trả về AddBidderResult
+//       const newBidder = await service.addNewBidder(
+//         email,
+//         fullname,
+//         hashed,
+//         'https://lqxrdsayuzjybccsuhmb.supabase.co/storage/v1/object/public/images/avatar/765-default-avatar.png'
+//       );
 
-      if (newBidder.success && newBidder.bidder) {
-        // chắc chắn newBidder.bidder tồn tại
-        const token = await service.generateToken(newBidder.bidder.id, email);
-        const response = gatewayResponse(
-          200,
-          { token, fullname, email },
-          'User sign up'
-        );
-        res.status(response.code).send(response);
-        return;
-      }
+//       if (newBidder.success && newBidder.bidder) {
+//         // chắc chắn newBidder.bidder tồn tại
+//         const token = await service.generateToken(newBidder.bidder.id, email);
+//         const response = gatewayResponse(
+//           200,
+//           { token, fullname, email },
+//           'User sign up'
+//         );
+//         res.status(response.code).send(response);
+//         return;
+//       }
 
-      // Nếu không thành công tạo user — trả lỗi
-      const response = gatewayResponse(
-        500,
-        null,
-        newBidder.message ?? 'Failed to create user'
-      );
-      res.status(response.code).send(response);
-      return;
-    }
+//       // Nếu không thành công tạo user — trả lỗi
+//       const response = gatewayResponse(
+//         500,
+//         null,
+//         newBidder.message ?? 'Failed to create user'
+//       );
+//       res.status(response.code).send(response);
+//       return;
+//     }
 
-    // Nếu bidder đã tồn tại
-    // (đến đây bidder có kiểu Bidder)
-    const token = await service.generateToken(bidder.id, bidder.email);
-    const response = gatewayResponse(
-      200,
-      { token, fullname: bidder.fullname ?? fullname, email: bidder.email },
-      'Login successful'
-    );
-    res.status(response.code).send(response);
-  } catch (err) {
-    console.error('googleAuthentication error:', err);
-    const response = gatewayResponse(500, null, 'Internal server error');
-    res.status(response.code).send(response);
-  }
-};
+//     // Nếu bidder đã tồn tại
+//     // (đến đây bidder có kiểu Bidder)
+//     const token = await service.generateToken(bidder.id, bidder.email);
+//     const response = gatewayResponse(
+//       200,
+//       { token, fullname: bidder.fullname ?? fullname, email: bidder.email },
+//       'Login successful'
+//     );
+//     res.status(response.code).send(response);
+//   } catch (err) {
+//     console.error('googleAuthentication error:', err);
+//     const response = gatewayResponse(500, null, 'Internal server error');
+//     res.status(response.code).send(response);
+//   }
+// };
 
 export const googleCallback = async (req: Request, res: Response) => {
   try {

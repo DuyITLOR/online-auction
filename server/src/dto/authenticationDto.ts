@@ -9,3 +9,11 @@ export interface profileDto {
   fullname: string;
   avtUrl: string;
 }
+
+export interface verifyDto {
+  email: string;
+  fullname: string;
+  hashed: string;
+  avtUrl: string;
+  dateOfBirth: string;
+}

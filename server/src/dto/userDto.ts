@@ -1,11 +1,12 @@
-export interface updateUserDto {
-  fullname?: string;
-  avtUrl?: string;
-}
-
 export interface requestUpgradeDto {
   id: string;
   note: string;
+}
+
+export interface updateUserDto {
+  fullname?: string;
+  dateOfBirth?: string;
+  avtUrl?: string;
 }
 
 export interface blockUserDto {

@@ -6,7 +6,7 @@ export interface User {
   password?: string | null;
   ratingNeg: number;
   ratingPos: number;
-  role: 'bidder' | 'admin';
+  role: 'BIDDER' | 'ADMIN';
   currentRoles: string[];
   avtUrl: string;
 

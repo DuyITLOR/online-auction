@@ -251,20 +251,14 @@ export const getMaxBidByUserId = async (productId: string, userId: string) => {
 };
 
 
-export const getAutoHistory = async (query: bidHistoryQueryDto) => {
+export const getBidHistoryByUserId = async (userId: string, query: bidHistoryQueryDto) => {
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 10;
   const skip = (page - 1) * limit;
 
   let where: Prisma.BidHistoryWhereInput = {};
 
-  if (query.productId) {
-    where.productId = query.productId;
-  }
-
-  if (query.userId) {
-    where.bidderId = query.userId;
-  }
+  where.bidderId = userId;
 
   let orderBy: Prisma.BidHistoryOrderByWithRelationInput = {};
   
@@ -294,5 +288,15 @@ export const getAutoHistory = async (query: bidHistoryQueryDto) => {
     orderBy,
   });
 
-  return autoBids;
+  const total = await prisma.bidHistory.count({ where });
+
+  if (!autoBids) throw new Error("No bid history found");
+
+  return {
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+    data: autoBids,
+  };
 }

@@ -156,7 +156,7 @@ export const getMaxBidByUser = async (req: Request, res: Response) => {
   }
 }
 
-export const getBidHistory = async (req: Request, res: Response) => {
+export const getBidHistoryByUserId = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     
@@ -167,11 +167,12 @@ export const getBidHistory = async (req: Request, res: Response) => {
         null,
         "Forbidden: User is not a bidder"
       );
+      
       return res.status(response.code).send(response);
     }
     
     const queryParams = req.query as bidHistoryQueryDto;
-    const data = await autoBidService.getAutoHistory(queryParams);
+    const data = await autoBidService.getBidHistoryByUserId(userId!, queryParams);
 
     if (!data) {
       const response = gatewayResponse(

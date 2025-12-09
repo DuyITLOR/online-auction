@@ -25,7 +25,6 @@ model User {
   chat            Chat[]
   comments        Comments[]
   ordersAsBuyer   Orders[]          @relation("OrdersBuyer")
-  ordersAsSeller  Orders[]          @relation("OrdersSeller")
   products        Products[]        @relation("SellerProducts")
   productWinner   Products[]        @relation("ProductWinner")
   ratingsReceived Ratings[]         @relation("RatingsReceived")
@@ -191,7 +190,6 @@ model Ratings {
 model Orders {
   id                 String      @id @default(uuid())
   productId          String      @unique
-  sellerId           String
   buyerId            String
   phoneNumber        String
   totalAmount        Decimal     @db.Decimal(15, 2) 
@@ -206,7 +204,6 @@ model Orders {
   updatedAt          DateTime    @updatedAt
   buyer              User        @relation("OrdersBuyer", fields: [buyerId], references: [id])
   product            Products    @relation(fields: [productId], references: [id])
-  seller             User        @relation("OrdersSeller", fields: [sellerId], references: [id])
 }
 
 enum Role {
@@ -238,9 +235,7 @@ enum upgradeStatus {
 enum ProductStatus {
   // Đang trong đấu giá
   ACTIVE
-  // Đang trong giai đoạn thanh toán
-  PENDING_PAYMENT
-  // Người dùng thanh toán thành công
+  // Sản phẩm đã có người đấu giá thành công
   SOLD
   // Seller hủy thanh toán
   CANCELLED

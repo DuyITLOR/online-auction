@@ -1,5 +1,5 @@
-import nodemailer from 'nodemailer';
-import { sendEmailDto, sendEmailResultDto } from '../dto/sendEmailDto';
+import nodemailer from "nodemailer";
+import { sendEmailDto, sendEmailResultDto } from "../dto/sendEmailDto";
 
 export const loadCodeTemplate = (code: string) => {
   return `
@@ -97,10 +97,7 @@ export const loadBidFailedTemplate = (
   `;
 };
 
-export const loadNoBuyerTemplate = (
-  userName: string,
-  productName: string
-) => {
+export const loadNoBuyerTemplate = (userName: string, productName: string) => {
   return `
     <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;background:#fff;">
       <h3 style="margin-top:0;color:#0ea5a4;">Đấu giá kết thúc — Không có người mua</h3>
@@ -225,18 +222,17 @@ export const loadAnswerTemplate = (
   `;
 };
 
-
 export const sendEmail = async (
   data: sendEmailDto
 ): Promise<sendEmailResultDto> => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
-    host: 'smtp.gmail.email',
+    host: 'smtp.gmail.com',
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: process.env.USER || 'group2hcmus@gmail.com',
-      pass: process.env.APP_PASSWORD || 'tgbpcgszidtfecmr',
+      user: process.env.MAIL_USER || 'group2hcmus@gmail.com',
+      pass: process.env.MAIL_APP_PASSWORD || 'tgbpcgszidtfecmr',
     },
   });
 
@@ -244,14 +240,14 @@ export const sendEmail = async (
     const info = await transporter.sendMail({
       from: '"LetBid" <group2hcmus@gmail.com>',
       to: data.email,
-      subject: data.subject ?? 'Verification code',
-      text: 'Message from Online Auction', // plain‑text body
+      subject: data.subject ?? "Verification code",
+      text: "Message from Online Auction", // plain‑text body
       html: data.content, // HTML body
     });
 
     return {
       success: true,
-      message: 'Send email',
+      message: "Send email",
     };
   } catch (err) {
     if (err instanceof Error) {
@@ -262,7 +258,7 @@ export const sendEmail = async (
     }
     return {
       success: false,
-      message: 'unknown error',
+      message: "unknown error",
     };
   }
 };

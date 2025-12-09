@@ -3,7 +3,7 @@ import { googleCallback } from '../controllers/authControllers';
 import { updateCate } from '../services/cateService';
 import { updateCategory } from '../controllers/categoryControllers';
 import { get, request } from 'http';
-import { createAutoBid } from '../services/autoBidService';
+import { createAutoBid, getBidHistoryByUserId } from '../services/autoBidService';
 import { getMaxBidByUser } from '../controllers/autoBiderController';
 import path from 'path';
 import { getAllCommentsByProductId } from '../controllers/userControllers';
@@ -390,7 +390,7 @@ export const API_AUTO_BID_ROUTES = {
     method: 'GET',
     role: [Role.BIDDER],
   },
-  getAutoBids: {
+  getBidHistoryByUserId: {
     path: '/autoBid',
     method: 'GET',
     role: [Role.BIDDER],

@@ -29,9 +29,9 @@ router.get(
 )
 
 router.get(
-  API_AUTO_BID_ROUTES.getAutoBids.path,
+  API_AUTO_BID_ROUTES.getBidHistoryByUserId.path,
   authMiddleware,
-  autoBidController.getBidHistory
+  autoBidController.getBidHistoryByUserId
 )
 
 export default router;

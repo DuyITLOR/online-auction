@@ -10,6 +10,7 @@ import { uploadedImageDto } from "../dto/uploadImageDto";
 import { checkRole } from "../utils/checkRole";
 import { gatewayResponse } from "../utils/response";
 import { HttpStatus } from "../utils/permission";
+import { sendEmail, loadOrderTemplate } from "../utils/sendEmail";
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
@@ -195,11 +196,36 @@ export const buyNowProduct = async (req: Request, res: Response) => {
     const data: buyNowProuctDto = req.body;
     data.productId = productId;
 
-    if (!data.phoneNumber || !data.shippingAddress)
-    {
-        throw new Error("Dữ liệu không hợp lệ");
+    if (!data.phoneNumber || !data.shippingAddress) {
+      throw new Error("Dữ liệu không hợp lệ");
     }
     const response = await productService.buyNowProuct(bidderId, data);
+
+    const content = loadOrderTemplate(
+      response?.product.title || "",
+      response?.product.buyNowPrice.toString() || "",
+      response?.product.seller.email || "",
+      response?.buyer.email || ""
+    );
+
+    try {
+      let dataEmail = {
+        email: response?.buyer.email || "",
+        subject: "Thông tin đơn hàng mua ngay",
+        content: content,
+      };
+      await sendEmail(dataEmail);
+
+      dataEmail = {
+        email: response?.product.seller.email || "",
+        subject: "Thông tin đơn hàng mua ngay",
+        content: content,
+      };
+
+      await sendEmail(dataEmail);
+    } catch (err) {
+      console.error("Lỗi gửi email:", err);
+    }
 
     const respone = gatewayResponse(
       HttpStatus.ok,
@@ -207,7 +233,6 @@ export const buyNowProduct = async (req: Request, res: Response) => {
       "Mua ngay sản phẩm thành công"
     );
     return res.status(respone.code).send(respone);
-
   } catch (error: any) {
     const message =
       error instanceof Error ? error.message : "Internal Server Error";

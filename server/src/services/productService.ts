@@ -235,6 +235,14 @@ export const buyNowProuct = async (bidderId: string,data: buyNowProuctDto) => {
             createdAt: new Date(),
             updatedAt: new Date(),
           },
+          include: {
+            product: {
+              include: {
+                seller: true,
+              }
+            },
+            buyer: true,
+          }
         });
 
         await tx.products.update({

@@ -17,3 +17,25 @@ Content-Type: application/json
 
 ### Lấy sản phẩm của seller
 GET http://localhost:4000/product/categories=c0000002-0002-4000-a000-000000000001
+
+### Mua ngay sản phẩm
+POST http://localhost:4000/product/9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb06/buy-now
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci0yIiwiZW1haWwiOiJiaWRkZXIyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0NDk0MTE3LCJleHAiOjE3NjcwODYxMTd9.0z6RPT4rKJl1Il0HR72caQhvmr2SplAdpn7YHwirCLw
+Content-Type: application/json
+
+{
+    "phoneNumber": "0987654321",
+    "shippingAddress": "123 Đường ABC, Quận 1, TP.HCM"
+}
+
+
+
+### Mua ngay sản phẩm
+POST http://localhost:4000/product/9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb08/buy-now
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci0yIiwiZW1haWwiOiJiaWRkZXIyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0NDk0MTE3LCJleHAiOjE3NjcwODYxMTd9.0z6RPT4rKJl1Il0HR72caQhvmr2SplAdpn7YHwirCLw
+Content-Type: application/json
+
+{
+    "phoneNumber": "0987654321",
+    "shippingAddress": "KHTN Nguyễn Văn Cừ, Quận 1, TP.HCM"
+}

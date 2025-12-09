@@ -312,6 +312,11 @@ export const API_PRODUCT_ROUTES = {
     role: [Role.SELLER, Role.ADMIN],
     method: 'DELETE',
   },
+  buyNowProduct: {
+    path: '/product/:id/buy-now',
+    role: [Role.BIDDER],
+    method: 'POST',
+  },
 };
 
 export const API_CATEGORY_ROUTES = {

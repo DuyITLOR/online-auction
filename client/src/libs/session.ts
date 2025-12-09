@@ -1,5 +1,5 @@
-import { jwtVerify, SignJWT } from "jose";
-import Cookies from "js-cookie";
+import { jwtVerify, SignJWT } from 'jose';
+import Cookies from 'js-cookie';
 
 const secretKet = import.meta.env.VITE_SESSION_SECRET_KEY;
 const encoding = new TextEncoder().encode(secretKet);
@@ -17,34 +17,34 @@ export type Session = {
 
 export async function createSession(payload: Session) {
   const session = await new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
+    .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime("2h")
+    .setExpirationTime('2h')
     .sign(encoding);
 
-  Cookies.set("session-action", session, {
-    sameSite: "lax",
-    path: "/",
+  Cookies.set('session-act', session, {
+    sameSite: 'lax',
+    path: '/',
   });
 }
 
 export async function getSession() {
-  const session = Cookies.get("session-action");
+  const session = Cookies.get('session-act');
 
   // console.log('session in session', session);
   if (!session) return null;
 
   try {
     const { payload } = await jwtVerify(session, encoding, {
-      algorithms: ["HS256"],
+      algorithms: ['HS256'],
     });
     return payload;
   } catch (error) {
-    console.error("Invalid session token", error);
+    console.error('Invalid session token', error);
     return null;
   }
 }
 
 export function clearSession() {
-  Cookies.remove('session-action', { path: '/' });
+  Cookies.remove('session-act', { path: '/' });
 }

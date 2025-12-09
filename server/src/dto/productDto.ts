@@ -30,7 +30,6 @@ export interface updateProductDto {
   autoExtendEnabled?: boolean;
   autoExtendMinutes?: number;
   highRatingRequired?: boolean;
-
   images?: productImageDto[];
 }
 
@@ -41,4 +40,11 @@ export interface productQueryDto {
   limit?: string;
   sort?: string; // "price_asc", "price_desc", "createdAt_asc", "createdAt_desc"
   sellerId?: string;
+}
+
+export interface buyNowProuctDto {
+  productId: string;
+  buyerId: string;
+  phoneNumber: string;
+  shippingAddress: string;
 }

@@ -1,9 +1,15 @@
 import * as productService from "../services/productService";
 import { Request, Response } from "express";
-import { productQueryDto, updateProductDto } from "../dto/productDto";
+import {
+  productQueryDto,
+  updateProductDto,
+  buyNowProuctDto,
+} from "../dto/productDto";
 import { uploadImagesToSupabase } from "../utils/uploadImage";
 import { uploadedImageDto } from "../dto/uploadImageDto";
 import { checkRole } from "../utils/checkRole";
+import { gatewayResponse } from "../utils/response";
+import { HttpStatus } from "../utils/permission";
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
@@ -168,5 +174,44 @@ export const getAllProducts = async (req: Request, res: Response) => {
       success: false,
       message: err?.message ?? "Internal Server Error",
     });
+  }
+};
+
+export const buyNowProduct = async (req: Request, res: Response) => {
+  try {
+    const bidderId = req.user!.id;
+    const productId = req.params.id;
+    let roles = await checkRole(bidderId);
+
+    if (!roles.includes("BIDDER")) {
+      const respone = gatewayResponse(
+        HttpStatus.forbidden,
+        null,
+        "Người ra giá phải là BIDDER"
+      );
+
+      return res.status(respone.code).send(respone);
+    }
+    const data: buyNowProuctDto = req.body;
+    data.productId = productId;
+
+    if (!data.phoneNumber || !data.shippingAddress)
+    {
+        throw new Error("Dữ liệu không hợp lệ");
+    }
+    const response = await productService.buyNowProuct(bidderId, data);
+
+    const respone = gatewayResponse(
+      HttpStatus.ok,
+      response,
+      "Mua ngay sản phẩm thành công"
+    );
+    return res.status(respone.code).send(respone);
+
+  } catch (error: any) {
+    const message =
+      error instanceof Error ? error.message : "Internal Server Error";
+    const response = gatewayResponse(HttpStatus.badRequest, null, message);
+    return res.status(response.code).send(response);
   }
 };

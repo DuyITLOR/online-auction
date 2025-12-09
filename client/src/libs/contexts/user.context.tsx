@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useEffect, useState, type ReactNode } from 'react';
 import type { User } from '../types/types';
@@ -31,6 +32,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       const session = await getSession();
       const curToken = typeof session?.token === 'string' ? session.token : '';
+      console.log('cur', curToken);
 
       await fetchUserInfor(curToken);
     } catch (err) {

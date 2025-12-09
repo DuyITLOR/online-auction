@@ -11,7 +11,7 @@ import { UserContext } from '../libs/contexts/user.context';
 
 const Header = () => {
   const [session, setSession] = useState<any>(null);
-  const { user } = useContext(UserContext);
+  const { user, refresh } = useContext(UserContext);
   console.log(user);
   const [searchValue, setSearchValue] = useState('');
 
@@ -32,12 +32,21 @@ const Header = () => {
   };
 
   useEffect(() => {
-    async function fetchSession() {
-      const sess = await getSession();
-      setSession(sess);
-    }
-    fetchSession();
+    const getToken = async () => {
+      const sessionValue = await getSession();
+      if (sessionValue != null) {
+        setSession(sessionValue);
+      } else {
+        setSession(null);
+      }
+    };
+
+    getToken();
   }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [session]);
 
   const onSignOut = () => {
     clearSession();

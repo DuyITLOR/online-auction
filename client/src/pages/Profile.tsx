@@ -34,41 +34,14 @@ import {
 import { useContext, useEffect, useRef, useState } from 'react';
 import { clearSession, getSession } from '../libs/session';
 import { requestToUpgrade, updateUser } from '../api/user';
-import { type Ratings, type WatchList } from '../libs/types/types';
-import { useNavigate } from 'react-router-dom';
+import { type AutoBids, type Ratings, type WatchList } from '../libs/types/types';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getAllWatchList } from '../api/watchlist';
 import { UserContext } from '../libs/contexts/user.context';
 import { getAllRatees, getAllRaters, updateRating } from '../api/rating';
 import { isoToYYYYMMDD } from '../libs/utils';
-
-const activityData = [
-  {
-    name: 'iPhone 15 Pro Max',
-    price: 25000000,
-    date: '2025-01-12',
-  },
-  {
-    name: 'Samsung Galaxy S24 Ultra',
-    price: 23000000,
-    date: '2025-01-10',
-  },
-  {
-    name: 'MacBook Pro 14-inch M3',
-    price: 45000000,
-    date: '2025-01-09',
-  },
-  {
-    name: 'Sony WH-1000XM5 Headphones',
-    price: 8500000,
-    date: '2025-01-08',
-  },
-  {
-    name: 'Apple Watch Series 9',
-    price: 11000000,
-    date: '2025-01-05',
-  },
-];
+import { getActivitiesOfUser } from '../api/historyBid';
 
 const convertDay = (date: string) => {
   const now = new Date();
@@ -177,6 +150,7 @@ const Profile = () => {
   const [watchList, setWatchList] = useState<WatchList[]>([]);
   const [raters, setRaters] = useState<Ratings[]>([]);
   const [ratees, setRatees] = useState<Ratings[]>([]);
+  const [activities, setActivities] = useState<AutoBids[]>([]);
 
   const [upgradeReason, setUpgradeReason] = useState('');
   const [previewAvatar, setPreviewAvatar] = useState<string | undefined>(undefined);
@@ -217,6 +191,11 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
+    const fetchActivities = async () => {
+      const data = await getActivitiesOfUser({ token: session.token });
+      console.log(data);
+      setActivities(data.data);
+    };
     const fetchWatchList = async () => {
       const data = await getAllWatchList({ token: session.token });
       setWatchList(data);
@@ -232,6 +211,7 @@ const Profile = () => {
       setRatees(data.ratings);
     };
 
+    fetchActivities();
     fetchWatchList();
     fetchRaters();
     fetchRatees();
@@ -302,7 +282,7 @@ const Profile = () => {
   return (
     <>
       <Header />
-      <div className='mx-18 mt-5'>
+      <div className='mx-18 mt-5 mb-5'>
         <div className='border border-gray-200 h-[150px] rounded-xl flex items-center justify-between px-10'>
           <div className='flex items-center gap-5'>
             <Avatar className='w-24 h-24'>
@@ -525,28 +505,28 @@ const Profile = () => {
         <Tabs className='w-full' defaultValue='activity'>
           <TabsList className='grid w-full grid-cols-4'>
             <TabsTrigger
-              className='data-[state=active]:bg-gray-300 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
+              className='data-[state=active]:bg-teal-500 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
               value='activity'
             >
               Hoạt động
             </TabsTrigger>
             <TabsTrigger
-              className='data-[state=active]:bg-gray-300 data-[state=active]:py-1 data-[state=active]:rounded-md '
+              className='data-[state=active]:bg-teal-500 data-[state=active]:py-1 data-[state=active]:rounded-md '
               value='wishlist'
             >
-              Yêu thích (3){' '}
+              Yêu thích
             </TabsTrigger>
             <TabsTrigger
-              className='data-[state=active]:bg-gray-300 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
+              className='data-[state=active]:bg-teal-500 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
               value='review'
             >
-              Đánh giá (4){' '}
+              Đánh giá
             </TabsTrigger>
             <TabsTrigger
-              className='data-[state=active]:bg-gray-300 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
+              className='data-[state=active]:bg-teal-500 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
               value='my-review'
             >
-              Đã đánh giá (5){' '}
+              Đã đánh giá
             </TabsTrigger>
           </TabsList>
 
@@ -555,17 +535,17 @@ const Profile = () => {
               <p className='text-lg font-bold mb-5'>Hoạt động gần đây</p>
 
               <div className='flex flex-col gap-3'>
-                {activityData.map((a, index) => (
+                {activities.map((a, index) => (
                   <div
                     key={index}
                     className='border border-gray-300 rounded-md px-4 py-4 w-full flex items-center justify-between'
                   >
                     <div className='flex flex-col gap-1'>
-                      <p className='font-bold'>{a.name}</p>
-                      <p className='text-sm text-gray-400'>Đặt giá {a.price.toLocaleString()} VND</p>
+                      <p className='font-bold'>{a.product?.title}</p>
+                      <p className='text-sm text-gray-400'>Đặt giá {a?.amount.toLocaleString()} VND</p>
                     </div>
 
-                    <span className='text-sm'>{a.date}</span>
+                    <span className='text-sm'>{convertISO(a.createdAt)}</span>
                   </div>
                 ))}
               </div>
@@ -577,7 +557,8 @@ const Profile = () => {
               <p className='text-lg font-bold mb-5'>Sản phẩm yêu thích</p>
               <div className='grid grid-cols-4 gap-3'>
                 {watchList.map((item: WatchList) => (
-                  <div
+                  <Link
+                    to={`/product/${item.productId}`}
                     key={`${item.productId}-${item.userId}`}
                     className='flex flex-col gap-2 border border-gray-200 rounded-md px-3 py-2 h-fit w-78 relative cursor-pointer z-0'
                   >
@@ -586,7 +567,7 @@ const Profile = () => {
                       alt={item.product.title}
                       className='w-full h-40 object-cover mb-2'
                     />
-                    <p className='font-semibold text-xl line-clamp-2'>{item.product.title}</p>
+                    <p className='font-semibold text-xl line-clamp-2 min-h-15'>{item.product.title}</p>
 
                     <span className='font-semibold text-2xl'>
                       {Number(item.product.currentPrice).toLocaleString()} VND
@@ -606,7 +587,7 @@ const Profile = () => {
 
                     <div className='flex items-center justify-between text-sm'>
                       <span>Người bán: </span>
-                      <span>{item.user?.fullname}</span>
+                      <span>{item?.product?.seller?.fullname}</span>
                     </div>
 
                     <Heart
@@ -618,7 +599,7 @@ const Profile = () => {
                     <div className='w-20 h-7 text-sm bg-gray-800 text-white absolute left-1 top-1 px-2 py-1 rounded-md'>
                       {convertDay(item.product.endAt)} Ngày
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>

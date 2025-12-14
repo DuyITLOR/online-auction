@@ -1,3 +1,4 @@
+// libs/contexts/productTab.context.tsx
 import React, {
   createContext,
   useContext,
@@ -17,6 +18,7 @@ interface Product {
   category: { name: string };
   currentPrice: number;
   endAt: string;
+  countbids: number;
 }
 
 interface Category {
@@ -24,11 +26,15 @@ interface Category {
   name: string;
 }
 
-// Cấu trúc dữ liệu lưu trong Cache cho mỗi trang
 interface CacheData {
   products: Product[];
   totalProducts: number;
   totalPage: number;
+}
+
+interface DeleteResult {
+  success: boolean;
+  message: string;
 }
 
 interface ProductContextType {
@@ -41,115 +47,102 @@ interface ProductContextType {
   totalProducts: number;
   setFilter: (filter: string) => void;
   setPage: (page: number) => void;
-  deleteProduct: (id: string) => Promise<void>;
+  deleteProduct: (id: string) => Promise<DeleteResult>;
   refreshProducts: () => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
-const session = await getSession();
 
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  // --- State Hiển thị ---
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // --- Pagination & Filter ---
   const [filter, setFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
 
-  // --- CACHE STATE (Lưu trữ các trang đã tải) ---
-  // Key sẽ là dạng: "categoryId-pageNumber" (ví dụ: "all-1", "dientu-2")
-  const [cache, setCache] = useState<Record<string, CacheData>>({});
+  const [session, setSession] = useState<{ token: string } | null>(null);
 
   const limit = 5;
 
-  // 1. Lấy danh mục (Chạy 1 lần)
+  // CACHE
+  const [cache, setCache] = useState<Record<string, CacheData>>({});
+
+  async function initializeSession() {
+    const sess = await getSession();
+    setSession(sess);
+  }
+
+  // Fetch Categories
   const fetchCategories = async () => {
     try {
       const res = await fetch("http://localhost:4000/categories");
-      const jsonData = await res.json();
-      setCategories(jsonData.data);
-    } catch (error) {
-      console.error("Lỗi lấy danh mục:", error);
+      const json = await res.json();
+      setCategories(json.data || []);
+    } catch (err) {
+      console.error("Fetch categories failed:", err);
     }
   };
 
-  // 2. Lấy sản phẩm (Có Caching)
+  // Fetch Products (Có cache)
   const fetchProducts = useCallback(async () => {
-    // Tạo cache Key duy nhất cho trang thái hiện tại
     const cacheKey = `${filter}-${page}`;
 
-    // A. KIỂM TRA CACHE
     if (cache[cacheKey]) {
-      // Nếu đã có dữ liệu trong kho, lôi ra dùng ngay lập tức
-      const cachedData = cache[cacheKey];
-      setProducts(cachedData.products);
-      setTotalProducts(cachedData.totalProducts);
-      setTotalPage(cachedData.totalPage);
-      setIsLoading(false); // Đảm bảo tắt loading
-      console.log(`Loaded from cache: ${cacheKey}`);
-      return; // Dừng lại, không gọi API nữa
+      const c = cache[cacheKey];
+      setProducts(c.products);
+      setTotalProducts(c.totalProducts);
+      setTotalPage(c.totalPage);
+      setIsLoading(false);
+      return;
     }
 
-    // B. NẾU KHÔNG CÓ CACHE -> GỌI API
     try {
       setIsLoading(true);
-      const params = new URLSearchParams({
+
+      const query = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
       });
 
-      if (filter !== "all") {
-        params.append("categoryId", filter);
-      }
+      if (filter !== "all") query.append("categoryId", filter);
 
       const res = await fetch(
-        `http://localhost:4000/product?${params.toString()}`
+        `http://localhost:4000/product?${query.toString()}`
       );
-      const subRes = await res.json();
+      const json = await res.json();
 
-      if (subRes.success || subRes.data) {
-        const newData = subRes.data.data || [];
-        const newTotal = subRes.data.total || 0;
-        const newTotalPages = subRes.data.totalPages || 1;
+      const list = json.data?.data ?? [];
+      const total = json.data?.total ?? 0;
+      const totalPages = json.data?.totalPages ?? 1;
 
-        // Cập nhật State hiển thị
-        setProducts(newData);
-        setTotalProducts(newTotal);
-        setTotalPage(newTotalPages);
+      setProducts(list);
+      setTotalProducts(total);
+      setTotalPage(totalPages);
 
-        // LƯU VÀO CACHE
-        setCache((prevCache) => ({
-          ...prevCache,
-          [cacheKey]: {
-            products: newData,
-            totalProducts: newTotal,
-            totalPage: newTotalPages,
-          },
-        }));
-      }
-    } catch (error) {
-      console.error("Lỗi lấy sản phẩm:", error);
+      setCache((prev) => ({
+        ...prev,
+        [cacheKey]: {
+          products: list,
+          totalProducts: total,
+          totalPage: totalPages,
+        },
+      }));
+    } catch (err) {
+      console.error("Fetch products failed:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [page, filter, cache]); // Thêm cache vào dependency để check
+  }, [filter, page, cache]);
 
-  // 3. Xử lý Xóa (Cần làm sạch Cache để tránh dữ liệu cũ)
-  const deleteProduct = async (productId: string) => {
-    // Optimistic UI: Xóa trên giao diện ngay
-    const oldProducts = [...products];
-    setProducts((prev) => prev.filter((p) => p.id !== productId));
-    setTotalProducts((prev) => prev - 1);
-
+  // Delete Product (KHÔNG xoá UI trước → tránh mất dialog)
+  const deleteProduct = async (productId: string): Promise<DeleteResult> => {
     try {
-      console.log("getSession in deleteProduct:", getSession());
-      await fetch(`http://localhost:4000/product/${productId}`, {
+      const res = await fetch(`http://localhost:4000/product/${productId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -157,26 +150,30 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
         },
       });
 
-      // QUAN TRỌNG: Khi dữ liệu thay đổi (xóa/sửa/thêm), Cache cũ không còn đúng nữa.
-      // Cách đơn giản nhất: Xóa toàn bộ Cache để ép tải lại dữ liệu mới nhất khi chuyển trang.
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        return { success: false, message: data?.message || "Xóa thất bại" };
+      }
+
+      // Clear cache để lần fetch kế tiếp lấy data mới
       setCache({});
 
-      // Hoặc cách phức tạp hơn: Tìm trong cache và xóa item đó (nhưng sẽ khó xử lý số totalPage)
-    } catch (error) {
-      console.error("Delete failed:", error);
-      // Hoàn tác nếu lỗi
-      setProducts(oldProducts);
-      setTotalProducts((prev) => prev + 1);
+      // Không fetch ngay → tránh dialog biến mất (Tab sẽ fetch sau)
+      return { success: true, message: data.message || "Đã xoá thành công" };
+    } catch (err) {
+      console.error("Delete error:", err);
+      return { success: false, message: "Lỗi kết nối server" };
     }
   };
 
-  // Hàm force reload (dùng khi muốn nút refresh thủ công)
   const refreshProducts = () => {
-    setCache({}); // Xóa cache
-    fetchProducts(); // Gọi lại
+    setCache({});
+    fetchProducts();
   };
 
   useEffect(() => {
+    initializeSession();
     fetchCategories();
   }, []);
 
@@ -206,9 +203,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
 };
 
 export const useProducts = () => {
-  const context = useContext(ProductContext);
-  if (!context) {
-    throw new Error("useProducts must be used within a ProductProvider");
-  }
-  return context;
+  const ctx = useContext(ProductContext);
+  if (!ctx) throw new Error("useProducts must be used inside ProductProvider");
+  return ctx;
 };

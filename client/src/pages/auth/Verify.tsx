@@ -10,11 +10,17 @@ const Verify = () => {
     <div className='min-h-screen flex items-center'>
       <form action={action} className='w-[450px] mx-auto'>
         <div className='flex items-center justify-center gap-2'>
-          <img src='/vite.svg' width={50} height={50} />
-          <p className='font-bold text-4xl text-teal-600'>Ebay</p>
+          <img
+            src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rockylinux/rockylinux-original.svg'
+            width={50}
+            height={50}
+          />
+          <p className='font-bold text-4xl text-black'>
+            Snap<span className='text-teal-600'>Bid</span>
+          </p>
         </div>
 
-        <div className='font-semibold mt-3 text-teal-700 text-center'>Đăng ký tài khoản gia nhập cùng Ebay</div>
+        <div className='font-semibold mt-3 text-teal-700 text-center'>Đăng ký tài khoản gia nhập cùng SnapBid</div>
 
         <div className='flex flex-col gap-6 bg-slate-200 shadow-md rounded-md mt-7 py-7 px-5'>
           <div className='flex flex-col space-y-2'>
@@ -72,14 +78,14 @@ const Verify = () => {
           <Button className='bg-teal-600 text-white font-bold mt-2 hover:opacity-80'>Đăng ký</Button>
 
           <div className='flex items-center gap-1 justify-center'>
-            <p className='font-semibold text-sm'>Bạn đã có tài khoản Ebay rồi? </p>
+            <p className='font-semibold text-sm'>Bạn đã có tài khoản SnapBid rồi? </p>
             <a href='/auth/signin' className='font-extrabold text-sm text-teal-700'>
               Đăng nhập
             </a>
           </div>
         </div>
 
-        <p className='text-center text-sm mt-7 font-semibold text-teal-700'>Tiếp tục mua sắp cũng Ebay</p>
+        <p className='text-center text-sm mt-7 font-semibold text-teal-700'>Tiếp tục mua sắp cũng SnapBid</p>
       </form>
     </div>
   );

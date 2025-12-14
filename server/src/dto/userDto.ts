@@ -1,11 +1,12 @@
-export interface updateUserDto {
-  fullname?: string;
-  avtUrl?: string;
-}
-
 export interface requestUpgradeDto {
   id: string;
   note: string;
+}
+
+export interface updateUserDto {
+  fullname?: string;
+  dateOfBirth?: string;
+  avtUrl?: string;
 }
 
 export interface blockUserDto {
@@ -40,6 +41,17 @@ export interface answerBidderReturnDto {
   bidderEmail: string;
   productName: string;
   answer: string;
+}
+
+export interface deleteCommentDto {
+  userId: string;
+  commentId: string;
+}
+
+export interface getALlCommentsDto {
+  productId: string;
+  page: number;
+  limit: number;
 }
 
 export interface returnErrorDto {

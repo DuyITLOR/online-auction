@@ -17,6 +17,7 @@ model User {
   ratingNeg       Int
   ratingPos       Int
   role            Role
+  dateOfBirth     DateTime?
   avtUrl          String
   autoBids        AutoBids[]
   bidHistory      BidHistory[]
@@ -24,7 +25,6 @@ model User {
   chat            Chat[]
   comments        Comments[]
   ordersAsBuyer   Orders[]          @relation("OrdersBuyer")
-  ordersAsSeller  Orders[]          @relation("OrdersSeller")
   products        Products[]        @relation("SellerProducts")
   productWinner   Products[]        @relation("ProductWinner")
   ratingsReceived Ratings[]         @relation("RatingsReceived")
@@ -51,6 +51,7 @@ model Products {
   highRatingRequired Boolean          @default(false)
   winnerId           String?
   countbids          Int              @default(0)
+  status             ProductStatus    @default(ACTIVE)
   autoBids           AutoBids[]
   bidHistory         BidHistory[]
   blockedBidders     BlockedBidders[]
@@ -104,7 +105,7 @@ model Comments {
   parentId  String?
   content   String
   sendAt    DateTime   @default(now())
-  parent    Comments?  @relation("CommentThread", fields: [parentId], references: [id])
+  parent    Comments?  @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
   replies   Comments[] @relation("CommentThread")
   product   Products   @relation(fields: [productId], references: [id], onDelete: Cascade)
   sender    User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
@@ -189,10 +190,12 @@ model Ratings {
 model Orders {
   id                 String      @id @default(uuid())
   productId          String      @unique
-  sellerId           String
   buyerId            String
-  phoneNumber        Int
-  status             OrderStatus
+  phoneNumber        String
+  totalAmount        Decimal     @db.Decimal(15, 2) 
+  status             OrderStatus @default(UNPAID)
+  paymentStatus      PaymentStatus @default(UNPAID)
+  paymentDueAt       DateTime?
   shippingAddress    String
   paymentInvoiceUrl  String?
   shippingInvoiceUrl String?
@@ -201,7 +204,6 @@ model Orders {
   updatedAt          DateTime    @updatedAt
   buyer              User        @relation("OrdersBuyer", fields: [buyerId], references: [id])
   product            Products    @relation(fields: [productId], references: [id])
-  seller             User        @relation("OrdersSeller", fields: [sellerId], references: [id])
 }
 
 enum Role {
@@ -228,3 +230,27 @@ enum upgradeStatus {
   EXPIRED
   VALID
 }
+
+
+enum ProductStatus {
+  // Đang trong đấu giá
+  ACTIVE
+  // Sản phẩm đã có người đấu giá thành công
+  SOLD
+  // Seller hủy thanh toán
+  CANCELLED
+  // Hết hạn mà chưa có ai trả giá
+  EXPIRED
+}
+
+enum PaymentStatus {
+  // chưa thanh toán
+  UNPAID
+  // Đang chờ thanh toán
+  PENDING
+  // Đã thanh toán
+  PAID
+  // Thanh toán thất bại khi vượt qua số giờ quy định
+  FAILED
+}
+

@@ -15,7 +15,7 @@ POST http://localhost:4000/sign-up
 Content-Type: application/json
 
 {
-	"email": "truongthanhdat0305@gmail.com"
+	"email": "group2hcmus@gmail.com"
 }
 
 ###
@@ -23,10 +23,11 @@ POST http://localhost:4000/verify-email
 Content-Type: application/json
 
 {
-	"email": "lenhutduydepzai@gmail.com",
-	"fullname": "Truong Thanh Dat",
+	"email": "group2hcmus@gmail.com",
+	"fullname": "Snap bid",
 	"password": "123",
-	"code": "BZCB84"
+	"code": "K3AYAL",
+	"dateOfBirth": "2025-09-01"
 }
 
 ###

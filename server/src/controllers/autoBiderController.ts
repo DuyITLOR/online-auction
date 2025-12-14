@@ -3,6 +3,7 @@ import * as autoBidService from "../services/autoBidService";
 import { gatewayResponse } from "../utils/response";
 import { HttpStatus } from "../utils/permission";
 import { checkRole } from "../utils/checkRole";
+import { bidHistoryQueryDto } from "../dto/autoBidDto";
 
 export const createAutoBid = async (req: Request, res: Response) => {
   try {
@@ -147,6 +148,48 @@ export const getMaxBidByUser = async (req: Request, res: Response) => {
     );
 
     return res.status(response.code).send(response);
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Internal Server Error";
+    const response = gatewayResponse(HttpStatus.badRequest, null, message);
+    return res.status(response.code).send(response);
+  }
+}
+
+export const getBidHistoryByUserId = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    
+    let roles = await checkRole(userId!); 
+    if (!roles.includes("BIDDER")) {
+      const response = gatewayResponse(
+        HttpStatus.forbidden,
+        null,
+        "Forbidden: User is not a bidder"
+      );
+      
+      return res.status(response.code).send(response);
+    }
+    
+    const queryParams = req.query as bidHistoryQueryDto;
+    const data = await autoBidService.getBidHistoryByUserId(userId!, queryParams);
+
+    if (!data) {
+      const response = gatewayResponse(
+        HttpStatus.notFound,
+        null,
+        "No bid history found"
+      );
+      return res.status(response.code).send(response);
+    }
+
+    const response = gatewayResponse(
+      HttpStatus.ok,
+      data,
+      "Bid history retrieved successfully"
+    );
+    return res.status(response.code).send(response);
+
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : "Internal Server Error";

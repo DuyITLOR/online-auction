@@ -9,6 +9,11 @@ import {
   loadAnswerTemplate,
   sendEmail,
 } from '../utils/sendEmail';
+import {
+  deleteCommentDto,
+  getALlCommentsDto,
+  updateUserDto,
+} from '../dto/userDto';
 
 export const getUserById = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -49,10 +54,13 @@ export const updateUser = async (req: Request, res: Response) => {
   const avt = await uploadSingleFile(req, 'avatar');
   const avtUrl = avt.fileUrl;
   const fullname = req.body.fullname;
-  const record = await service.updateUser(req.user.id, {
-    fullname,
-    avtUrl,
-  });
+  const dateOfBirth = req.body.dateOfBirth;
+  const data = {
+    fullname: fullname,
+    dateOfBirth: dateOfBirth,
+    avt: avtUrl,
+  } as updateUserDto;
+  const record = await service.updateUser(req.user.id, data);
   if (record.success) {
     const response = gatewayResponse(
       200,
@@ -234,7 +242,7 @@ export const askSeller = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      'Bạn cung cấp thiếu id cho product hoặc thiếu nội dung câu hỏi'
+      'Bạn cung cấp thiếu id cho sản phẩm hoặc thiếu nội dung câu hỏi'
     );
     res.status(response.code).send(response);
     return;
@@ -298,7 +306,7 @@ export const answerBidder = async (req: Request, res: Response) => {
   const id = req.user.id;
   // Check role
   const roles = await checkRole(id);
-  if (!roles.includes('SELLER')) {
+  if (!roles.includes('BIDDER')) {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
@@ -344,7 +352,7 @@ export const answerBidder = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.accepted,
         null,
-        'Trả lời câu hỏi thành công và đã gửi email đến người mua'
+        'Trả lời câu hỏi thành công và đã gửi email đến người hỏi'
       );
       res.status(response.code).send(response);
     } else {
@@ -370,7 +378,14 @@ export const getAllCommentsByProductId = async (
   res: Response
 ) => {
   const productId = req.params.productId;
-  const record = await service.getAllCommentsByProductId(productId);
+  const page = Number(req.params.page) || 1;
+  const limit = Number(req.params.limit) || 100;
+  const data = {
+    productId: productId,
+    page: page,
+    limit: limit,
+  } as getALlCommentsDto;
+  const record = await service.getAllCommentsByProductId(data);
   if (record.success) {
     const response = gatewayResponse(
       HttpStatus.ok,
@@ -387,5 +402,44 @@ export const getAllCommentsByProductId = async (
       record.message
     );
     res.status(response.code).send(response);
+  }
+};
+
+export const deleteComment = async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.params.commentId) {
+      const response = gatewayResponse(
+        HttpStatus.badRequest,
+        null,
+        'Nhập đầy đủ thông tin yêu cầu'
+      );
+      return res.status(response.code).send(response);
+    }
+
+    const data = {
+      userId: req.user.id,
+      commentId: req.params.commentId,
+    } as deleteCommentDto;
+
+    const record = await service.deleteComment(data);
+    const response = gatewayResponse(HttpStatus.ok, record, `Xóa thành công`);
+    res.status(response.code).send(response);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.log('From user controller: ', err.message);
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        err.message
+      );
+      res.status(response.code).send(response);
+    } else {
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        'Lỗi từ server'
+      );
+      res.status(response.code).send(response);
+    }
   }
 };

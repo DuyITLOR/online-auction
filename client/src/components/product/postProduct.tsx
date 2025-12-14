@@ -16,6 +16,9 @@ const PostProduct = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [allowedExtend, setAllowedExtend] = useState(false);
+  const [extendMinutes, setExtendMinutes] = useState(5);
+  const [highRatingRequire, setHighRatingRequire] = useState(false);
 
   const [parentCategoryId, setParentCategoryId] = useState('');
 
@@ -72,8 +75,6 @@ const PostProduct = () => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
       setImages((prev) => [...prev, ...filesArray]);
-
-      // Tạo URL preview cho ảnh
       const newPreviewUrls = filesArray.map((file) => URL.createObjectURL(file));
       setPreviewUrls((prev) => [...prev, ...newPreviewUrls]);
     }
@@ -96,6 +97,8 @@ const PostProduct = () => {
       endTime: '',
     });
 
+    setAllowedExtend(false);
+    setHighRatingRequire(false);
     setImages([]);
     setPreviewUrls([]);
 
@@ -162,6 +165,9 @@ const PostProduct = () => {
         buyNowPrice: Number(formData.buyNowPrice),
         startedAt: new Date(formData.startTime).toISOString(),
         endAt: new Date(formData.endTime).toISOString(),
+        allowedExtend: allowedExtend,
+        extendMinutes: extendMinutes,
+        highRatingRequired: highRatingRequire,
         images: images,
       };
 
@@ -385,6 +391,39 @@ const PostProduct = () => {
                     <Calendar className='w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2' />
                   </div>
                 </div>
+
+                <label className='flex items-center gap-2'>
+                  <input
+                    onClick={() => setAllowedExtend(!allowedExtend)}
+                    checked={allowedExtend}
+                    type='checkbox'
+                    className='w-4 h-4 accent-teal-600'
+                  />
+                  <span className='text-sm'>Cho phép tự động gia hạn</span>
+                </label>
+
+                {allowedExtend && (
+                  <label className='flex items-center gap-2'>
+                    <span className='text-sm'>Số phút gia hạn là </span>
+                    <input
+                      onChange={(e) => setExtendMinutes(Number(e.target.value))}
+                      defaultValue={5}
+                      type='number'
+                      className='number w-12 px-2 border text-sm py-1 border-gray-300 rounded-md hover:border-gray-500'
+                    />
+                    <span className='text-sm'>phút</span>
+                  </label>
+                )}
+
+                <label className='flex items-center gap-2'>
+                  <input
+                    onClick={() => setHighRatingRequire(!highRatingRequire)}
+                    checked={highRatingRequire}
+                    type='checkbox'
+                    className='w-4 h-4 accent-teal-600'
+                  />
+                  <span className='text-sm'>Yêu cầu điểm uy tín lớn hơn 80%</span>
+                </label>
               </div>
             </div>
 

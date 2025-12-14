@@ -7,7 +7,7 @@ import ProductDescription from './description';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tab';
 import Review from './review';
 
-import type { BidHistory, Product, ProductImage, WatchList } from '../../libs/types/types';
+import type { BidHistory, Product, ProductImage, User, WatchList } from '../../libs/types/types';
 import { useContext, useEffect, useState } from 'react';
 import {
   DialogFooter,
@@ -28,6 +28,7 @@ interface ProductProp {
   historyBid: BidHistory[];
   token: string;
   onRefresh: () => void;
+  user: User;
 }
 
 const maskName = (fullname: string | undefined) => {
@@ -75,15 +76,15 @@ const formatTimeLeft = (date: string) => {
   if (diffDays > 3) {
     return `Kết thúc: ${end.getDate()}/${end.getMonth() + 1}/${end.getFullYear()}`;
   } else if (diffDays >= 1) {
-    return `${Math.ceil(diffDays)} ngày`;
+    return `Thời gian còn lại: ${Math.ceil(diffDays)} ngày`;
   } else if (diffHours >= 1) {
-    return `${Math.ceil(diffHours)} giờ`;
+    return `Thời gian còn lại: ${Math.ceil(diffHours)} giờ`;
   } else {
-    return `${Math.ceil(diffMinutes)} phút`;
+    return `Thời gian còn lại: ${Math.ceil(diffMinutes)} phút`;
   }
 };
 
-const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
+const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) => {
   const minBidPrice = Number(product?.currentPrice) + Number(product?.stepPrice);
   const [image, setImage] = useState<string>(() => product?.images?.[0]?.url ?? '');
   const [price, setPrice] = useState(minBidPrice);
@@ -272,9 +273,9 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
               <span className='text-xl font-bold'>{Number(product?.currentPrice).toLocaleString()} VND</span>
             </div>
 
-            <p className='text-gray-700'>Lượt ra giá: 10</p>
+            <p className='text-gray-700'>Lượt ra giá: {product?.countbids}</p>
 
-            <p className='text-gray-700'>Thời gian còn lại: {formatTimeLeft(product?.endAt)} </p>
+            <p className='text-gray-700'> {formatTimeLeft(product?.endAt)} </p>
           </div>
 
           <div className='border-spacing-0.5 border-t border-gray-200 mt-5 mb-6 w-full' />
@@ -522,7 +523,7 @@ const Detail = ({ product, historyBid, token, onRefresh }: ProductProp) => {
         </TabsList>
 
         <TabsContent value='description'>
-          {product ? <ProductDescription product={product} currentUser={product?.seller} /> : null}
+          {product ? <ProductDescription product={product} currentUser={user} token={token}/> : null}
         </TabsContent>
       </Tabs>
 

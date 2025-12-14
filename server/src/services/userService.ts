@@ -7,7 +7,9 @@ import {
   answerBidderDto,
   answerBidderReturnDto,
   returnErrorDto,
+  getALlCommentsDto,
 } from '../dto/userDto';
+import { deleteCommentDto } from '../dto/userDto';
 
 export const getUserById = async (id: string) => {
   try {
@@ -39,10 +41,11 @@ export const getUserById = async (id: string) => {
 
 export const updateUser = async (id: string, Data: updateUserDto) => {
   try {
-    const { fullname, avtUrl } = Data;
+    const { fullname, avtUrl, dateOfBirth } = Data;
     const data = {
       ...(fullname !== undefined && { fullname }),
       ...(avtUrl !== undefined && { avtUrl }),
+      ...(dateOfBirth !== undefined && { dateOfBirth: new Date(dateOfBirth) }),
     };
 
     const updated = await prisma.user.update({
@@ -312,17 +315,34 @@ export const answerBidder = async (
   }
 };
 
-export const getAllCommentsByProductId = async (productId: string) => {
+export const getAllCommentsByProductId = async (data: getALlCommentsDto) => {
   try {
+    const skip = (data.page - 1) * data.limit;
     const comments = await prisma.comments.findMany({
       where: {
-        productId,
+        productId: data.productId,
+      },
+      skip,
+      take: data.limit,
+      orderBy: {
+        sendAt: 'desc',
+      },
+      include: {
+        sender: true,
+        replies: {
+          orderBy: {
+            sendAt: 'desc',
+          },
+          include: {
+            sender: true,
+          },
+        },
       },
     });
     return {
       success: true,
       data: comments,
-      message: 'Get comments successfully',
+      message: 'Truy cập bình luận thành công',
     };
   } catch (err) {
     if (err instanceof Error) {
@@ -337,4 +357,21 @@ export const getAllCommentsByProductId = async (productId: string) => {
       message: 'Unknown error',
     };
   }
+};
+
+export const deleteComment = async (data: deleteCommentDto) => {
+  const check = await prisma.comments.findFirst({
+    where: {
+      id: data.commentId,
+      senderId: data.userId,
+    },
+  });
+  if (check === null) {
+    throw new Error('Bạn không đủ thẩm quyền để xóa bình luận này');
+  }
+  return await prisma.comments.delete({
+    where: {
+      id: data.commentId,
+    },
+  });
 };

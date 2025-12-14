@@ -28,4 +28,10 @@ router.get(
   autoBidController.getMaxBidByUser
 )
 
+router.get(
+  API_AUTO_BID_ROUTES.getBidHistoryByUserId.path,
+  authMiddleware,
+  autoBidController.getBidHistoryByUserId
+)
+
 export default router;

@@ -1,8 +1,10 @@
-import { useContext } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ProductContext } from '../libs/contexts/product.context';
 import { Heart } from 'lucide-react';
 import type { WatchList } from '../libs/types/types';
+import { getSession } from '../libs/session';
 
 const formatTimeLeft = (date: string) => {
   const now = new Date();
@@ -27,10 +29,30 @@ const formatTimeLeft = (date: string) => {
 };
 
 const DisplayProduct = () => {
-  const { endingSoonProducts, highestPriceProducts, watchList, toggleWatchList, loading } = useContext(ProductContext);
+  const [session, setSession] = useState<any>(null);
+  const { endingSoonProducts, highestPriceProducts, watchList, toggleWatchList, loading, refresh } =
+    useContext(ProductContext);
   const isLike = (id: string) => {
     return watchList.some((item) => id === item.productId);
   };
+
+  useEffect(() => {
+    const getToken = async () => {
+      const sessionValue = await getSession();
+      if (sessionValue != null) {
+        setSession(sessionValue);
+      } else {
+        setSession({});
+      }
+    };
+
+    getToken();
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [session]);
+
   return (
     <>
       {loading && (
@@ -50,7 +72,7 @@ const DisplayProduct = () => {
                 className='flex flex-col gap-2 min-w-[250px] max-w-[250px] relative'
               >
                 <img src={item?.product?.images?.[0].url} className='rounded-md w-[250px] h-[250px] object-cover' />
-                <p className='line-clamp-2'>{item.product?.title}</p>
+                <p className='line-clamp-2 min-h-12'>{item.product?.title}</p>
                 <span className='font-semibold text-xl'>{Number(item.product?.currentPrice).toLocaleString()} VND</span>
                 <div
                   className={`font-semibold h-7 absolute text-xs left-1 top-1 bg-white hover:bg-gray-100 px-2 py-1 rounded-full`}
@@ -80,7 +102,7 @@ const DisplayProduct = () => {
                 className='flex flex-col gap-2 max-w-[250px] min-w-[250px] relative'
               >
                 <img src={item?.images?.[0]?.url} className='rounded-md w-[250px] h-[250px] object-cover' />
-                <p className='line-clamp-2'>{item.title}</p>
+                <p className='line-clamp-2 min-h-12'>{item.title}</p>
                 <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
                 <div
                   className={`font-semibold h-7 absolute text-xs left-1 top-1 bg-white hover:bg-gray-100 px-2 py-1 rounded-full`}
@@ -110,7 +132,7 @@ const DisplayProduct = () => {
                 className='flex flex-col gap-2 max-w-[250px] min-w-[250px] relative'
               >
                 <img src={item?.images?.[0]?.url} className='rounded-md w-[250px] h-[250px] object-cover' />
-                <p className='line-clamp-2'>{item.title}</p>
+                <p className='line-clamp-2 min-h-12'>{item.title}</p>
                 <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
                 <div
                   className={`font-semibold h-7 absolute text-xs left-1 top-1 bg-white hover:bg-gray-100 px-2 py-1 rounded-full`}
@@ -140,7 +162,7 @@ const DisplayProduct = () => {
                 className='flex flex-col gap-2 max-w-[250px] min-w-[250px] relative'
               >
                 <img src={item?.images?.[0]?.url} className='rounded-md w-[250px]  h-[250px] object-cover' />
-                <p className='line-clamp-2'>{item.title}</p>
+                <p className='line-clamp-2 min-h-12'>{item.title}</p>
                 <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
                 <div
                   className={`font-semibold h-7 absolute text-xs left-1 top-1 bg-white hover:bg-gray-100 px-2 py-1 rounded-full`}

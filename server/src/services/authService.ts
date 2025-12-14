@@ -2,7 +2,11 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { prisma } from './db/prisma';
-import { emailVerificationDto, profileDto } from '../dto/authenticationDto';
+import {
+  emailVerificationDto,
+  profileDto,
+  verifyDto,
+} from '../dto/authenticationDto';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -39,17 +43,23 @@ export const checkExistEmail = async (email: string) => {
   return user ? true : false;
 };
 
-export const addNewBidder = async (
-  email: string,
-  fullname: string,
-  password: string,
-  avtUrl: string
-) => {
+export const addNewBidder = async (data: verifyDto) => {
   try {
-    const user = await addBidder(email, fullname, password, avtUrl);
+    const user = await prisma.user.create({
+      data: {
+        email: data.email,
+        fullname: data.fullname,
+        password: data.hashed,
+        role: 'BIDDER',
+        avtUrl: data.avtUrl,
+        dateOfBirth: new Date(data.dateOfBirth),
+        ratingNeg: 0,
+        ratingPos: 0,
+      },
+    });
     return {
       success: true,
-      message: user.id,
+      message: 'Tạo tài khoản thành công',
       bidder: user,
     };
   } catch (err) {
@@ -121,7 +131,7 @@ export const verifyCode = async (code: string, email: string) => {
   }
   return {
     success: false,
-    message: 'Unvalid code',
+    message: 'Invalid code',
   };
 };
 
@@ -240,6 +250,3 @@ export const updatePassword = async (id: string, password: string) => {
     };
   }
 };
-
-
-

@@ -1,6 +1,11 @@
-import { createProductDto, productQueryDto, updateProductDto } from '../dto/productDto';
-import { prisma } from './db/prisma';
-import { Prisma } from '@prisma/client';
+import {
+  createProductDto,
+  productQueryDto,
+  updateProductDto,
+  buyNowProuctDto,
+} from "../dto/productDto";
+import { prisma } from "./db/prisma";
+import { Prisma } from "@prisma/client";
 
 export const createProduct = async (id: string, data: createProductDto) => {
   const product = await prisma.products.create({
@@ -19,9 +24,9 @@ export const createProduct = async (id: string, data: createProductDto) => {
       endAt: new Date(data.endAt),
       updatedAt: new Date(),
 
-      autoExtendEnabled: data.autoExtendEnabled ?? false,
-      autoExtendMinutes: data.autoExtendMinutes ?? 0,
-      highRatingRequired: data.highRatingRequired ?? false,
+      autoExtendEnabled: data.autoExtendEnabled === "true",
+      autoExtendMinutes: Number(data.autoExtendMinutes) ?? 0,
+      highRatingRequired: data.highRatingRequired === "true",
 
       images: {
         create: data.images.map((img) => ({
@@ -35,7 +40,7 @@ export const createProduct = async (id: string, data: createProductDto) => {
     },
   });
 
-  return product;
+  return product.autoExtendEnabled;
 };
 
 export const getProductById = async (productId: string) => {
@@ -52,7 +57,8 @@ export const getProductById = async (productId: string) => {
 
 export const updateProduct = async (id: string, data: updateProductDto) => {
   const updateData: Partial<Prisma.ProductsUpdateInput> = {};
-  if (data.categoryId !== undefined) updateData.category = { connect: { id: data.categoryId } };
+  if (data.categoryId !== undefined)
+    updateData.category = { connect: { id: data.categoryId } };
   if (data.title !== undefined) updateData.title = data.title;
   if (data.description !== undefined) {
     const old = await prisma.products.findUnique({
@@ -61,29 +67,38 @@ export const updateProduct = async (id: string, data: updateProductDto) => {
     });
 
     const now = new Date();
-    const dd = String(now.getDate()).padStart(2, '0');
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, "0");
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
     const yyyy = now.getFullYear();
     const formattedDate = `${dd}/${mm}/${yyyy}`;
 
-    updateData.description = `${old?.description ?? ' '}  \n\n[Updated on ${formattedDate}]: \n\n${data.description}`;
+    updateData.description = `${
+      old?.description ?? " "
+    }  \n\n[Cập nhật ngày ${formattedDate}]: \n\n${data.description}`;
   }
 
-  if (data.startPrice !== undefined) updateData.startPrice = new Prisma.Decimal(data.startPrice);
+  if (data.startPrice !== undefined)
+    updateData.startPrice = new Prisma.Decimal(data.startPrice);
 
-  if (data.stepPrice !== undefined) updateData.stepPrice = new Prisma.Decimal(data.stepPrice);
+  if (data.stepPrice !== undefined)
+    updateData.stepPrice = new Prisma.Decimal(data.stepPrice);
 
-  if (data.buyNowPrice !== undefined) updateData.buyNowPrice = new Prisma.Decimal(data.buyNowPrice);
+  if (data.buyNowPrice !== undefined)
+    updateData.buyNowPrice = new Prisma.Decimal(data.buyNowPrice);
 
-  if (data.startedAt !== undefined) updateData.startedAt = new Date(data.startedAt);
+  if (data.startedAt !== undefined)
+    updateData.startedAt = new Date(data.startedAt);
 
   if (data.endAt !== undefined) updateData.endAt = new Date(data.endAt);
 
-  if (data.autoExtendEnabled !== undefined) updateData.autoExtendEnabled = data.autoExtendEnabled;
+  if (data.autoExtendEnabled !== undefined)
+    updateData.autoExtendEnabled = data.autoExtendEnabled;
 
-  if (data.autoExtendMinutes !== undefined) updateData.autoExtendMinutes = data.autoExtendMinutes;
+  if (data.autoExtendMinutes !== undefined)
+    updateData.autoExtendMinutes = data.autoExtendMinutes;
 
-  if (data.highRatingRequired !== undefined) updateData.highRatingRequired = data.highRatingRequired;
+  if (data.highRatingRequired !== undefined)
+    updateData.highRatingRequired = data.highRatingRequired;
 
   if (data.images !== undefined) {
     updateData.images = {
@@ -124,7 +139,7 @@ export const searchProducts = async (query: productQueryDto) => {
   if (query.q) {
     where.title = {
       contains: query.q,
-      mode: 'insensitive',
+      mode: "insensitive",
     };
   }
 
@@ -139,23 +154,23 @@ export const searchProducts = async (query: productQueryDto) => {
   let orderBy: Prisma.ProductsOrderByWithRelationInput = {};
 
   switch (query.sort) {
-    case 'price_asc':
-      orderBy = { currentPrice: 'asc' };
+    case "price_asc":
+      orderBy = { currentPrice: "asc" };
       break;
-    case 'price_desc':
-      orderBy = { currentPrice: 'desc' };
+    case "price_desc":
+      orderBy = { currentPrice: "desc" };
       break;
-    case 'endAt_asc':
-      orderBy = { endAt: 'asc' };
+    case "endAt_asc":
+      orderBy = { endAt: "asc" };
       break;
-    case 'endAt_desc':
-      orderBy = { endAt: 'desc' };
+    case "endAt_desc":
+      orderBy = { endAt: "desc" };
       break;
-    case 'countBids_desc':
-      orderBy = { countbids: 'desc' };
+    case "countBids_desc":
+      orderBy = { countbids: "desc" };
       break;
     default:
-      orderBy = { startedAt: 'desc' };
+      orderBy = { startedAt: "desc" };
       break;
   }
 
@@ -180,4 +195,78 @@ export const searchProducts = async (query: productQueryDto) => {
     totalPages: Math.ceil(total / limit),
     data: products,
   };
+};
+
+export const buyNowProuct = async (bidderId: string,data: buyNowProuctDto) => {
+  const timeoout = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const product = await tx.products.findUnique({
+        where: { id: data.productId },
+      });
+
+      if (!product) {
+        throw new Error("Không tìm thấy sản phẩm");
+      }
+
+      if (product.sellerId === bidderId) {
+        throw new Error("Người bán không thể mua ngay sản phẩm của chính mình");
+      }
+
+      if (product.status !== "ACTIVE") {
+        throw new Error("Sản phẩm không khả dụng để mua ngay");
+      }
+
+      if (product.buyNowPrice === null) {
+        throw new Error("Sản phẩm không có giá mua ngay");
+      }
+
+      try {
+        const order = await tx.orders.create({
+          data: {
+            productId: data.productId,
+            buyerId: bidderId,
+            phoneNumber: data.phoneNumber,
+            totalAmount: new Prisma.Decimal(product.buyNowPrice),
+            status: "UNPAID",
+            paymentStatus: "PENDING",
+            shippingAddress: data.shippingAddress,
+            paymentDueAt: new Date(Date.now() + timeoout),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          include: {
+            product: {
+              include: {
+                seller: true,
+              }
+            },
+            buyer: true,
+          }
+        });
+
+        await tx.products.update({
+          where: { id: data.productId },
+          data: {
+            status: "SOLD",
+            winnerId: bidderId,
+            updatedAt: new Date(),
+          },
+        });
+
+        return order;
+      } catch (err: any) {
+        // Đụng độ khi dùng unique mà có thêm record thứ hai được tạo
+        if (err?.code === "P2002" || err?.code === "23505") {
+          const exits = await tx.orders.findUnique({
+            where: { productId: data.productId },
+          });
+
+          if (exits) throw new Error("Đã có người mua thành công");
+        }
+      }
+    });
+  } catch (err: any) {
+    throw new Error(err.message);
+  }
 };

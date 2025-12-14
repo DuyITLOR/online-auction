@@ -4,7 +4,6 @@ export const getProduct = async (productId: string) => {
   try {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/${productId}`);
     const data = await res.json();
-    console.log(productId);
     if (!res.ok) {
       throw new Error(data.message || 'Failed to fetch product');
     }
@@ -66,15 +65,23 @@ interface CreateProductPayload {
   buyNowPrice: number | string;
   startedAt: string;
   endAt: string;
+  allowedExtend: boolean;
+  extendMinutes: number | string;
+  highRatingRequired: boolean;
   images: File[];
 }
 
 export const createProduct = async ({ product, token }: { product: CreateProductPayload; token: string }) => {
   const formData = new FormData();
 
+  console.log(product.allowedExtend.toString());
+
   formData.append('sellerId', product.sellerId);
   formData.append('categoryId', product.categoryId);
   formData.append('title', product.title);
+  formData.append('autoExtendEnabled', product.allowedExtend.toString());
+  formData.append('autoExtendMinutes', product.extendMinutes.toString());
+  formData.append('highRatingRequired', product.highRatingRequired.toString());
   formData.append('description', product.description);
   formData.append('startPrice', product.startPrice.toString());
   formData.append('stepPrice', product.startPrice.toString());
@@ -101,4 +108,28 @@ export const createProduct = async ({ product, token }: { product: CreateProduct
   }
 
   return data.data;
+};
+
+export const updateProduct = async ({ id, description, token }: { id: string; description: string; token: string }) => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ description }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      const message = data.message || data.error || 'Failed to fetch in update product';
+      throw new Error(message);
+    }
+
+    return data.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 };

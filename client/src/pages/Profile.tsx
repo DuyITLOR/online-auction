@@ -1,12 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  ChevronDown,
+  Calendar,
+  Camera,
+  Edit,
   Gavel,
   Heart,
   LogOut,
+  MessageCircle,
   ScrollText,
   ShoppingBag,
   ShoppingBasket,
-  Star,
+  ThumbsDown,
+  ThumbsUp,
   UserRound,
 } from 'lucide-react';
 import Header from '../components/header';
@@ -14,10 +19,28 @@ import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList } from '../components/ui/tab';
 import { TabsTrigger } from '@radix-ui/react-tabs';
-import Rating from '../components/rating';
 import { Progress } from '../components/ui/progress';
-import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
-import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '../components/ui/dialog';
+
+import { useContext, useEffect, useRef, useState } from 'react';
+import { clearSession, getSession } from '../libs/session';
+import { requestToUpgrade, updateUser } from '../api/user';
+import { type Ratings, type WatchList } from '../libs/types/types';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { getAllWatchList } from '../api/watchlist';
+import { UserContext } from '../libs/contexts/user.context';
+import { getAllRatees, getAllRaters } from '../api/rating';
+import { isoToYYYYMMDD } from '../libs/utils';
 
 const activityData = [
   {
@@ -47,135 +70,23 @@ const activityData = [
   },
 ];
 
-const products = [
-  {
-    id: 1,
-    name: 'Chia Harvester / JBOD Kit | Up to 44x 3.5" HDDs! | Custom Frame, Cables, & PSU',
-    price: 1000000,
-    buyNowPrice: 1500000,
-    endTime: '2025-12-31T23:59:59Z',
-    totalBids: 10,
-    thumbnail: 'https://picsum.photos/id/1011/600/400',
-    isLike: true,
-    seller: 'Nguyen Van A',
-    rating: 4.5,
-  },
-  {
-    id: 2,
-    name: 'Dell PowerEdge R720 Server | Dual Xeon E5 | 128GB RAM | Ready for Virtualization',
-    price: 850000,
-    buyNowPrice: 1200000,
-    endTime: '2025-12-20T18:00:00Z',
-    totalBids: 5,
-    thumbnail: 'https://picsum.photos/id/1025/600/400',
-    isLike: true,
-    seller: 'Tran Van B',
-    rating: 4.2,
-  },
-  {
-    id: 3,
-    name: 'NVIDIA RTX 3080 Founders Edition | 10GB GDDR6X | Excellent Condition',
-    price: 2500000,
-    buyNowPrice: 3000000,
-    endTime: '2025-11-30T20:00:00Z',
-    totalBids: 18,
-    thumbnail: 'https://picsum.photos/id/1035/600/400',
-    isLike: true,
-    seller: 'Le Thi C',
-    rating: 4.8,
-  },
-  {
-    id: 4,
-    name: 'Seagate IronWolf 10TB NAS HDD | 7200RPM | 256MB Cache | Enterprise Grade',
-    price: 500000,
-    buyNowPrice: 900000,
-    endTime: '2025-10-15T12:00:00Z',
-    totalBids: 3,
-    thumbnail: 'https://picsum.photos/id/1041/600/400',
-    isLike: true,
-    seller: 'Pham D',
-    rating: 3.9,
-  },
-  {
-    id: 5,
-    name: 'ASUS ROG Strix B550-F Gaming Motherboard | AM4 | PCIe 4.0 | RGB Sync',
-    price: 700000,
-    buyNowPrice: 1100000,
-    endTime: '2025-09-22T08:30:00Z',
-    totalBids: 12,
-    thumbnail: 'https://picsum.photos/id/1050/600/400',
-    isLike: true,
-    seller: 'Nguyen E',
-    rating: 4.1,
-  },
-  {
-    id: 6,
-    name: 'Intel Core i9-12900K Processor | 16 Cores | Up to 5.2GHz | Unlocked',
-    price: 3200000,
-    buyNowPrice: 3800000,
-    endTime: '2025-08-10T21:00:00Z',
-    totalBids: 25,
-    thumbnail: 'https://picsum.photos/id/1062/600/400',
-    isLike: true,
-    seller: 'Tran F',
-    rating: 4.7,
-  },
-  {
-    id: 7,
-    name: 'Corsair RM850x 80+ Gold Power Supply | Fully Modular | Silent Fan',
-    price: 420000,
-    buyNowPrice: 700000,
-    endTime: '2025-07-05T09:00:00Z',
-    totalBids: 2,
-    thumbnail: 'https://picsum.photos/id/1074/600/400',
-    isLike: true,
-    seller: 'Le G',
-    rating: 3.8,
-  },
-  {
-    id: 8,
-    name: 'Samsung 980 PRO NVMe SSD 1TB | PCIe 4.0 | Up to 7000MB/s',
-    price: 960000,
-    buyNowPrice: 1500000,
-    endTime: '2025-06-28T16:45:00Z',
-    totalBids: 7,
-    thumbnail: 'https://picsum.photos/id/1084/600/400',
-    isLike: true,
-    seller: 'Pham H',
-    rating: 4.0,
-  },
-  {
-    id: 9,
-    name: 'HP Z840 Workstation | Dual Xeon E5 | 64GB DDR4 ECC | 1TB SSD',
-    price: 1800000,
-    buyNowPrice: 2500000,
-    endTime: '2025-05-12T11:30:00Z',
-    totalBids: 14,
-    thumbnail: 'https://picsum.photos/id/109/600/400',
-    isLike: true,
-    seller: 'Do I',
-    rating: 4.6,
-  },
-  {
-    id: 10,
-    name: 'Synology DS920+ NAS | Quad-Core CPU | 4-Bay | Ideal for Home & Office Storage',
-    price: 290000,
-    buyNowPrice: 600000,
-    endTime: '2025-04-01T22:10:00Z',
-    totalBids: 4,
-    thumbnail: 'https://picsum.photos/id/110/600/400',
-    isLike: true,
-    seller: 'Vo J',
-    rating: 3.7,
-  },
-];
-
 const convertDay = (date: string) => {
   const now = new Date();
   const endDate = new Date(date);
   const diffTime = Math.abs(endDate.getTime() - now.getTime());
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   return diffDays;
+};
+
+const convertISO = (isoString: string | undefined) => {
+  if (!isoString) return;
+  const date = new Date(isoString);
+
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+
+  return `${dd}-${mm}-${yyyy}`;
 };
 
 const review = [
@@ -253,101 +164,120 @@ const review = [
   },
 ];
 
-const myReviewFromProduct = [
-  {
-    id: 1,
-    name: 'Nguyen Van A',
-    product: 'iPhone 15 Pro Max',
-    rating: 4,
-    review: 'Máy đẹp như mới, rất hài lòng!',
-    date: '2025-01-12',
-  },
-  {
-    id: 2,
-    name: 'Tran Thi B',
-    product: 'Samsung Galaxy S24 Ultra',
-    rating: 5,
-    review: 'Hiệu năng cực mạnh, pin trâu, camera quá đỉnh!',
-    date: '2025-01-15',
-  },
-  {
-    id: 3,
-    name: 'Le Van C',
-    product: 'MacBook Air M2',
-    rating: 3,
-    review: 'Máy nhẹ, đẹp nhưng chạy hơi nóng khi render video.',
-    date: '2025-01-20',
-  },
-  {
-    id: 4,
-    name: 'Pham Thi D',
-    product: 'AirPods Pro 2',
-    rating: 5,
-    review: 'Chống ồn tốt, đeo thoải mái, âm thanh tuyệt vời.',
-    date: '2025-01-22',
-  },
-  {
-    id: 5,
-    name: 'Hoang Van E',
-    product: 'Apple Watch Series 9',
-    rating: 4,
-    review: 'Dùng ngon, nhiều tính năng mới, pin ổn.',
-    date: '2025-02-01',
-  },
-  {
-    id: 6,
-    name: 'Do Thi F',
-    product: 'iPad Pro M1 11-inch',
-    rating: 5,
-    review: 'Màn đẹp, bút viết sướng, hiệu năng cực mạnh.',
-    date: '2025-02-03',
-  },
-  {
-    id: 7,
-    name: 'Nguyen Van G',
-    product: 'Xiaomi Redmi Note 13 Pro',
-    rating: 4,
-    review: 'Giá rẻ, cấu hình cao, nhưng camera hơi xử lý quá đà.',
-    date: '2025-02-10',
-  },
-  {
-    id: 8,
-    name: 'Phan Thi H',
-    product: 'Sony WH-1000XM5',
-    rating: 5,
-    review: 'Âm trầm sâu, chống ồn cực tốt, đeo lâu không đau tai.',
-    date: '2025-02-17',
-  },
-];
-
 const ratingCount = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
 review.forEach((r) => {
   ratingCount[r.rating as keyof typeof ratingCount] += 1;
 });
 
-const totalRating = () => {
-  let total = 0;
-  review.forEach((r) => {
-    total += r.rating;
+const Profile = () => {
+  const navigate = useNavigate();
+  const { user, refresh } = useContext(UserContext);
+  const [session, setSession] = useState<any>(null);
+  const [watchList, setWatchList] = useState<WatchList[]>([]);
+  const [raters, setRaters] = useState<Ratings[]>([]);
+  const [ratees, setRatees] = useState<Ratings[]>([]);
+
+  const [upgradeReason, setUpgradeReason] = useState('');
+  const [previewAvatar, setPreviewAvatar] = useState<string | undefined>(undefined);
+  const [image, setImage] = useState<File>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const totalReviews = raters.length;
+  const positiveCount = raters.filter((r) => r.value === 1).length;
+  const negativeCount = raters.filter((r) => r.value === -1).length;
+  const positiveRatio = totalReviews > 0 ? ((positiveCount + 10 - negativeCount) / (totalReviews + 10)) * 100 : 0;
+
+  const [formData, setFormData] = useState({
+    fullname: '',
+    email: '',
   });
 
-  return total / review.length;
-};
+  useEffect(() => {
+    if (user?.avtUrl) {
+      setPreviewAvatar(user?.avtUrl);
+    }
 
-const sortValue = [
-  {
-    item: 'Sản phẩm',
-    value: 'product',
-  },
-  {
-    item: 'Người mua',
-    value: 'bidder',
-  },
-];
+    if (user?.fullname) {
+      setFormData((prev) => ({ ...prev, ['fullname']: user.fullname! }));
+      setFormData((prev) => ({ ...prev, ['email']: user.email }));
+    }
+  }, [user]);
 
-const Profile = () => {
-  const [selectOption, SetSelectOption] = useState(sortValue[0]);
+  useEffect(() => {
+    async function fetchSession() {
+      const sess = await getSession();
+      setSession(sess);
+    }
+    fetchSession();
+  }, []);
+
+  useEffect(() => {
+    const fetchWatchList = async () => {
+      const data = await getAllWatchList({ token: session.token });
+      setWatchList(data);
+    };
+
+    const fetchRaters = async () => {
+      const data = await getAllRaters({ token: session.token });
+      setRaters(data.ratings);
+    };
+
+    const fetchRatees = async () => {
+      const data = await getAllRatees({ token: session.token });
+      setRatees(data.ratings);
+    };
+
+    fetchWatchList();
+    fetchRaters();
+    fetchRatees();
+  }, [session]);
+
+  const handleUpgradeSubmit = async () => {
+    const data = await requestToUpgrade({ note: upgradeReason, token: session.token });
+    if (data) {
+      toast.success('Gửi yêu cầu thành công');
+    } else {
+      toast.error('Gửi yêu cầu thất bại');
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleChangeAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setImage(file);
+      const url = URL.createObjectURL(file);
+      setPreviewAvatar(url);
+    }
+  };
+
+  const handleUpdateProfile = () => {
+    const payload: any = {
+      fullname: formData.fullname,
+      email: formData.email,
+    };
+
+    if (image) {
+      payload.avatar = image;
+    }
+
+    updateUser({ user: payload, token: session.token });
+    refresh();
+    window.location.reload();
+  };
+
+  const signout = () => {
+    clearSession();
+    setSession(null);
+    navigate('/');
+    window.location.reload();
+  };
+
   return (
     <>
       <Header />
@@ -355,35 +285,170 @@ const Profile = () => {
         <div className='border border-gray-200 h-[150px] rounded-xl flex items-center justify-between px-10'>
           <div className='flex items-center gap-5'>
             <Avatar className='w-24 h-24'>
-              <AvatarImage src='/gg-logo.svg' alt='User Avatar' className='border border-gray-400 rounded-full' />
+              <AvatarImage src={user?.avtUrl} alt='User Avatar' className='border border-gray-400 rounded-full' />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
 
             <div className='flex flex-col justify-start gap-1'>
               <div className='flex items-center gap-5'>
-                <span className='text-2xl font-bold'>Thanh Dang</span>
-                <div className='border border-blue-400 bg-blue-100 rounded-2xl px-2 py-0.5 text-xs font-semibold text-blue-700'>
-                  Người mua
-                </div>
+                <span className='text-2xl font-bold'>{user?.fullname}</span>
+
+                {user?.currentRoles.includes('SELLER') ? (
+                  <div className='border border-amber-500 bg-amber-100 rounded-2xl px-2 py-0.5 text-xs font-semibold text-amber-700'>
+                    Người bán
+                  </div>
+                ) : (
+                  <div className='border border-blue-400 bg-blue-100 rounded-2xl px-2 py-0.5 text-xs font-semibold text-blue-700'>
+                    Người mua
+                  </div>
+                )}
               </div>
 
-              <span className='text-gray-500'>Dn156162@gmail.com</span>
-              <span className='text-gray-500'>Tham gia từ: 20-10-2023</span>
+              <span className='text-gray-500'>{user?.email}</span>
+              <span className='text-gray-500'>Tham gia từ: {convertISO(user?.createdAt)}</span>
             </div>
           </div>
 
           <div className='flex items-center justify-center gap-5'>
-            <Button variant={'outline'} className='bg-teal-600 text-white'>
-              <ShoppingBasket size={16} />
-              Nâng cấp người bán hàng
-            </Button>
+            {!user?.currentRoles.includes('SELLER') && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant={'outline'} className='bg-teal-600 text-white hover:bg-teal-700 hover:text-white'>
+                    <ShoppingBasket size={16} />
+                    Nâng cấp người bán hàng
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className='sm:max-w-[500px]'>
+                  <DialogHeader>
+                    <DialogTitle>Đăng ký trở thành người bán</DialogTitle>
+                    <DialogDescription>
+                      Vui lòng cho chúng tôi biết lý do bạn muốn trở thành người bán hàng trên nền tảng.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className='grid gap-4 py-4'>
+                    <div className='grid w-full gap-1.5'>
+                      <textarea
+                        id='reason'
+                        placeholder='Tôi muốn bán các sản phẩm...'
+                        className='outline-0 border border-gray-200 rounded-md px-2 py-3'
+                        value={upgradeReason}
+                        onChange={(e) => setUpgradeReason(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button type='button' variant='outline'>
+                        Hủy
+                      </Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                      <Button type='submit' onClick={handleUpgradeSubmit} className='bg-teal-600 text-white border-0'>
+                        Gửi yêu cầu
+                      </Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
 
-            <Button variant='outline' className=''>
-              <UserRound size={16} />
-              Chỉnh sửa hồ sơ
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant='outline' className=''>
+                  <UserRound size={16} />
+                  Chỉnh sửa hồ sơ
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[500px]'>
+                <DialogHeader>
+                  <DialogTitle>Chỉnh sửa hồ sơ</DialogTitle>
+                  <DialogDescription>
+                    Thay đổi thông tin cá nhân của bạn tại đây. Nhấn lưu khi hoàn tất.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className='flex flex-col items-center justify-center gap-3 py-1'>
+                  <div className='relative group cursor-pointer' onClick={() => fileInputRef.current?.click()}>
+                    <Avatar className='w-24 h-24 border-2 border-gray-200'>
+                      <AvatarImage src={previewAvatar || user?.avtUrl} className='object-cover' />
+                      <AvatarFallback className='text-2xl'>
+                        {user?.fullname ? user.fullname.charAt(0).toUpperCase() : '?'}
+                      </AvatarFallback>
+                    </Avatar>
 
-            <Button variant={'outline'} className='text-red-500'>
+                    <div className='absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
+                      <Camera className='text-white w-8 h-8' />
+                    </div>
+                  </div>
+                  <span className='text-xs text-gray-500'>Nhấn vào ảnh để thay đổi</span>
+
+                  <input
+                    type='file'
+                    ref={fileInputRef}
+                    className='hidden'
+                    accept='image/*'
+                    onChange={handleChangeAvatar}
+                  />
+                </div>
+
+                <div className='grid gap-4 py-4'>
+                  <div className='grid grid-cols-4 items-center gap-2'>
+                    <p id='name' className=''>
+                      Họ tên
+                    </p>
+                    <input
+                      name='fullname'
+                      className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
+                      value={formData.fullname}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className='grid grid-cols-4 items-center gap-2'>
+                    <p id='email' className=''>
+                      Email
+                    </p>
+                    <input
+                      id='email'
+                      value={formData.email}
+                      disabled
+                      className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
+                    />
+                  </div>
+                  <div className='grid grid-cols-4 items-center gap-2'>
+                    <p id='birth' className=''>
+                      Ngày sinh
+                    </p>
+                    <input
+                      type='date'
+                      id='date'
+                      value={formData.email}
+                      disabled
+                      className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
+                    />
+                  </div>
+
+                  <div className='grid grid-cols-4 items-center gap-2'>
+                    <p id='address' className=''>
+                      Địa chỉ
+                    </p>
+                    <input
+                      id='address'
+                      value={formData.email}
+                      disabled
+                      className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type='submit' className='bg-teal-600 text-white border-0' onClick={handleUpdateProfile}>
+                      Lưu thay đổi
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Button onClick={() => signout()} variant={'outline'} className='text-red-500'>
               <LogOut size={16} />
               Đăng xuất
             </Button>
@@ -490,39 +555,47 @@ const Profile = () => {
             <div className='border border-gray-300 px-8 py-4 rounded-md flex flex-col w-full mt-5'>
               <p className='text-lg font-bold mb-5'>Sản phẩm yêu thích</p>
               <div className='grid grid-cols-4 gap-3'>
-                {products.map((item) => (
+                {watchList.map((item: WatchList) => (
                   <div
-                    key={item.id}
+                    key={`${item.productId}-${item.userId}`}
                     className='flex flex-col gap-2 border border-gray-200 rounded-md px-3 py-2 h-fit w-78 relative cursor-pointer z-0'
                   >
-                    <img src={item.thumbnail} alt={item.name} className='w-full h-40 object-cover mb-2' />
-                    <p className='font-semibold text-xl line-clamp-2'>{item.name}</p>
+                    <img
+                      src={item.product.images?.[0].url}
+                      alt={item.product.title}
+                      className='w-full h-40 object-cover mb-2'
+                    />
+                    <p className='font-semibold text-xl line-clamp-2'>{item.product.title}</p>
 
-                    {Rating(item.rating)}
-                    <span className='font-semibold text-2xl'>{item.price.toLocaleString()} VND</span>
+                    <span className='font-semibold text-2xl'>
+                      {Number(item.product.currentPrice).toLocaleString()} VND
+                    </span>
 
-                    <span className=' text-gray-700 text-sm'> Mua ngay: {item.buyNowPrice.toLocaleString()} VND</span>
+                    <span className=' text-gray-700 text-sm'>
+                      {' '}
+                      Mua ngay: {Number(item.product.buyNowPrice).toLocaleString()} VND
+                    </span>
 
                     <div className='border-t border-gray-300 mt-2 mb-2' />
 
                     <div className='flex items-center justify-between text-sm'>
                       <span>Lượt ra giá: </span>
-                      <span>{item.totalBids}</span>
+                      <span>{item.product.countbids}</span>
                     </div>
 
                     <div className='flex items-center justify-between text-sm'>
                       <span>Người bán: </span>
-                      <span>{item.seller}</span>
+                      <span>{item.user?.fullname}</span>
                     </div>
 
                     <Heart
                       className={`w-10 h-10 ${
-                        item.isLike ? 'stroke-0 fill-red-600' : 'stroke-2'
+                        item.productId ? 'stroke-0 fill-red-600' : 'stroke-2'
                       } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
                     />
 
                     <div className='w-20 h-7 text-sm bg-gray-800 text-white absolute left-1 top-1 px-2 py-1 rounded-md'>
-                      {convertDay(item.endTime)} Ngày
+                      {convertDay(item.product.endAt)} Ngày
                     </div>
                   </div>
                 ))}
@@ -531,71 +604,109 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value='review'>
-            <div className='border border-gray-300 mt-5 w-full px-7 py-3 flex flex-col rounded-md'>
-              <p className='text-lg font-bold'>Đánh giá nhận được</p>
-              <p className='text-sm font-semibold text-gray-400 mb-5'>
-                Các đánh giá về sản phẩm và dịch vụ của bạn từ người mua
-              </p>
-
-              <div className='flex items-center gap-5 bg-gray-100 rounded-md py-3 px-5 w-full'>
-                <div className='flex flex-col items-center py-5 gap-2 w-50'>
-                  <p className='text-4xl font-bold'>{totalRating().toFixed(1)}</p>
-                  <div className='flex items-center gap-1'>
-                    {[...Array(5)].map((_, index) => (
-                      <Star key={index} className='w-5 h-5 fill-amber-400 text-amber-400' />
-                    ))}
+            <div className='w-full flex flex-col gap-6 mt-5 mb-5'>
+              <div className='bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6'>
+                <div className='flex flex-col items-start gap-1 w-full md:w-1/3'>
+                  <h3 className='text-lg font-bold text-gray-800'>Độ uy tín của Shop</h3>
+                  <div className='flex items-baseline gap-2'>
+                    <span className='text-5xl font-extrabold text-emerald-600'>{positiveRatio.toFixed(0)}%</span>
+                    <span className='text-gray-500 font-medium'>Đánh giá tích cực</span>
                   </div>
-
-                  <p className='text-gray-500 font-semibold text-sm'>{review.length} đánh giá </p>
+                  <p className='text-sm text-gray-400'>Dựa trên {totalReviews} lượt đánh giá gần nhất</p>
                 </div>
 
-                <div className='flex flex-col gap-2 w-full'>
-                  {[...Array(5)].map((_, index) => (
-                    <div key={index} className='flex items-center'>
-                      <span className='mr-2'>{5 - index}</span>
-                      <Star className='w-5 h-5 fill-amber-400 text-amber-400' />
-
-                      <Progress
-                        className='ml-5 mr-4'
-                        value={(ratingCount[(5 - index) as keyof typeof ratingCount] / review.length) * 100}
-                      />
-                      <span>{ratingCount[(5 - index) as keyof typeof ratingCount]}</span>
+                <div className='flex flex-col gap-3 w-full md:w-2/3 border-l border-gray-100 pl-0 md:pl-6'>
+                  <div className='flex items-center gap-3'>
+                    <ThumbsUp className='w-5 h-5 text-emerald-500' />
+                    <div className='w-full'>
+                      <div className='flex justify-between text-sm mb-1'>
+                        <span className='font-semibold text-gray-700'>Hài lòng</span>
+                        <span className='text-gray-500'>{positiveCount}</span>
+                      </div>
+                      <Progress value={positiveRatio} className='h-2 bg-gray-100' />
                     </div>
-                  ))}
+                  </div>
+
+                  <div className='flex items-center gap-3'>
+                    <ThumbsDown className='w-5 h-5 text-rose-500' />
+                    <div className='w-full'>
+                      <div className='flex justify-between text-sm mb-1'>
+                        <span className='font-semibold text-gray-700'>Không hài lòng</span>
+                        <span className='text-gray-500'>{negativeCount}</span>
+                      </div>
+                      <Progress value={100 - positiveRatio} className='h-2 bg-gray-100' />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className='flex flex-col gap-3 mt-5'>
-                {review.map((item) => (
+              <div className='flex flex-col gap-4'>
+                <h4 className='text-base font-bold text-gray-800 uppercase tracking-wide'>Đánh giá nhận được</h4>
+
+                {raters.map((item: Ratings) => (
                   <div
                     key={item.id}
-                    className='border border-gray-300 rounded-md px-4 py-4 w-full flex items-start justify-between'
+                    className='bg-white border border-gray-200 rounded-lg p-5 flex flex-col md:flex-row gap-4 transition-all hover:shadow-md'
                   >
-                    <div className='flex flex-col gap-2'>
-                      <div className='flex items-center gap-4'>
-                        <p className='font-semibold'>{item.name}</p>
-                        {item.from === 'seller' ? (
-                          <div className='text-xs border-2 border-orange-500 bg-orange-300 text-orange-900 px-3 py-0.5 font-semibold rounded-2xl'>
-                            Người bán
+                    <div className='flex flex-col justify-between gap-3 w-full md:w-48'>
+                      <div className='flex items-center gap-3'>
+                        <Avatar>
+                          <AvatarImage src={item?.rater?.avtUrl} />
+                        </Avatar>
+                        <div className='flex flex-col'>
+                          <div className='flex items-center gap-2 mt-1'>
+                            <span
+                              className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${
+                                !(item.rater.role === 'BIDDER')
+                                  ? 'border-orange-200 bg-orange-50 text-orange-700'
+                                  : 'border-blue-200 bg-blue-50 text-blue-700'
+                              }`}
+                            >
+                              {!(item?.rater.role === 'BIDDER') ? 'Người bán' : 'Người mua'}
+                            </span>
                           </div>
-                        ) : (
-                          <div className='text-xs border-2 border-blue-500 bg-blue-300 text-blue-900 px-3 py-0.5 font-semibold rounded-2xl'>
-                            Người mua
-                          </div>
-                        )}
+                          <p className='font-semibold text-gray-900 text-sm'>{item?.rater?.fullname}</p>
+                        </div>
                       </div>
-
-                      <p className='text-sm font-semibold text-gray-500'>{item.product}</p>
-                      <div className='flex items-center gap-0.5'>
-                        {[...Array(item.rating)].map((_, index) => (
-                          <Star key={index} className='w-4 h-3 fill-amber-400 text-amber-400' />
-                        ))}
+                      <div className='flex items-center gap-1 mt-2 text-sm text-gray-400'>
+                        <Calendar className='w-3 h-3' />
+                        <span>{isoToYYYYMMDD(item?.createdAt)}</span>
                       </div>
-
-                      <p>{item.review}</p>
                     </div>
 
-                    <p className='text-sm text-gray-500'>{item.date}</p>
+                    <div className='grow border-l-0 md:border-l border-gray-100 pl-0 md:pl-4 flex flex-col justify-between'>
+                      <div>
+                        <div className='flex items-center justify-between mb-2'>
+                          <p className='text-sm font-medium text-gray-500 uppercase'>{item.productId}</p>
+
+                          {item.value === 1 ? (
+                            <div className='flex items-center gap-1 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100'>
+                              <ThumbsUp className='w-3.5 h-3.5 fill-current' />
+                              <span className='text-xs font-bold'>Hài lòng</span>
+                            </div>
+                          ) : (
+                            <div className='flex items-center gap-1 text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-100'>
+                              <ThumbsDown className='w-3.5 h-3.5 fill-current' />
+                              <span className='text-xs font-bold'>Không hài lòng</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <p className='text-gray-700 text-sm leading-relaxed'>{item?.comment}</p>
+                      </div>
+
+                      <div className='mt-4 flex justify-end'>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          className='text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 gap-2 transition-colors'
+                          onClick={() => console.log('Open chat with', item.rater.fullname)}
+                        >
+                          <MessageCircle className='w-4 h-4' />
+                          Nhắn tin
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -611,50 +722,73 @@ const Profile = () => {
                     Các đánh giá bạn đã để lại cho người mua và sản phẩm.
                   </p>
                 </div>
-                <Popover>
-                  <PopoverTrigger>
-                    <Button
-                      className='w-45 border border-gray-300 items-center justify-between cursor-pointer'
-                      variant={'outline'}
-                    >
-                      <span className='text-gray-700 font-medium flex'>{selectOption.item}</span>
-                      <ChevronDown className='w-5 h-5' />
-                    </Button>
-                  </PopoverTrigger>
-
-                  <PopoverContent className='w-45 border-gray-300 bg-white'>
-                    <div className='w-full'>
-                      <ul className='space-y-0.5'>
-                        {sortValue.map((item) => (
-                          <li
-                            onClick={() => SetSelectOption(item)}
-                            key={item.value}
-                            className='px-3 py-1 text-sm hover:bg-gray-200 cursor-pointers!'
-                          >
-                            {item.item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </PopoverContent>
-                </Popover>
               </div>
 
               <div className='flex flex-col gap-4'>
-                {myReviewFromProduct.map((item) => (
-                  <div className='border border-gray-300 w-full px-7 py-3 flex items-start justify-between gap-2 rounded-md'>
-                    <div className='flex flex-col gap-1'>
-                      <p className='font-semibold'>{item.name}</p>
-                      <p className='text-sm font-semibold text-gray-500'>{item.product}</p>
-                      <div className='flex items-center gap-0.5'>
-                        {[...Array(item.rating)].map((_, index) => (
-                          <Star key={index} className='w-4 h-3 fill-amber-400 text-amber-400' />
-                        ))}
+                {ratees.map((item: Ratings) => (
+                  <div
+                    key={item.id}
+                    className='bg-white border border-gray-200 rounded-lg p-5 flex flex-col md:flex-row gap-4 transition-all hover:shadow-md'
+                  >
+                    <div className='flex flex-col justify-between gap-3 w-full md:w-48'>
+                      <div className='flex items-center gap-3'>
+                        <Avatar>
+                          <AvatarImage src={item?.ratee?.avtUrl} />
+                        </Avatar>
+                        <div className='flex flex-col'>
+                          <div className='flex items-center gap-2 mt-1'>
+                            <span
+                              className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${
+                                !(item.ratee.role === 'BIDDER')
+                                  ? 'border-orange-200 bg-orange-50 text-orange-700'
+                                  : 'border-blue-200 bg-blue-50 text-blue-700'
+                              }`}
+                            >
+                              {!(item?.ratee.role === 'BIDDER') ? 'Người bán' : 'Người mua'}
+                            </span>
+                          </div>
+                          <p className='font-semibold text-gray-900 text-sm'>{item?.ratee?.fullname}</p>
+                        </div>
+                      </div>
+                      <div className='flex items-center gap-1 mt-2 text-sm text-gray-400'>
+                        <Calendar className='w-3 h-3' />
+                        <span>{isoToYYYYMMDD(item?.createdAt)}</span>
+                      </div>
+                    </div>
+
+                    <div className='grow border-l-0 md:border-l border-gray-100 pl-0 md:pl-4 flex flex-col justify-between'>
+                      <div>
+                        <div className='flex items-center justify-between mb-2'>
+                          <p className='text-sm font-medium text-gray-500 uppercase'>{item.productId}</p>
+
+                          {item.value === 1 ? (
+                            <div className='flex items-center gap-1 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100'>
+                              <ThumbsUp className='w-3.5 h-3.5 fill-current' />
+                              <span className='text-xs font-bold'>Hài lòng</span>
+                            </div>
+                          ) : (
+                            <div className='flex items-center gap-1 text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-100'>
+                              <ThumbsDown className='w-3.5 h-3.5 fill-current' />
+                              <span className='text-xs font-bold'>Không hài lòng</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <p className='text-gray-700 text-sm leading-relaxed'>{item?.comment}</p>
                       </div>
 
-                      <p className='mt-2'>{item.review}</p>
+                      <div className='mt-4 flex justify-end'>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          className='text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 gap-2 transition-colors'
+                          onClick={() => console.log('Open chat with', item.rater.fullname)}
+                        >
+                          <Edit className='w-4 h-4' />
+                          Chỉnh sửa
+                        </Button>
+                      </div>
                     </div>
-                    <p className='text-sm text-gray-500'>{item.date}</p>
                   </div>
                 ))}
               </div>

@@ -1,14 +1,14 @@
 GET http://localhost:4000/users
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NDMxNzAzNiwiZXhwIjoxNzY0MzIwNjM2fQ.-exVOVkirEKHgGr49rPRhzKGDeyu5O3cjSRq7_geVZU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3NzM3MjFlLWU1NjQtNDQ2Ny05MzYyLTAyMWU3OTlhYjI5YiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQwMzA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NTEyMzE4NCwiZXhwIjoxNzY3NzE1MTg0fQ.zNdsFMsC4od5cRcVYE98ndJb-bzfzbcHej_55ybnr80
 ###
 
 PATCH http://localhost:4000/users/update
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci01IiwiZW1haWwiOiJiaWRkZXI1QGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzNDgxMzg0LCJleHAiOjE3NjM0ODQ5ODR9.xOW9WakSq3hlL3NJO968dF-OfBmaxVKqyEttbOOyvsI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3NzM3MjFlLWU1NjQtNDQ2Ny05MzYyLTAyMWU3OTlhYjI5YiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQwMzA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NTEyMzE4NCwiZXhwIjoxNzY3NzE1MTg0fQ.zNdsFMsC4od5cRcVYE98ndJb-bzfzbcHej_55ybnr80
 Content-Type: application/json
 
 { 	
-	"fullname": "truong thanh dat"
+	"dateOfBirth": "2005-05-03"
 }
 ###
 
@@ -44,15 +44,20 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3NzM3MjFlL
 	"question": "What is the condition of this product?"
 }
 ###	
-POST http://localhost:4000/comments/0d7b8551-55e4-4807-9444-98647a1c06ca/answer
+POST http://localhost:4000/comments/e2b6a572-a652-4a26-918c-038429ee47b6/answer
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NDY5Njk1MiwiZXhwIjoxNzY3Mjg4OTUyfQ.ad5OvhL1z1d6w7wA7n4dhF2QpRiUFVnHwDGEkDfJbN4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NTExOTc1MSwiZXhwIjoxNzY3NzExNzUxfQ.BtHa7RbPiOYSqi6FrgjeUKSJUMNBwehGDR2M87moIsA
 
 {
 	"productId": "1",
-	"answer": "It need."
+	"answer": "Yes, its brand new."
 }
 ###
 GET http://localhost:4000/comments/products/1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NDY5NDQyNywiZXhwIjoxNzY3Mjg2NDI3fQ.cXfls7p3lwhKgFu-Y2Y8JRnHb1psR1r6eUFsO970IOA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NTEwMDM4NywiZXhwIjoxNzY3NjkyMzg3fQ.juhQXZzKw_KZj9a6JUwM7COE2nQxQSpo2SDWFcsrkBk
+###
+
+DELETE http://localhost:4000/comments/cd7bfbac-9db1-49aa-9d61-0826a02244ed
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NTEwMDM4NywiZXhwIjoxNzY3NjkyMzg3fQ.juhQXZzKw_KZj9a6JUwM7COE2nQxQSpo2SDWFcsrkBk

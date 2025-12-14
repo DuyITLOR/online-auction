@@ -128,7 +128,7 @@ const ProductList = () => {
 
                         <div className='flex items-center justify-between text-sm'>
                           <span>Lượt ra giá: </span>
-                          <span>10</span>
+                          <span>{item?.countbids}</span>
                         </div>
 
                         <div className='flex items-center justify-between text-sm'>

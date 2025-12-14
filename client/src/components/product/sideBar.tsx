@@ -1,4 +1,4 @@
-import { TextAlignJustify } from 'lucide-react';
+import { Server, TextAlignJustify } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Category } from '../../libs/types/types';
 
@@ -10,6 +10,13 @@ const SideBar = ({ categories }: { categories: Category[] }) => {
           <TextAlignJustify className='w-4 h-4' />
           <p className='font-bold text-lg'>Danh mục</p>
         </div>
+        <div className='flex items-center gap-2'>
+          <Server className='w-4 h-4' />
+          <Link to={'/products'} className='font-semibold'>
+            Tất tả sản phẩm
+          </Link>
+        </div>
+
         {categories.map((category) => (
           <div key={category.id} className='flex flex-col gap-2'>
             <p className='font-semibold'>{category.name}</p>

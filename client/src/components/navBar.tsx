@@ -32,9 +32,8 @@ const DropdownItem = ({ data, onMouseLeaveParent }: { data: any; onMouseLeavePar
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger className=' outline-0!' asChild>
-        <Link
+        <div
           className='text-base font-medium font-sans hover:underline hover:text-sky-800'
-          to={'/products'}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -42,7 +41,7 @@ const DropdownItem = ({ data, onMouseLeaveParent }: { data: any; onMouseLeavePar
             <span>{data.name}</span>
             <ChevronDown className='w-4 h-4' />
           </div>
-        </Link>
+        </div>
       </PopoverTrigger>
 
       <PopoverContent

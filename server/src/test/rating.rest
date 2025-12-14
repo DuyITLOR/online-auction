@@ -1,0 +1,26 @@
+GET http://localhost:4000/ratings?type=given
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NDg3Mjg4NywiZXhwIjoxNzY3NDY0ODg3fQ.LGK5tRmm-zbm8jG_AwkUdMWdN396ceG0ofhwp6Qo8RE
+
+###
+POST http://localhost:4000/ratings/users/7773721e-e564-4467-9362-021e799ab29b
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NDg3Mjg4NywiZXhwIjoxNzY3NDY0ODg3fQ.LGK5tRmm-zbm8jG_AwkUdMWdN396ceG0ofhwp6Qo8RE
+
+{
+	"productId": "c867c23a-d88d-42c5-9cd2-2a5a32aa710f",
+	"value": 1,
+	"comment": "Giao dịch uy tín"
+}
+###        
+PATCH  http://localhost:4000/ratings/bbadd83d-1026-481f-924a-3591b76d8efd
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NDg3Mjg4NywiZXhwIjoxNzY3NDY0ODg3fQ.LGK5tRmm-zbm8jG_AwkUdMWdN396ceG0ofhwp6Qo8RE
+
+{
+	"comment": "Uy tín"
+}
+
+###
+DELETE http://localhost:4000/ratings/cd2619ab-a43c-4ad6-9d0b-13a0d9815739
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci0xIiwiZW1haWwiOiJiaWRkZXIxQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY1MTAxMDA5LCJleHAiOjE3Njc2OTMwMDl9.la8ygU-bnm1ceYZYk1cV3VD7sg0kpva6OOb8NEwTqFU

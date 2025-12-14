@@ -9,6 +9,7 @@ export interface User {
   role: 'BIDDER' | 'ADMIN';
   currentRoles: string[];
   avtUrl: string;
+  dateOfBirth?: string;
 
   autoBids?: AutoBids[];
   blockedOn?: BlockedBidders[];

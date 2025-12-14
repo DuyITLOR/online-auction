@@ -47,7 +47,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     if (currentToken === '') return;
     try {
       const watchs = await getAllWatchList({ token: currentToken });
-      setWatchProducts(watchs);
+      setWatchProducts(watchs.data);
     } catch (err) {
       console.error('Lỗi fetch watchlist:', err);
     }

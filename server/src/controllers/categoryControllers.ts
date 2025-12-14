@@ -6,7 +6,6 @@ import {
   categoryQueryDto,
 } from "../dto/categoryDto";
 import { checkRole } from "../utils/checkRole";
-import { success } from "zod";
 
 export async function createCategory(req: Request, res: Response) {
   try {

@@ -50,6 +50,7 @@ interface UpdateUserPayload {
   fullname: string;
   email: string;
   avatar: File;
+  dateOfBirth: string;
 }
 
 export const updateUser = async ({ user, token }: { user: UpdateUserPayload; token: string }) => {
@@ -59,6 +60,7 @@ export const updateUser = async ({ user, token }: { user: UpdateUserPayload; tok
     formData.append('fullname', user.fullname);
     formData.append('email', user.email);
     formData.append('avatar', user.avatar);
+    formData.append('dateOfBirth', user.dateOfBirth);
 
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/update`, {
       method: 'PATCH',

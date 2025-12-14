@@ -43,97 +43,16 @@ import { isoToYYYYMMDD } from '../libs/utils';
 import Activities from '../components/profile/tabs/activities';
 import WatchProducts from '../components/profile/tabs/watchList';
 
-const convertISO = (isoString: string | undefined) => {
-  if (!isoString) return;
+const convertISO = (isoString: string | undefined, revert: boolean = false) => {
+  if (!isoString) return '';
   const date = new Date(isoString);
 
   const dd = String(date.getDate()).padStart(2, '0');
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const yyyy = date.getFullYear();
 
-  return `${dd}-${mm}-${yyyy}`;
+  return revert ? `${yyyy}-${mm}-${dd}` : `${dd}-${mm}-${yyyy}`;
 };
-
-const review = [
-  {
-    id: 1,
-    name: 'Trần Minh Anh',
-    from: 'bidder',
-    product: 'Macbook Pro 16',
-    rating: 5,
-    review: 'Sản phẩm chất lượng, đóng gói cẩn thận',
-    date: '2025-01-12',
-  },
-  {
-    id: 2,
-    name: 'Nguyễn Văn B',
-    from: 'seller',
-    product: 'iPhone 15 Pro Max',
-    rating: 4,
-    review: 'Hàng đẹp, giao nhanh nhưng hộp hơi móp',
-    date: '2025-01-10',
-  },
-  {
-    id: 3,
-    name: 'Lê Thị C',
-    from: 'bidder',
-    product: 'RTX 3080 Founders Edition',
-    rating: 5,
-    review: 'Hiệu năng tuyệt vời, chơi game mượt',
-    date: '2024-12-22',
-  },
-  {
-    id: 4,
-    name: 'Phạm Quốc D',
-    from: 'bidder',
-    product: 'ASUS ROG Strix B550-F',
-    rating: 3,
-    review: 'Main hoạt động ổn nhưng giao hàng hơi chậm',
-    date: '2024-12-18',
-  },
-  {
-    id: 5,
-    name: 'Đỗ Thu E',
-    from: 'bidder',
-    product: 'Samsung 980 Pro 1TB SSD',
-    rating: 4,
-    review: 'Ổ nhanh nhưng giá hơi cao',
-    date: '2025-01-02',
-  },
-  {
-    id: 6,
-    name: 'Võ Nhật F',
-    from: 'bidder',
-    product: 'Intel Core i9-12900K',
-    rating: 5,
-    review: 'CPU cực mạnh, render video nhanh',
-    date: '2025-01-05',
-  },
-  {
-    id: 7,
-    name: 'Nguyễn Văn G',
-    from: 'bidder',
-    product: 'Seagate IronWolf 10TB',
-    rating: 4,
-    review: 'Ổ chạy êm, phù hợp cho NAS',
-    date: '2024-12-27',
-  },
-  {
-    id: 8,
-    name: 'Trần Bích H',
-    from: 'seller',
-    product: 'Dell PowerEdge R720',
-    rating: 5,
-    review: 'Server mạnh, chạy ảo hoá ngon',
-    date: '2025-01-08',
-  },
-];
-
-const ratingCount = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-
-review.forEach((r) => {
-  ratingCount[r.rating as keyof typeof ratingCount] += 1;
-});
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -159,6 +78,7 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
+    dateOfBirth: '', // yyyy-mm-dd
   });
 
   useEffect(() => {
@@ -166,9 +86,15 @@ const Profile = () => {
       setPreviewAvatar(user?.avtUrl);
     }
 
+    console.log(user?.dateOfBirth);
+
     if (user?.fullname) {
-      setFormData((prev) => ({ ...prev, ['fullname']: user.fullname! }));
-      setFormData((prev) => ({ ...prev, ['email']: user.email }));
+      setFormData((prev) => ({
+        ...prev,
+        ['fullname']: user.fullname || '',
+        ['email']: user.email || '',
+        ['dateOfBirth']: user.dateOfBirth ? convertISO(user?.dateOfBirth, true) : '',
+      }));
     }
   }, [user]);
 
@@ -218,17 +144,17 @@ const Profile = () => {
     }
   };
 
-  const handleUpdateProfile = () => {
+  const handleUpdateProfile = async () => {
     const payload: any = {
       fullname: formData.fullname,
       email: formData.email,
+      dateOfBirth: formData.dateOfBirth,
     };
 
     if (image) {
       payload.avatar = image;
     }
-
-    updateUser({ user: payload, token: session.token });
+    await updateUser({ user: payload, token: session.token });
     refresh();
     window.location.reload();
   };
@@ -396,11 +322,13 @@ const Profile = () => {
                     <p id='birth' className=''>
                       Ngày sinh
                     </p>
+
                     <input
                       type='date'
                       id='date'
-                      value={formData.email}
-                      disabled
+                      name='dateOfBirth'
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
                       className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
                     />
                   </div>

@@ -115,7 +115,7 @@ export interface AutoBids {
   id: string;
   productId: string;
   bidderId: string;
-  maxAmount: string;
+  amount: string;
   createdAt: string;
 
   bidder: User;

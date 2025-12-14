@@ -30,9 +30,10 @@ export const getHistoryBid = async ({
   }
 };
 
-export const getActivitiesOfUser = async ({ token }: { token: string }) => {
+export const getActivitiesOfUser = async ({ token, limit, page }: { token: string; limit: number; page: number }) => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/autoBid`, {
+    const queryParams = `?page=${page ? page : 1}&limit=${limit ? limit : 5}`;
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/autoBid${queryParams}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

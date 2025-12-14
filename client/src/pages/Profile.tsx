@@ -34,22 +34,14 @@ import {
 import { useContext, useEffect, useRef, useState } from 'react';
 import { clearSession, getSession } from '../libs/session';
 import { requestToUpgrade, updateUser } from '../api/user';
-import { type AutoBids, type Ratings, type WatchList } from '../libs/types/types';
-import { Link, useNavigate } from 'react-router-dom';
+import { type Ratings } from '../libs/types/types';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { getAllWatchList } from '../api/watchlist';
 import { UserContext } from '../libs/contexts/user.context';
 import { getAllRatees, getAllRaters, updateRating } from '../api/rating';
 import { isoToYYYYMMDD } from '../libs/utils';
-import { getActivitiesOfUser } from '../api/historyBid';
-
-const convertDay = (date: string) => {
-  const now = new Date();
-  const endDate = new Date(date);
-  const diffTime = Math.abs(endDate.getTime() - now.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
-};
+import Activities from '../components/profile/tabs/activities';
+import WatchProducts from '../components/profile/tabs/watchList';
 
 const convertISO = (isoString: string | undefined) => {
   if (!isoString) return;
@@ -147,10 +139,8 @@ const Profile = () => {
   const navigate = useNavigate();
   const { user, refresh } = useContext(UserContext);
   const [session, setSession] = useState<any>(null);
-  const [watchList, setWatchList] = useState<WatchList[]>([]);
   const [raters, setRaters] = useState<Ratings[]>([]);
   const [ratees, setRatees] = useState<Ratings[]>([]);
-  const [activities, setActivities] = useState<AutoBids[]>([]);
 
   const [upgradeReason, setUpgradeReason] = useState('');
   const [previewAvatar, setPreviewAvatar] = useState<string | undefined>(undefined);
@@ -191,16 +181,6 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
-    const fetchActivities = async () => {
-      const data = await getActivitiesOfUser({ token: session.token });
-      console.log(data);
-      setActivities(data.data);
-    };
-    const fetchWatchList = async () => {
-      const data = await getAllWatchList({ token: session.token });
-      setWatchList(data);
-    };
-
     const fetchRaters = async () => {
       const data = await getAllRaters({ token: session.token });
       setRaters(data.ratings);
@@ -211,8 +191,6 @@ const Profile = () => {
       setRatees(data.ratings);
     };
 
-    fetchActivities();
-    fetchWatchList();
     fetchRaters();
     fetchRatees();
   }, [session]);
@@ -531,78 +509,11 @@ const Profile = () => {
           </TabsList>
 
           <TabsContent value='activity'>
-            <div className='border border-gray-300 mt-5 w-full px-7 py-3 flex flex-col rounded-md'>
-              <p className='text-lg font-bold mb-5'>Hoạt động gần đây</p>
-
-              <div className='flex flex-col gap-3'>
-                {activities.map((a, index) => (
-                  <div
-                    key={index}
-                    className='border border-gray-300 rounded-md px-4 py-4 w-full flex items-center justify-between'
-                  >
-                    <div className='flex flex-col gap-1'>
-                      <p className='font-bold'>{a.product?.title}</p>
-                      <p className='text-sm text-gray-400'>Đặt giá {a?.amount.toLocaleString()} VND</p>
-                    </div>
-
-                    <span className='text-sm'>{convertISO(a.createdAt)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <Activities token={session?.token} />
           </TabsContent>
 
           <TabsContent value='wishlist'>
-            <div className='border border-gray-300 px-8 py-4 rounded-md flex flex-col w-full mt-5'>
-              <p className='text-lg font-bold mb-5'>Sản phẩm yêu thích</p>
-              <div className='grid grid-cols-4 gap-3'>
-                {watchList.map((item: WatchList) => (
-                  <Link
-                    to={`/product/${item.productId}`}
-                    key={`${item.productId}-${item.userId}`}
-                    className='flex flex-col gap-2 border border-gray-200 rounded-md px-3 py-2 h-fit w-78 relative cursor-pointer z-0'
-                  >
-                    <img
-                      src={item.product.images?.[0].url}
-                      alt={item.product.title}
-                      className='w-full h-40 object-cover mb-2'
-                    />
-                    <p className='font-semibold text-xl line-clamp-2 min-h-15'>{item.product.title}</p>
-
-                    <span className='font-semibold text-2xl'>
-                      {Number(item.product.currentPrice).toLocaleString()} VND
-                    </span>
-
-                    <span className=' text-gray-700 text-sm'>
-                      {' '}
-                      Mua ngay: {Number(item.product.buyNowPrice).toLocaleString()} VND
-                    </span>
-
-                    <div className='border-t border-gray-300 mt-2 mb-2' />
-
-                    <div className='flex items-center justify-between text-sm'>
-                      <span>Lượt ra giá: </span>
-                      <span>{item.product.countbids}</span>
-                    </div>
-
-                    <div className='flex items-center justify-between text-sm'>
-                      <span>Người bán: </span>
-                      <span>{item?.product?.seller?.fullname}</span>
-                    </div>
-
-                    <Heart
-                      className={`w-10 h-10 ${
-                        item.productId ? 'stroke-0 fill-red-600' : 'stroke-2'
-                      } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
-                    />
-
-                    <div className='w-20 h-7 text-sm bg-gray-800 text-white absolute left-1 top-1 px-2 py-1 rounded-md'>
-                      {convertDay(item.product.endAt)} Ngày
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
+            <WatchProducts token={session?.token} />
           </TabsContent>
 
           <TabsContent value='review'>

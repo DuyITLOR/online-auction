@@ -22,9 +22,10 @@ export const createWatchList = async ({ productId, token }: { productId: string;
   }
 };
 
-export const getAllWatchList = async ({ token }: { token: string }) => {
+export const getAllWatchList = async ({ token, page }: { token: string; limit?: number; page?: number }) => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/watchlist`, {
+    const queryParams = `?page=${page ? page : 1}&limit=${8}`;
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/watchlist${queryParams}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -39,7 +39,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getAllWatchList } from '../api/watchlist';
 import { UserContext } from '../libs/contexts/user.context';
-import { getAllRatees, getAllRaters } from '../api/rating';
+import { getAllRatees, getAllRaters, updateRating } from '../api/rating';
 import { isoToYYYYMMDD } from '../libs/utils';
 
 const activityData = [
@@ -188,6 +188,10 @@ const Profile = () => {
   const negativeCount = raters.filter((r) => r.value === -1).length;
   const positiveRatio = totalReviews > 0 ? ((positiveCount + 10 - negativeCount) / (totalReviews + 10)) * 100 : 0;
 
+  // update rating
+  const [status, setStatus] = useState(false);
+  const [comment, setComment] = useState('');
+
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
@@ -269,6 +273,23 @@ const Profile = () => {
     updateUser({ user: payload, token: session.token });
     refresh();
     window.location.reload();
+  };
+
+  const handleUpdateRating = async (id: string, statusValue: boolean, commentValue: string) => {
+    try {
+      const value = statusValue ? 1 : -1;
+      await updateRating({ id: id, token: session.token, value: value, comment: commentValue });
+      toast.success('Cập nhật đánh giá thành công');
+      const fetchRatees = async () => {
+        const data = await getAllRatees({ token: session.token });
+        setRatees(data.ratings);
+      };
+
+      await fetchRatees();
+    } catch (err) {
+      toast.error('Cập nhật đánh giá thất bại');
+      console.error(err);
+    }
   };
 
   const signout = () => {
@@ -778,15 +799,76 @@ const Profile = () => {
                       </div>
 
                       <div className='mt-4 flex justify-end'>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          className='text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 gap-2 transition-colors'
-                          onClick={() => console.log('Open chat with', item.rater.fullname)}
-                        >
-                          <Edit className='w-4 h-4' />
-                          Chỉnh sửa
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant='outline'
+                              size='sm'
+                              className='text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 gap-2 transition-colors'
+                              onClick={() => {
+                                setStatus(item?.value === 1);
+                                setComment(item?.comment ? item?.comment : '');
+                              }}
+                            >
+                              <Edit className='w-4 h-4' />
+                              Chỉnh sửa
+                            </Button>
+                          </DialogTrigger>
+
+                          <DialogContent className='min-w-[500px]'>
+                            <DialogHeader>
+                              <DialogTitle>Chỉnh sửa</DialogTitle>
+                              <DialogDescription>Chỉnh sửa thông tin đánh giá</DialogDescription>
+                            </DialogHeader>
+
+                            <div className='flex flex-col gap-3 w-full mx-1'>
+                              <div className=' p-1 rounded-lg grid grid-cols-2 gap-1'>
+                                <button
+                                  onClick={() => setStatus(true)}
+                                  className={`flex items-center justify-center gap-2 border py-2 rounded-md text-sm font-medium transition-all ${
+                                    status
+                                      ? 'bg-green-50 text-green-600 shadow-sm border-green-700'
+                                      : 'text-gray-500 hover:text-gray-700 border-gray-200 '
+                                  }`}
+                                >
+                                  <ThumbsUp className='w-4 h-4' /> Hài lòng
+                                </button>
+                                <button
+                                  onClick={() => setStatus(false)}
+                                  className={`flex items-center justify-center border gap-2 py-2 rounded-md text-sm font-medium transition-all ${
+                                    !status
+                                      ? 'bg-red-50 text-red-600 shadow-sm border-red-700'
+                                      : 'text-gray-500 hover:text-gray-700 border-gray-200 '
+                                  }`}
+                                >
+                                  <ThumbsDown className='w-4 h-4' /> Không hài lòng
+                                </button>
+                              </div>
+                              <textarea
+                                className='w-full border border-gray-300 outline-0 px-2 py-2 h-[100px] focus:border-gray-600 rounded-md'
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                              />
+                            </div>
+
+                            <DialogFooter>
+                              <DialogFooter>
+                                <DialogClose>
+                                  <div className='flex items-center gap-2'>
+                                    <Button variant={'outline'}>Hủy</Button>
+                                    <Button
+                                      variant={'outline'}
+                                      onClick={() => handleUpdateRating(item.id, status, comment)}
+                                      className='bg-teal-700 text-white'
+                                    >
+                                      Chỉnh sửa
+                                    </Button>
+                                  </div>
+                                </DialogClose>
+                              </DialogFooter>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                   </div>

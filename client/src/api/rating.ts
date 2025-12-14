@@ -43,3 +43,38 @@ export const getAllRatees = async ({ token }: { token: string }) => {
     throw err;
   }
 };
+
+export const updateRating = async ({
+  id,
+  token,
+  value,
+  comment,
+}: {
+  id: string;
+  token: string;
+  value: number;
+  comment: string;
+}) => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/ratings/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ value, comment }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message = data.message || data.error || 'Failed to fetch update rating api';
+      throw new Error(message);
+    }
+
+    return data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};

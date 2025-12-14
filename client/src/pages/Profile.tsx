@@ -2,7 +2,7 @@
 import {
   Calendar,
   Camera,
-  ChevronDown,
+  Edit,
   Gavel,
   Heart,
   LogOut,
@@ -10,7 +10,6 @@ import {
   ScrollText,
   ShoppingBag,
   ShoppingBasket,
-  Star,
   ThumbsDown,
   ThumbsUp,
   UserRound,
@@ -21,7 +20,6 @@ import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList } from '../components/ui/tab';
 import { TabsTrigger } from '@radix-ui/react-tabs';
 import { Progress } from '../components/ui/progress';
-import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
 import {
   Dialog,
   DialogContent,
@@ -41,7 +39,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getAllWatchList } from '../api/watchlist';
 import { UserContext } from '../libs/contexts/user.context';
-import { getAllRating } from '../api/rating';
+import { getAllRatees, getAllRaters } from '../api/rating';
 import { isoToYYYYMMDD } from '../libs/utils';
 
 const activityData = [
@@ -166,106 +164,28 @@ const review = [
   },
 ];
 
-const myReviewFromProduct = [
-  {
-    id: 1,
-    name: 'Nguyen Van A',
-    product: 'iPhone 15 Pro Max',
-    rating: 4,
-    review: 'Máy đẹp như mới, rất hài lòng!',
-    date: '2025-01-12',
-  },
-  {
-    id: 2,
-    name: 'Tran Thi B',
-    product: 'Samsung Galaxy S24 Ultra',
-    rating: 5,
-    review: 'Hiệu năng cực mạnh, pin trâu, camera quá đỉnh!',
-    date: '2025-01-15',
-  },
-  {
-    id: 3,
-    name: 'Le Van C',
-    product: 'MacBook Air M2',
-    rating: 3,
-    review: 'Máy nhẹ, đẹp nhưng chạy hơi nóng khi render video.',
-    date: '2025-01-20',
-  },
-  {
-    id: 4,
-    name: 'Pham Thi D',
-    product: 'AirPods Pro 2',
-    rating: 5,
-    review: 'Chống ồn tốt, đeo thoải mái, âm thanh tuyệt vời.',
-    date: '2025-01-22',
-  },
-  {
-    id: 5,
-    name: 'Hoang Van E',
-    product: 'Apple Watch Series 9',
-    rating: 4,
-    review: 'Dùng ngon, nhiều tính năng mới, pin ổn.',
-    date: '2025-02-01',
-  },
-  {
-    id: 6,
-    name: 'Do Thi F',
-    product: 'iPad Pro M1 11-inch',
-    rating: 5,
-    review: 'Màn đẹp, bút viết sướng, hiệu năng cực mạnh.',
-    date: '2025-02-03',
-  },
-  {
-    id: 7,
-    name: 'Nguyen Van G',
-    product: 'Xiaomi Redmi Note 13 Pro',
-    rating: 4,
-    review: 'Giá rẻ, cấu hình cao, nhưng camera hơi xử lý quá đà.',
-    date: '2025-02-10',
-  },
-  {
-    id: 8,
-    name: 'Phan Thi H',
-    product: 'Sony WH-1000XM5',
-    rating: 5,
-    review: 'Âm trầm sâu, chống ồn cực tốt, đeo lâu không đau tai.',
-    date: '2025-02-17',
-  },
-];
-
 const ratingCount = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
 review.forEach((r) => {
   ratingCount[r.rating as keyof typeof ratingCount] += 1;
 });
 
-const sortValue = [
-  {
-    item: 'Sản phẩm',
-    value: 'product',
-  },
-  {
-    item: 'Người mua',
-    value: 'bidder',
-  },
-];
-
 const Profile = () => {
   const navigate = useNavigate();
   const { user, refresh } = useContext(UserContext);
-  const [selectOption, SetSelectOption] = useState(sortValue[0]);
   const [session, setSession] = useState<any>(null);
   const [watchList, setWatchList] = useState<WatchList[]>([]);
-  const [ratingUser, setRatingUser] = useState<Ratings[]>([]);
+  const [raters, setRaters] = useState<Ratings[]>([]);
+  const [ratees, setRatees] = useState<Ratings[]>([]);
 
   const [upgradeReason, setUpgradeReason] = useState('');
   const [previewAvatar, setPreviewAvatar] = useState<string | undefined>(undefined);
   const [image, setImage] = useState<File>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const totalReviews = ratingUser.length;
-  const positiveCount = ratingUser.filter((r) => r.value === 1).length;
-  const negativeCount = ratingUser.filter((r) => r.value === -1).length;
+  const totalReviews = raters.length;
+  const positiveCount = raters.filter((r) => r.value === 1).length;
+  const negativeCount = raters.filter((r) => r.value === -1).length;
   const positiveRatio = totalReviews > 0 ? ((positiveCount + 10 - negativeCount) / (totalReviews + 10)) * 100 : 0;
 
   const [formData, setFormData] = useState({
@@ -298,13 +218,19 @@ const Profile = () => {
       setWatchList(data);
     };
 
-    const fetchRating = async () => {
-      const data = await getAllRating({ token: session.token });
-      setRatingUser(data);
+    const fetchRaters = async () => {
+      const data = await getAllRaters({ token: session.token });
+      setRaters(data.ratings);
+    };
+
+    const fetchRatees = async () => {
+      const data = await getAllRatees({ token: session.token });
+      setRatees(data.ratings);
     };
 
     fetchWatchList();
-    fetchRating();
+    fetchRaters();
+    fetchRatees();
   }, [session]);
 
   const handleUpgradeSubmit = async () => {
@@ -717,7 +643,7 @@ const Profile = () => {
               <div className='flex flex-col gap-4'>
                 <h4 className='text-base font-bold text-gray-800 uppercase tracking-wide'>Đánh giá nhận được</h4>
 
-                {ratingUser.map((item: Ratings) => (
+                {raters.map((item: Ratings) => (
                   <div
                     key={item.id}
                     className='bg-white border border-gray-200 rounded-lg p-5 flex flex-col md:flex-row gap-4 transition-all hover:shadow-md'
@@ -796,50 +722,73 @@ const Profile = () => {
                     Các đánh giá bạn đã để lại cho người mua và sản phẩm.
                   </p>
                 </div>
-                <Popover>
-                  <PopoverTrigger>
-                    <Button
-                      className='w-45 border border-gray-300 items-center justify-between cursor-pointer'
-                      variant={'outline'}
-                    >
-                      <span className='text-gray-700 font-medium flex'>{selectOption.item}</span>
-                      <ChevronDown className='w-5 h-5' />
-                    </Button>
-                  </PopoverTrigger>
-
-                  <PopoverContent className='w-45 border-gray-300 bg-white'>
-                    <div className='w-full'>
-                      <ul className='space-y-0.5'>
-                        {sortValue.map((item) => (
-                          <li
-                            onClick={() => SetSelectOption(item)}
-                            key={item.value}
-                            className='px-3 py-1 text-sm hover:bg-gray-200 cursor-pointers!'
-                          >
-                            {item.item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </PopoverContent>
-                </Popover>
               </div>
 
               <div className='flex flex-col gap-4'>
-                {myReviewFromProduct.map((item) => (
-                  <div className='border border-gray-300 w-full px-7 py-3 flex items-start justify-between gap-2 rounded-md'>
-                    <div className='flex flex-col gap-1'>
-                      <p className='font-semibold'>{item.name}</p>
-                      <p className='text-sm font-semibold text-gray-500'>{item.product}</p>
-                      <div className='flex items-center gap-0.5'>
-                        {[...Array(item.rating)].map((_, index) => (
-                          <Star key={index} className='w-4 h-3 fill-amber-400 text-amber-400' />
-                        ))}
+                {ratees.map((item: Ratings) => (
+                  <div
+                    key={item.id}
+                    className='bg-white border border-gray-200 rounded-lg p-5 flex flex-col md:flex-row gap-4 transition-all hover:shadow-md'
+                  >
+                    <div className='flex flex-col justify-between gap-3 w-full md:w-48'>
+                      <div className='flex items-center gap-3'>
+                        <Avatar>
+                          <AvatarImage src={item?.ratee?.avtUrl} />
+                        </Avatar>
+                        <div className='flex flex-col'>
+                          <div className='flex items-center gap-2 mt-1'>
+                            <span
+                              className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${
+                                !(item.ratee.role === 'BIDDER')
+                                  ? 'border-orange-200 bg-orange-50 text-orange-700'
+                                  : 'border-blue-200 bg-blue-50 text-blue-700'
+                              }`}
+                            >
+                              {!(item?.ratee.role === 'BIDDER') ? 'Người bán' : 'Người mua'}
+                            </span>
+                          </div>
+                          <p className='font-semibold text-gray-900 text-sm'>{item?.ratee?.fullname}</p>
+                        </div>
+                      </div>
+                      <div className='flex items-center gap-1 mt-2 text-sm text-gray-400'>
+                        <Calendar className='w-3 h-3' />
+                        <span>{isoToYYYYMMDD(item?.createdAt)}</span>
+                      </div>
+                    </div>
+
+                    <div className='grow border-l-0 md:border-l border-gray-100 pl-0 md:pl-4 flex flex-col justify-between'>
+                      <div>
+                        <div className='flex items-center justify-between mb-2'>
+                          <p className='text-sm font-medium text-gray-500 uppercase'>{item.productId}</p>
+
+                          {item.value === 1 ? (
+                            <div className='flex items-center gap-1 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100'>
+                              <ThumbsUp className='w-3.5 h-3.5 fill-current' />
+                              <span className='text-xs font-bold'>Hài lòng</span>
+                            </div>
+                          ) : (
+                            <div className='flex items-center gap-1 text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-100'>
+                              <ThumbsDown className='w-3.5 h-3.5 fill-current' />
+                              <span className='text-xs font-bold'>Không hài lòng</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <p className='text-gray-700 text-sm leading-relaxed'>{item?.comment}</p>
                       </div>
 
-                      <p className='mt-2'>{item.review}</p>
+                      <div className='mt-4 flex justify-end'>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          className='text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 gap-2 transition-colors'
+                          onClick={() => console.log('Open chat with', item.rater.fullname)}
+                        >
+                          <Edit className='w-4 h-4' />
+                          Chỉnh sửa
+                        </Button>
+                      </div>
                     </div>
-                    <p className='text-sm text-gray-500'>{item.date}</p>
                   </div>
                 ))}
               </div>

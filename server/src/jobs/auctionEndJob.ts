@@ -6,9 +6,15 @@ import {
   loadNoBuyerTemplate,
 } from "../utils/sendEmail";
 
-export const auctionEndJob = cron.schedule("* * * * *", async () => {
-  console.log("Running auction end job...");
+let isRunning = false;
 
+export const auctionEndJob = cron.schedule("* * * * *", async () => {
+  if (isRunning) {
+    console.log("Auction end job is still running. Skipping this run.");
+    return;
+  }
+  isRunning = true;
+  console.log("Running auction end job...");
   try {
     const listProduct = await productService.getExpiredActiveProducts();
     console.log(`The number of products: ${listProduct.length}`);
@@ -68,5 +74,7 @@ export const auctionEndJob = cron.schedule("* * * * *", async () => {
     }
   } catch (err: any) {
     console.error(`Lấy danh sách sản phẩm thất bại: ${err.message}`);
+  } finally {
+    isRunning = false;
   }
 });

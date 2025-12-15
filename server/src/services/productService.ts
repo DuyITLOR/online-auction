@@ -270,3 +270,17 @@ export const buyNowProuct = async (bidderId: string,data: buyNowProuctDto) => {
     throw new Error(err.message);
   }
 };
+
+
+export const getProductActive = async () => {
+  const products = await prisma.products.findMany({
+    where: { status: "ACTIVE" },
+  })
+
+  if (!products) {
+    throw new Error("Không tìm thấy sản phẩm nào");
+  }
+
+  return products;
+}
+

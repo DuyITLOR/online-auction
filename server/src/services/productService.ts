@@ -197,8 +197,8 @@ export const searchProducts = async (query: productQueryDto) => {
   };
 };
 
-export const buyNowProuct = async (bidderId: string,data: buyNowProuctDto) => {
-  const timeoout = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+export const buyNowProuct = async (bidderId: string, data: buyNowProuctDto) => {
+  const timeout = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   try {
     return await prisma.$transaction(async (tx) => {
       const product = await tx.products.findUnique({
@@ -231,7 +231,7 @@ export const buyNowProuct = async (bidderId: string,data: buyNowProuctDto) => {
             status: "UNPAID",
             paymentStatus: "PENDING",
             shippingAddress: data.shippingAddress,
-            paymentDueAt: new Date(Date.now() + timeoout),
+            paymentDueAt: new Date(Date.now() + timeout),
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -239,10 +239,10 @@ export const buyNowProuct = async (bidderId: string,data: buyNowProuctDto) => {
             product: {
               include: {
                 seller: true,
-              }
+              },
             },
             buyer: true,
-          }
+          },
         });
 
         await tx.products.update({
@@ -269,4 +269,85 @@ export const buyNowProuct = async (bidderId: string,data: buyNowProuctDto) => {
   } catch (err: any) {
     throw new Error(err.message);
   }
+};
+
+export const getExpiredActiveProducts = async () => {
+  const products = await prisma.products.findMany({
+    where: { status: "ACTIVE", endAt: { lte: new Date() } },
+  });
+
+  if (!products) {
+    throw new Error("Không tìm thấy sản phẩm nào");
+  }
+
+  return products;
+};
+
+export const handleAuctionEnd = async (productId: string) => {
+  return prisma.$transaction(async (tx) => {
+    const exitOrder = await tx.orders.findUnique({
+      where: { productId: productId },
+    });
+
+    if (exitOrder) {
+      return null;
+    }
+
+    const product = await tx.products.findUnique({
+      where: { id: productId },
+      include: {
+        seller: true,
+      },
+    });
+
+    if (!product) {
+      throw new Error(`Không tìm thấy sản phẩm với productId ${productId}`);
+    }
+
+    if (product.status !== "ACTIVE") {
+      return;
+    }
+
+    await tx.products.update({
+      where: { id: productId },
+      data: {
+        status: "SOLD",
+        updatedAt: new Date(),
+      },
+    });
+
+    // Nếu không có người mua
+    if (product.winnerId === null) {
+      return {
+        type: "NO_BIDDER",
+        product: product,
+      };
+    }
+
+    const timeout = 24 * 60 * 60 * 1000;
+    const order = await tx.orders.create({
+      data: {
+        productId: productId,
+        buyerId: product.winnerId,
+        totalAmount: new Prisma.Decimal(product.buyNowPrice),
+        status: "UNPAID",
+        paymentStatus: "PENDING",
+        paymentDueAt: new Date(Date.now() + timeout),
+        createdAt: new Date(),
+      },
+      include: {
+        buyer: true,
+      },
+    });
+
+    if (!order) {
+      throw new Error("Tạo đơn hàng thất bại");
+    }
+
+    return {
+      type: "HAS_BIDDER",
+      product: product,
+      order: order,
+    };
+  });
 };

@@ -32,7 +32,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       const session = await getSession();
       const curToken = typeof session?.token === 'string' ? session.token : '';
-      console.log('cur', curToken);
 
       await fetchUserInfor(curToken);
     } catch (err) {

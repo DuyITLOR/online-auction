@@ -11,10 +11,10 @@ export const auctionEndJob = cron.schedule("* * * * *", async () => {
 
   try {
     const listProduct = await productService.getExpiredActiveProducts();
+    console.log(`The number of products: ${listProduct.length}`);
     for (const product of listProduct) {
       try {
         const data = await productService.handleAuctionEnd(product.id);
-
         if (!data) {
           console.log(`Tạo đơn hàng thất bại cho sản phẩm ${product.id}`);
           continue;

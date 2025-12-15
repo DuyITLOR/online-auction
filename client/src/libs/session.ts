@@ -38,7 +38,7 @@ export async function getSession() {
     const { payload } = await jwtVerify(session, encoding, {
       algorithms: ['HS256'],
     });
-    console.log("payload in getSession", payload);
+    // console.log("payload in getSession", payload);
     return payload;
   } catch (error) {
     console.error('Invalid session token', error);

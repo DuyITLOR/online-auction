@@ -99,7 +99,7 @@ export interface Comments {
   sendAt: string;
 
   parent?: Comments | null;
-  replies?: Comments[];
+  replies: Comments[];
   product: Product;
   sender: User;
 }

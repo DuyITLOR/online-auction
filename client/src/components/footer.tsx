@@ -5,7 +5,7 @@ const Footer = () => {
     <footer className='bg-gray-100 text-gray-300 py-8 border-t border-t-gray-300'>
       <div className='mx-10 px-6 grid grid-cols-1 md:grid-cols-3 gap-15 text-gray-600'>
         <div>
-          <h2 className='text-lg font-semibold mb-3'>Ebay</h2>
+          <h2 className='text-lg font-semibold mb-3'>SnapBid</h2>
           <p className='text-sm'>
             Nền tảng thương mại điện tử toàn cầu, sàn giao dịch nơi người mua và người bán có thể kết nối, trao đổi hàng
             hóa và khám phá hàng triệu sản phẩm độc đáo mỗi ngày.

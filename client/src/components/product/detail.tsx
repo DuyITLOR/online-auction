@@ -523,11 +523,11 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
         </TabsList>
 
         <TabsContent value='description'>
-          {product ? <ProductDescription product={product} currentUser={user} token={token}/> : null}
+          {product ? <ProductDescription product={product} currentUser={user} token={token} /> : null}
         </TabsContent>
       </Tabs>
 
-      <Review seller={product?.seller} />
+      <Review seller={product?.seller} productId={product.id} user={user} />
     </div>
   );
 };

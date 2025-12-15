@@ -6,11 +6,6 @@ import {
 } from "../dto/productDto";
 import { prisma } from "./db/prisma";
 import { Prisma } from "@prisma/client";
-import {
-  sendEmail,
-  loadOrderTemplate,
-  loadNoBuyerTemplate,
-} from "../utils/sendEmail";
 
 export const createProduct = async (id: string, data: createProductDto) => {
   const product = await prisma.products.create({
@@ -276,9 +271,9 @@ export const buyNowProuct = async (bidderId: string, data: buyNowProuctDto) => {
   }
 };
 
-export const getProductActive = async () => {
+export const getExpiredActiveProducts = async () => {
   const products = await prisma.products.findMany({
-    where: { status: "ACTIVE" },
+    where: { status: "ACTIVE", endAt: { lte: new Date() } },
   });
 
   if (!products) {
@@ -290,6 +285,14 @@ export const getProductActive = async () => {
 
 export const handleAuctionEnd = async (productId: string) => {
   return prisma.$transaction(async (tx) => {
+    const exitOrder = await tx.orders.findUnique({
+      where: { productId: productId },
+    });
+
+    if (exitOrder) {
+      return null;
+    }
+
     const product = await tx.products.findUnique({
       where: { id: productId },
       include: {
@@ -315,19 +318,12 @@ export const handleAuctionEnd = async (productId: string) => {
 
     // Nếu không có người mua
     if (product.winnerId === null) {
-      const content = loadNoBuyerTemplate(
-        product.title,
-        product.seller.fullname ?? "Người bán"
-      );
-
-      await sendEmail({
-        email: product.seller.email,
-        subject: "Kết quả đấu giá sản phẩm",
-        content: content,
-      });
-
-      return;
+      return {
+        type: "NO_BIDDER",
+        product: product,
+      };
     }
+
     const timeout = 24 * 60 * 60 * 1000;
     const order = await tx.orders.create({
       data: {
@@ -344,23 +340,14 @@ export const handleAuctionEnd = async (productId: string) => {
       },
     });
 
-    const content = loadOrderTemplate(
-      product.title,
-      (product.currentPrice ?? product.buyNowPrice).toString(),
-      product.seller.email || "Người bán",
-      order.buyer.email || "Người mua"
-    );
+    if (!order) {
+      throw new Error("Tạo đơn hàng thất bại");
+    }
 
-    await sendEmail({
-      email: order.buyer.email,
-      subject: "Thông tin đơn hàng đấu giá thành công",
-      content: content,
-    });
-
-    await sendEmail({
-      email: product.seller.email,
-      subject: "Đơn hàng đấu giá sản phẩm của bạn đã có người mua",
-      content: content,
-    });
+    return {
+      type: "HAS_BIDDER",
+      product: product,
+      order: order,
+    };
   });
 };

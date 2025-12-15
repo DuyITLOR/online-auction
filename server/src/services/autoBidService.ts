@@ -198,7 +198,7 @@ export const validationAutoBid = async (data: autoBidDto) => {
     throw new Error('Product is not active for bidding');
   }
 
-  // Check owner
+  // Check owner  
   if (product.sellerId === data.bidderId) {
     throw new Error('Owner cannot bid on their own product');
   }

@@ -40,11 +40,11 @@ POST http://localhost:4000/products/1/ask
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3NzM3MjFlLWU1NjQtNDQ2Ny05MzYyLTAyMWU3OTlhYjI5YiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQwMzA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NDY5Njc1MSwiZXhwIjoxNzY3Mjg4NzUxfQ.etBhn1RBEGP45Q6rsEOMJq0kWSjzHnqgtXKjb2zcKRA
 
-{
+{	
 	"question": "What is the condition of this product?"
 }
 ###	
-POST http://localhost:4000/comments/e2b6a572-a652-4a26-918c-038429ee47b6/answer
+POST http://localhost:4000/comments/c0431047-31a3-4479-8bd1-94647d491233/answer
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NTExOTc1MSwiZXhwIjoxNzY3NzExNzUxfQ.BtHa7RbPiOYSqi6FrgjeUKSJUMNBwehGDR2M87moIsA
 

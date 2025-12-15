@@ -192,7 +192,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                   onClick={() => setImage(item?.url)}
                   key={index}
                   className={`
-                    w-30 min-h-30 rounded-xl
+                    w-30 min-h-30 max-h-30 rounded-xl
                     bg-gray-200
                     border-2 
                     ${
@@ -202,7 +202,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                     }
                   `}
                 >
-                  <img src={item?.url} className='rounded-xl' />
+                  <img src={item?.url} className='rounded-xl w-full h-full object-cover' />
                 </div>
               ))}
             </div>
@@ -527,7 +527,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
         </TabsContent>
       </Tabs>
 
-      <Review seller={product?.seller} productId={product.id} user={user} />
+      <Review seller={product?.seller} productId={product.id} user={user} token={token} />
     </div>
   );
 };

@@ -6,6 +6,11 @@ import {
 } from "../dto/productDto";
 import { prisma } from "./db/prisma";
 import { Prisma } from "@prisma/client";
+import {
+  sendEmail,
+  loadOrderTemplate,
+  loadNoBuyerTemplate,
+} from "../utils/sendEmail";
 
 export const createProduct = async (id: string, data: createProductDto) => {
   const product = await prisma.products.create({
@@ -197,8 +202,8 @@ export const searchProducts = async (query: productQueryDto) => {
   };
 };
 
-export const buyNowProuct = async (bidderId: string,data: buyNowProuctDto) => {
-  const timeoout = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+export const buyNowProuct = async (bidderId: string, data: buyNowProuctDto) => {
+  const timeout = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   try {
     return await prisma.$transaction(async (tx) => {
       const product = await tx.products.findUnique({
@@ -231,7 +236,7 @@ export const buyNowProuct = async (bidderId: string,data: buyNowProuctDto) => {
             status: "UNPAID",
             paymentStatus: "PENDING",
             shippingAddress: data.shippingAddress,
-            paymentDueAt: new Date(Date.now() + timeoout),
+            paymentDueAt: new Date(Date.now() + timeout),
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -239,10 +244,10 @@ export const buyNowProuct = async (bidderId: string,data: buyNowProuctDto) => {
             product: {
               include: {
                 seller: true,
-              }
+              },
             },
             buyer: true,
-          }
+          },
         });
 
         await tx.products.update({
@@ -271,16 +276,91 @@ export const buyNowProuct = async (bidderId: string,data: buyNowProuctDto) => {
   }
 };
 
-
 export const getProductActive = async () => {
   const products = await prisma.products.findMany({
     where: { status: "ACTIVE" },
-  })
+  });
 
   if (!products) {
     throw new Error("Không tìm thấy sản phẩm nào");
   }
 
   return products;
-}
+};
 
+export const handleAuctionEnd = async (productId: string) => {
+  return prisma.$transaction(async (tx) => {
+    const product = await tx.products.findUnique({
+      where: { id: productId },
+      include: {
+        seller: true,
+      },
+    });
+
+    if (!product) {
+      throw new Error(`Không tìm thấy sản phẩm với productId ${productId}`);
+    }
+
+    if (product.status !== "ACTIVE") {
+      return;
+    }
+
+    await tx.products.update({
+      where: { id: productId },
+      data: {
+        status: "SOLD",
+        updatedAt: new Date(),
+      },
+    });
+
+    // Nếu không có người mua
+    if (product.winnerId === null) {
+      const content = loadNoBuyerTemplate(
+        product.title,
+        product.seller.fullname ?? "Người bán"
+      );
+
+      await sendEmail({
+        email: product.seller.email,
+        subject: "Kết quả đấu giá sản phẩm",
+        content: content,
+      });
+
+      return;
+    }
+    const timeout = 24 * 60 * 60 * 1000;
+    const order = await tx.orders.create({
+      data: {
+        productId: productId,
+        buyerId: product.winnerId,
+        totalAmount: new Prisma.Decimal(product.buyNowPrice),
+        status: "UNPAID",
+        paymentStatus: "PENDING",
+        paymentDueAt: new Date(Date.now() + timeout),
+        createdAt: new Date(),
+      },
+      include: {
+        buyer: true,
+      },
+    });
+
+    const content = loadOrderTemplate(
+      product.title,
+      (product.currentPrice ?? product.buyNowPrice).toString(),
+      product.seller.email || "Người bán",
+      order.buyer.email || "Người mua"
+    );
+
+    await sendEmail({
+      email: order.buyer.email,
+      subject: "Thông tin đơn hàng đấu giá thành công",
+      content: content,
+    });
+
+    await sendEmail({
+      email: product.seller.email,
+      subject: "Đơn hàng đấu giá sản phẩm của bạn đã có người mua",
+      content: content,
+    });
+  });
+};

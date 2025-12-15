@@ -17,8 +17,8 @@ model User {
   ratingNeg       Int
   ratingPos       Int
   role            Role
-  dateOfBirth     DateTime?
   avtUrl          String
+  dateOfBirth     DateTime?
   autoBids        AutoBids[]
   bidHistory      BidHistory[]
   blockedOn       BlockedBidders[]  @relation("BlockedUsers")
@@ -188,22 +188,22 @@ model Ratings {
 }
 
 model Orders {
-  id                 String      @id @default(uuid())
-  productId          String      @unique
+  id                 String        @id @default(uuid())
+  productId          String        @unique
   buyerId            String
-  phoneNumber        String
-  totalAmount        Decimal     @db.Decimal(15, 2) 
-  status             OrderStatus @default(UNPAID)
-  paymentStatus      PaymentStatus @default(UNPAID)
-  paymentDueAt       DateTime?
-  shippingAddress    String
+  phoneNumber        String?
+  status             OrderStatus   @default(UNPAID)
+  shippingAddress    String?
   paymentInvoiceUrl  String?
   shippingInvoiceUrl String?
   cancelReason       String?
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
-  buyer              User        @relation("OrdersBuyer", fields: [buyerId], references: [id])
-  product            Products    @relation(fields: [productId], references: [id])
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  paymentDueAt       DateTime?
+  paymentStatus      PaymentStatus @default(UNPAID)
+  totalAmount        Decimal       @db.Decimal(15, 2)
+  buyer              User          @relation("OrdersBuyer", fields: [buyerId], references: [id])
+  product            Products      @relation(fields: [productId], references: [id])
 }
 
 enum Role {
@@ -231,26 +231,16 @@ enum upgradeStatus {
   VALID
 }
 
-
 enum ProductStatus {
-  // Đang trong đấu giá
   ACTIVE
-  // Sản phẩm đã có người đấu giá thành công
   SOLD
-  // Seller hủy thanh toán
   CANCELLED
-  // Hết hạn mà chưa có ai trả giá
   EXPIRED
 }
 
 enum PaymentStatus {
-  // chưa thanh toán
   UNPAID
-  // Đang chờ thanh toán
   PENDING
-  // Đã thanh toán
   PAID
-  // Thanh toán thất bại khi vượt qua số giờ quy định
   FAILED
 }
-

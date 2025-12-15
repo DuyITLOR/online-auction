@@ -10,7 +10,7 @@ import { uploadedImageDto } from "../dto/uploadImageDto";
 import { checkRole } from "../utils/checkRole";
 import { gatewayResponse } from "../utils/response";
 import { HttpStatus } from "../utils/permission";
-import { sendEmail, loadOrderTemplate } from "../utils/sendEmail";
+  import { sendEmail, loadOrderTemplate } from "../utils/sendEmail";
 
 export const createProduct = async (req: Request, res: Response) => {
   try {

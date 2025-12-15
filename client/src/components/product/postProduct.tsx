@@ -106,6 +106,7 @@ const PostProduct = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    // console.log(e.target.name, e.target.value);
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -163,8 +164,8 @@ const PostProduct = () => {
         startPrice: Number(formData.startPrice),
         stepPrice: Number(formData.stepPrice),
         buyNowPrice: Number(formData.buyNowPrice),
-        startedAt: new Date(formData.startTime).toISOString(),
-        endAt: new Date(formData.endTime).toISOString(),
+        startedAt: formData.startTime,
+        endAt: formData.endTime,
         allowedExtend: allowedExtend,
         extendMinutes: extendMinutes,
         highRatingRequired: highRatingRequire,

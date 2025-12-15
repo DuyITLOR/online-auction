@@ -8,6 +8,7 @@ import { prisma } from "./db/prisma";
 import { Prisma } from "@prisma/client";
 
 export const createProduct = async (id: string, data: createProductDto) => {
+  console.log("Time to expired the product: ", data.endAt)
   const product = await prisma.products.create({
     data: {
       sellerId: id,

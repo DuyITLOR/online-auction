@@ -153,9 +153,7 @@ export const getAllBlockedUser = async (productId: string) => {
   }
 };
 
-export const getBlockUserByProductId = async (
-  productId: string
-): Promise<string[]> => {
+export const getBlockUserByProductId = async (productId: string): Promise<string[]> => {
   try {
     const record = await prisma.blockedBidders.findMany({
       where: { productId },
@@ -213,9 +211,7 @@ export const blockUser = async (data: blockUserDto) => {
   }
 };
 
-export const askSeller = async (
-  data: askSellerDto
-): Promise<askSellerReturnDto | returnErrorDto> => {
+export const askSeller = async (data: askSellerDto): Promise<askSellerReturnDto | returnErrorDto> => {
   try {
     const record = await prisma.comments.create({
       data: {
@@ -264,9 +260,7 @@ export const askSeller = async (
   }
 };
 
-export const answerBidder = async (
-  data: answerBidderDto
-): Promise<answerBidderReturnDto | returnErrorDto> => {
+export const answerBidder = async (data: answerBidderDto): Promise<answerBidderReturnDto | returnErrorDto> => {
   try {
     const record = await prisma.comments.create({
       data: {
@@ -322,6 +316,7 @@ export const getAllCommentsByProductId = async (data: getALlCommentsDto) => {
     const comments = await prisma.comments.findMany({
       where: {
         productId: data.productId,
+        parentId: null,
       },
       skip,
       take: data.limit,

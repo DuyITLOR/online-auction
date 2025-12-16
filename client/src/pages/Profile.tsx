@@ -2,7 +2,7 @@
 import {
   Calendar,
   Camera,
-  ChevronDown,
+  Edit,
   Gavel,
   Heart,
   LogOut,
@@ -10,7 +10,6 @@ import {
   ScrollText,
   ShoppingBag,
   ShoppingBasket,
-  Star,
   ThumbsDown,
   ThumbsUp,
   UserRound,
@@ -21,7 +20,6 @@ import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList } from '../components/ui/tab';
 import { TabsTrigger } from '@radix-ui/react-tabs';
 import { Progress } from '../components/ui/progress';
-import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
 import {
   Dialog,
   DialogContent,
@@ -36,241 +34,51 @@ import {
 import { useContext, useEffect, useRef, useState } from 'react';
 import { clearSession, getSession } from '../libs/session';
 import { requestToUpgrade, updateUser } from '../api/user';
-import { type Ratings, type WatchList } from '../libs/types/types';
+import { type Ratings } from '../libs/types/types';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { getAllWatchList } from '../api/watchlist';
 import { UserContext } from '../libs/contexts/user.context';
-import { getAllRating } from '../api/rating';
+import { getAllRatees, getAllRaters, updateRating } from '../api/rating';
 import { isoToYYYYMMDD } from '../libs/utils';
+import Activities from '../components/profile/tabs/activities';
+import WatchProducts from '../components/profile/tabs/watchList';
 
-const activityData = [
-  {
-    name: 'iPhone 15 Pro Max',
-    price: 25000000,
-    date: '2025-01-12',
-  },
-  {
-    name: 'Samsung Galaxy S24 Ultra',
-    price: 23000000,
-    date: '2025-01-10',
-  },
-  {
-    name: 'MacBook Pro 14-inch M3',
-    price: 45000000,
-    date: '2025-01-09',
-  },
-  {
-    name: 'Sony WH-1000XM5 Headphones',
-    price: 8500000,
-    date: '2025-01-08',
-  },
-  {
-    name: 'Apple Watch Series 9',
-    price: 11000000,
-    date: '2025-01-05',
-  },
-];
-
-const convertDay = (date: string) => {
-  const now = new Date();
-  const endDate = new Date(date);
-  const diffTime = Math.abs(endDate.getTime() - now.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
-};
-
-const convertISO = (isoString: string | undefined) => {
-  if (!isoString) return;
+const convertISO = (isoString: string | undefined, revert: boolean = false) => {
+  if (!isoString) return '';
   const date = new Date(isoString);
 
   const dd = String(date.getDate()).padStart(2, '0');
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const yyyy = date.getFullYear();
 
-  return `${dd}-${mm}-${yyyy}`;
+  return revert ? `${yyyy}-${mm}-${dd}` : `${dd}-${mm}-${yyyy}`;
 };
-
-const review = [
-  {
-    id: 1,
-    name: 'Trần Minh Anh',
-    from: 'bidder',
-    product: 'Macbook Pro 16',
-    rating: 5,
-    review: 'Sản phẩm chất lượng, đóng gói cẩn thận',
-    date: '2025-01-12',
-  },
-  {
-    id: 2,
-    name: 'Nguyễn Văn B',
-    from: 'seller',
-    product: 'iPhone 15 Pro Max',
-    rating: 4,
-    review: 'Hàng đẹp, giao nhanh nhưng hộp hơi móp',
-    date: '2025-01-10',
-  },
-  {
-    id: 3,
-    name: 'Lê Thị C',
-    from: 'bidder',
-    product: 'RTX 3080 Founders Edition',
-    rating: 5,
-    review: 'Hiệu năng tuyệt vời, chơi game mượt',
-    date: '2024-12-22',
-  },
-  {
-    id: 4,
-    name: 'Phạm Quốc D',
-    from: 'bidder',
-    product: 'ASUS ROG Strix B550-F',
-    rating: 3,
-    review: 'Main hoạt động ổn nhưng giao hàng hơi chậm',
-    date: '2024-12-18',
-  },
-  {
-    id: 5,
-    name: 'Đỗ Thu E',
-    from: 'bidder',
-    product: 'Samsung 980 Pro 1TB SSD',
-    rating: 4,
-    review: 'Ổ nhanh nhưng giá hơi cao',
-    date: '2025-01-02',
-  },
-  {
-    id: 6,
-    name: 'Võ Nhật F',
-    from: 'bidder',
-    product: 'Intel Core i9-12900K',
-    rating: 5,
-    review: 'CPU cực mạnh, render video nhanh',
-    date: '2025-01-05',
-  },
-  {
-    id: 7,
-    name: 'Nguyễn Văn G',
-    from: 'bidder',
-    product: 'Seagate IronWolf 10TB',
-    rating: 4,
-    review: 'Ổ chạy êm, phù hợp cho NAS',
-    date: '2024-12-27',
-  },
-  {
-    id: 8,
-    name: 'Trần Bích H',
-    from: 'seller',
-    product: 'Dell PowerEdge R720',
-    rating: 5,
-    review: 'Server mạnh, chạy ảo hoá ngon',
-    date: '2025-01-08',
-  },
-];
-
-const myReviewFromProduct = [
-  {
-    id: 1,
-    name: 'Nguyen Van A',
-    product: 'iPhone 15 Pro Max',
-    rating: 4,
-    review: 'Máy đẹp như mới, rất hài lòng!',
-    date: '2025-01-12',
-  },
-  {
-    id: 2,
-    name: 'Tran Thi B',
-    product: 'Samsung Galaxy S24 Ultra',
-    rating: 5,
-    review: 'Hiệu năng cực mạnh, pin trâu, camera quá đỉnh!',
-    date: '2025-01-15',
-  },
-  {
-    id: 3,
-    name: 'Le Van C',
-    product: 'MacBook Air M2',
-    rating: 3,
-    review: 'Máy nhẹ, đẹp nhưng chạy hơi nóng khi render video.',
-    date: '2025-01-20',
-  },
-  {
-    id: 4,
-    name: 'Pham Thi D',
-    product: 'AirPods Pro 2',
-    rating: 5,
-    review: 'Chống ồn tốt, đeo thoải mái, âm thanh tuyệt vời.',
-    date: '2025-01-22',
-  },
-  {
-    id: 5,
-    name: 'Hoang Van E',
-    product: 'Apple Watch Series 9',
-    rating: 4,
-    review: 'Dùng ngon, nhiều tính năng mới, pin ổn.',
-    date: '2025-02-01',
-  },
-  {
-    id: 6,
-    name: 'Do Thi F',
-    product: 'iPad Pro M1 11-inch',
-    rating: 5,
-    review: 'Màn đẹp, bút viết sướng, hiệu năng cực mạnh.',
-    date: '2025-02-03',
-  },
-  {
-    id: 7,
-    name: 'Nguyen Van G',
-    product: 'Xiaomi Redmi Note 13 Pro',
-    rating: 4,
-    review: 'Giá rẻ, cấu hình cao, nhưng camera hơi xử lý quá đà.',
-    date: '2025-02-10',
-  },
-  {
-    id: 8,
-    name: 'Phan Thi H',
-    product: 'Sony WH-1000XM5',
-    rating: 5,
-    review: 'Âm trầm sâu, chống ồn cực tốt, đeo lâu không đau tai.',
-    date: '2025-02-17',
-  },
-];
-
-const ratingCount = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-
-review.forEach((r) => {
-  ratingCount[r.rating as keyof typeof ratingCount] += 1;
-});
-
-const sortValue = [
-  {
-    item: 'Sản phẩm',
-    value: 'product',
-  },
-  {
-    item: 'Người mua',
-    value: 'bidder',
-  },
-];
 
 const Profile = () => {
   const navigate = useNavigate();
   const { user, refresh } = useContext(UserContext);
-  const [selectOption, SetSelectOption] = useState(sortValue[0]);
   const [session, setSession] = useState<any>(null);
-  const [watchList, setWatchList] = useState<WatchList[]>([]);
-  const [ratingUser, setRatingUser] = useState<Ratings[]>([]);
+  const [raters, setRaters] = useState<Ratings[]>([]);
+  const [ratees, setRatees] = useState<Ratings[]>([]);
 
   const [upgradeReason, setUpgradeReason] = useState('');
   const [previewAvatar, setPreviewAvatar] = useState<string | undefined>(undefined);
   const [image, setImage] = useState<File>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const totalReviews = ratingUser.length;
-  const positiveCount = ratingUser.filter((r) => r.value === 1).length;
-  const negativeCount = ratingUser.filter((r) => r.value === -1).length;
+  const totalReviews = raters.length;
+  const positiveCount = raters.filter((r) => r.value === 1).length;
+  const negativeCount = raters.filter((r) => r.value === -1).length;
   const positiveRatio = totalReviews > 0 ? ((positiveCount + 10 - negativeCount) / (totalReviews + 10)) * 100 : 0;
+
+  // update rating
+  const [status, setStatus] = useState(false);
+  const [comment, setComment] = useState('');
 
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
+    dateOfBirth: '', // yyyy-mm-dd
   });
 
   useEffect(() => {
@@ -278,9 +86,15 @@ const Profile = () => {
       setPreviewAvatar(user?.avtUrl);
     }
 
+    console.log(user?.dateOfBirth);
+
     if (user?.fullname) {
-      setFormData((prev) => ({ ...prev, ['fullname']: user.fullname! }));
-      setFormData((prev) => ({ ...prev, ['email']: user.email }));
+      setFormData((prev) => ({
+        ...prev,
+        ['fullname']: user.fullname || '',
+        ['email']: user.email || '',
+        ['dateOfBirth']: user.dateOfBirth ? convertISO(user?.dateOfBirth, true) : '',
+      }));
     }
   }, [user]);
 
@@ -293,18 +107,18 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
-    const fetchWatchList = async () => {
-      const data = await getAllWatchList({ token: session.token });
-      setWatchList(data);
+    const fetchRaters = async () => {
+      const data = await getAllRaters({ token: session.token });
+      setRaters(data.ratings);
     };
 
-    const fetchRating = async () => {
-      const data = await getAllRating({ token: session.token });
-      setRatingUser(data);
+    const fetchRatees = async () => {
+      const data = await getAllRatees({ token: session.token });
+      setRatees(data.ratings);
     };
 
-    fetchWatchList();
-    fetchRating();
+    fetchRaters();
+    fetchRatees();
   }, [session]);
 
   const handleUpgradeSubmit = async () => {
@@ -330,19 +144,36 @@ const Profile = () => {
     }
   };
 
-  const handleUpdateProfile = () => {
+  const handleUpdateProfile = async () => {
     const payload: any = {
       fullname: formData.fullname,
       email: formData.email,
+      dateOfBirth: formData.dateOfBirth,
     };
 
     if (image) {
       payload.avatar = image;
     }
-
-    updateUser({ user: payload, token: session.token });
+    await updateUser({ user: payload, token: session.token });
     refresh();
     window.location.reload();
+  };
+
+  const handleUpdateRating = async (id: string, statusValue: boolean, commentValue: string) => {
+    try {
+      const value = statusValue ? 1 : -1;
+      await updateRating({ id: id, token: session.token, value: value, comment: commentValue });
+      toast.success('Cập nhật đánh giá thành công');
+      const fetchRatees = async () => {
+        const data = await getAllRatees({ token: session.token });
+        setRatees(data.ratings);
+      };
+
+      await fetchRatees();
+    } catch (err) {
+      toast.error('Cập nhật đánh giá thất bại');
+      console.error(err);
+    }
   };
 
   const signout = () => {
@@ -355,7 +186,7 @@ const Profile = () => {
   return (
     <>
       <Header />
-      <div className='mx-18 mt-5'>
+      <div className='mx-18 mt-5 mb-5'>
         <div className='border border-gray-200 h-[150px] rounded-xl flex items-center justify-between px-10'>
           <div className='flex items-center gap-5'>
             <Avatar className='w-24 h-24'>
@@ -491,11 +322,13 @@ const Profile = () => {
                     <p id='birth' className=''>
                       Ngày sinh
                     </p>
+
                     <input
                       type='date'
                       id='date'
-                      value={formData.email}
-                      disabled
+                      name='dateOfBirth'
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
                       className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
                     />
                   </div>
@@ -578,103 +411,37 @@ const Profile = () => {
         <Tabs className='w-full' defaultValue='activity'>
           <TabsList className='grid w-full grid-cols-4'>
             <TabsTrigger
-              className='data-[state=active]:bg-gray-300 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
+              className='data-[state=active]:bg-teal-500 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
               value='activity'
             >
               Hoạt động
             </TabsTrigger>
             <TabsTrigger
-              className='data-[state=active]:bg-gray-300 data-[state=active]:py-1 data-[state=active]:rounded-md '
+              className='data-[state=active]:bg-teal-500 data-[state=active]:py-1 data-[state=active]:rounded-md '
               value='wishlist'
             >
-              Yêu thích (3){' '}
+              Yêu thích
             </TabsTrigger>
             <TabsTrigger
-              className='data-[state=active]:bg-gray-300 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
+              className='data-[state=active]:bg-teal-500 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
               value='review'
             >
-              Đánh giá (4){' '}
+              Đánh giá
             </TabsTrigger>
             <TabsTrigger
-              className='data-[state=active]:bg-gray-300 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
+              className='data-[state=active]:bg-teal-500 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
               value='my-review'
             >
-              Đã đánh giá (5){' '}
+              Đã đánh giá
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value='activity'>
-            <div className='border border-gray-300 mt-5 w-full px-7 py-3 flex flex-col rounded-md'>
-              <p className='text-lg font-bold mb-5'>Hoạt động gần đây</p>
-
-              <div className='flex flex-col gap-3'>
-                {activityData.map((a, index) => (
-                  <div
-                    key={index}
-                    className='border border-gray-300 rounded-md px-4 py-4 w-full flex items-center justify-between'
-                  >
-                    <div className='flex flex-col gap-1'>
-                      <p className='font-bold'>{a.name}</p>
-                      <p className='text-sm text-gray-400'>Đặt giá {a.price.toLocaleString()} VND</p>
-                    </div>
-
-                    <span className='text-sm'>{a.date}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <Activities token={session?.token} />
           </TabsContent>
 
           <TabsContent value='wishlist'>
-            <div className='border border-gray-300 px-8 py-4 rounded-md flex flex-col w-full mt-5'>
-              <p className='text-lg font-bold mb-5'>Sản phẩm yêu thích</p>
-              <div className='grid grid-cols-4 gap-3'>
-                {watchList.map((item: WatchList) => (
-                  <div
-                    key={`${item.productId}-${item.userId}`}
-                    className='flex flex-col gap-2 border border-gray-200 rounded-md px-3 py-2 h-fit w-78 relative cursor-pointer z-0'
-                  >
-                    <img
-                      src={item.product.images?.[0].url}
-                      alt={item.product.title}
-                      className='w-full h-40 object-cover mb-2'
-                    />
-                    <p className='font-semibold text-xl line-clamp-2'>{item.product.title}</p>
-
-                    <span className='font-semibold text-2xl'>
-                      {Number(item.product.currentPrice).toLocaleString()} VND
-                    </span>
-
-                    <span className=' text-gray-700 text-sm'>
-                      {' '}
-                      Mua ngay: {Number(item.product.buyNowPrice).toLocaleString()} VND
-                    </span>
-
-                    <div className='border-t border-gray-300 mt-2 mb-2' />
-
-                    <div className='flex items-center justify-between text-sm'>
-                      <span>Lượt ra giá: </span>
-                      <span>{item.product.countbids}</span>
-                    </div>
-
-                    <div className='flex items-center justify-between text-sm'>
-                      <span>Người bán: </span>
-                      <span>{item.user?.fullname}</span>
-                    </div>
-
-                    <Heart
-                      className={`w-10 h-10 ${
-                        item.productId ? 'stroke-0 fill-red-600' : 'stroke-2'
-                      } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
-                    />
-
-                    <div className='w-20 h-7 text-sm bg-gray-800 text-white absolute left-1 top-1 px-2 py-1 rounded-md'>
-                      {convertDay(item.product.endAt)} Ngày
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <WatchProducts token={session?.token} />
           </TabsContent>
 
           <TabsContent value='review'>
@@ -717,7 +484,7 @@ const Profile = () => {
               <div className='flex flex-col gap-4'>
                 <h4 className='text-base font-bold text-gray-800 uppercase tracking-wide'>Đánh giá nhận được</h4>
 
-                {ratingUser.map((item: Ratings) => (
+                {raters.map((item: Ratings) => (
                   <div
                     key={item.id}
                     className='bg-white border border-gray-200 rounded-lg p-5 flex flex-col md:flex-row gap-4 transition-all hover:shadow-md'
@@ -796,50 +563,134 @@ const Profile = () => {
                     Các đánh giá bạn đã để lại cho người mua và sản phẩm.
                   </p>
                 </div>
-                <Popover>
-                  <PopoverTrigger>
-                    <Button
-                      className='w-45 border border-gray-300 items-center justify-between cursor-pointer'
-                      variant={'outline'}
-                    >
-                      <span className='text-gray-700 font-medium flex'>{selectOption.item}</span>
-                      <ChevronDown className='w-5 h-5' />
-                    </Button>
-                  </PopoverTrigger>
-
-                  <PopoverContent className='w-45 border-gray-300 bg-white'>
-                    <div className='w-full'>
-                      <ul className='space-y-0.5'>
-                        {sortValue.map((item) => (
-                          <li
-                            onClick={() => SetSelectOption(item)}
-                            key={item.value}
-                            className='px-3 py-1 text-sm hover:bg-gray-200 cursor-pointers!'
-                          >
-                            {item.item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </PopoverContent>
-                </Popover>
               </div>
 
               <div className='flex flex-col gap-4'>
-                {myReviewFromProduct.map((item) => (
-                  <div className='border border-gray-300 w-full px-7 py-3 flex items-start justify-between gap-2 rounded-md'>
-                    <div className='flex flex-col gap-1'>
-                      <p className='font-semibold'>{item.name}</p>
-                      <p className='text-sm font-semibold text-gray-500'>{item.product}</p>
-                      <div className='flex items-center gap-0.5'>
-                        {[...Array(item.rating)].map((_, index) => (
-                          <Star key={index} className='w-4 h-3 fill-amber-400 text-amber-400' />
-                        ))}
+                {ratees.map((item: Ratings) => (
+                  <div
+                    key={item.id}
+                    className='bg-white border border-gray-200 rounded-lg p-5 flex flex-col md:flex-row gap-4 transition-all hover:shadow-md'
+                  >
+                    <div className='flex flex-col justify-between gap-3 w-full md:w-48'>
+                      <div className='flex items-center gap-3'>
+                        <Avatar>
+                          <AvatarImage src={item?.ratee?.avtUrl} />
+                        </Avatar>
+                        <div className='flex flex-col'>
+                          <div className='flex items-center gap-2 mt-1'>
+                            <span
+                              className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${
+                                !(item.ratee.role === 'BIDDER')
+                                  ? 'border-orange-200 bg-orange-50 text-orange-700'
+                                  : 'border-blue-200 bg-blue-50 text-blue-700'
+                              }`}
+                            >
+                              {!(item?.ratee.role === 'BIDDER') ? 'Người bán' : 'Người mua'}
+                            </span>
+                          </div>
+                          <p className='font-semibold text-gray-900 text-sm'>{item?.ratee?.fullname}</p>
+                        </div>
+                      </div>
+                      <div className='flex items-center gap-1 mt-2 text-sm text-gray-400'>
+                        <Calendar className='w-3 h-3' />
+                        <span>{isoToYYYYMMDD(item?.createdAt)}</span>
+                      </div>
+                    </div>
+
+                    <div className='grow border-l-0 md:border-l border-gray-100 pl-0 md:pl-4 flex flex-col justify-between'>
+                      <div>
+                        <div className='flex items-center justify-between mb-2'>
+                          <p className='text-sm font-medium text-gray-500 uppercase'>{item.productId}</p>
+
+                          {item.value === 1 ? (
+                            <div className='flex items-center gap-1 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100'>
+                              <ThumbsUp className='w-3.5 h-3.5 fill-current' />
+                              <span className='text-xs font-bold'>Hài lòng</span>
+                            </div>
+                          ) : (
+                            <div className='flex items-center gap-1 text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-100'>
+                              <ThumbsDown className='w-3.5 h-3.5 fill-current' />
+                              <span className='text-xs font-bold'>Không hài lòng</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <p className='text-gray-700 text-sm leading-relaxed'>{item?.comment}</p>
                       </div>
 
-                      <p className='mt-2'>{item.review}</p>
+                      <div className='mt-4 flex justify-end'>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant='outline'
+                              size='sm'
+                              className='text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 gap-2 transition-colors'
+                              onClick={() => {
+                                setStatus(item?.value === 1);
+                                setComment(item?.comment ? item?.comment : '');
+                              }}
+                            >
+                              <Edit className='w-4 h-4' />
+                              Chỉnh sửa
+                            </Button>
+                          </DialogTrigger>
+
+                          <DialogContent className='min-w-[500px]'>
+                            <DialogHeader>
+                              <DialogTitle>Chỉnh sửa</DialogTitle>
+                              <DialogDescription>Chỉnh sửa thông tin đánh giá</DialogDescription>
+                            </DialogHeader>
+
+                            <div className='flex flex-col gap-3 w-full mx-1'>
+                              <div className=' p-1 rounded-lg grid grid-cols-2 gap-1'>
+                                <button
+                                  onClick={() => setStatus(true)}
+                                  className={`flex items-center justify-center gap-2 border py-2 rounded-md text-sm font-medium transition-all ${
+                                    status
+                                      ? 'bg-green-50 text-green-600 shadow-sm border-green-700'
+                                      : 'text-gray-500 hover:text-gray-700 border-gray-200 '
+                                  }`}
+                                >
+                                  <ThumbsUp className='w-4 h-4' /> Hài lòng
+                                </button>
+                                <button
+                                  onClick={() => setStatus(false)}
+                                  className={`flex items-center justify-center border gap-2 py-2 rounded-md text-sm font-medium transition-all ${
+                                    !status
+                                      ? 'bg-red-50 text-red-600 shadow-sm border-red-700'
+                                      : 'text-gray-500 hover:text-gray-700 border-gray-200 '
+                                  }`}
+                                >
+                                  <ThumbsDown className='w-4 h-4' /> Không hài lòng
+                                </button>
+                              </div>
+                              <textarea
+                                className='w-full border border-gray-300 outline-0 px-2 py-2 h-[100px] focus:border-gray-600 rounded-md'
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                              />
+                            </div>
+
+                            <DialogFooter>
+                              <DialogFooter>
+                                <DialogClose>
+                                  <div className='flex items-center gap-2'>
+                                    <Button variant={'outline'}>Hủy</Button>
+                                    <Button
+                                      variant={'outline'}
+                                      onClick={() => handleUpdateRating(item.id, status, comment)}
+                                      className='bg-teal-700 text-white'
+                                    >
+                                      Chỉnh sửa
+                                    </Button>
+                                  </div>
+                                </DialogClose>
+                              </DialogFooter>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
-                    <p className='text-sm text-gray-500'>{item.date}</p>
                   </div>
                 ))}
               </div>

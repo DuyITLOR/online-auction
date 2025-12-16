@@ -1,17 +1,23 @@
-import './App.css';
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import AuthCallback from './pages/auth/AuthCallback';
-import SignIn from './pages/auth/SignIn';
-import SignUp from './pages/auth/SignUp';
-import Verify from './pages/auth/Verify';
-import ProductList from './pages/product/productList';
-import AdminDashboard from './pages/admin/Dashboard';
-import Profile from './pages/Profile';
-import DetailProduct from './pages/product/DetailProduct';
-import ForgetPassword from './pages/auth/ForgetPassword';
-import ResetPassword from './pages/auth/ResetPassword';
-import PostProduct from './pages/product/PostProduct';
+import "./App.css";
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import AuthCallback from "./pages/auth/AuthCallback";
+import SignIn from "./pages/auth/SignIn";
+import SignUp from "./pages/auth/SignUp";
+import Verify from "./pages/auth/Verify";
+import ProductList from "./pages/product/productList";
+import AdminDashboard from "./pages/admin/Dashboard";
+import Profile from "./pages/Profile";
+import DetailProduct from "./pages/product/DetailProduct";
+import ForgetPassword from "./pages/auth/ForgetPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
+import PostProduct from "./pages/product/PostProduct";
+import SellerDashboard from "./pages/seller/Dashboard";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -29,6 +35,8 @@ const router = createBrowserRouter(
       <Route path='auth/google/callback' element={<AuthCallback />} />
       <Route path='products' element={<ProductList />} />
       <Route path='profile' element={<Profile />} />
+
+      <Route path='seller/dashboard' element={<SellerDashboard />} />
     </Route>
   )
 );

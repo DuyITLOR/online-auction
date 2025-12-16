@@ -105,9 +105,16 @@ const PostProduct = () => {
     setParentCategoryId('');
   };
 
+  const formatCurrency = (value: string | number) => {
+    if (!value) return '';
+    const cleanValue = String(value).replace(/\D/g, '');
+    return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const rawValue = value.replace(/\./g, '');
+    setFormData((prev) => ({ ...prev, [name]: rawValue ? rawValue : Number(rawValue) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -163,8 +170,8 @@ const PostProduct = () => {
         startPrice: Number(formData.startPrice),
         stepPrice: Number(formData.stepPrice),
         buyNowPrice: Number(formData.buyNowPrice),
-        startedAt: new Date(formData.startTime).toISOString(),
-        endAt: new Date(formData.endTime).toISOString(),
+        startedAt: formData.startTime,
+        endAt: formData.endTime,
         allowedExtend: allowedExtend,
         extendMinutes: extendMinutes,
         highRatingRequired: highRatingRequire,
@@ -324,9 +331,9 @@ const PostProduct = () => {
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>Giá khởi điểm (VND)</label>
                 <input
-                  type='number'
+                  type='text'
                   name='startPrice'
-                  value={formData.startPrice}
+                  value={formatCurrency(formData.startPrice)}
                   onChange={handleChange}
                   className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none font-semibold text-gray-800'
                   placeholder='0'
@@ -336,9 +343,9 @@ const PostProduct = () => {
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>Bước giá (VND)</label>
                 <input
-                  type='number'
+                  type='text'
                   name='stepPrice'
-                  value={formData.stepPrice}
+                  value={formatCurrency(formData.stepPrice)}
                   onChange={handleChange}
                   className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none'
                   placeholder='Ví dụ: 50.000'
@@ -349,9 +356,9 @@ const PostProduct = () => {
               <div className='pt-2 border-t border-gray-100'>
                 <label className='block text-sm font-medium text-teal-700 mb-1'>Giá mua ngay (VND)</label>
                 <input
-                  type='number'
+                  type='text'
                   name='buyNowPrice'
-                  value={formData.buyNowPrice}
+                  value={formatCurrency(formData.buyNowPrice)}
                   onChange={handleChange}
                   className='w-full p-3 border border-teal-200 bg-teal-50 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-teal-800 font-bold'
                 />

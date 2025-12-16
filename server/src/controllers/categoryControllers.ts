@@ -6,7 +6,6 @@ import {
   categoryQueryDto,
 } from "../dto/categoryDto";
 import { checkRole } from "../utils/checkRole";
-import { success } from "zod";
 
 export async function createCategory(req: Request, res: Response) {
   try {
@@ -80,10 +79,10 @@ export async function deleteCategory(req: Request, res: Response) {
       .json({ success: true, message: "Danh mục đã được xóa thành công" });
   } catch (error) {
     const msg = (error as Error).message;
-    if (msg.includes("not found")) {
+    if (msg.includes("không tồn tại")) {
       return res.status(404).json({ success: false, error: msg });
     }
-    if (msg.includes("has products")) {
+    if (msg.includes("có sản phẩm")) {
       return res.status(409).json({ success: false, error: msg });
     }
     return res.status(500).json({ success: false, error: msg });
@@ -97,7 +96,7 @@ export async function getCategoryById(req: Request, res: Response) {
     if (!category)
       return res
         .status(404)
-        .json({ success: false, error: "Category not found" });
+        .json({ success: false, error: "Không tìm thấy danh mục" });
     return res.status(200).json({ success: true, data: category });
   } catch (error) {
     return res

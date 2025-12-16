@@ -12,7 +12,6 @@ import { UserContext } from '../libs/contexts/user.context';
 const Header = () => {
   const [session, setSession] = useState<any>(null);
   const { user, refresh } = useContext(UserContext);
-  console.log(user);
   const [searchValue, setSearchValue] = useState('');
 
   const [, setSearchParams] = useSearchParams();

@@ -9,8 +9,11 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  BarChart,
+  Bar,
 } from "recharts";
 
+// --- Types ---
 type RevenuePoint = {
   month: string;
   revenue: number;
@@ -22,11 +25,7 @@ type ActivityPoint = {
   users: number;
 };
 
-type Props = {
-  revenue?: RevenuePoint[];
-  activity?: ActivityPoint[];
-};
-
+// Dữ liệu mẫu (nếu props không truyền vào)
 const revenueDataDefault = [
   { month: "Jan", revenue: 2400 },
   { month: "Feb", revenue: 3120 },
@@ -34,49 +33,85 @@ const revenueDataDefault = [
   { month: "Apr", revenue: 3900 },
   { month: "May", revenue: 4200 },
   { month: "Jun", revenue: 4800 },
+  { month: "Jul", revenue: 5300 },
+  { month: "Aug", revenue: 6100 },
+  { month: "Sep", revenue: 5800 },
+  { month: "Oct", revenue: 6500 },
+  { month: "Nov", revenue: 7200 },
+  { month: "Dec", revenue: 8400 },
 ];
 
 const activityDataDefault = [
   { month: "Jan", sales: 1200, users: 9000 },
   { month: "Feb", sales: 1600, users: 7500 },
   { month: "Mar", sales: 2000, users: 18000 },
-  { month: "Apr", sales: 2200, users: 10000 },
-  { month: "May", sales: 2500, users: 15000 },
-  { month: "Jun", sales: 2700, users: 12000 },
+  { month: "Apr", sales: 2200, users: 14000 },
+  { month: "May", sales: 2800, users: 21000 },
+  { month: "Jun", sales: 3100, users: 19000 },
 ];
 
-// Custom tooltip UI
 const CustomTooltip = ({ active, payload, label }: any) => {
-  if (!active || !payload) return null;
-
-  return (
-    <div className='p-3 shadow-md rounded-md bg-white border border-gray-200 text-sm'>
-      <p className='font-semibold'>{label}</p>
-      {payload.map((item: any) => (
-        <p key={item.dataKey} className='flex justify-between gap-2'>
-          <span className='font-medium' style={{ color: item.color }}>
-            {item.name}:
-          </span>
-          <span>{item.value.toLocaleString()}</span>
-        </p>
-      ))}
-    </div>
-  );
+  if (active && payload && payload.length) {
+    return (
+      <div className='bg-white p-3 border border-gray-100 shadow-lg rounded-lg text-sm'>
+        <p className='font-bold text-gray-800 mb-1'>{label}</p>
+        {payload.map((entry: any, index: number) => (
+          <p key={index} style={{ color: entry.color }}>
+            {entry.name}: {entry.value.toLocaleString()}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
 };
 
-const TongQuanSection: React.FC<Props> = ({ revenue, activity }) => {
-  const revenueData = revenue || revenueDataDefault;
-  const activityData = activity || activityDataDefault;
-
+const OverviewTab: React.FC = () => {
   return (
-    <div className='grid grid-cols-1 lg:grid-cols-1 gap-8'>
-      {/* Biểu đồ doanh thu */}
-      <div className='rounded-lg border border-gray-200 p-6 bg-white shadow-sm hover:shadow-md transition-shadow'>
-        <h2 className='text-lg font-semibold mb-4'>📈 Doanh thu theo tháng</h2>
+    <div className='flex-1 space-y-6'>
+      {/* Thẻ thống kê tổng quan (Ví dụ) */}
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+        <div className='bg-white p-6 rounded-lg border border-gray-200 shadow-sm'>
+          <h3 className='text-sm font-medium text-gray-500 uppercase'>
+            Tổng doanh thu
+          </h3>
+          <p className='mt-2 text-3xl font-bold text-gray-900'>₫ 128.4M</p>
+          <span className='text-sm text-green-600 font-medium'>
+            +12.5% so với tháng trước
+          </span>
+        </div>
+        <div className='bg-white p-6 rounded-lg border border-gray-200 shadow-sm'>
+          <h3 className='text-sm font-medium text-gray-500 uppercase'>
+            Người dùng mới
+          </h3>
+          <p className='mt-2 text-3xl font-bold text-gray-900'>14,200</p>
+          <span className='text-sm text-green-600 font-medium'>
+            +8.2% so với tháng trước
+          </span>
+        </div>
+        <div className='bg-white p-6 rounded-lg border border-gray-200 shadow-sm'>
+          <h3 className='text-sm font-medium text-gray-500 uppercase'>
+            Đơn hàng
+          </h3>
+          <p className='mt-2 text-3xl font-bold text-gray-900'>3,850</p>
+          <span className='text-sm text-red-600 font-medium'>
+            -2.1% so với tháng trước
+          </span>
+        </div>
+      </div>
 
-        <div className='h-72'>
+      {/* Biểu đồ doanh thu */}
+      <div className='bg-white p-6 rounded-lg border border-gray-200 shadow-sm'>
+        <div className='mb-6'>
+          <h3 className='text-lg font-bold text-gray-900'>Biểu đồ doanh thu</h3>
+          <p className='text-sm text-gray-500'>
+            Thống kê doanh thu theo từng tháng trong năm
+          </p>
+        </div>
+
+        <div className='h-[350px] w-full'>
           <ResponsiveContainer width='100%' height='100%'>
-            <LineChart data={revenueData}>
+            <LineChart data={revenueDataDefault}>
               <defs>
                 <linearGradient
                   id='revenueGradient'
@@ -85,45 +120,114 @@ const TongQuanSection: React.FC<Props> = ({ revenue, activity }) => {
                   x2='0'
                   y2='1'
                 >
-                  <stop offset='0%' stopColor='#10b981' stopOpacity={0.4} />
-                  <stop offset='100%' stopColor='#10b981' stopOpacity={0} />
+                  <stop offset='5%' stopColor='#10b981' stopOpacity={0.2} />
+                  <stop offset='95%' stopColor='#10b981' stopOpacity={0} />
                 </linearGradient>
-
-                {/* Shadow */}
-                <filter
-                  id='shadow'
-                  x='-20%'
-                  y='-20%'
-                  width='200%'
-                  height='200%'
-                >
-                  <feDropShadow
-                    dx='0'
-                    dy='4'
-                    stdDeviation='4'
-                    floodColor='#10b98155'
-                  />
-                </filter>
               </defs>
-
-              <CartesianGrid strokeDasharray='3 3' />
-              <XAxis dataKey='month' />
-              <YAxis />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-
+              <CartesianGrid
+                strokeDasharray='3 3'
+                vertical={false}
+                stroke='#e5e7eb'
+              />
+              <XAxis
+                dataKey='month'
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "#6b7280", fontSize: 12 }}
+                dy={10}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "#6b7280", fontSize: 12 }}
+                dx={-10}
+              />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{
+                  stroke: "#10b981",
+                  strokeWidth: 1,
+                  strokeDasharray: "4 4",
+                }}
+              />
+              <Legend wrapperStyle={{ paddingTop: "20px" }} />
               <Line
-                type='natural'
+                type='monotone'
                 dataKey='revenue'
+                name='Doanh thu'
                 stroke='#10b981'
                 strokeWidth={3}
-                dot={{ r: 4 }}
-                fill='url(#revenueGradient)'
-                fillOpacity={1}
-                animationDuration={1200}
-                filter='url(#shadow)'
+                dot={{ r: 4, fill: "#10b981", strokeWidth: 2, stroke: "#fff" }}
+                activeDot={{ r: 6, strokeWidth: 0 }}
+                animationDuration={1500}
               />
             </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Biểu đồ hoạt động */}
+      <div className='bg-white p-6 rounded-lg border border-gray-200 shadow-sm'>
+        <div className='mb-6'>
+          <h3 className='text-lg font-bold text-gray-900'>
+            Hoạt động người dùng & Bán hàng
+          </h3>
+          <p className='text-sm text-gray-500'>
+            So sánh lượng người dùng truy cập và số đơn hàng
+          </p>
+        </div>
+
+        <div className='h-[350px] w-full'>
+          <ResponsiveContainer width='100%' height='100%'>
+            <BarChart data={activityDataDefault}>
+              <CartesianGrid
+                strokeDasharray='3 3'
+                vertical={false}
+                stroke='#e5e7eb'
+              />
+              <XAxis
+                dataKey='month'
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "#6b7280", fontSize: 12 }}
+                dy={10}
+              />
+              <YAxis
+                yAxisId='left'
+                orientation='left'
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "#6b7280", fontSize: 12 }}
+              />
+              <YAxis
+                yAxisId='right'
+                orientation='right'
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "#6b7280", fontSize: 12 }}
+              />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ fill: "#f3f4f6" }}
+              />
+              <Legend wrapperStyle={{ paddingTop: "20px" }} />
+              <Bar
+                yAxisId='left'
+                dataKey='sales'
+                name='Đơn hàng'
+                fill='#3b82f6'
+                radius={[4, 4, 0, 0]}
+                barSize={30}
+              />
+              <Bar
+                yAxisId='right'
+                dataKey='users'
+                name='Người dùng'
+                fill='#8b5cf6'
+                radius={[4, 4, 0, 0]}
+                barSize={30}
+              />
+            </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
@@ -131,4 +235,4 @@ const TongQuanSection: React.FC<Props> = ({ revenue, activity }) => {
   );
 };
 
-export default TongQuanSection;
+export default OverviewTab;

@@ -9,6 +9,7 @@ export interface User {
   role: 'BIDDER' | 'ADMIN';
   currentRoles: string[];
   avtUrl: string;
+  dateOfBirth?: string;
 
   autoBids?: AutoBids[];
   blockedOn?: BlockedBidders[];
@@ -98,7 +99,7 @@ export interface Comments {
   sendAt: string;
 
   parent?: Comments | null;
-  replies?: Comments[];
+  replies: Comments[];
   product: Product;
   sender: User;
 }
@@ -115,7 +116,7 @@ export interface AutoBids {
   id: string;
   productId: string;
   bidderId: string;
-  maxAmount: string;
+  amount: string;
   createdAt: string;
 
   bidder: User;

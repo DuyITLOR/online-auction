@@ -1,5 +1,5 @@
 import { useUsers } from "../../libs/contexts/userTab.context";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail, User, Shield, Calendar, Search } from "lucide-react";
 import Pagination from "../pagination";
 
 const TabUsers = () => {
@@ -7,7 +7,8 @@ const TabUsers = () => {
     useUsers();
 
   function splitDate(dateStr: string) {
-    return dateStr.split("T")[0];
+    if (!dateStr) return "";
+    return new Date(dateStr).toLocaleDateString("vi-VN");
   }
 
   function onPageChange(newPage: number | string) {
@@ -15,52 +16,141 @@ const TabUsers = () => {
   }
 
   return (
-    <div className='bg-white border rounded-lg flex flex-col overflow-hidden'>
-      {isLoading ? (
-        <div className='flex items-center justify-center h-90'>
-          <Loader2 className='animate-spin text-green-600' />
-          <span className='ml-2 text-gray-500'>Đang tải dữ liệu...</span>
+    <div className='flex-1 space-y-6'>
+      {/* Header / Toolbar (Có thể thêm Search user ở đây sau này) */}
+      <div className='bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between'>
+        <h2 className='text-lg font-semibold text-gray-800'>
+          Danh sách người dùng
+        </h2>
+        <div className='text-sm text-gray-500'>
+          Tổng số:{" "}
+          <span className='font-medium text-gray-900'>{totalUsers}</span> thành
+          viên
         </div>
-      ) : (
-        <>
-          <table className='w-full text-sm'>
-            <thead className='bg-gray-100'>
+      </div>
+
+      {/* --- DATA TABLE --- */}
+      <div className='bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col'>
+        <div className='overflow-x-auto'>
+          <table className='w-full text-sm text-left'>
+            <thead className='bg-gray-50 text-gray-500 uppercase font-medium text-xs border-b border-gray-200'>
               <tr>
-                <th className='px-6 py-3 text-left font-semibold'>Tên</th>
-                <th className='px-6 py-3 text-left font-semibold'>Email</th>
-                <th className='px-6 py-3 text-left font-semibold'>Vai trò</th>
-                <th className='px-6 py-3 text-left font-semibold'>
-                  Ngày tham gia
-                </th>
+                <th className='px-6 py-4 font-semibold'>Tên</th>
+                <th className='px-6 py-4 font-semibold'>Email</th>
+                <th className='px-6 py-4 font-semibold'>Vai trò</th>
+                <th className='px-6 py-4 font-semibold'>Ngày tham gia</th>
               </tr>
             </thead>
 
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className='border-b hover:bg-gray-50'>
-                  <td className='px-6 py-4'>{user.fullname}</td>
-                  <td className='px-6 py-4 text-gray-600'>{user.email}</td>
-                  <td className='px-6 py-4'>{user.role}</td>
-                  <td className='px-6 py-4 text-gray-600'>
-                    {splitDate(user.createdAt)}
+            <tbody className='divide-y divide-gray-100'>
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className='animate-pulse'>
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-3'>
+                        <div className='w-8 h-8 rounded-full bg-gray-200 shrink-0' />
+                        <div className='h-4 w-32 bg-gray-200 rounded' />
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-2'>
+                        <div className='w-3.5 h-3.5 bg-gray-200 rounded-full' />
+                        <div className='h-4 w-48 bg-gray-200 rounded' />
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-2'>
+                        <div className='w-3.5 h-3.5 bg-gray-200 rounded-full' />
+                        <div className='h-5 w-16 bg-gray-200 rounded' />
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-2'>
+                        <div className='w-3.5 h-3.5 bg-gray-200 rounded-full' />
+                        <div className='h-4 w-24 bg-gray-200 rounded' />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : users.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className='px-6 py-12 text-center text-gray-500 italic'
+                  >
+                    <div className='flex flex-col items-center gap-2'>
+                      <Search className='w-8 h-8 text-gray-300' />
+                      <span>Không tìm thấy người dùng nào.</span>
+                    </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                users.map((user) => (
+                  <tr
+                    key={user.id}
+                    className='hover:bg-gray-50 transition-colors duration-150'
+                  >
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-3'>
+                        <div className='w-8 h-8 rounded-full  bg-green-200 text-green-400 flex items-center justify-center'>
+                          <User className='w-4 h-4' />
+                        </div>
+                        <span className='font-medium text-gray-900'>
+                          {user.fullname}
+                        </span>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4 text-gray-600'>
+                      <div className='flex items-center gap-2'>
+                        <Mail className='w-3.5 h-3.5 text-gray-400' />
+                        {user.email}
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-2'>
+                        <Shield className='w-3.5 h-3.5 text-gray-400' />
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                            user.role === "ADMIN"
+                              ? "bg-purple-100 text-purple-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {user.role}
+                        </span>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4 text-gray-600'>
+                      <div className='flex items-center gap-2'>
+                        <Calendar className='w-3.5 h-3.5 text-gray-400' />
+                        {splitDate(user.createdAt)}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-        </>
-      )}
-      {/* Pagination */}
-      {totalUsers > 0 && (
-        <div className='h-20 border-t border-gray-200'>
-          <Pagination
-            className='flex justify-end'
-            page={page}
-            onPageChange={onPageChange}
-            totalPage={totalPages}
-          />
         </div>
-      )}
+
+        {/* Pagination */}
+        {!isLoading && totalUsers > 0 && (
+          <div className='p-4 border-t border-gray-100 mt-auto bg-gray-50/50'>
+            <div className='flex items-center justify-between'>
+              <div className='text-sm text-gray-500'>
+                Hiển thị trang <span className='font-medium'>{page}</span> /{" "}
+                <span className='font-medium'>{totalPages}</span>
+              </div>
+              <Pagination
+                className='flex justify-end'
+                page={page}
+                onPageChange={onPageChange}
+                totalPage={totalPages}
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

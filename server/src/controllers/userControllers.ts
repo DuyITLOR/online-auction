@@ -55,21 +55,16 @@ export const updateUser = async (req: Request, res: Response) => {
   const avtUrl = avt.fileUrl;
   const fullname = req.body.fullname;
   const dateOfBirth = req.body.dateOfBirth;
+  const address = req.body.address;
   const data = {
     fullname: fullname,
     dateOfBirth: dateOfBirth,
+    address: address,
     avt: avtUrl,
   } as updateUserDto;
   const record = await service.updateUser(req.user.id, data);
   if (record.success) {
-    const response = gatewayResponse(
-      200,
-      // {
-      //   data: record.data ?? null,
-      // },
-      null,
-      'update user'
-    );
+    const response = gatewayResponse(200, null, 'update user');
     res.status(response.code).send(response);
   } else {
     const response = gatewayResponse(400, null, 'Bad request');

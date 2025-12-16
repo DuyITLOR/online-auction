@@ -6,6 +6,7 @@ export interface requestUpgradeDto {
 export interface updateUserDto {
   fullname?: string;
   dateOfBirth?: string;
+  address?: string;
   avtUrl?: string;
 }
 

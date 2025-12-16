@@ -109,19 +109,6 @@ export default function DashboardTabs() {
             Kiểm duyệt
           </button>
         </li>
-
-        <li className='me-2'>
-          <button
-            onClick={() => setActiveTab("baocao")}
-            className={`inline-block p-4 ${
-              activeTab === "baocao"
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-black-500"
-            }`}
-          >
-            Báo cáo
-          </button>
-        </li>
       </ul>
 
       {/* Nội dung tuỳ tab */}

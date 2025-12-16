@@ -8,6 +8,7 @@ import React, {
 } from "react";
 
 import { getSession } from "../session";
+import { ChevronsLeftIcon } from "lucide-react";
 
 // --- Types ---
 export type NodeType = "category" | "subcategory" | "product";
@@ -209,11 +210,14 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
 
       const data = await res.json();
 
-      if (res.ok && data.success) {
+      if (data.success) {
         await fetchRootCategories();
         return { success: true, message: "Xóa thành công" };
-      }
-      return { success: false, message: data.message || "Xóa thất bại" };
+      } else
+        return {
+          success: false,
+          message: data.message || data.error || "Xóa thất bại",
+        };
     } catch (err) {
       return { success: false, message: "Lỗi kết nối server" };
     }

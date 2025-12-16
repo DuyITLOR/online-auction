@@ -44,17 +44,34 @@ const TabUsers = () => {
 
             <tbody className='divide-y divide-gray-100'>
               {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className='px-6 py-12 text-center text-gray-500'
-                  >
-                    <div className='flex items-center justify-center gap-2'>
-                      <Loader2 className='animate-spin w-5 h-5 text-teal-600' />
-                      <span>Đang tải dữ liệu...</span>
-                    </div>
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className='animate-pulse'>
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-3'>
+                        <div className='w-8 h-8 rounded-full bg-gray-200 shrink-0' />
+                        <div className='h-4 w-32 bg-gray-200 rounded' />
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-2'>
+                        <div className='w-3.5 h-3.5 bg-gray-200 rounded-full' />
+                        <div className='h-4 w-48 bg-gray-200 rounded' />
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-2'>
+                        <div className='w-3.5 h-3.5 bg-gray-200 rounded-full' />
+                        <div className='h-5 w-16 bg-gray-200 rounded' />
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-2'>
+                        <div className='w-3.5 h-3.5 bg-gray-200 rounded-full' />
+                        <div className='h-4 w-24 bg-gray-200 rounded' />
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : users.length === 0 ? (
                 <tr>
                   <td
@@ -75,7 +92,7 @@ const TabUsers = () => {
                   >
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-3'>
-                        <div className='w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center'>
+                        <div className='w-8 h-8 rounded-full  bg-green-200 text-green-400 flex items-center justify-center'>
                           <User className='w-4 h-4' />
                         </div>
                         <span className='font-medium text-gray-900'>
@@ -117,7 +134,7 @@ const TabUsers = () => {
         </div>
 
         {/* Pagination */}
-        {totalUsers > 0 && (
+        {!isLoading && totalUsers > 0 && (
           <div className='p-4 border-t border-gray-100 mt-auto bg-gray-50/50'>
             <div className='flex items-center justify-between'>
               <div className='text-sm text-gray-500'>

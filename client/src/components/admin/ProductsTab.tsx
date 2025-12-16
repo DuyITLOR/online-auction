@@ -3,6 +3,7 @@ import { Eye, Trash2, Loader2, Filter, Search } from "lucide-react";
 import Pagination from "../pagination";
 import { useProducts } from "../../libs/contexts/productTab.context";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 import {
   Dialog,
@@ -115,17 +116,31 @@ const ProductsTab: FC = () => {
 
             <tbody className='divide-y divide-gray-100'>
               {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className='px-6 py-12 text-center text-gray-500'
-                  >
-                    <div className='flex justify-center items-center gap-2'>
-                      <Loader2 className='animate-spin w-5 h-5 text-teal-600' />{" "}
-                      Đang tải dữ liệu...
-                    </div>
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className='animate-pulse'>
+                    <td className='px-6 py-4'>
+                      <div className='h-5 w-48 bg-gray-200 rounded' />
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='h-4 w-32 bg-gray-200 rounded' />
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='h-5 w-24 bg-gray-200 rounded-full' />
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='h-5 w-24 bg-gray-200 rounded' />
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='h-5 w-24 bg-gray-200 rounded-full' />
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex justify-end gap-2'>
+                        <div className='h-8 w-8 bg-gray-200 rounded-lg' />
+                        <div className='h-8 w-8 bg-gray-200 rounded-lg' />
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : products.length === 0 ? (
                 <tr>
                   <td
@@ -177,12 +192,13 @@ const ProductsTab: FC = () => {
                       </td>
                       <td className='px-6 py-4 text-right'>
                         <div className='flex items-center justify-end gap-2'>
-                          <button
+                          <Link
+                            to={`/product/${p.id}`}
                             className='p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-200'
                             title='Xem chi tiết'
                           >
                             <Eye className='w-4 h-4' />
-                          </button>
+                          </Link>
                           <button
                             onClick={() => setOpenId(p.id)}
                             className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200'
@@ -201,7 +217,7 @@ const ProductsTab: FC = () => {
         </div>
 
         {/* --- PAGINATION --- */}
-        {totalProducts > 0 && (
+        {!isLoading && totalProducts > 0 && (
           <div className='p-4 border-t border-gray-100 mt-auto bg-gray-50/50'>
             <div className='flex items-center justify-between'>
               <div className='text-sm text-gray-500'>
@@ -234,7 +250,7 @@ const ProductsTab: FC = () => {
               <p className='text-sm text-gray-600'>
                 Bạn có chắc chắn muốn xoá sản phẩm: <br />
                 <span className='font-bold text-gray-900 text-base'>
-                  {productToDelete.title}
+                  {productToDelete.title + " "}
                 </span>
                 ?
               </p>
@@ -247,7 +263,7 @@ const ProductsTab: FC = () => {
             <button
               onClick={() => setOpenId(null)}
               disabled={!!deletingId}
-              className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500'
+              className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 '
             >
               Hủy bỏ
             </button>
@@ -255,7 +271,7 @@ const ProductsTab: FC = () => {
             <button
               onClick={handleDelete}
               disabled={!!deletingId}
-              className='px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 flex items-center gap-2 disabled:opacity-50'
+              className='ml-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center gap-2 disabled:opacity-50'
             >
               {deletingId ? (
                 <>

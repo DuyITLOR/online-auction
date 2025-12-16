@@ -25,16 +25,23 @@ export async function deleteCate(cateId: string) {
     where: { id: cateId },
   });
   if (!existing) {
-    throw new Error("Category not found");
+    throw new Error("Danh mục không tồn tại");
   }
 
   // Prevent deletion if products are still assigned to this category
+  const childCategories = await prisma.categories.findMany({
+    where: { parentId: cateId },
+    select: { id: true },
+  });
 
   const productCount = await prisma.products.count({
-    where: { categoryId: cateId },
+    where:
+      childCategories.length > 0
+        ? { categoryId: { in: childCategories.map((c) => c.id) } }
+        : { categoryId: cateId },
   });
   if (productCount > 0) {
-    throw new Error("Category has products and cannot be deleted");
+    throw new Error("Danh mục có sản phẩm và không thể xóa");
   }
 
   // Safe to delete

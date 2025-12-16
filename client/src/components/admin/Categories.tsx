@@ -91,7 +91,7 @@ const TreeItem: FC<TreeItemProps> = ({
           </div>
 
           {node.type === "category" ? (
-            <Monitor className='w-5 h-5 text-blue-600 shrink-0' />
+            <Folder className='w-5 h-5 text-green-600 fill-green-400 shrink-0' />
           ) : node.type === "subcategory" ? (
             <Folder className='w-4 h-4 text-yellow-500 shrink-0' />
           ) : (
@@ -254,12 +254,17 @@ const CategoriesTab: FC = () => {
     if (!deleteNode) return;
     try {
       setIsSubmitting(true);
-      await deleteCategory(deleteNode.id);
-      toast.success("Đã xóa danh mục");
-      setDeleteNode(null);
+      const result = await deleteCategory(deleteNode.id);
+
+      if (result.success) {
+        toast.success("Đã xóa danh mục");
+        setDeleteNode(null);
+      } else {
+        toast.error(result.message || "Xóa thất bại!");
+      }
     } catch (error) {
       console.error(error);
-      toast.error("Xóa thất bại!");
+      toast.error("Có lỗi xảy ra!");
     } finally {
       setIsSubmitting(false);
     }
@@ -393,16 +398,13 @@ const CategoriesTab: FC = () => {
               </span>
               ?
             </p>
-            <p className='text-xs text-gray-500 mt-2'>
-              Lưu ý: Nếu danh mục này có chứa con, chúng cũng sẽ bị xóa.
-            </p>
           </div>
 
           <DialogFooter>
             <button
               onClick={() => setDeleteNode(null)}
               disabled={isSubmitting}
-              className='bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500'
+              className='bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition text-sm font-medium '
             >
               Hủy
             </button>

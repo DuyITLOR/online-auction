@@ -89,17 +89,16 @@ export const ModerationProvider: React.FC<{ children: ReactNode }> = ({
   // --- 1. Fetch Data ---
   const fetchModerationData = useCallback(async () => {
     try {
-      // Nếu chưa có data (lần đầu hoặc cache lỗi), bật loading
-      if (moderationData.length === 0) setLoading(true);
+      setLoading(true);
 
       const session = await getSession();
 
       // console.log("Fetching with params:", params.toString());
       // Nếu API hỗ trợ filter status thì uncomment.
       // Nếu không, ta vẫn fetch all về và client-filter (như logic filteredData bên dưới).
-      if (filterStatus !== "ALL") {
-        params.append("status", filterStatus);
-      }
+      // if (filterStatus !== "ALL") {
+      //   params.append("status", filterStatus);
+      // }
 
       const response = await fetch(
         `http://localhost:4000/users/requests?limit=${limit}&page=${page}`,

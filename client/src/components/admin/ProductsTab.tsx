@@ -3,6 +3,7 @@ import { Eye, Trash2, Loader2, Filter, Search } from "lucide-react";
 import Pagination from "../pagination";
 import { useProducts } from "../../libs/contexts/productTab.context";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 import {
   Dialog,
@@ -115,17 +116,31 @@ const ProductsTab: FC = () => {
 
             <tbody className='divide-y divide-gray-100'>
               {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className='px-6 py-12 text-center text-gray-500'
-                  >
-                    <div className='flex justify-center items-center gap-2'>
-                      <Loader2 className='animate-spin w-5 h-5 text-teal-600' />{" "}
-                      Đang tải dữ liệu...
-                    </div>
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className='animate-pulse'>
+                    <td className='px-6 py-4'>
+                      <div className='h-5 w-48 bg-gray-200 rounded' />
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='h-4 w-32 bg-gray-200 rounded' />
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='h-5 w-24 bg-gray-200 rounded-full' />
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='h-5 w-24 bg-gray-200 rounded' />
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='h-5 w-24 bg-gray-200 rounded-full' />
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex justify-end gap-2'>
+                        <div className='h-8 w-8 bg-gray-200 rounded-lg' />
+                        <div className='h-8 w-8 bg-gray-200 rounded-lg' />
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : products.length === 0 ? (
                 <tr>
                   <td
@@ -202,7 +217,7 @@ const ProductsTab: FC = () => {
         </div>
 
         {/* --- PAGINATION --- */}
-        {totalProducts > 0 && (
+        {!isLoading && totalProducts > 0 && (
           <div className='p-4 border-t border-gray-100 mt-auto bg-gray-50/50'>
             <div className='flex items-center justify-between'>
               <div className='text-sm text-gray-500'>

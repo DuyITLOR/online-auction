@@ -172,12 +172,7 @@ const TreeItem: FC<TreeItemProps> = ({
       )}
 
       {isOpen && !isLoading && !hasChildren && isCategory && node.isLoaded && (
-        <div
-          className='py-2 text-xs text-gray-400 italic'
-          style={{ paddingLeft: `${level * 1.5 + 4}rem` }}
-        >
-          (Trống)
-        </div>
+        <div className='py-2 text-xs text-gray-400 italic ml-1.5'>(Trống)</div>
       )}
     </div>
   );

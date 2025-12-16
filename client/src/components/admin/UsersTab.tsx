@@ -75,7 +75,7 @@ const TabUsers = () => {
                   >
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-3'>
-                        <div className='w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center'>
+                        <div className='w-8 h-8 rounded-full  bg-green-200 text-green-400 flex items-center justify-center'>
                           <User className='w-4 h-4' />
                         </div>
                         <span className='font-medium text-gray-900'>

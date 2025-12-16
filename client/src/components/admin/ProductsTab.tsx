@@ -177,12 +177,13 @@ const ProductsTab: FC = () => {
                       </td>
                       <td className='px-6 py-4 text-right'>
                         <div className='flex items-center justify-end gap-2'>
-                          <button
+                          <Link
+                            to={`/product/${p.id}`}
                             className='p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-200'
                             title='Xem chi tiết'
                           >
                             <Eye className='w-4 h-4' />
-                          </button>
+                          </Link>
                           <button
                             onClick={() => setOpenId(p.id)}
                             className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200'
@@ -234,7 +235,7 @@ const ProductsTab: FC = () => {
               <p className='text-sm text-gray-600'>
                 Bạn có chắc chắn muốn xoá sản phẩm: <br />
                 <span className='font-bold text-gray-900 text-base'>
-                  {productToDelete.title}
+                  {productToDelete.title + " "}
                 </span>
                 ?
               </p>
@@ -247,7 +248,7 @@ const ProductsTab: FC = () => {
             <button
               onClick={() => setOpenId(null)}
               disabled={!!deletingId}
-              className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500'
+              className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 '
             >
               Hủy bỏ
             </button>
@@ -255,7 +256,7 @@ const ProductsTab: FC = () => {
             <button
               onClick={handleDelete}
               disabled={!!deletingId}
-              className='px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 flex items-center gap-2 disabled:opacity-50'
+              className='ml-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center gap-2 disabled:opacity-50'
             >
               {deletingId ? (
                 <>

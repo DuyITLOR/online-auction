@@ -11,6 +11,7 @@ import watchList from './watchListRoute';
 import admin from './adminRoute';
 import autoBid from './autoBidRoute';
 import rating from './ratingRoute';
+import chat from './chatRotues';
 
 const prisma = new PrismaClient();
 
@@ -74,4 +75,5 @@ export function routes(app: Application): void {
   app.use('/', watchList);
   app.use('/', autoBid);
   app.use('/', rating);
+  app.use('/', chat);
 }

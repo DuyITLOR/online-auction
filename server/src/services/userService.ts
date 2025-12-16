@@ -41,10 +41,11 @@ export const getUserById = async (id: string) => {
 
 export const updateUser = async (id: string, Data: updateUserDto) => {
   try {
-    const { fullname, avtUrl, dateOfBirth } = Data;
+    const { fullname, avtUrl, dateOfBirth, address } = Data;
     const data = {
       ...(fullname !== undefined && { fullname }),
       ...(avtUrl !== undefined && { avtUrl }),
+      ...(address !== undefined && { address }),
       ...(dateOfBirth !== undefined && { dateOfBirth: new Date(dateOfBirth) }),
     };
 

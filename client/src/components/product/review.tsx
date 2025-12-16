@@ -40,7 +40,7 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
 
   const [totalPage, setTotalPage] = useState(1);
   const [curComment, setCurComment] = useState<Comments[]>([]);
-  const [hiddenAns, setHiddenAns] = useState(false);
+  const [hiddenAns, setHiddenAns] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -50,7 +50,7 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
   };
 
   const updatePage = () => {
-    setTotalPage(Math.ceil(comments.length / ITEM_PER_PAGE));
+    setTotalPage(Math.ceil(comments.length / ITEM_PER_PAGE) > 0 ? Math.ceil(comments.length / ITEM_PER_PAGE) : 1);
     setCurComment(comments.slice(page - 1, page - 1 + ITEM_PER_PAGE));
   };
 
@@ -81,7 +81,7 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
     try {
       setQuestion('');
       await postAnswer({ questionId: questId, productId: productId, token: token, content: answerValue });
-      setHiddenAns(false);
+      setHiddenAns('');
       fetchComment();
     } catch (err) {
       console.error(err);
@@ -241,15 +241,15 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
               {item.replies.length === 0 && user.id === seller.id && (
                 <div className='ml-11'>
                   <button
-                    onClick={() => setHiddenAns(true)}
+                    onClick={() => setHiddenAns(item.id)}
                     className={`text-sm text-gray-400 hover:text-teal-600 font-medium underline decoration-dashed ${
-                      hiddenAns ? 'hidden' : ''
+                      hiddenAns === item.id ? 'hidden' : ''
                     }`}
                   >
                     Trả lời người mua
                   </button>
 
-                  <div className={`flex gap-3 mb-8 items-start ${!hiddenAns ? 'hidden' : ''}`}>
+                  <div className={`flex gap-3 mb-2 items-start ${hiddenAns === item.id ? '' : 'hidden'}`}>
                     <div className='bg-gray-200 rounded-full mt-1'>
                       <Avatar className='w-8 h-8 mt-1'>
                         <AvatarImage src={user.avtUrl} className='w-8 h-8 rounded-full' />
@@ -278,7 +278,7 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
                       <button
                         disabled={isSubmitting}
                         onClick={() => {
-                          setHiddenAns(false);
+                          setHiddenAns('');
                         }}
                         className='absolute top-3 right-3 text-red-300 hover:text-red-500 disabled:text-gray-300'
                       >

@@ -31,7 +31,7 @@ export const loadResetTemplate = (link: string) => {
     `;
 };
 
-export const loadBidSuccessTemplate = (
+export const loadBidSuccessTemplateForBidder = (
   userName: string,
   productName: string,
   price: string
@@ -46,9 +46,44 @@ export const loadBidSuccessTemplate = (
       border:1px solid #eee;
       background:#ffffff;
     ">
-      <h3 style="margin-top:0;color:#0ea5a4;">Thông báo sản phẩm</h3>
+      <h3 style="margin-top:0;color:#0ea5a4;">Thông báo ra giá thành công/h3>
 
       <p>Xin chào <strong>${userName}</strong>,</p>
+
+      <p>
+        Sản phẩm <strong>${productName}</strong> đang có giá 
+        <strong style="color:#0ea5a4;">${price} VND</strong>.
+      </p>
+
+      <p>Đây là thông báo tự động liên quan đến sản phẩm của bạn.</p>
+
+      <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
+
+      <p style="font-size:12px;color:#666;">
+        Nếu bạn không yêu cầu thông báo này, vui lòng bỏ qua email này.
+      </p>
+    </div>
+  `;
+};
+
+export const loadBidSuccessTemplateForSeller = (
+  userName: string,
+  productName: string,
+  price: string
+) => {
+  return `
+    <div style="
+      max-width:500px;
+      margin:auto;
+      font-family:Arial,sans-serif;
+      padding:20px;
+      border-radius:8px;
+      border:1px solid #eee;
+      background:#ffffff;
+    ">
+      <h3 style="margin-top:0;color:#0ea5a4;">Thông báo ra giá thành công/h3>
+
+      <p>Người dùng có tên <strong>${userName}</strong> đã ra giá thành công sản phẩm của bạn</p>
 
       <p>
         Sản phẩm <strong>${productName}</strong> đang có giá 

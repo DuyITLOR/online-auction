@@ -4,6 +4,13 @@ import { gatewayResponse } from "../utils/response";
 import { HttpStatus } from "../utils/permission";
 import { checkRole } from "../utils/checkRole";
 import { bidHistoryQueryDto } from "../dto/autoBidDto";
+import {
+  loadBidSuccessTemplateForSeller,
+  loadBidSuccessTemplateForBidder,
+  loadBidFailedTemplate,
+  sendEmail,
+} from "../utils/sendEmail";
+import { autoBidResult } from "../dto/autoBidDto";
 
 export const createAutoBid = async (req: Request, res: Response) => {
   try {
@@ -38,11 +45,53 @@ export const createAutoBid = async (req: Request, res: Response) => {
       return res.status(response.code).send(response);
     }
 
-    const data = await autoBidService.createAutoBid({
+    const data: autoBidResult = await autoBidService.createAutoBid({
       bidderId,
       productId,
       maxAutoBidAmount: Number(maxAutoBidAmount),
     });
+
+
+    // Gửi cho người thắng
+    let content = loadBidSuccessTemplateForBidder(
+      data.winner.name,
+      data.product.name,
+      data.product.price.toString()
+    );
+    await sendEmail({
+      email: data.winner.email,
+      subject: "Thông báo ra giá thành công",
+      content,
+    });
+
+    // Gửi thông báo cho người bán
+    content = loadBidSuccessTemplateForSeller(
+      data.seller.name,
+      data.product.name,
+      data.product.price.toString()
+    )
+    await sendEmail({
+      email: data.seller.email,
+      subject: "Thông báo người đấu giá ra giá thành công sản phẩm của bạn",
+      content,
+    })
+
+    // Gửi thông báo cho người thua cuộc (nếu có)
+
+    if (data.lastWinner.email !== "N/A") {
+      content = loadBidFailedTemplate(
+        data.lastWinner.name,
+        data.product.name,
+        data.product.price.toString()
+      )
+
+      await sendEmail({
+        email: data.lastWinner.email,
+        subject: "Bạn đã bị vượt qua trong cuộc đấu giá",
+        content,
+      });
+    }
+
     const response = gatewayResponse(
       HttpStatus.created,
       data,
@@ -87,7 +136,6 @@ export const getHistoryAutoBisByProduct = async (
   }
 };
 
-
 export const getBidCountByProduct = async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
@@ -113,10 +161,10 @@ export const getBidCountByProduct = async (req: Request, res: Response) => {
     const response = gatewayResponse(HttpStatus.badRequest, null, message);
     return res.status(response.code).send(response);
   }
-}
+};
 
 export const getMaxBidByUser = async (req: Request, res: Response) => {
-  try{
+  try {
     const { productId } = req.params;
     const userId = req.user?.id;
 
@@ -154,25 +202,28 @@ export const getMaxBidByUser = async (req: Request, res: Response) => {
     const response = gatewayResponse(HttpStatus.badRequest, null, message);
     return res.status(response.code).send(response);
   }
-}
+};
 
 export const getBidHistoryByUserId = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    
-    let roles = await checkRole(userId!); 
+
+    let roles = await checkRole(userId!);
     if (!roles.includes("BIDDER")) {
       const response = gatewayResponse(
         HttpStatus.forbidden,
         null,
         "Forbidden: User is not a bidder"
       );
-      
+
       return res.status(response.code).send(response);
     }
-    
+
     const queryParams = req.query as bidHistoryQueryDto;
-    const data = await autoBidService.getBidHistoryByUserId(userId!, queryParams);
+    const data = await autoBidService.getBidHistoryByUserId(
+      userId!,
+      queryParams
+    );
 
     if (!data) {
       const response = gatewayResponse(
@@ -189,11 +240,10 @@ export const getBidHistoryByUserId = async (req: Request, res: Response) => {
       "Bid history retrieved successfully"
     );
     return res.status(response.code).send(response);
-
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : "Internal Server Error";
     const response = gatewayResponse(HttpStatus.badRequest, null, message);
     return res.status(response.code).send(response);
   }
-}
+};

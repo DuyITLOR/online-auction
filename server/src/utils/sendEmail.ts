@@ -46,7 +46,7 @@ export const loadBidSuccessTemplateForBidder = (
       border:1px solid #eee;
       background:#ffffff;
     ">
-      <h3 style="margin-top:0;color:#0ea5a4;">Thông báo ra giá thành công/h3>
+      <h3 style="margin-top:0;color:#0ea5a4;">Thông báo ra giá thành công</h3>
 
       <p>Xin chào <strong>${userName}</strong>,</p>
 

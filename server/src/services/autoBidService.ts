@@ -11,153 +11,156 @@ import { getProductById } from "./productService";
 import { checkRating } from "./userService";
 import { getBlockUserByProductId } from "./userService";
 
-export const computerBidder = async (data: computeBidDto): Promise<computeBid> => {
-  return await prisma.$transaction(async (tx) => {
-    const product = await tx.products.findUnique({
-      where: { id: data.productId },
-      include: { autoBids: true },
-    });
-
-    if (!product) throw new Error("Product not found");
-
-    const stepPrice = Number(product.stepPrice);
-    const startPrice = Number(product.startPrice);
-    const currentPrice = Number(product.currentPrice ?? startPrice);
-
-    const bids = product.autoBids.sort((a, b) => {
-      const diff = Number(b.maxAmount) - Number(a.maxAmount);
-      if (diff !== 0) return diff;
-      return a.createdAt.getTime() - b.createdAt.getTime();
-    });
-    const lastHistory = await tx.bidHistory.findFirst({
-      where: { productId: data.productId },
-      orderBy: { createdAt: "desc" },
-    });
-
-    if (!lastHistory) {
-      // Create history
-      const bid =  await tx.bidHistory.create({
-        data: {
-          productId: data.productId,
-          bidderId: data.newBidderId,
-          amount: new Prisma.Decimal(startPrice),
-        },
-        include: { bidder: true },
+export const computerBidder = async (
+  data: computeBidDto
+): Promise<computeBid> => {
+  return await prisma.$transaction(
+    async (tx) => {
+      const product = await tx.products.findUnique({
+        where: { id: data.productId },
+        include: { autoBids: true },
       });
 
+      if (!product) throw new Error("Product not found");
+
+      const stepPrice = Number(product.stepPrice);
+      const startPrice = Number(product.startPrice);
+      const currentPrice = Number(product.currentPrice ?? startPrice);
+
+      const bids = product.autoBids.sort((a, b) => {
+        const diff = Number(b.maxAmount) - Number(a.maxAmount);
+        if (diff !== 0) return diff;
+        return a.createdAt.getTime() - b.createdAt.getTime();
+      });
+      const lastHistory = await tx.bidHistory.findFirst({
+        where: { productId: data.productId },
+        orderBy: { createdAt: "desc" },
+      });
+
+      if (!lastHistory) {
+        // Create history
+        const bid = await tx.bidHistory.create({
+          data: {
+            productId: data.productId,
+            bidderId: data.newBidderId,
+            amount: new Prisma.Decimal(startPrice),
+          },
+          include: { bidder: true },
+        });
+
+        // Update product
+        const temp = await tx.products.update({
+          where: { id: data.productId },
+          data: {
+            currentPrice: new Prisma.Decimal(startPrice),
+            winnerId: data.newBidderId,
+            countbids: { increment: 1 },
+          },
+          include: { winner: true },
+        });
+
+        if (!temp.winner?.fullname) throw new Error("Thiếu full name");
+
+        if (!temp.winner?.email) throw new Error("Thiếu email");
+
+        return {
+          winner: temp.winner.fullname,
+          email: temp.winner.email,
+          price: Number(startPrice),
+        };
+      }
+
+      let firstBidder = bids[0];
+      let secondBidder = bids[1];
+
+      let winnerId = firstBidder.bidderId;
+      let newPrice = currentPrice;
+
+      if (!secondBidder) {
+        // Only one bidder
+        newPrice = Math.max(currentPrice, startPrice);
+      } else {
+        // Greater than second bidder
+        const maxFirst = Number(firstBidder.maxAmount);
+        const maxSecond = Number(secondBidder.maxAmount);
+        const maxNew = Number(data.newMax);
+
+        if (maxFirst === maxSecond) {
+          newPrice = maxFirst;
+          winnerId = firstBidder.bidderId;
+        } else {
+          if (firstBidder.bidderId === data.newBidderId) {
+            const temp = maxSecond + stepPrice;
+            const target = Math.min(temp, maxNew);
+
+            newPrice = Math.max(currentPrice, target);
+            winnerId = firstBidder.bidderId;
+          } else {
+            if (maxNew > currentPrice) {
+              newPrice = maxNew;
+            } else newPrice = currentPrice;
+
+            winnerId = firstBidder.bidderId;
+          }
+        }
+      }
+      const last = await tx.bidHistory.findFirst({
+        where: { productId: data.productId },
+        orderBy: { createdAt: "desc" },
+      });
+
+      let isCreateHistory = false;
+
+      if (newPrice > currentPrice && Number(last?.amount) !== newPrice) {
+        // Create history
+        try {
+          await tx.bidHistory.create({
+            data: {
+              productId: data.productId,
+              bidderId: winnerId,
+              amount: new Prisma.Decimal(newPrice),
+            },
+          });
+
+          isCreateHistory = true;
+        } catch (error) {
+          console.error("Error creating bid history:", error);
+          // throw new Error("Failed to create bid history");
+        }
+      }
+
       // Update product
-      const temp = await tx.products.update({
+      const infor = await tx.products.update({
         where: { id: data.productId },
         data: {
-          currentPrice: new Prisma.Decimal(startPrice),
-          winnerId: data.newBidderId,
-          countbids: { increment: 1 },
+          currentPrice: new Prisma.Decimal(newPrice),
+          winnerId: winnerId,
+          ...(isCreateHistory && {
+            countbids: { increment: 1 },
+          }),
         },
         include: { winner: true },
       });
 
-      if (!temp.winner?.fullname) 
-        throw new Error("Thiếu full name");
-      
-      if (!temp.winner?.email) 
-        throw new Error("Thiếu email");
+      if (!infor.winner?.fullname) throw new Error("Thiếu full name");
+
+      if (!infor.winner?.email) throw new Error("Thiếu email");
 
       return {
-        winner: temp.winner.fullname,
-        email: temp.winner.email,
-        price: Number(startPrice),
-      }
+        winner: infor.winner.fullname,
+        email: infor.winner.email,
+        price: Number(newPrice),
+      };
+    },
+    {
+      timeout: 15000, // 15 giây
     }
-
-    let firstBidder = bids[0];
-    let secondBidder = bids[1];
-
-    let winnerId = firstBidder.bidderId;
-    let newPrice = currentPrice;
-
-    if (!secondBidder) {
-      // Only one bidder
-      newPrice = Math.max(currentPrice, startPrice);
-    } else {
-      // Greater than second bidder
-      const maxFirst = Number(firstBidder.maxAmount);
-      const maxSecond = Number(secondBidder.maxAmount);
-      const maxNew = Number(data.newMax);
-
-      if (maxFirst === maxSecond) {
-        newPrice = maxFirst;
-        winnerId = firstBidder.bidderId;
-      } else {
-        if (firstBidder.bidderId === data.newBidderId) {
-          const temp = maxSecond + stepPrice;
-          const target = Math.min(temp, maxNew);
-
-          newPrice = Math.max(currentPrice, target);
-          winnerId = firstBidder.bidderId;
-        } else {
-          if (maxNew > currentPrice) {
-            newPrice = maxNew;
-          } else newPrice = currentPrice;
-
-          winnerId = firstBidder.bidderId;
-        }
-      }
-    }
-    const last = await tx.bidHistory.findFirst({
-      where: { productId: data.productId },
-      orderBy: { createdAt: "desc" },
-    });
-
-    let isCreateHistory = false;
-
-    if (newPrice > currentPrice && Number(last?.amount) !== newPrice) {
-      // Create history
-      try {
-        await tx.bidHistory.create({
-          data: {
-            productId: data.productId,
-            bidderId: winnerId,
-            amount: new Prisma.Decimal(newPrice),
-          },
-        });
-
-        isCreateHistory = true;
-      } catch (error) {
-        console.error("Error creating bid history:", error);
-        // throw new Error("Failed to create bid history");
-      }
-    }
-
-    // Update product
-    const infor = await tx.products.update({
-      where: { id: data.productId },
-      data: {
-        currentPrice: new Prisma.Decimal(newPrice),
-        winnerId: winnerId,
-        ...(isCreateHistory && {
-          countbids: { increment: 1 },
-        }),
-      },
-      include: { winner: true },
-    });
-    
-    if (!infor.winner?.fullname) 
-        throw new Error("Thiếu full name");
-    
-    if (!infor.winner?.email) 
-        throw new Error("Thiếu email");
-
-    return {
-      winner: infor.winner.fullname,
-      email: infor.winner.email,
-      price: Number(newPrice),
-    }
-
-
-  });
+  );
 };
 
-export const createAutoBid = async (data: autoBidDto) : Promise<autoBidResult> => {
+export const createAutoBid = async (
+  data: autoBidDto
+): Promise<autoBidResult> => {
   const product = await getProductById(data.productId);
   if (!product) throw new Error("Product not found");
 
@@ -169,11 +172,10 @@ export const createAutoBid = async (data: autoBidDto) : Promise<autoBidResult> =
   if (!checkValid) throw new Error("Auto bid validation failed");
 
   const lastWinner = await prisma.bidHistory.findFirst({
-    where: { productId: data.productId},
+    where: { productId: data.productId },
     orderBy: { amount: "desc" },
     include: { bidder: true },
   });
-
 
   await prisma.autoBids.upsert({
     where: {
@@ -192,18 +194,17 @@ export const createAutoBid = async (data: autoBidDto) : Promise<autoBidResult> =
     },
   });
 
-  const infor : computeBid = await computerBidder({
+  const infor: computeBid = await computerBidder({
     productId: data.productId,
     newBidderId: data.bidderId,
     newMax: data.maxAutoBidAmount,
   });
 
-
-  const result : autoBidResult = {
+  const result: autoBidResult = {
     product: {
       name: product.title,
       price: infor.price,
-    }, 
+    },
     winner: {
       name: infor.winner,
       email: infor.email,
@@ -211,12 +212,12 @@ export const createAutoBid = async (data: autoBidDto) : Promise<autoBidResult> =
     lastWinner: {
       name: lastWinner ? lastWinner.bidder.email : "No previous bidder",
       email: lastWinner ? lastWinner.bidder.email : "N/A",
-    }, 
+    },
     seller: {
       name: product.seller.email,
       email: product.seller.email,
-    }
-  }
+    },
+  };
 
   return result;
 };

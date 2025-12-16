@@ -210,11 +210,11 @@ export const createAutoBid = async (
       email: infor.email,
     },
     lastWinner: {
-      name: lastWinner ? lastWinner.bidder.email : "No previous bidder",
+      name: (lastWinner ? lastWinner.bidder.fullname : "No previous bidder") as string,
       email: lastWinner ? lastWinner.bidder.email : "N/A",
     },
     seller: {
-      name: product.seller.email,
+      name: product.seller.fullname  as string,
       email: product.seller.email,
     },
   };

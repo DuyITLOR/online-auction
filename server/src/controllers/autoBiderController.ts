@@ -82,7 +82,7 @@ export const createAutoBid = async (req: Request, res: Response) => {
       content = loadBidFailedTemplate(
         data.lastWinner.name,
         data.product.name,
-        data.product.price.toString()
+        `Sản phẩm của bạn đã có người ra giá cao hơn và giá hiện tại là ${data.product.price} `
       )
 
       await sendEmail({

@@ -316,7 +316,7 @@ export const googleCallback = async (req: Request, res: Response) => {
     });
 
     const frontend_url = `${process.env.FRONTEND_URL}/auth/google/callback?userId=${bidder.id}&email=${bidder.email}&name=${bidder.fullname}&avatar=${bidder.avtUrl}&token=${token}`;
-
+    console.log('Redirecting to:', frontend_url);
     res.redirect(frontend_url);
   } catch (err) {
     console.error('googleAuthentication error:', err);

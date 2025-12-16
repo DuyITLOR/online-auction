@@ -1,143 +1,181 @@
-import { Prisma } from '@prisma/client';
-import { autoBidDto, computeBidDto, bidHistoryQueryDto } from '../dto/autoBidDto';
-import { prisma } from './db/prisma';
-import { getProductById } from './productService';
-import { checkRating } from './userService';
-import { getBlockUserByProductId } from './userService';
+import { Prisma } from "@prisma/client";
+import {
+  autoBidDto,
+  computeBidDto,
+  bidHistoryQueryDto,
+  autoBidResult,
+  computeBid,
+} from "../dto/autoBidDto";
+import { prisma } from "./db/prisma";
+import { getProductById } from "./productService";
+import { checkRating } from "./userService";
+import { getBlockUserByProductId } from "./userService";
 
-export const computerBidder = async (data: computeBidDto) => {
-  return await prisma.$transaction(async (tx) => {
-    const product = await tx.products.findUnique({
-      where: { id: data.productId },
-      include: { autoBids: true },
-    });
-
-    if (!product) throw new Error('Product not found');
-
-    const stepPrice = Number(product.stepPrice);
-    const startPrice = Number(product.startPrice);
-    const currentPrice = Number(product.currentPrice ?? startPrice);
-
-    const bids = product.autoBids.sort((a, b) => {
-      const diff = Number(b.maxAmount) - Number(a.maxAmount);
-      if (diff !== 0) return diff;
-      return a.createdAt.getTime() - b.createdAt.getTime();
-    });
-    const lastHistory = await tx.bidHistory.findFirst({
-      where: { productId: data.productId },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    if (!lastHistory) {
-      // Create history
-      await tx.bidHistory.create({
-        data: {
-          productId: data.productId,
-          bidderId: data.newBidderId,
-          amount: new Prisma.Decimal(startPrice),
-        },
-      });
-
-      let countBids = await tx.bidHistory.count({
-        where: { productId: data.productId },
-      });
-
-      if (!countBids) countBids = 0;
-
-      // Update product
-      return await tx.products.update({
+export const computerBidder = async (
+  data: computeBidDto
+): Promise<computeBid> => {
+  return await prisma.$transaction(
+    async (tx) => {
+      const product = await tx.products.findUnique({
         where: { id: data.productId },
-        data: {
-          currentPrice: new Prisma.Decimal(startPrice),
-          winnerId: data.newBidderId,
-          countbids: countBids,
-        },
+        include: { autoBids: true },
       });
-    }
 
-    let firstBidder = bids[0];
-    let secondBidder = bids[1];
+      if (!product) throw new Error("Product not found");
 
-    let winnerId = firstBidder.bidderId;
-    let newPrice = currentPrice;
+      const stepPrice = Number(product.stepPrice);
+      const startPrice = Number(product.startPrice);
+      const currentPrice = Number(product.currentPrice ?? startPrice);
 
-    if (!secondBidder) {
-      // Only one bidder
-      newPrice = Math.max(currentPrice, startPrice);
-    } else {
-      // Greater than second bidder
-      const maxFirst = Number(firstBidder.maxAmount);
-      const maxSecond = Number(secondBidder.maxAmount);
-      const maxNew = Number(data.newMax);
+      const bids = product.autoBids.sort((a, b) => {
+        const diff = Number(b.maxAmount) - Number(a.maxAmount);
+        if (diff !== 0) return diff;
+        return a.createdAt.getTime() - b.createdAt.getTime();
+      });
+      const lastHistory = await tx.bidHistory.findFirst({
+        where: { productId: data.productId },
+        orderBy: { createdAt: "desc" },
+      });
 
-      if (maxFirst === maxSecond) {
-        newPrice = maxFirst;
-        winnerId = firstBidder.bidderId;
-      } else {
-        if (firstBidder.bidderId === data.newBidderId) {
-          const temp = maxSecond + stepPrice;
-          const target = Math.min(temp, maxNew);
-
-          newPrice = Math.max(currentPrice, target);
-          winnerId = firstBidder.bidderId;
-        } else {
-          if (maxNew > currentPrice) {
-            newPrice = maxNew;
-          } else newPrice = currentPrice;
-
-          winnerId = firstBidder.bidderId;
-        }
-      }
-    }
-    const last = await tx.bidHistory.findFirst({
-      where: { productId: data.productId },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    if (newPrice > currentPrice && Number(last?.amount) !== newPrice) {
-      // Create history
-      try {
-        await tx.bidHistory.create({
+      if (!lastHistory) {
+        // Create history
+        const bid = await tx.bidHistory.create({
           data: {
             productId: data.productId,
-            bidderId: winnerId,
-            amount: new Prisma.Decimal(newPrice),
+            bidderId: data.newBidderId,
+            amount: new Prisma.Decimal(startPrice),
           },
+          include: { bidder: true },
         });
-      } catch (error) {
-        console.error('Error creating bid history:', error);
-        // throw new Error("Failed to create bid history");
+
+        // Update product
+        const temp = await tx.products.update({
+          where: { id: data.productId },
+          data: {
+            currentPrice: new Prisma.Decimal(startPrice),
+            winnerId: data.newBidderId,
+            countbids: { increment: 1 },
+          },
+          include: { winner: true },
+        });
+
+        if (!temp.winner?.fullname) throw new Error("Thiếu full name");
+
+        if (!temp.winner?.email) throw new Error("Thiếu email");
+
+        return {
+          winner: temp.winner.fullname,
+          email: temp.winner.email,
+          price: Number(startPrice),
+        };
       }
+
+      let firstBidder = bids[0];
+      let secondBidder = bids[1];
+
+      let winnerId = firstBidder.bidderId;
+      let newPrice = currentPrice;
+
+      if (!secondBidder) {
+        // Only one bidder
+        newPrice = Math.max(currentPrice, startPrice);
+      } else {
+        // Greater than second bidder
+        const maxFirst = Number(firstBidder.maxAmount);
+        const maxSecond = Number(secondBidder.maxAmount);
+        const maxNew = Number(data.newMax);
+
+        if (maxFirst === maxSecond) {
+          newPrice = maxFirst;
+          winnerId = firstBidder.bidderId;
+        } else {
+          if (firstBidder.bidderId === data.newBidderId) {
+            const temp = maxSecond + stepPrice;
+            const target = Math.min(temp, maxNew);
+
+            newPrice = Math.max(currentPrice, target);
+            winnerId = firstBidder.bidderId;
+          } else {
+            if (maxNew > currentPrice) {
+              newPrice = maxNew;
+            } else newPrice = currentPrice;
+
+            winnerId = firstBidder.bidderId;
+          }
+        }
+      }
+      const last = await tx.bidHistory.findFirst({
+        where: { productId: data.productId },
+        orderBy: { createdAt: "desc" },
+      });
+
+      let isCreateHistory = false;
+
+      if (newPrice > currentPrice && Number(last?.amount) !== newPrice) {
+        // Create history
+        try {
+          await tx.bidHistory.create({
+            data: {
+              productId: data.productId,
+              bidderId: winnerId,
+              amount: new Prisma.Decimal(newPrice),
+            },
+          });
+
+          isCreateHistory = true;
+        } catch (error) {
+          console.error("Error creating bid history:", error);
+          // throw new Error("Failed to create bid history");
+        }
+      }
+
+      // Update product
+      const infor = await tx.products.update({
+        where: { id: data.productId },
+        data: {
+          currentPrice: new Prisma.Decimal(newPrice),
+          winnerId: winnerId,
+          ...(isCreateHistory && {
+            countbids: { increment: 1 },
+          }),
+        },
+        include: { winner: true },
+      });
+
+      if (!infor.winner?.fullname) throw new Error("Thiếu full name");
+
+      if (!infor.winner?.email) throw new Error("Thiếu email");
+
+      return {
+        winner: infor.winner.fullname,
+        email: infor.winner.email,
+        price: Number(newPrice),
+      };
+    },
+    {
+      timeout: 15000, // 15 giây
     }
-
-    let countBids = await tx.bidHistory.count({
-      where: { productId: data.productId },
-    });
-
-    if (!countBids) countBids = 0;
-
-    // Update product
-    return await tx.products.update({
-      where: { id: data.productId },
-      data: {
-        currentPrice: new Prisma.Decimal(newPrice),
-        winnerId: winnerId,
-        countbids: countBids,
-      },
-    });
-  });
+  );
 };
 
-export const createAutoBid = async (data: autoBidDto) => {
+export const createAutoBid = async (
+  data: autoBidDto
+): Promise<autoBidResult> => {
   const product = await getProductById(data.productId);
-  if (!product) throw new Error('Product not found');
+  if (!product) throw new Error("Product not found");
 
   // if (product?.winnerId === data.bidderId) {
   //   throw new Error("You are already the highest bidder");
   // }
 
   const checkValid = await validationAutoBid(data);
-  if (!checkValid) throw new Error('Auto bid validation failed');
+  if (!checkValid) throw new Error("Auto bid validation failed");
+
+  const lastWinner = await prisma.bidHistory.findFirst({
+    where: { productId: data.productId },
+    orderBy: { amount: "desc" },
+    include: { bidder: true },
+  });
 
   await prisma.autoBids.upsert({
     where: {
@@ -156,11 +194,32 @@ export const createAutoBid = async (data: autoBidDto) => {
     },
   });
 
-  return computerBidder({
+  const infor: computeBid = await computerBidder({
     productId: data.productId,
     newBidderId: data.bidderId,
     newMax: data.maxAutoBidAmount,
   });
+
+  const result: autoBidResult = {
+    product: {
+      name: product.title,
+      price: infor.price,
+    },
+    winner: {
+      name: infor.winner,
+      email: infor.email,
+    },
+    lastWinner: {
+      name: (lastWinner ? lastWinner.bidder.fullname : "No previous bidder") as string,
+      email: lastWinner ? lastWinner.bidder.email : "N/A",
+    },
+    seller: {
+      name: product.seller.fullname  as string,
+      email: product.seller.email,
+    },
+  };
+
+  return result;
 };
 
 export const getBidHistory = async (productId: string) => {
@@ -168,11 +227,11 @@ export const getBidHistory = async (productId: string) => {
     where: { id: productId },
   });
 
-  if (!product) throw new Error('Product not found');
+  if (!product) throw new Error("Product not found");
 
   return prisma.bidHistory.findMany({
     where: { productId: productId },
-    orderBy: { amount: 'desc' },
+    orderBy: { amount: "desc" },
     include: { bidder: true },
   });
 };
@@ -180,41 +239,41 @@ export const getBidHistory = async (productId: string) => {
 export const validationAutoBid = async (data: autoBidDto) => {
   const product = await getProductById(data.productId);
   // Check product exists
-  if (!product) throw new Error('Product not found');
+  if (!product) throw new Error("Product not found");
 
   // Check user exists
-  if (!data.bidderId) throw new Error('Bidder not found');
+  if (!data.bidderId) throw new Error("Bidder not found");
 
   // Check blocked user
   const blockUsers = await getBlockUserByProductId(data.productId);
 
   if (blockUsers.includes(data.bidderId)) {
-    throw new Error('You are blocked from bidding on this product');
+    throw new Error("You are blocked from bidding on this product");
   }
 
   // Check product is active
   const now = new Date();
   if (product.startedAt > now || product.endAt <= now) {
-    throw new Error('Product is not active for bidding');
+    throw new Error("Product is not active for bidding");
   }
 
-  // Check owner  
+  // Check owner
   if (product.sellerId === data.bidderId) {
-    throw new Error('Owner cannot bid on their own product');
+    throw new Error("Owner cannot bid on their own product");
   }
 
   // Check hightRating
   if (product.highRatingRequired) {
     const check = await checkRating(data.bidderId);
     // console.log("check rating in auto bid:", check);
-    if (!check) throw new Error('Cannot bid because you have low rating');
+    if (!check) throw new Error("Cannot bid because you have low rating");
   }
 
   const stepPrice = Number(product.stepPrice);
   const currentPrice = Number(product.currentPrice ?? product.startPrice);
 
   if (data.maxAutoBidAmount < currentPrice + stepPrice) {
-    throw new Error('The amount was not enough to bid');
+    throw new Error("The amount was not enough to bid");
   }
 
   return true;
@@ -225,7 +284,7 @@ export const getBidCountByProductId = async (productId: string) => {
     where: { id: productId },
   });
 
-  if (!product) throw new Error('Product not found');
+  if (!product) throw new Error("Product not found");
 
   const count = await prisma.bidHistory.count({
     where: { productId },
@@ -243,12 +302,15 @@ export const getMaxBidByUserId = async (productId: string, userId: string) => {
     },
   });
 
-  if (!autoBid) throw new Error('Auto bid not found');
+  if (!autoBid) throw new Error("Auto bid not found");
 
   return autoBid.maxAmount;
 };
 
-export const getBidHistoryByUserId = async (userId: string, query: bidHistoryQueryDto) => {
+export const getBidHistoryByUserId = async (
+  userId: string,
+  query: bidHistoryQueryDto
+) => {
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 10;
   const skip = (page - 1) * limit;
@@ -260,20 +322,20 @@ export const getBidHistoryByUserId = async (userId: string, query: bidHistoryQue
   let orderBy: Prisma.BidHistoryOrderByWithRelationInput = {};
 
   switch (query.sort) {
-    case 'price_desc':
-      orderBy = { amount: 'desc' };
+    case "price_desc":
+      orderBy = { amount: "desc" };
       break;
-    case 'price_asc':
-      orderBy = { amount: 'asc' };
+    case "price_asc":
+      orderBy = { amount: "asc" };
       break;
-    case 'createdAt_asc':
-      orderBy = { createdAt: 'asc' };
+    case "createdAt_asc":
+      orderBy = { createdAt: "asc" };
       break;
-    case 'createdAt_desc':
-      orderBy = { createdAt: 'desc' };
+    case "createdAt_desc":
+      orderBy = { createdAt: "desc" };
       break;
     default:
-      orderBy = { createdAt: 'desc' };
+      orderBy = { createdAt: "desc" };
       break;
   }
 
@@ -289,7 +351,7 @@ export const getBidHistoryByUserId = async (userId: string, query: bidHistoryQue
 
   const total = await prisma.bidHistory.count({ where });
 
-  if (!autoBids) throw new Error('No bid history found');
+  if (!autoBids) throw new Error("No bid history found");
 
   return {
     page,

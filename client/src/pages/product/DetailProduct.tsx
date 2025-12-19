@@ -1,5 +1,4 @@
 import { useParams } from 'react-router-dom';
-import Footer from '../../components/footer';
 import Detail from '../../components/product/detail';
 import { useEffect, useState, useCallback } from 'react';
 import { type User, type BidHistory, type Product } from '../../libs/types/types';
@@ -75,9 +74,7 @@ const DetailProduct = () => {
 
   return (
     <>
-      {/* <Header /> */}
       <Detail product={product} historyBid={historyBid} token={token} onRefresh={handleRefresh} user={user} />
-      <Footer />
     </>
   );
 };

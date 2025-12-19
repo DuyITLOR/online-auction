@@ -7,7 +7,6 @@ import { getAllProduct } from '../../api/product';
 import { getCategories } from '../../api/category';
 import { Link, useSearchParams } from 'react-router-dom';
 import Pagination from '../../components/pagination';
-import Footer from '../../components/footer';
 import { ProductContext } from '../../libs/contexts/product.context';
 
 const convertDay = (date: string) => {
@@ -154,8 +153,6 @@ const ProductList = () => {
               )}
             </div>
           </div>
-
-          <Footer />
         </div>
       )}
     </>

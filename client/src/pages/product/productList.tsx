@@ -96,7 +96,7 @@ const ProductList = () => {
               <SortBar />
 
               {loading1 ? (
-                <div className='flex items-center justify-center py-20 w-6xl'>
+                <div className='flex items-center justify-center py-20 w-6xl min-h-screen'>
                   <div className='animate-spin rounded-full h-12 w-12 border-4 border-teal-500 border-t-transparent'></div>
                 </div>
               ) : (

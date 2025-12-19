@@ -1,6 +1,5 @@
 import React from "react";
 import TabBoard from "./TabBoard";
-import Header from "../../components/header";
 import Footer from "../../components/footer";
 interface DashboardData {
   totalUsers: number;
@@ -33,7 +32,6 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
 
   return (
     <div>
-      <Header />
       <div className='max-w-7xl mx-auto px-4 py-8'>
         <div className='mb-8'>
           <p className='text-3xl font-bold text-foreground mb-2'>

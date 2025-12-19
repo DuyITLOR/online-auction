@@ -14,7 +14,6 @@ import {
   ThumbsUp,
   UserRound,
 } from 'lucide-react';
-import Header from '../components/header';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList } from '../components/ui/tab';
@@ -185,7 +184,6 @@ const Profile = () => {
 
   return (
     <>
-      <Header />
       <div className='mx-18 mt-5 mb-5'>
         <div className='border border-gray-200 h-[150px] rounded-xl flex items-center justify-between px-10'>
           <div className='flex items-center gap-5'>

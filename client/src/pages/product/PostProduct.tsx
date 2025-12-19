@@ -1,12 +1,11 @@
 import PostProduct from '../../components/product/postProduct';
 import Footer from '../../components/footer';
-import Header from '../../components/header';
 
 const PostProductPage = () => {
   return (
     <>
       <div className='min-h-screen bg-gray-50'>
-        <Header />
+        {/* <Header /> */}
         <PostProduct />
         <Footer />
       </div>

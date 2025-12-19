@@ -49,7 +49,13 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
       token: data.data.token,
     });
 
-    window.location.href = '/';
+    const roles = data.data.user.currentRoles;
+
+    if (roles.includes('ADMIN')) {
+      window.location.href = '/admin/dashboard';
+    } else {
+      window.location.href = '/';
+    }
   } catch (error) {
     console.error('[auth-form][form-submit::sign-in]:', error);
     return {

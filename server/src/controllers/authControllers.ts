@@ -7,6 +7,7 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import { HttpStatus } from '../utils/permission';
 import { verifyDto } from '../dto/authenticationDto';
+import { checkRole } from '../utils/checkRole';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -21,10 +22,7 @@ export const signIn = async (req: Request, res: Response) => {
   params.append('secret', secretKey);
   params.append('response', recaptchaToken);
 
-  const ggRes = await axios.post(
-    'https://www.google.com/recaptcha/api/siteverify',
-    params
-  );
+  const ggRes = await axios.post('https://www.google.com/recaptcha/api/siteverify', params);
   const ggData = ggRes.data;
 
   if (!ggData.success && process.env.NODE_ENV !== 'development') {
@@ -36,11 +34,7 @@ export const signIn = async (req: Request, res: Response) => {
 
   const bidder = await service.getBidder(email);
   if (!bidder) {
-    const response = gatewayResponse(
-      400,
-      null,
-      'Email has not been registered'
-    );
+    const response = gatewayResponse(400, null, 'Email has not been registered');
     res.status(response.code).send(response);
     return;
   }
@@ -55,11 +49,7 @@ export const signIn = async (req: Request, res: Response) => {
       const response = gatewayResponse(200, { token, user }, 'Welcome back');
       res.status(response.code).send(response);
     } else {
-      const response = gatewayResponse(
-        400,
-        null,
-        'Email or password is invalid'
-      );
+      const response = gatewayResponse(400, null, 'Email or password is invalid');
       res.status(response.code).send(response);
       return;
     }
@@ -169,11 +159,7 @@ export const forgetPassword = async (req: Request, res: Response) => {
   const user = await service.getBidder(email);
   const url = process.env.FRONTEND_URL;
   if (!user) {
-    const response = gatewayResponse(
-      HttpStatus.badRequest,
-      null,
-      'Email has not been registered'
-    );
+    const response = gatewayResponse(HttpStatus.badRequest, null, 'Email has not been registered');
     res.status(response.code).send(response);
     return;
   }
@@ -204,22 +190,14 @@ export const forgetPassword = async (req: Request, res: Response) => {
     const response = gatewayResponse(HttpStatus.accepted, null, record.message);
     res.status(response.code).send(response);
   } else {
-    const response = gatewayResponse(
-      HttpStatus.badRequest,
-      null,
-      record.message
-    );
+    const response = gatewayResponse(HttpStatus.badRequest, null, record.message);
     res.status(response.code).send(response);
   }
 };
 
 export const resetPassword = async (req: Request, res: Response) => {
   if (!req.user) {
-    const response = gatewayResponse(
-      HttpStatus.badRequest,
-      null,
-      'Token required'
-    );
+    const response = gatewayResponse(HttpStatus.badRequest, null, 'Token required');
     res.status(response.code).send(response);
     return;
   }
@@ -231,11 +209,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     const response = gatewayResponse(HttpStatus.ok, null, record.message);
     res.status(response.code).send(response);
   } else {
-    const response = gatewayResponse(
-      HttpStatus.serviceUnavailable,
-      null,
-      record.message
-    );
+    const response = gatewayResponse(HttpStatus.serviceUnavailable, null, record.message);
     res.status(response.code).send(response);
   }
 };
@@ -305,17 +279,16 @@ export const googleCallback = async (req: Request, res: Response) => {
 
     const { bidder, token } = await service.signInWithGoogle({
       email: profile?.emails?.[0]?.value,
-      fullname:
-        profile?.displayName ??
-        `${profile?.name?.givenName ?? ''} ${
-          profile?.name?.familyName ?? ''
-        }`.trim(),
+      fullname: profile?.displayName ?? `${profile?.name?.givenName ?? ''} ${profile?.name?.familyName ?? ''}`.trim(),
       avtUrl:
         profile?._json.picture ||
         'https://lqxrdsayuzjybccsuhmb.supabase.co/storage/v1/object/public/images/avatar/765-default-avatar.png',
     });
 
-    const frontend_url = `${process.env.FRONTEND_URL}/auth/google/callback?userId=${bidder.id}&email=${bidder.email}&name=${bidder.fullname}&avatar=${bidder.avtUrl}&token=${token}`;
+    const id = bidder.id;
+    const roles = await checkRole(id);
+    const role = roles.includes('ADMIN') ? 'ADMIN' : 'BIDDER';
+    const frontend_url = `${process.env.FRONTEND_URL}/auth/google/callback?userId=${bidder.id}&email=${bidder.email}&name=${bidder.fullname}&avatar=${bidder.avtUrl}&token=${token}&role=${role}`;
     res.redirect(frontend_url);
   } catch (err) {
     console.error('googleAuthentication error:', err);

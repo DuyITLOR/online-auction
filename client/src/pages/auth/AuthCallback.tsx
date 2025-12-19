@@ -12,6 +12,7 @@ export default function AuthCallback() {
     const name = searchParams.get('name');
     const avatar = searchParams.get('avatar');
     const token = searchParams.get('token');
+    const role = searchParams.get('role');
 
     if (!userId || !token || !name || !email) {
       console.error('Google Oauth failed');
@@ -43,7 +44,11 @@ export default function AuthCallback() {
         window.dispatchEvent(new Event('session-updated'));
 
         setTimeout(() => {
-          navigate('/');
+          if (role === 'ADMIN') {
+            navigate('/admin/dashboard');
+          } else {
+            navigate('/');
+          }
         }, 1500);
       } catch (err) {
         console.error(err);

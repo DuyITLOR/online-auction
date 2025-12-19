@@ -1,4 +1,3 @@
-import Header from '../../components/header';
 import { Heart } from 'lucide-react';
 import SideBar from '../../components/product/sideBar';
 import SortBar from '../../components/product/sortBar';
@@ -91,8 +90,6 @@ const ProductList = () => {
       {loading2 && <div className='loader' />}
       {!loading2 && (
         <div>
-          <Header />
-
           <div className='flex mx-10 mb-10'>
             <SideBar categories={categories} />
 

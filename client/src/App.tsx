@@ -18,10 +18,12 @@ import ForgetPassword from "./pages/auth/ForgetPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import PostProduct from "./pages/product/PostProduct";
 import SellerDashboard from "./pages/seller/Dashboard";
+import PaymentPage from "./pages/payment/page";
+import MainLayout from "./layouts/MainLayout";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path='/'>
+    <Route path='/' element={<MainLayout />}>
       <Route index element={<Dashboard />} />
       <Route path='auth/signin' element={<SignIn />} />
       <Route path='auth/signup' element={<SignUp />} />
@@ -35,7 +37,7 @@ const router = createBrowserRouter(
       <Route path='auth/google/callback' element={<AuthCallback />} />
       <Route path='products' element={<ProductList />} />
       <Route path='profile' element={<Profile />} />
-
+      <Route path='payment/:id' element={<PaymentPage />} />
       <Route path='seller/dashboard' element={<SellerDashboard />} />
     </Route>
   )

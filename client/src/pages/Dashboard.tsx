@@ -1,5 +1,4 @@
 import Footer from '../components/footer';
-import Header from '../components/header';
 import Banner from '../components/banner';
 import DisplayProduct from '../components/displayProduct';
 import NavBar from '../components/navBar';
@@ -39,7 +38,6 @@ const Dashboard = () => {
 
       {!loading && (
         <>
-          <Header />
           <NavBar categories={categories || {}} />
           <Banner />
           <DisplayProduct />

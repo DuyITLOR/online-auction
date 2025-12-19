@@ -18,7 +18,7 @@ import ForgetPassword from "./pages/auth/ForgetPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import PostProduct from "./pages/product/PostProduct";
 import SellerDashboard from "./pages/seller/Dashboard";
-import PaymentPage from "./pages/payment/Page";
+import PaymentPage from "./pages/payment/PaymentPage";
 import MainLayout from "./layouts/MainLayout";
 
 const router = createBrowserRouter(

@@ -1,4 +1,3 @@
-import Footer from '../components/footer';
 import Banner from '../components/banner';
 import DisplayProduct from '../components/displayProduct';
 import NavBar from '../components/navBar';

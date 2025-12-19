@@ -137,9 +137,8 @@ const ProductList = () => {
                             e.preventDefault();
                             toggleWatchList(item?.id);
                           }}
-                          className={`w-10 h-10 ${
-                            isLike(item?.id) ? 'stroke-0 fill-red-600' : 'stroke-2'
-                          } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
+                          className={`w-10 h-10 ${isLike(item?.id) ? 'stroke-0 fill-red-600' : 'stroke-2'
+                            } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
                         />
 
                         <div className='w-20 h-7 text-sm bg-gray-800 text-white absolute left-1 top-1 px-2 py-1 rounded-md'>

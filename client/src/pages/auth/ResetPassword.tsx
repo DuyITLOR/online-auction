@@ -1,4 +1,3 @@
-import Footer from '../../components/footer';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router-dom';
@@ -128,7 +127,6 @@ const ResetPassword = () => {
           Gửi
         </button>
       </form>
-      <Footer />
     </>
   );
 };

@@ -7,7 +7,6 @@ import { getAllProduct } from '../../api/product';
 import { getCategories } from '../../api/category';
 import { Link, useSearchParams } from 'react-router-dom';
 import Pagination from '../../components/pagination';
-import Footer from '../../components/footer';
 import { ProductContext } from '../../libs/contexts/product.context';
 
 const convertDay = (date: string) => {
@@ -97,7 +96,7 @@ const ProductList = () => {
               <SortBar />
 
               {loading1 ? (
-                <div className='flex items-center justify-center py-20 w-6xl'>
+                <div className='flex items-center justify-center py-20 w-6xl min-h-screen'>
                   <div className='animate-spin rounded-full h-12 w-12 border-4 border-teal-500 border-t-transparent'></div>
                 </div>
               ) : (
@@ -154,8 +153,6 @@ const ProductList = () => {
               )}
             </div>
           </div>
-
-          <Footer />
         </div>
       )}
     </>

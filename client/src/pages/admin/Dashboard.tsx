@@ -1,6 +1,5 @@
 import React from "react";
 import TabBoard from "./TabBoard";
-import Footer from "../../components/footer";
 interface DashboardData {
   totalUsers: number;
   totalProducts: number;
@@ -166,7 +165,6 @@ const Dashboard: React.FC<DashboardProps> = ({ data }) => {
 
         <TabBoard />
       </div>
-      <Footer />
     </div>
   );
 };

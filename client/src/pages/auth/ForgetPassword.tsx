@@ -1,4 +1,3 @@
-import Footer from '../../components/footer';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -106,8 +105,6 @@ const ForgetPassword = () => {
           </div>
         </form>
       </div>
-
-      <Footer />
     </>
   );
 };

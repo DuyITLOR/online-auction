@@ -25,7 +25,7 @@ export const getAllRatings = async (data: getRatingDto) => {
     prisma.ratings.findMany({
       where: whereCondition,
       orderBy: {
-        createdAt: 'desc', 
+        createdAt: 'desc',
       },
       skip,
       take: data.limit,
@@ -61,7 +61,29 @@ export const createRating = async (data: ratingDto) => {
   if (existCount > 0) {
     throw new Error('Bạn đã đánh giá người này rồi');
   }
-
+  if (data.value === 1) {
+    await prisma.user.update({
+      where: {
+        id: data.rateeId,
+      },
+      data: {
+        ratingPos: {
+          increment: 1,
+        },
+      },
+    });
+  } else {
+    await prisma.user.update({
+      where: {
+        id: data.rateeId,
+      },
+      data: {
+        ratingNeg: {
+          increment: 1,
+        },
+      },
+    });
+  }
   return await prisma.ratings.create({
     data: {
       raterId: data.raterId,
@@ -83,6 +105,47 @@ export const updateRating = async (Data: updateRatingDto) => {
   const rating = await prisma.ratings.findUnique({ where: { id } });
 
   if (!rating) throw new Error('Rating không tồn tại');
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: rating.rateeId,
+    },
+  });
+
+  if (!user) throw new Error('Server gặp vấn đề');
+
+  if (value !== undefined && Number(value) !== rating.value) {
+    const newValue = Number(value);
+    if (newValue == 1) {
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          ratingNeg: {
+            decrement: 1,
+          },
+          ratingPos: {
+            increment: 1,
+          },
+        },
+      });
+    } else {
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          ratingNeg: {
+            increment: 1,
+          },
+          ratingPos: {
+            decrement: 1,
+          },
+        },
+      });
+    }
+  }
 
   const data = {
     value: value === undefined ? rating.value : Number(value),
@@ -106,6 +169,30 @@ export const deleteRating = async (data: deleteRatingDto) => {
   });
   if (check === null) {
     throw new Error('Bạn không đủ thẩm quyền để xóa đánh giá này');
+  }
+
+  if (check.value === 1) {
+    await prisma.user.update({
+      where: {
+        id: check.rateeId,
+      },
+      data: {
+        ratingPos: {
+          decrement: 1,
+        },
+      },
+    });
+  } else {
+    await prisma.user.update({
+      where: {
+        id: check.rateeId,
+      },
+      data: {
+        ratingNeg: {
+          decrement: 1,
+        },
+      },
+    });
   }
   return await prisma.ratings.delete({
     where: {

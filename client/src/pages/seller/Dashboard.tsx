@@ -49,10 +49,6 @@ const STATS = [
 const SellerDashboard: React.FC = () => {
   return (
     <div className='min-h-screen bg-gray-50 font-sans text-gray-900'>
-      {/* --- HEADER --- */}
-
-      <Header />
-
       {/* --- MAIN CONTENT --- */}
       <main className='max-w-7xl mx-auto px-4 py-8'>
         {/* Page Title & Action */}
@@ -65,12 +61,6 @@ const SellerDashboard: React.FC = () => {
               Quản lý sản phẩm, đơn hàng và doanh thu của bạn
             </p>
           </div>
-          <a href='/seller/products/create'>
-            <button className='inline-flex items-center justify-center gap-2 h-10 px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm w-full sm:w-auto'>
-              <Plus className='w-4 h-4' />
-              Thêm sản phẩm
-            </button>
-          </a>
         </div>
 
         {/* Stats Cards */}
@@ -100,7 +90,6 @@ const SellerDashboard: React.FC = () => {
         {/* Tabs Navigation */}
         <TabBoard />
       </main>
-
     </div>
   );
 };

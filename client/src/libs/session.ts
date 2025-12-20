@@ -5,6 +5,7 @@ const secretKet = import.meta.env.VITE_SESSION_SECRET_KEY;
 const encoding = new TextEncoder().encode(secretKet);
 
 export type UserSession = {
+  id: string;
   name: string;
   email: string;
   avatarUrl: string | undefined;

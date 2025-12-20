@@ -42,6 +42,7 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
 
     await createSession({
       user: {
+        id: data.data.user.id,
         name: data.data.user.fullname,
         email: data.data.user.email,
         avatarUrl: data.data.user.avtUrl ?? undefined,
@@ -130,6 +131,7 @@ export async function VerifyFormAction(_state: VerifyFormState, formData: FormDa
 
     await createSession({
       user: {
+        id: data.id,
         name: data.name,
         email: data.email,
         avatarUrl: data.avatarUrl,

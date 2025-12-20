@@ -4,6 +4,7 @@ import { Calendar, ChevronLeft, ChevronRight, Loader2, Send, Store, X } from 'lu
 import { useEffect, useState } from 'react';
 import { type Comments, type User } from '../../libs/types/types';
 import { getCommentsByProduct, postAnswer, postQuestion } from '../../api/comment';
+import { calculateRating } from '../../libs/utils';
 
 interface UserProps {
   seller: User | undefined;
@@ -119,7 +120,7 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
               <p className='text-lg font-bold text-gray-900 line-clamp-1'>{seller.fullname}</p>
               <div className='flex flex-col text-sm text-gray-500'>
                 <span>
-                  Đánh giá: <b className='text-teal-600'>4.9/5</b>
+                  Đánh giá: <b className='text-teal-600'>{calculateRating(seller.ratingPos, seller.ratingNeg)}/10.0</b>
                 </span>
                 <span>
                   Đã bán: <b>1.2k</b>

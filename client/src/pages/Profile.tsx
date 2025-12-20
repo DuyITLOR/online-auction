@@ -68,7 +68,7 @@ const Profile = () => {
   const totalReviews = raters.length;
   const positiveCount = raters.filter((r) => r.value === 1).length;
   const negativeCount = raters.filter((r) => r.value === -1).length;
-  const positiveRatio = totalReviews > 0 ? ((positiveCount + 10 - negativeCount) / (totalReviews + 10)) * 100 : 0;
+  const positiveRatio = totalReviews > 0 ? ((positiveCount + 20 - negativeCount) / (totalReviews + 20)) * 100 : 0;
 
   // update rating
   const [status, setStatus] = useState(false);

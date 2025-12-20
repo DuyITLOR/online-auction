@@ -70,7 +70,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const session = await getSession();
 
       const res = await fetch(
-        `http://localhost:4000/admin/users?limit=${limit}&page=${page - 1}`,
+        `${import.meta.env.VITE_BACKEND_URL}/admin/users?limit=${limit}&page=${
+          page - 1
+        }`,
         {
           method: "GET",
           headers: {
@@ -123,7 +125,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       const session = await getSession();
 
-      await fetch(`http://localhost:4000/admin/users/${userId}`, {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/users/${userId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${session?.token}`,

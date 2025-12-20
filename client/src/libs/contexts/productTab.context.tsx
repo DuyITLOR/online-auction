@@ -80,7 +80,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   // Fetch Categories
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:4000/categories");
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/categories`);
       const json = await res.json();
       setCategories(json.data || []);
     } catch (err) {
@@ -112,7 +112,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
       if (filter !== "all") query.append("categoryId", filter);
 
       const res = await fetch(
-        `http://localhost:4000/product?${query.toString()}`
+        `${import.meta.env.VITE_BACKEND_URL}/product?${query.toString()}`
       );
       const json = await res.json();
 
@@ -142,7 +142,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   // Delete Product (KHÔNG xoá UI trước → tránh mất dialog)
   const deleteProduct = async (productId: string): Promise<DeleteResult> => {
     try {
-      const res = await fetch(`http://localhost:4000/product/${productId}`, {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/${productId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

@@ -420,3 +420,12 @@ export const API_AUTO_BID_ROUTES = {
     role: [Role.BIDDER],
   },
 };
+
+
+export const API_ORDER_ROUTES = {
+    getOrders: {
+      path: '/orders',
+      method: 'GET',
+      role: [Role.ADMIN, Role.BIDDER, Role.SELLER],
+    }
+  }

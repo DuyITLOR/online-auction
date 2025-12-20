@@ -49,9 +49,9 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
       token: data.data.token,
     });
 
-    const roles = data.data.user.currentRoles;
+    const role = data.data.user.role as string; 
 
-    if (roles.includes('ADMIN')) {
+    if (role === 'ADMIN') {
       window.location.href = '/admin/dashboard';
     } else {
       window.location.href = '/';

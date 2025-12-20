@@ -84,6 +84,13 @@ const formatTimeLeft = (date: string) => {
   }
 };
 
+const isExpired = (date: string) => {
+  const now = new Date();
+  const end = new Date(date);
+  const diff = end.getTime() - now.getTime();
+  return diff < 0;
+};
+
 const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) => {
   const minBidPrice = Number(product?.currentPrice) + Number(product?.stepPrice);
   const [image, setImage] = useState<string>(() => product?.images?.[0]?.url ?? '');
@@ -264,9 +271,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
               <ChevronRight className='text-end w-10 h-10 rounded-full p-2 hover:bg-gray-200' />
             </div>
           </div>
-
           <div className='border-spacing-0.5 border-t border-gray-200 mt-4 mb-5 w-full' />
-
           <div className='flex flex-col gap-2'>
             <div className='flex items-end gap-5'>
               <p className='font-semibold text-gray-700'>Giá hiện tại: </p>
@@ -277,9 +282,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
 
             <p className='text-gray-700'> {formatTimeLeft(product?.endAt)} </p>
           </div>
-
           <div className='border-spacing-0.5 border-t border-gray-200 mt-5 mb-6 w-full' />
-
           <div className='flex flex-col'>
             <p className='text-gray-700 font-semibold text-lg mb-2'>Đặt mức giá tối đa cho sản phẩm</p>
 
@@ -311,101 +314,110 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
               {Number(product.stepPrice).toLocaleString()} VND)
             </p>
           </div>
-
-          <Button
-            variant={'outline'}
-            className='bg-black text-white transition delay-150 duration-200 ease-in-out hover:scale-102 mt-8 hover:cursor-pointer h-12'
-            onClick={() => handleAutoBid({ productId: product.id, maxAutoBidAmount: price, token })}
-            disabled={isBidding}
-          >
-            {isBidding ? 'Đang xử lý...' : 'Đặt giá ngay'}
-          </Button>
-
-          <Dialog>
-            <DialogTrigger asChild>
+          {isExpired(product.endAt) ? (
+            <Button
+              variant={'outline'}
+              className='bg-black text-white transition delay-150 duration-200 ease-in-out hover:scale-102 mt-8 hover:cursor-pointer h-12'
+              disabled
+            >
+              Sản phẩm đã hết hạn
+            </Button>
+          ) : (
+            <>
               <Button
                 variant={'outline'}
-                className='bg-teal-500 transition delay-150 duration-200 ease-in-out hover:scale-102 mt-5 text-gray-100 hover:cursor-pointer h-12'
+                className='bg-black text-white transition delay-150 duration-200 ease-in-out hover:scale-102 mt-8 hover:cursor-pointer h-12'
+                onClick={() => handleAutoBid({ productId: product.id, maxAutoBidAmount: price, token })}
+                disabled={isBidding}
               >
-                <div>
-                  <p className='text-base'>Mua ngay</p>
-                  <p>{Number(product?.buyNowPrice).toLocaleString()} VND</p>
-                </div>
+                {isBidding ? 'Đang xử lý...' : 'Đặt giá ngay'}
               </Button>
-            </DialogTrigger>
-
-            <DialogContent className='sm:max-w-[480px]'>
-              <DialogHeader>
-                <DialogTitle className='text-xl font-semibold text-gray-800'>Xác nhận mua ngay</DialogTitle>
-
-                <div className='mt-3 space-y-3 text-gray-700 leading-relaxed'>
-                  <p>
-                    Bạn đang chọn <span className='font-medium text-teal-600'>Mua ngay</span> với mức giá:
-                  </p>
-
-                  <p className='text-center text-2xl font-bold text-teal-600'>
-                    [{Number(product.buyNowPrice).toLocaleString()}] VND
-                  </p>
-
-                  <p>Sau khi xác nhận, phiên đấu giá sẽ kết thúc và sản phẩm sẽ thuộc về bạn với mức giá này.</p>
-
-                  <p>Bạn có chắc chắn muốn tiếp tục không?</p>
-                </div>
-              </DialogHeader>
-
-              <DialogFooter className='mt-4'>
-                <div className='flex items-center justify-end gap-2 w-full'>
-                  <DialogClose asChild>
-                    <Button variant='outline'>Hủy</Button>
-                  </DialogClose>
-                  <Button className='bg-teal-500 hover:bg-teal-600 text-white px-5' type='submit'>
-                    Xác nhận
-                  </Button>
-                </div>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className='sm:max-w-[480px]'>
-              <DialogHeader>
-                <DialogTitle className='text-xl font-semibold text-gray-800'>
-                  Giá bạn đặt cao hơn giá Mua ngay
-                </DialogTitle>
-
-                <div className='mt-3 space-y-3 text-gray-700 leading-relaxed'>
-                  <p>
-                    Giá bạn vừa đặt đang <span className='font-medium text-red-600'>cao hơn</span> mức{' '}
-                    <span className='font-medium text-teal-600'>Mua ngay</span> của sản phẩm.
-                  </p>
-
-                  <p className='text-center text-2xl font-bold text-teal-600'>
-                    Giá Mua ngay: [{Number(product.buyNowPrice).toLocaleString()}] VND
-                  </p>
-
-                  <p>
-                    Bạn có muốn <span className='font-medium text-teal-600'>mua ngay</span> sản phẩm với mức giá này để
-                    kết thúc phiên đấu giá không?
-                  </p>
-                </div>
-              </DialogHeader>
-
-              <DialogFooter className='mt-4'>
-                <div className='flex items-center justify-end gap-2 w-full'>
-                  <DialogClose asChild onClick={() => setOpen(false)}>
-                    <Button variant='outline'>Hủy</Button>
-                  </DialogClose>
+              <Dialog>
+                <DialogTrigger asChild>
                   <Button
-                    onClick={() => setOpen(false)}
-                    className='bg-teal-500 hover:bg-teal-600 text-white px-5'
-                    type='submit'
+                    variant={'outline'}
+                    className='bg-teal-500 transition delay-150 duration-200 ease-in-out hover:scale-102 mt-5 text-gray-100 hover:cursor-pointer h-12'
                   >
-                    Xác nhận
+                    <div>
+                      <p className='text-base'>Mua ngay</p>
+                      <p>{Number(product?.buyNowPrice).toLocaleString()} VND</p>
+                    </div>
                   </Button>
-                </div>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                </DialogTrigger>
+
+                <DialogContent className='sm:max-w-[480px]'>
+                  <DialogHeader>
+                    <DialogTitle className='text-xl font-semibold text-gray-800'>Xác nhận mua ngay</DialogTitle>
+
+                    <div className='mt-3 space-y-3 text-gray-700 leading-relaxed'>
+                      <p>
+                        Bạn đang chọn <span className='font-medium text-teal-600'>Mua ngay</span> với mức giá:
+                      </p>
+
+                      <p className='text-center text-2xl font-bold text-teal-600'>
+                        [{Number(product.buyNowPrice).toLocaleString()}] VND
+                      </p>
+
+                      <p>Sau khi xác nhận, phiên đấu giá sẽ kết thúc và sản phẩm sẽ thuộc về bạn với mức giá này.</p>
+
+                      <p>Bạn có chắc chắn muốn tiếp tục không?</p>
+                    </div>
+                  </DialogHeader>
+
+                  <DialogFooter className='mt-4'>
+                    <div className='flex items-center justify-end gap-2 w-full'>
+                      <DialogClose asChild>
+                        <Button variant='outline'>Hủy</Button>
+                      </DialogClose>
+                      <Button className='bg-teal-500 hover:bg-teal-600 text-white px-5' type='submit'>
+                        Xác nhận
+                      </Button>
+                    </div>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogContent className='sm:max-w-[480px]'>
+                  <DialogHeader>
+                    <DialogTitle className='text-xl font-semibold text-gray-800'>
+                      Giá bạn đặt cao hơn giá Mua ngay
+                    </DialogTitle>
+
+                    <div className='mt-3 space-y-3 text-gray-700 leading-relaxed'>
+                      <p>
+                        Giá bạn vừa đặt đang <span className='font-medium text-red-600'>cao hơn</span> mức{' '}
+                        <span className='font-medium text-teal-600'>Mua ngay</span> của sản phẩm.
+                      </p>
+
+                      <p className='text-center text-2xl font-bold text-teal-600'>
+                        Giá Mua ngay: [{Number(product.buyNowPrice).toLocaleString()}] VND
+                      </p>
+
+                      <p>
+                        Bạn có muốn <span className='font-medium text-teal-600'>mua ngay</span> sản phẩm với mức giá này
+                        để kết thúc phiên đấu giá không?
+                      </p>
+                    </div>
+                  </DialogHeader>
+
+                  <DialogFooter className='mt-4'>
+                    <div className='flex items-center justify-end gap-2 w-full'>
+                      <DialogClose asChild onClick={() => setOpen(false)}>
+                        <Button variant='outline'>Hủy</Button>
+                      </DialogClose>
+                      <Button
+                        onClick={() => setOpen(false)}
+                        className='bg-teal-500 hover:bg-teal-600 text-white px-5'
+                        type='submit'
+                      >
+                        Xác nhận
+                      </Button>
+                    </div>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
         </div>
       </div>
 
@@ -489,7 +501,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
               key={item.id}
               className='flex flex-col gap-2 min-w-[250px] max-w-[250px] relative'
             >
-              <img src={item?.images?.[0].url} className='rounded-md w-[250px] h-[250px] object-cover' />
+              <img src={item?.images?.[0]?.url} className='rounded-md w-[250px] h-[250px] object-cover' />
               <p className='line-clamp-2'>{item.title}</p>
               <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
               <div

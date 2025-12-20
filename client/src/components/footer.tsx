@@ -2,7 +2,7 @@ import { Facebook, Instagram, Twitter, Mail, Phone } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className='bg-gray-100 text-gray-300 py-8 border-t border-t-gray-300'>
+    <footer className='bg-gray-100 text-gray-300 py-8 border-t border-t-gray-300 mt-5'>
       <div className='mx-10 px-6 grid grid-cols-1 md:grid-cols-3 gap-15 text-gray-600'>
         <div>
           <h2 className='text-lg font-semibold mb-3'>SnapBid</h2>

@@ -34,6 +34,7 @@ export default function AuthCallback() {
 
         await createSession({
           user: {
+            id: userId,
             name,
             email,
             avatarUrl: avatar ?? undefined,

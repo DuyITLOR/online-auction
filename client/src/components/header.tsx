@@ -44,6 +44,7 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
+    console.log(session);
     refresh();
   }, [session]);
 

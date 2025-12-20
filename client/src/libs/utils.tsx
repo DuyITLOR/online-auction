@@ -14,3 +14,9 @@ export function isoToYYYYMMDD(isoString: string) {
 
   return `${year}-${month}-${day}`;
 }
+
+export function calculateRating(pos: number | null, neg: number | null) {
+  const posValue = pos ? pos : 0;
+  const negValue = neg ? neg : 0;
+  return Number(((20 + posValue - negValue) / (20 + posValue + negValue)) * 10).toFixed(1);
+}

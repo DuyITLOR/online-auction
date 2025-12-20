@@ -22,6 +22,7 @@ import { autoBid } from '../../api/autoBid';
 import { toast } from 'sonner';
 import { ProductContext } from '../../libs/contexts/product.context';
 import { getAllProduct } from '../../api/product';
+import { calculateRating } from '../../libs/utils';
 
 interface ProductProp {
   product: Product;
@@ -189,9 +190,9 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
   if (!product) return <div className='loader' />;
   console.log(token);
   return (
-    <div className='w-full flex flex-col px-10 mt-10 mb-10'>
-      <div className='flex gap-5'>
-        <div className='flex flex-col'>
+    <div className='w-full flex flex-col px-8 mt-10 mb-10'>
+      <div className='flex gap-8'>
+        <div className='flex flex-col w-full'>
           <div className='flex gap-3'>
             <div className='flex flex-col items-center gap-4 w-35 h-140 overflow-y-auto scroll-container-hidden-scroll pt-2'>
               {product?.images?.map((item: ProductImage, index: number) => (
@@ -258,7 +259,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                 <p className='text-sm font-semibold'> {product?.seller?.fullname} </p>
                 <div className='flex items-center gap-3'>
                   <Link to={'/'} className='text-sm text-teal-600 font-semibold underline'>
-                    Đánh giá: 10
+                    Đánh giá: {calculateRating(product.seller.ratingPos, product.seller.ratingNeg)}
                   </Link>
                   <Link to={'/'} className='text-sm text-gray-500 underline'>
                     Sản phẩm khác
@@ -271,7 +272,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
               <ChevronRight className='text-end w-10 h-10 rounded-full p-2 hover:bg-gray-200' />
             </div>
           </div>
-          <div className='border-spacing-0.5 border-t border-gray-200 mt-4 mb-5 w-full' />
+          <div className='border-spacing-0.5 border-t border-gray-200 mt-4 mb-2 w-full' />
           <div className='flex flex-col gap-2'>
             <div className='flex items-end gap-5'>
               <p className='font-semibold text-gray-700'>Giá hiện tại: </p>
@@ -282,7 +283,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
 
             <p className='text-gray-700'> {formatTimeLeft(product?.endAt)} </p>
           </div>
-          <div className='border-spacing-0.5 border-t border-gray-200 mt-5 mb-6 w-full' />
+          <div className='border-spacing-0.5 border-t border-gray-200 mt-2 mb-3 w-full' />
           <div className='flex flex-col'>
             <p className='text-gray-700 font-semibold text-lg mb-2'>Đặt mức giá tối đa cho sản phẩm</p>
 
@@ -317,7 +318,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
           {isExpired(product.endAt) ? (
             <Button
               variant={'outline'}
-              className='bg-black text-white transition delay-150 duration-200 ease-in-out hover:scale-102 mt-8 hover:cursor-pointer h-12'
+              className='bg-black text-white transition delay-150 duration-200 ease-in-out hover:scale-102 mt-12 hover:cursor-pointer h-12'
               disabled
             >
               Sản phẩm đã hết hạn
@@ -326,7 +327,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
             <>
               <Button
                 variant={'outline'}
-                className='bg-black text-white transition delay-150 duration-200 ease-in-out hover:scale-102 mt-8 hover:cursor-pointer h-12'
+                className='bg-black text-white transition delay-150 duration-200 ease-in-out hover:scale-102 mt-5 hover:cursor-pointer h-12'
                 onClick={() => handleAutoBid({ productId: product.id, maxAutoBidAmount: price, token })}
                 disabled={isBidding}
               >

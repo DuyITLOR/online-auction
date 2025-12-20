@@ -1,7 +1,7 @@
 import { type FC, useState } from "react";
 import { Eye, Trash2, Loader2, Pencil, Search } from "lucide-react";
 import Pagination from "../pagination";
-import { useProducts } from "../../libs/contexts/sellerProduct.context";
+import { useProducts } from "../../libs/contexts/seller/product.context";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import {
@@ -175,7 +175,6 @@ const ProductsTab: FC = () => {
       {!isLoading && totalProducts > 0 && (
         <div className='p-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between'>
           <div className='text-sm text-gray-500'>
-            Trang <span className='font-medium text-gray-900'>{page}</span> trên{" "}
             <span className='font-medium text-gray-900'>{totalPage}</span>
           </div>
           <Pagination

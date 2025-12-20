@@ -6,7 +6,7 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
-import { getSession } from "../session";
+import { useSeller } from "./seller.context";
 
 interface Product {
   id: string;
@@ -45,6 +45,7 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const { user } = useSeller();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -55,9 +56,8 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   const limit = 5;
 
   const fetchProducts = useCallback(async () => {
-    const session = await getSession();
-    const userId = session?.user?.id;
-    if (!userId) return;
+    if (!user?.id) return;
+    const userId = user.id;
 
     const cacheKey = `${userId}-${page}`;
     if (cache[cacheKey]) {
@@ -72,7 +72,9 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
     try {
       setIsLoading(true);
       const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/product?sellerId=${userId}&page=${page}&limit=${limit}`
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/product?sellerId=${userId}&page=${page}&limit=${limit}`
       );
       const json = await res.json();
       const list = json.data?.data ?? [];
@@ -95,15 +97,18 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [page, cache]);
+  }, [page, cache, user]);
 
   const deleteProduct = async (id: string): Promise<ActionResult> => {
     try {
       const session = await getSession();
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${session?.token}` },
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/product/${id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${session?.token}` },
+        }
+      );
       const data = await res.json();
       if (res.ok) {
         setCache({});
@@ -121,14 +126,17 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   ): Promise<ActionResult> => {
     try {
       const session = await getSession();
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.token}`,
-        },
-        body: JSON.stringify({ description }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/product/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.token}`,
+          },
+          body: JSON.stringify({ description }),
+        }
+      );
       const data = await res.json();
       if (res.ok) {
         setCache({});

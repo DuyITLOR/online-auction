@@ -26,7 +26,7 @@
   --accent-foreground: oklch(1 0 0);
 
   /* Border / input / focus */
-  --border: oklch(97.468% 0.00211 14.301);
+  --border: oklch(97.468% 0.00211 14.301 / 0.887);
   --input: oklch(0.95 0 0);
   --ring: oklch(0.55 0.15 155);
 

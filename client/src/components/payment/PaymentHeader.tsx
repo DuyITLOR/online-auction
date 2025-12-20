@@ -18,7 +18,7 @@ const PaymentHeader = ({
 }: PaymentHeaderProps
 ) => {
     return (
-        <div className="bg-duy from-primary/5 via-background to-background border-b border-border">
+        <div className="bg-background from-primary/5 via-background to-background border-b border-border shadow-sm shadow-primary/10">
             <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
                 <div className="flex items-start gap-6">
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent text-accent-foreground shadow-lg shadow-primary/20">

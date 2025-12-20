@@ -1,0 +1,21 @@
+### Lấy danh sách đơn hàng theo người dùng có vai trò là SELLER
+### ADMIN - lấy tất cả đơn
+GET http://localhost:4000/orders?page=1&limit=10&view=ADMIN
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NjIyODg0MywiZXhwIjoxNzY4ODIwODQzfQ.X5nKBibERIkfjUciJpp8DusPUTu7sOedT-Z9mRAx8Bk
+Content-Type: application/json
+
+### ADMIN - lấy tất cả đơn (có thể search theo tên sản phẩm)
+GET http://localhost:4000/orders?page=1&limit=10&view=ADMIN&q=laptop
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NjIyODg0MywiZXhwIjoxNzY4ODIwODQzfQ.X5nKBibERIkfjUciJpp8DusPUTu7sOedT-Z9mRAx8Bk
+Content-Type: application/json
+
+
+### SELLER - lấy đơn theo sản phẩm mình bán (search theo tên sản phẩm)
+GET http://localhost:4000/orders?page=1&limit=10&view=SELLER
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NjIyODg0MywiZXhwIjoxNzY4ODIwODQzfQ.X5nKBibERIkfjUciJpp8DusPUTu7sOedT-Z9mRAx8Bk
+Content-Type: application/json
+
+### BIDDER - lấy đơn mình mua (search theo tên sản phẩm)
+GET http://localhost:4000/orders?page=1&limit=10&view=BIDDER
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NjIyODg0MywiZXhwIjoxNzY4ODIwODQzfQ.X5nKBibERIkfjUciJpp8DusPUTu7sOedT-Z9mRAx8Bk
+Content-Type: application/json

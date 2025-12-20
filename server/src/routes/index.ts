@@ -12,6 +12,7 @@ import admin from './adminRoute';
 import autoBid from './autoBidRoute';
 import rating from './ratingRoute';
 import chat from './chatRotues';
+import order from './orderRoute';
 
 const prisma = new PrismaClient();
 
@@ -76,4 +77,5 @@ export function routes(app: Application): void {
   app.use('/', autoBid);
   app.use('/', rating);
   app.use('/', chat);
+  app.use('/', order);
 }

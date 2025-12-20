@@ -101,8 +101,6 @@ const SellerDashboard: React.FC = () => {
         <TabBoard />
       </main>
 
-      {/* --- FOOTER --- */}
-      <Footer />
     </div>
   );
 };

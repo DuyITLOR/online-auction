@@ -92,7 +92,7 @@ export const rateUser = async (req: Request, res: Response) => {
       rateeId: rateeId,
       raterId: req.user.id,
       productId: body.productId,
-      value: body.value,
+      value: Number(body.value),
       comment: body.comment,
     };
     const record = await service.createRating(data);

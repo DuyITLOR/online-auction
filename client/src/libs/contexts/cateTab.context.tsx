@@ -83,7 +83,9 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
   const fetchRootCategories = useCallback(async () => {
     try {
       setIsInitialLoading(true);
-      const res = await fetch("http://localhost:4000/categories?parents");
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/categories?parents`
+      );
       const data = (await res.json()).data;
 
       setTreeData(
@@ -106,7 +108,9 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
   const loadChildren = useCallback(async (parentNode: TreeNode) => {
     try {
       const res = await fetch(
-        `http://localhost:4000/categories?parents=${parentNode.id}`
+        `${import.meta.env.VITE_BACKEND_URL}/categories?parents=${
+          parentNode.id
+        }`
       );
       const sub = (await res.json()).data;
 
@@ -122,7 +126,9 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
         }));
       } else {
         const prodRes = await fetch(
-          `http://localhost:4000/product?categoryId=${parentNode.id}&limit=100`
+          `${import.meta.env.VITE_BACKEND_URL}/product?categoryId=${
+            parentNode.id
+          }&limit=100`
         );
         const prod = await prodRes.json();
 
@@ -148,14 +154,17 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
   ): Promise<ActionResult> => {
     try {
       const token = session?.token || (await getSession())?.token;
-      const res = await fetch("http://localhost:4000/categories", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name, parentId }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/categories`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name, parentId }),
+        }
+      );
 
       const data = await res.json();
 
@@ -176,14 +185,17 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
   ): Promise<ActionResult> => {
     try {
       const token = session?.token || (await getSession())?.token;
-      const res = await fetch(`http://localhost:4000/categories/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/categories/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name }),
+        }
+      );
 
       const data = await res.json();
 
@@ -201,12 +213,15 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
   const deleteCategory = async (id: string): Promise<ActionResult> => {
     try {
       const token = session?.token || (await getSession())?.token;
-      const res = await fetch(`http://localhost:4000/categories/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/categories/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await res.json();
 

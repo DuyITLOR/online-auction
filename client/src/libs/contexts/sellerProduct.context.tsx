@@ -1,4 +1,3 @@
-// libs/contexts/productTab.context.tsx
 import React, {
   createContext,
   useContext,
@@ -7,47 +6,37 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
-
 import { getSession } from "../session";
 
-// --- Types ---
 interface Product {
   id: string;
   title: string;
+  description?: string; // Thêm description
   seller: { fullname: string };
   category: { name: string };
   currentPrice: number;
   endAt: string;
   countbids: number;
+  status: string;
 }
 
-interface Category {
-  id: string;
-  name: string;
-}
-
-interface CacheData {
-  products: Product[];
-  totalProducts: number;
-  totalPage: number;
-}
-
-interface DeleteResult {
+interface ActionResult {
   success: boolean;
   message: string;
 }
 
 interface ProductContextType {
   products: Product[];
-  categories: Category[];
   isLoading: boolean;
-  filter: string;
   page: number;
   totalPage: number;
   totalProducts: number;
-  setFilter: (filter: string) => void;
   setPage: (page: number) => void;
-  deleteProduct: (id: string) => Promise<DeleteResult>;
+  deleteProduct: (id: string) => Promise<ActionResult>;
+  updateProductDescription: (
+    id: string,
+    description: string
+  ) => Promise<ActionResult>;
   refreshProducts: () => void;
 }
 
@@ -57,41 +46,20 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const [filter, setFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
-
-  const [session, setSession] = useState<{ token: string } | null>(null);
+  const [cache, setCache] = useState<Record<string, any>>({});
 
   const limit = 5;
 
-  // CACHE
-  const [cache, setCache] = useState<Record<string, CacheData>>({});
-
-  async function initializeSession() {
-    const sess = await getSession();
-    setSession(sess);
-  }
-
-  // Fetch Categories
-  const fetchCategories = async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/categories`);
-      const json = await res.json();
-      setCategories(json.data || []);
-    } catch (err) {
-      console.error("Fetch categories failed:", err);
-    }
-  };
-
-  // Fetch Products (Có cache)
   const fetchProducts = useCallback(async () => {
-    const cacheKey = `${filter}-${page}`;
+    const session = await getSession();
+    const userId = session?.user?.id;
+    if (!userId) return;
 
+    const cacheKey = `${userId}-${page}`;
     if (cache[cacheKey]) {
       const c = cache[cacheKey];
       setProducts(c.products);
@@ -103,19 +71,10 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
 
     try {
       setIsLoading(true);
-
-      const query = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-      });
-
-      if (filter !== "all") query.append("categoryId", filter);
-
       const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/product?${query.toString()}`
+        `${import.meta.env.VITE_BACKEND_URL}/product?sellerId=${userId}&page=${page}&limit=${limit}`
       );
       const json = await res.json();
-
       const list = json.data?.data ?? [];
       const total = json.data?.total ?? 0;
       const totalPages = json.data?.totalPages ?? 1;
@@ -123,7 +82,6 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
       setProducts(list);
       setTotalProducts(total);
       setTotalPage(totalPages);
-
       setCache((prev) => ({
         ...prev,
         [cacheKey]: {
@@ -133,36 +91,51 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
         },
       }));
     } catch (err) {
-      console.error("Fetch products failed:", err);
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
-  }, [filter, page, cache]);
+  }, [page, cache]);
 
-  // Delete Product (KHÔNG xoá UI trước → tránh mất dialog)
-  const deleteProduct = async (productId: string): Promise<DeleteResult> => {
+  const deleteProduct = async (id: string): Promise<ActionResult> => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/${productId}`, {
+      const session = await getSession();
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/${id}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${session?.token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCache({});
+        return { success: true, message: "Xóa sản phẩm thành công" };
+      }
+      return { success: false, message: data.message || "Xóa thất bại" };
+    } catch (err) {
+      return { success: false, message: "Lỗi kết nối server" };
+    }
+  };
+
+  const updateProductDescription = async (
+    id: string,
+    description: string
+  ): Promise<ActionResult> => {
+    try {
+      const session = await getSession();
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/${id}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.token}`,
         },
+        body: JSON.stringify({ description }),
       });
-
       const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        return { success: false, message: data?.message || "Xóa thất bại" };
+      if (res.ok) {
+        setCache({});
+        return { success: true, message: "Cập nhật mô tả thành công" };
       }
-
-      // Clear cache để lần fetch kế tiếp lấy data mới
-      setCache({});
-
-      // Không fetch ngay → tránh dialog biến mất (Tab sẽ fetch sau)
-      return { success: true, message: data.message || "Đã xoá thành công" };
+      return { success: false, message: data.message || "Cập nhật thất bại" };
     } catch (err) {
-      console.error("Delete error:", err);
       return { success: false, message: "Lỗi kết nối server" };
     }
   };
@@ -173,11 +146,6 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   useEffect(() => {
-    initializeSession();
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
@@ -185,15 +153,13 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
     <ProductContext.Provider
       value={{
         products,
-        categories,
         isLoading,
-        filter,
         page,
         totalPage,
         totalProducts,
-        setFilter,
         setPage,
         deleteProduct,
+        updateProductDescription,
         refreshProducts,
       }}
     >

@@ -6,8 +6,18 @@ import {
 import { prisma } from "./db/prisma";
 
 export async function createCate(data: createCategoryDto) {
+  if (!data.parentId) {
+    const parent = await prisma.categories.create({
+      data: { name: data.name, parentId: null },
+    });
+
+    const child = await prisma.categories.create({
+      data: { name: "Khác", parentId: parent.id },
+    });
+    return parent;
+  }
   return prisma.categories.create({
-    data: { name: data.name, parentId: data.parentId || null },
+    data: { name: data.name, parentId: data.parentId },
   });
 }
 

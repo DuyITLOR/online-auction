@@ -12,7 +12,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE0MjIyYzc1LTE2OWUtNGJlNi05ZmMxLWZjMTE0NTA3ZGI5MyIsImVtYWlsIjoibnF0MzcyMDA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NDczODkwMCwiZXhwIjoxNzY3MzMwOTAwfQ.RODYeIUqf9punR0BI_ri5BVtWCU5Zi7tbC7_BMN-4kM
 
 {
-  "name": "Electronics",
+  "name": "dssadsadsad",
   "description": "Electronic devices and gadgets",
   "parentId": null
 }

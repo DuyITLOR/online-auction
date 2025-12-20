@@ -101,7 +101,7 @@ export const ModerationProvider: React.FC<{ children: ReactNode }> = ({
       // }
 
       const response = await fetch(
-        `http://localhost:4000/users/requests?limit=${limit}&page=${page}`,
+        `${import.meta.env.VITE_BACKEND_URL}/users/requests?limit=${limit}&page=${page}`,
         {
           method: "GET",
           headers: {
@@ -155,8 +155,8 @@ export const ModerationProvider: React.FC<{ children: ReactNode }> = ({
     try {
       let url =
         action === "APPROVE"
-          ? `http://localhost:4000/users/upgrade/${id}/accept`
-          : `http://localhost:4000/users/upgrade/${id}/refuse`;
+          ? `${import.meta.env.VITE_BACKEND_URL}/users/upgrade/${id}/accept`
+          : `${import.meta.env.VITE_BACKEND_URL}/users/upgrade/${id}/refuse`;
 
       const response = await fetch(url, {
         method: "PATCH",

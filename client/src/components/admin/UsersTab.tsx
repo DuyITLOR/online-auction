@@ -1,4 +1,4 @@
-import { useUsers } from "../../libs/contexts/userTab.context";
+import { useUsers } from "../../libs/contexts/admin/user.context";
 import { Loader2, Mail, User, Shield, Calendar, Search } from "lucide-react";
 import Pagination from "../pagination";
 

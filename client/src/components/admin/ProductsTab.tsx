@@ -1,7 +1,7 @@
 import { type FC, useState } from "react";
 import { Eye, Trash2, Loader2, Filter, Search } from "lucide-react";
 import Pagination from "../pagination";
-import { useProducts } from "../../libs/contexts/productTab.context";
+import { useProducts } from "../../libs/contexts/admin/product.context";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 

@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import {
   useCategories,
   type TreeNode,
-} from "../../libs/contexts/cateTab.context";
+} from "../../libs/contexts/admin/cate.context";
 
 // ===============================
 // TreeItem Component
@@ -107,7 +107,6 @@ const TreeItem: FC<TreeItemProps> = ({
           >
             {node.name}
           </span>
-
         </div>
 
         {isCategory && (

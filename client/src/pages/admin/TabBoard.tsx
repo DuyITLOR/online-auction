@@ -6,11 +6,12 @@ import CategoriesTab from "../../components/admin/Categories";
 import ReportsTab from "../../components/admin/ReportsTab";
 import ModerationTab from "../../components/admin/ModerationTab";
 
-import { ProductProvider } from "../../libs/contexts/productTab.context";
-import { CategoryProvider } from "../../libs/contexts/cateTab.context";
-import { UserProvider } from "../../libs/contexts/userTab.context";
-import { ModerationProvider } from "../../libs/contexts/moderationTab.context";
+import { ProductProvider } from "../../libs/contexts/admin/product.context";
+import { CategoryProvider } from "../../libs/contexts/admin/cate.context";
+import { UserProvider } from "../../libs/contexts/admin/user.context";
+import { ModerationProvider } from "../../libs/contexts/admin/moderation.context";
 
+import { AdminProvider } from "../../libs/contexts/admin/admin.context";
 const TAB_LIST = [
   { key: "tongquan", label: "Tổng quan" },
   { key: "nguoidung", label: "Người dùng" },
@@ -113,28 +114,30 @@ export default function DashboardTabs() {
 
       {/* Nội dung tuỳ tab */}
       <div className='mt-6'>
-        {activeTab === "tongquan" && <OverviewTab />}
-        {activeTab === "nguoidung" && (
-          <UserProvider>
-            <UsersTab />
-          </UserProvider>
-        )}
-        {activeTab === "sanpham" && (
-          <ProductProvider>
-            <ProductsTab />
-          </ProductProvider>
-        )}
+        <AdminProvider>
+          {activeTab === "tongquan" && <OverviewTab />}
+          {activeTab === "nguoidung" && (
+            <UserProvider>
+              <UsersTab />
+            </UserProvider>
+          )}
+          {activeTab === "sanpham" && (
+            <ProductProvider>
+              <ProductsTab />
+            </ProductProvider>
+          )}
 
-        {activeTab === "danhmuc" && (
-          <CategoryProvider>
-            <CategoriesTab />
-          </CategoryProvider>
-        )}
-        {activeTab === "kiemduyet" && (
-          <ModerationProvider>
-            <ModerationTab />
-          </ModerationProvider>
-        )}
+          {activeTab === "danhmuc" && (
+            <CategoryProvider>
+              <CategoriesTab />
+            </CategoryProvider>
+          )}
+          {activeTab === "kiemduyet" && (
+            <ModerationProvider>
+              <ModerationTab />
+            </ModerationProvider>
+          )}
+        </AdminProvider>
       </div>
     </div>
   );

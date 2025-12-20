@@ -14,7 +14,7 @@ import {
 // Import Pagination Component
 import Pagination from "../pagination"; // Đảm bảo đường dẫn đúng tới file Pagination của bạn
 
-import { useModeration } from "../../libs/contexts/moderationTab.context";
+import { useModeration } from "../../libs/contexts/admin/moderation.context";
 
 import {
   Dialog,

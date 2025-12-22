@@ -50,13 +50,13 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
       token: data.data.token,
     });
 
-    const role = data.data.user.role as string; 
+    const role = data.data.user.role as string;
 
-    if (role === 'ADMIN') {
-      window.location.href = '/admin/dashboard';
-    } else {
-      window.location.href = '/';
-    }
+    return {
+      success: true,
+      role: role,
+      messages: 'Đăng nhập thành công',
+    };
   } catch (error) {
     console.error('[auth-form][form-submit::sign-in]:', error);
     return {

@@ -1,10 +1,14 @@
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react'; // 1. Import useContext
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createSession } from '../../libs/session';
+import { UserContext } from '../../libs/contexts/user.context'; // 2. Import Context
 
 export default function AuthCallback() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  // 3. Lấy hàm refresh từ Context
+  const { refresh } = useContext(UserContext);
 
   useEffect(() => {
     const userId = searchParams.get('userId');
@@ -15,23 +19,27 @@ export default function AuthCallback() {
     const role = searchParams.get('role');
 
     if (!userId || !token || !name || !email) {
-      console.error('Google Oauth failed');
+      console.error('Google Oauth failed: Missing params');
+      navigate('/login'); // Nên navigate về login nếu lỗi
       return;
     }
 
     const verifyToken = async () => {
       try {
-        const res = await fetch(`${import.meta.env.BACKEND_URL}/auth/verify-token`, {
+        // Lưu ý: Kiểm tra lại tên biến môi trường (VITE_BACKEND_URL hay BACKEND_URL)
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/verify-token`, {
           method: 'GET',
           headers: {
             authorization: `Bearer ${token}`,
           },
         });
 
-        if (res.status === 404) {
-          console.error('JWT verification failed');
+        if (!res.ok) {
+          // Check res.ok thay vì chỉ check 404
+          throw new Error('Token verification failed');
         }
 
+        // 1. Tạo session (Lưu xuống storage)
         await createSession({
           user: {
             id: userId,
@@ -42,23 +50,27 @@ export default function AuthCallback() {
           token,
         });
 
-        window.dispatchEvent(new Event('session-updated'));
+      
+        await refresh();
 
-        setTimeout(() => {
-          if (role === 'ADMIN') {
-            navigate('/admin/dashboard');
-          } else {
-            navigate('/');
-          }
-        }, 1500);
+        if (role === 'ADMIN') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/');
+        }
       } catch (err) {
         console.error(err);
-        navigate('/login');
+        navigate('/auth/signin');
       }
     };
 
     verifyToken();
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, refresh]);
 
-  return <div className='loader'></div>;
+  return (
+    <div className='flex items-center justify-center min-h-screen'>
+      {/* Thêm chút UI loading cho đẹp */}
+      <div className='loader'></div>
+    </div>
+  );
 }

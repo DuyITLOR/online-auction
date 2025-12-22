@@ -16,6 +16,7 @@ import SellerDashboard from './pages/seller/Dashboard';
 import PaymentPage from './pages/payment/PaymentPage';
 import MainLayout from './layouts/MainLayout';
 import NotFoundPage from './pages/NotFound';
+import ShopPage from './pages/product/ShopProduct';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -29,6 +30,7 @@ const router = createBrowserRouter(
         <Route index element={<Dashboard />} />
         <Route path='products' element={<ProductList />} />
         <Route path='product/:id' element={<DetailProduct />} />
+        <Route path='/shop/:sellerId' element={<ShopPage />} />
         <Route path='post-product' element={<PostProduct />} />
         <Route path='admin/dashboard' element={<AdminDashboard />} />
         <Route path='auth/google/callback' element={<AuthCallback />} />

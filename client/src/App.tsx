@@ -1,25 +1,21 @@
-import "./App.css";
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-  RouterProvider,
-} from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import AuthCallback from "./pages/auth/AuthCallback";
-import SignIn from "./pages/auth/SignIn";
-import SignUp from "./pages/auth/SignUp";
-import Verify from "./pages/auth/Verify";
-import ProductList from "./pages/product/ProductList";
-import AdminDashboard from "./pages/admin/Dashboard";
-import Profile from "./pages/Profile";
-import DetailProduct from "./pages/product/DetailProduct";
-import ForgetPassword from "./pages/auth/ForgetPassword";
-import ResetPassword from "./pages/auth/ResetPassword";
-import PostProduct from "./pages/product/PostProduct";
-import SellerDashboard from "./pages/seller/Dashboard";
-import PaymentPage from "./pages/payment/PaymentPage";
-import MainLayout from "./layouts/MainLayout";
+import './App.css';
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
+import AuthCallback from './pages/auth/AuthCallback';
+import SignIn from './pages/auth/SignIn';
+import SignUp from './pages/auth/SignUp';
+import Verify from './pages/auth/Verify';
+import ProductList from './pages/product/ProductList';
+import AdminDashboard from './pages/admin/Dashboard';
+import Profile from './pages/Profile';
+import DetailProduct from './pages/product/DetailProduct';
+import ForgetPassword from './pages/auth/ForgetPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+import PostProduct from './pages/product/PostProduct';
+import SellerDashboard from './pages/seller/Dashboard';
+import PaymentPage from './pages/payment/PaymentPage';
+import MainLayout from './layouts/MainLayout';
+import NotFoundPage from './pages/NotFound';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -29,7 +25,7 @@ const router = createBrowserRouter(
       <Route path='auth/verify' element={<Verify />} />
       <Route path='auth/forget-password' element={<ForgetPassword />} />
       <Route path='auth/reset-password' element={<ResetPassword />} />
-      <Route path='/' element={<MainLayout />}>
+      <Route path='/' element={<MainLayout />} errorElement={<NotFoundPage />}>
         <Route index element={<Dashboard />} />
         <Route path='products' element={<ProductList />} />
         <Route path='product/:id' element={<DetailProduct />} />

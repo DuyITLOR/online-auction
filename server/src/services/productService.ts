@@ -34,7 +34,7 @@ export const createProduct = async (id: string, data: createProductDto) => {
           url: img.url,
           sortOrder: img.sortOrder,
         })),
-      },
+      }, 
     },
     include: {
       images: true,

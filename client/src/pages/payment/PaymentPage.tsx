@@ -1,5 +1,6 @@
 import PaymentHeader from '../../components/payment/PaymentHeader'
 import PaymentProcess from '../../components/payment/PaymentProcess'
+import PaymentQR from '../../components/payment/PaymentQR'
 
 const paymentSteps = [
   {
@@ -39,9 +40,11 @@ const PaymentPage = () => {
   return (
     <div className='gap-2 flex flex-col'>
       <PaymentHeader title="Le Nhut Duy" price={1000000} seller="Seller Name" bidder="Bidder Name" userRole="buyer" />
-      <div className = "sm:mx-24 sm: mt-3 ">
+      <div className = "sm:mx-30 sm: mt-3 flex flex-col  gap-2">
         <PaymentProcess steps={paymentSteps} />
+        <PaymentQR userRole="buyer" onComplete={() => {}} />
       </div>
+      
     </div>
   )
 }

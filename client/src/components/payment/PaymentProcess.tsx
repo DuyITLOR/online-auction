@@ -31,6 +31,7 @@ const PaymentProcess = ({ steps }: PaymentProcessProps) => {
         alternativeLabel
         activeStep={activeStep === -1 ? steps.length : activeStep}
         sx={{
+          /* ===== STEP ICON (CIRCLE + CHECK) ===== */
           "& .MuiStepIcon-root": {
             color: "#9ca3af", // xám (chưa tới)
           },

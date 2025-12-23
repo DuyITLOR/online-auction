@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import ProductDescription from './description';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tab';
 import Review from './review';
+import { useNavigate } from 'react-router-dom';
 
 import type { BidHistory, Product, ProductImage, User, WatchList } from '../../libs/types/types';
 import { useContext, useEffect, useState } from 'react';
@@ -100,6 +101,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
   const [isBidding, setIsBidding] = useState(false);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { watchList, toggleWatchList } = useContext(ProductContext);
   const isLike = (id: string) => {
@@ -117,6 +119,10 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
       setLoading(false);
     }
   };
+
+  const handleBuyNow = () =>{
+    navigate(`/payment/${product.id}`);
+  }
 
   useEffect(() => {
     fetchProducts();
@@ -388,7 +394,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                       <DialogClose asChild>
                         <Button variant='outline'>Hủy</Button>
                       </DialogClose>
-                      <Button className='bg-teal-500 hover:bg-teal-600 text-white px-5' type='submit'>
+                      <Button onClick={handleBuyNow} className='bg-teal-500 hover:bg-teal-600 text-white px-5' type='submit'>
                         Xác nhận
                       </Button>
                     </div>

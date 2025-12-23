@@ -2,9 +2,18 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ProductContext } from '../libs/contexts/product.context';
-import { Heart, Gavel, Clock } from 'lucide-react';
+import { Heart, Gavel, Clock, Users, Sparkles } from 'lucide-react';
 import type { WatchList } from '../libs/types/types';
 import { getSession } from '../libs/session';
+
+const checkIsNew = (dateString: string) => {
+  if (!dateString) return false;
+  const now = new Date().getTime();
+  const start = new Date(dateString).getTime();
+  const diffMinutes = (now - start) / (1000 * 60);
+
+  return diffMinutes <= 10 && diffMinutes >= 0;
+};
 
 const getTimeStatusStyle = (date: string) => {
   const now = new Date();
@@ -59,7 +68,6 @@ const ProductSection = ({
 
   return (
     <div className='flex flex-col gap-5 py-2'>
-      {/* Tiêu đề có gạch trang trí nhỏ */}
       <div className='flex items-center gap-3'>
         <div className='w-1 h-8 bg-teal-500 rounded-full'></div>
         <p className='font-bold text-2xl text-gray-800'>{title}</p>
@@ -70,12 +78,14 @@ const ProductSection = ({
           const productData = item.product || item;
           const productId = item.productId || item.id;
           const timeStyle = getTimeStatusStyle(productData?.endAt);
-
+          const isNew = checkIsNew(productData?.startedAt);
           return (
             <Link
               to={`/product/${productId}`}
               key={productId}
-              className='flex flex-col min-w-[calc(20%-12.8px)] bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative'
+              className={`flex flex-col min-w-[calc(20%-12.8px)] bg-white rounded-xl border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative ${
+                isNew ? 'border-purple-300 ring-4 ring-purple-200' : 'border-gray-100'
+              }`}
             >
               <div className='relative w-full aspect-square overflow-hidden'>
                 <img
@@ -85,7 +95,14 @@ const ProductSection = ({
                 />
 
                 <div className='absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300'></div>
-
+                {isNew && (
+                  <div className='absolute top-9 left-2 z-10 animate-bounce-slow'>
+                    <div className='bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 border border-white/50'>
+                      <Sparkles size={10} className='fill-yellow-200 text-yellow-200 animate-pulse' />
+                      <span>NEW</span>
+                    </div>
+                  </div>
+                )}
                 <div
                   className={`absolute top-2 left-2 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm ${timeStyle}`}
                 >
@@ -115,15 +132,26 @@ const ProductSection = ({
               </div>
 
               <div className='flex flex-col flex-1 p-3 gap-2'>
-                <p className='font-medium text-gray-700 line-clamp-2 text-sm min-h-10 leading-tight group-hover:text-teal-600 transition-colors'>
+                <p className='font-medium text-gray-700 line-clamp-2 text-sm min-h-9 group-hover:text-teal-600 transition-colors'>
                   {productData?.title}
                 </p>
+                <div className='mt-auto pt-2 border-t border-gray-100 flex items-end justify-between'>
+                  <div className='flex flex-col'>
+                    <span className='text-[10px] uppercase font-bold text-gray-400'>Giá hiện tại</span>
+                    <span className='font-bold text-lg text-teal-600 leading-none'>
+                      {Number(productData?.currentPrice).toLocaleString()} đ
+                    </span>
+                  </div>
 
-                <div className='mt-auto pt-2 border-t border-gray-100 flex flex-col'>
-                  <span className='text-xs text-gray-400'>Giá hiện tại</span>
-                  <span className='font-bold text-lg text-teal-600'>
-                    {Number(productData?.currentPrice).toLocaleString()} đ
-                  </span>
+                  <div className='flex flex-col items-end'>
+                    <span className='text-[10px] uppercase font-bold text-gray-400'>Lượt đấu</span>
+                    <div className='flex items-center gap-1 text-gray-600'>
+                      <Users size={14} />
+                      <span className='font-semibold text-sm'>
+                        {productData?.countbids > 0 ? productData?.countbids : '-'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </Link>
@@ -136,7 +164,7 @@ const ProductSection = ({
 
 const DisplayProduct = () => {
   const [session, setSession] = useState<any>(null);
-  const { endingSoonProducts, highestPriceProducts, watchList, toggleWatchList, loading, refresh } =
+  const { endingSoonProducts, highestPriceProducts, highestBidProducts, watchList, toggleWatchList, loading, refresh } =
     useContext(ProductContext);
 
   useEffect(() => {
@@ -177,7 +205,7 @@ const DisplayProduct = () => {
 
           <ProductSection
             title='Nhiều lượt ra giá nhất'
-            products={highestPriceProducts}
+            products={highestBidProducts}
             watchList={watchList}
             toggleWatchList={toggleWatchList}
           />

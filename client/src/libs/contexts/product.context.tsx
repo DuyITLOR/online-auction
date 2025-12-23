@@ -7,6 +7,7 @@ import { getSession } from '../session';
 type ProductContextType = {
   endingSoonProducts: Product[];
   highestPriceProducts: Product[];
+  highestBidProducts: Product[];
   watchList: WatchList[];
   loading: boolean;
   toggleWatchList: (productId: string) => Promise<void>;
@@ -17,6 +18,7 @@ type ProductContextType = {
 export const ProductContext = createContext<ProductContextType>({
   endingSoonProducts: [],
   highestPriceProducts: [],
+  highestBidProducts: [],
   watchList: [],
   loading: true,
   toggleWatchList: async () => {},
@@ -26,18 +28,21 @@ export const ProductContext = createContext<ProductContextType>({
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [endingSoonProducts, setEndingProducts] = useState<Product[]>([]);
   const [highestPriceProducts, setPriceProducts] = useState<Product[]>([]);
+  const [highestBidProducts, setBidProducts] = useState<Product[]>([]);
   const [watchProducts, setWatchProducts] = useState<WatchList[]>([]);
   const [token, setToken] = useState('');
   const [loading, setLoading] = useState(true);
 
   const fetchPublicProducts = async () => {
     try {
-      const [endings, prices] = await Promise.all([
-        getAllProduct({ limit: '5', sort: 'endAt_desc' }),
+      const [endings, prices, bidTimes] = await Promise.all([
+        getAllProduct({ limit: '5', sort: 'ending_soon' }),
         getAllProduct({ limit: '5', sort: 'price_desc' }),
+        getAllProduct({ limit: '5', sort: 'countBids_desc' }),
       ]);
       setEndingProducts(endings.data);
       setPriceProducts(prices.data);
+      setBidProducts(bidTimes.data);
     } catch (err) {
       console.error('Lỗi fetch sản phẩm:', err);
     }
@@ -89,7 +94,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         await deleteWatchList({ productId, token });
       } else {
         const newItem = await createWatchList({ productId, token });
-        const products = [...endingSoonProducts, ...highestPriceProducts];
+        const products = [...endingSoonProducts, ...highestPriceProducts, ...highestBidProducts];
         const productDetail = products.find((item: Product) => productId === item.id);
 
         const newProduct: WatchList = {
@@ -111,6 +116,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       value={{
         endingSoonProducts,
         highestPriceProducts,
+        highestBidProducts,
         watchList: watchProducts,
         toggleWatchList: handleToggleWatchList,
         loading,

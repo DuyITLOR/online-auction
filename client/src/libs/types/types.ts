@@ -10,6 +10,7 @@ export interface User {
   currentRoles: string[];
   avtUrl: string;
   dateOfBirth?: string;
+  address?: string;
 
   autoBids?: AutoBids[];
   blockedOn?: BlockedBidders[];

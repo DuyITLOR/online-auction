@@ -79,6 +79,7 @@ const Profile = () => {
     fullname: '',
     email: '',
     dateOfBirth: '', // yyyy-mm-dd
+    address: '',
   });
 
   useEffect(() => {
@@ -86,14 +87,13 @@ const Profile = () => {
       setPreviewAvatar(user?.avtUrl);
     }
 
-    console.log(user?.dateOfBirth);
-
     if (user?.fullname) {
       setFormData((prev) => ({
         ...prev,
         ['fullname']: user.fullname || '',
         ['email']: user.email || '',
         ['dateOfBirth']: user.dateOfBirth ? convertISO(user?.dateOfBirth, true) : '',
+        ['address']: user.address || '',
       }));
     }
   }, [user]);
@@ -149,6 +149,7 @@ const Profile = () => {
       fullname: formData.fullname,
       email: formData.email,
       dateOfBirth: formData.dateOfBirth,
+      address: formData.address,
     };
 
     if (image) {
@@ -156,7 +157,6 @@ const Profile = () => {
     }
     await updateUser({ user: payload, token: session.token });
     refresh();
-    window.location.reload();
   };
 
   const handleUpdateRating = async (id: string, statusValue: boolean, commentValue: string) => {
@@ -338,9 +338,9 @@ const Profile = () => {
                       Địa chỉ
                     </p>
                     <input
-                      id='address'
-                      value={formData.email}
-                      disabled
+                      name='address'
+                      value={formData.address}
+                      onChange={handleChange}
                       className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
                     />
                   </div>

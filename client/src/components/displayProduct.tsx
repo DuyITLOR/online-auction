@@ -2,23 +2,35 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ProductContext } from '../libs/contexts/product.context';
-import { Heart } from 'lucide-react';
+import { Heart, Gavel, Clock } from 'lucide-react';
 import type { WatchList } from '../libs/types/types';
 import { getSession } from '../libs/session';
+
+const getTimeStatusStyle = (date: string) => {
+  const now = new Date();
+  const end = new Date(date);
+  const diff = end.getTime() - now.getTime();
+  const diffHours = diff / (1000 * 60 * 60);
+
+  if (diff <= 0) return 'bg-gray-200 text-gray-500';
+  if (diffHours < 24) return 'bg-red-100 text-red-600 animate-pulse';
+  if (diffHours < 72) return 'bg-orange-100 text-orange-600';
+  return 'bg-emerald-100 text-emerald-600';
+};
 
 const formatTimeLeft = (date: string) => {
   const now = new Date();
   const end = new Date(date);
   const diff = end.getTime() - now.getTime();
 
-  if (diff <= 0) return 'Hết hạn';
+  if (diff <= 0) return 'Đã kết thúc';
 
   const diffDays = diff / (1000 * 60 * 60 * 24);
   const diffHours = diff / (1000 * 60 * 60);
   const diffMinutes = diff / (1000 * 60);
 
   if (diffDays > 3) {
-    return `Kết thúc: ${end.getDate()}/${end.getMonth() + 1}/${end.getFullYear()}`;
+    return `${end.getDate()}/${end.getMonth() + 1}`;
   } else if (diffDays >= 1) {
     return `${Math.ceil(diffDays)} ngày`;
   } else if (diffHours >= 1) {
@@ -28,24 +40,110 @@ const formatTimeLeft = (date: string) => {
   }
 };
 
+const ProductSection = ({
+  title,
+  products,
+  toggleWatchList,
+  watchList,
+}: {
+  title: string;
+  products: any[];
+  toggleWatchList: (id: string) => void;
+  watchList: WatchList[];
+}) => {
+  const isLike = (id: string) => {
+    return watchList.some((item) => id === item.productId || id === item.userId);
+  };
+
+  if (!products || products.length === 0) return null;
+
+  return (
+    <div className='flex flex-col gap-5 py-2'>
+      {/* Tiêu đề có gạch trang trí nhỏ */}
+      <div className='flex items-center gap-3'>
+        <div className='w-1 h-8 bg-teal-500 rounded-full'></div>
+        <p className='font-bold text-2xl text-gray-800'>{title}</p>
+      </div>
+
+      <div className='flex flex-1 items-stretch gap-4 overflow-x-auto scroll-container pb-8 px-1'>
+        {products.map((item: any) => {
+          const productData = item.product || item;
+          const productId = item.productId || item.id;
+          const timeStyle = getTimeStatusStyle(productData?.endAt);
+
+          return (
+            <Link
+              to={`/product/${productId}`}
+              key={productId}
+              className='flex flex-col min-w-[calc(20%-12.8px)] bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative'
+            >
+              <div className='relative w-full aspect-square overflow-hidden'>
+                <img
+                  src={productData?.images?.[0]?.url}
+                  className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
+                  alt={productData?.title}
+                />
+
+                <div className='absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300'></div>
+
+                <div
+                  className={`absolute top-2 left-2 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm ${timeStyle}`}
+                >
+                  <Clock size={12} />
+                  {formatTimeLeft(productData?.endAt)}
+                </div>
+
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleWatchList(productData?.id);
+                  }}
+                  className='absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-red-500 transition-colors shadow-sm backdrop-blur-sm'
+                >
+                  <Heart
+                    className={`w-5 h-5 transition-colors ${
+                      isLike(productData?.id) ? 'fill-red-500 text-red-500' : ''
+                    }`}
+                  />
+                </button>
+
+                <div className='absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out'>
+                  <button className='w-full bg-teal-600 text-white py-2 rounded-lg font-semibold shadow-lg flex items-center justify-center gap-2 hover:bg-teal-700'>
+                    <Gavel size={16} /> Đặt giá ngay
+                  </button>
+                </div>
+              </div>
+
+              <div className='flex flex-col flex-1 p-3 gap-2'>
+                <p className='font-medium text-gray-700 line-clamp-2 text-sm min-h-10 leading-tight group-hover:text-teal-600 transition-colors'>
+                  {productData?.title}
+                </p>
+
+                <div className='mt-auto pt-2 border-t border-gray-100 flex flex-col'>
+                  <span className='text-xs text-gray-400'>Giá hiện tại</span>
+                  <span className='font-bold text-lg text-teal-600'>
+                    {Number(productData?.currentPrice).toLocaleString()} đ
+                  </span>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const DisplayProduct = () => {
   const [session, setSession] = useState<any>(null);
   const { endingSoonProducts, highestPriceProducts, watchList, toggleWatchList, loading, refresh } =
     useContext(ProductContext);
-  const isLike = (id: string) => {
-    return watchList.some((item) => id === item.productId);
-  };
 
   useEffect(() => {
     const getToken = async () => {
       const sessionValue = await getSession();
-      if (sessionValue != null) {
-        setSession(sessionValue);
-      } else {
-        setSession({});
-      }
+      setSession(sessionValue || {});
     };
-
     getToken();
   }, []);
 
@@ -62,126 +160,34 @@ const DisplayProduct = () => {
       )}
 
       {!loading && (
-        <div className='flex flex-col mx-10 mb-5 gap-10'>
-          <p className='font-bold text-2xl'>Sản phẩm yêu thích</p>
-          <div className='flex flex-1 items-center gap-3 overflow-x-auto scroll-container h-[400px] pb-5'>
-            {watchList.map((item: WatchList) => (
-              <Link
-                to={`/product/${item.productId}`}
-                key={item.productId}
-                className='flex flex-col gap-2 min-w-[250px] max-w-[250px] relative'
-              >
-                <img src={item?.product?.images?.[0].url} className='rounded-md w-[250px] h-[250px] object-cover' />
-                <p className='line-clamp-2 min-h-12'>{item.product?.title}</p>
-                <span className='font-semibold text-xl'>{Number(item.product?.currentPrice).toLocaleString()} VND</span>
-                <div
-                  className={`font-semibold h-7 absolute text-xs left-1 top-1 bg-white hover:bg-gray-100 px-2 py-1 rounded-full`}
-                >
-                  {formatTimeLeft(item.product?.endAt)}
-                </div>
+        <div className='flex flex-col mx-auto max-w-[1400px] px-5 md:px-10 mb-5 gap-8'>
+          <ProductSection
+            title='Sản phẩm yêu thích'
+            products={watchList}
+            watchList={watchList}
+            toggleWatchList={toggleWatchList}
+          />
 
-                <Heart
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleWatchList(item.product?.id);
-                  }}
-                  className={`w-10 h-10 ${
-                    isLike(item.product?.id) ? 'stroke-0 fill-red-600' : 'stroke-2'
-                  } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
-                />
-              </Link>
-            ))}
-          </div>
+          <ProductSection
+            title='Sắp kết thúc'
+            products={endingSoonProducts}
+            watchList={watchList}
+            toggleWatchList={toggleWatchList}
+          />
 
-          <p className='font-bold text-2xl'>Sắp kết thúc</p>
-          <div className='flex flex-1 items-center gap-3 overflow-x-auto scroll-container h-[400px] pb-5'>
-            {endingSoonProducts.map((item) => (
-              <Link
-                to={`/product/${item.id}`}
-                key={item.id}
-                className='flex flex-col gap-2 max-w-[250px] min-w-[250px] relative'
-              >
-                <img src={item?.images?.[0]?.url} className='rounded-md w-[250px] h-[250px] object-cover' />
-                <p className='line-clamp-2 min-h-12'>{item.title}</p>
-                <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
-                <div
-                  className={`font-semibold h-7 absolute text-xs left-1 top-1 bg-white hover:bg-gray-100 px-2 py-1 rounded-full`}
-                >
-                  {formatTimeLeft(item.endAt)}
-                </div>
+          <ProductSection
+            title='Nhiều lượt ra giá nhất'
+            products={highestPriceProducts}
+            watchList={watchList}
+            toggleWatchList={toggleWatchList}
+          />
 
-                <Heart
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleWatchList(item.id);
-                  }}
-                  className={`w-10 h-10 ${
-                    isLike(item.id) ? 'stroke-0 fill-red-600' : 'stroke-2'
-                  } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
-                />
-              </Link>
-            ))}
-          </div>
-
-          <p className='font-bold text-2xl'> Nhiều lượt ra giá nhất</p>
-          <div className='flex flex-1 items-center gap-3 overflow-x-auto scroll-container h-[400px] pb-5'>
-            {highestPriceProducts.map((item) => (
-              <Link
-                to={`/product/${item.id}`}
-                key={item.id}
-                className='flex flex-col gap-2 max-w-[250px] min-w-[250px] relative'
-              >
-                <img src={item?.images?.[0]?.url} className='rounded-md w-[250px] h-[250px] object-cover' />
-                <p className='line-clamp-2 min-h-12'>{item.title}</p>
-                <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
-                <div
-                  className={`font-semibold h-7 absolute text-xs left-1 top-1 bg-white hover:bg-gray-100 px-2 py-1 rounded-full`}
-                >
-                  {formatTimeLeft(item.endAt)}
-                </div>
-
-                <Heart
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleWatchList(item.id);
-                  }}
-                  className={`w-10 h-10 ${
-                    isLike(item.id) ? 'stroke-0 fill-red-600' : 'stroke-2'
-                  } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
-                />
-              </Link>
-            ))}
-          </div>
-
-          <p className='font-bold text-2xl'>Giá cao nhất</p>
-          <div className='flex flex-1 items-center gap-3 overflow-x-auto scroll-container h-[400px] pb-5'>
-            {highestPriceProducts.map((item) => (
-              <Link
-                to={`/product/${item.id}`}
-                key={item.id}
-                className='flex flex-col gap-2 max-w-[250px] min-w-[250px] relative'
-              >
-                <img src={item?.images?.[0]?.url} className='rounded-md w-[250px]  h-[250px] object-cover' />
-                <p className='line-clamp-2 min-h-12'>{item.title}</p>
-                <span className='font-semibold text-xl'>{Number(item.currentPrice).toLocaleString()} VND</span>
-                <div
-                  className={`font-semibold h-7 absolute text-xs left-1 top-1 bg-white hover:bg-gray-100 px-2 py-1 rounded-full`}
-                >
-                  {formatTimeLeft(item.endAt)}
-                </div>
-
-                <Heart
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleWatchList(item.id);
-                  }}
-                  className={`w-10 h-10 ${
-                    isLike(item.id) ? 'stroke-0 fill-red-600' : 'stroke-2'
-                  } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
-                />
-              </Link>
-            ))}
-          </div>
+          <ProductSection
+            title='Giá cao nhất'
+            products={highestPriceProducts}
+            watchList={watchList}
+            toggleWatchList={toggleWatchList}
+          />
         </div>
       )}
     </>

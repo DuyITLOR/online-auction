@@ -33,8 +33,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const fetchPublicProducts = async () => {
     try {
       const [endings, prices] = await Promise.all([
-        getAllProduct({ limit: '10', sort: 'endAt_desc' }),
-        getAllProduct({ limit: '10', sort: 'price_desc' }),
+        getAllProduct({ limit: '5', sort: 'endAt_desc' }),
+        getAllProduct({ limit: '5', sort: 'price_desc' }),
       ]);
       setEndingProducts(endings.data);
       setPriceProducts(prices.data);

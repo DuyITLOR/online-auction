@@ -6,7 +6,7 @@ interface PaymentHeaderProps {
     price: number;
     seller: string;
     bidder: string;
-    userRole: "buyer" | "seller";
+    userRole: "ADMIN" | "SELLER" | "BIDDER";
 }
 
 const PaymentHeader = ({
@@ -71,7 +71,7 @@ const PaymentHeader = ({
                             {userRole && (
                                 <div className="flex items-center justify-center bg-[#10b981] rounded-xl px-4 py-3 border border-white shadow-sm shadow-white">
                                     <p className="text-sm font-bold text-white">
-                                        Bạn là {userRole === "buyer" ? "người mua" : "người bán"}
+                                        Bạn là {userRole === "BIDDER" ? "người mua" : "người bán"}
                                     </p>
                                 </div>
                             )}

@@ -8,6 +8,7 @@ import {
   answerBidderReturnDto,
   returnErrorDto,
   getALlCommentsDto,
+  responseProfileDto
 } from "../dto/userDto";
 import { deleteCommentDto } from "../dto/userDto";
 import { getBidCountOfUser } from "./autoBidService";
@@ -400,10 +401,12 @@ export const getInfoProfile = async (userId: string) => {
   const orderCount = await getCountOrderByUser(userId);
   const ratingCount = await getCountRatingForUser(userId);
 
-  return {
-    bidCount,
-    watchListCount,
-    orderCount,
-    ratingCount,
-  };
+  const data : responseProfileDto = {
+    BidCount: bidCount,
+    WatchListCount: watchListCount,
+    OrderCount: orderCount,
+    RatingCount: ratingCount  
+  }
+
+  return data;
 };

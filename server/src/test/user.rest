@@ -60,3 +60,9 @@ Content-Type: application/json
 DELETE http://localhost:4000/comments/cd7bfbac-9db1-49aa-9d61-0826a02244ed
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NTEwMDM4NywiZXhwIjoxNzY3NjkyMzg3fQ.juhQXZzKw_KZj9a6JUwM7COE2nQxQSpo2SDWFcsrkBk
+
+
+### Lấy profile của một user
+GET http://localhost:4000/users/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NjU4Njk3MiwiZXhwIjoxNzY5MTc4OTcyfQ.sRdHZ--DvHwX8-0w_3f1dhdSzBmF1-PFw7YDfVfS7SM
+Content-Type: application/json

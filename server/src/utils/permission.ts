@@ -243,6 +243,11 @@ export const API_ROUTES = {
     role: [Role.ADMIN],
     method: 'PATCH',
   },
+  profileSummary: {
+    path: '/users/profile',
+    role: [Role.ALL],
+    method: 'GET',
+  }
 };
 
 export const API_RATING_ROUTES = {

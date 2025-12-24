@@ -9,6 +9,7 @@ import type { Category, Product } from '../../libs/types/types';
 import Pagination from '../../components/pagination';
 // Giả sử bạn có UI components, nếu không có thể dùng thẻ div thường
 import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
+import SortBar from '../../components/product/sortBar';
 
 const convertTime = (date: string) => {
   const now = new Date();
@@ -204,24 +205,7 @@ const ProductList = () => {
                 <h1 className='text-2xl font-bold text-gray-900'>Danh sách sản phẩm</h1>
               </div>
 
-              <div className='flex items-center gap-3'>
-                <div className='flex items-center gap-2'>
-                  <span className='text-sm text-gray-500'>Sort by:</span>
-                  <select
-                    className='border-none bg-white text-sm font-medium text-gray-900 focus:ring-0 cursor-pointer'
-                    onChange={(e) => {
-                      const next = new URLSearchParams(searchParams);
-                      next.set('sort', e.target.value);
-                      setSearchParams(next);
-                    }}
-                  >
-                    <option value='relevance'>Relevance</option>
-                    <option value='price_asc'>Price: Low to High</option>
-                    <option value='price_desc'>Price: High to Low</option>
-                    <option value='ending_soon'>Ending Soon</option>
-                  </select>
-                </div>
-              </div>
+              <SortBar />
             </div>
 
             {loading ? (
@@ -235,7 +219,8 @@ const ProductList = () => {
                     const timeStatus = convertTime(item.endAt);
 
                     return (
-                      <div
+                      <Link
+                        to={`/product/${item.id}`}
                         key={item.id}
                         className='bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-lg transition-all duration-300 group border border-gray-100'
                       >
@@ -308,7 +293,7 @@ const ProductList = () => {
                             )}
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     );
                   })}
                 </div>

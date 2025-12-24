@@ -131,6 +131,22 @@ const ProductList = () => {
     setSearchParams(next);
   };
 
+  const formatCurrency = (value: string | number) => {
+    if (!value) return '';
+    const cleanValue = String(value).replace(/\D/g, '');
+    return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    const rawValue = value.replace(/\./g, '');
+    if (name === 'Max') {
+      setPriceRange({ ...priceRange, max: rawValue });
+    } else {
+      setPriceRange({ ...priceRange, min: rawValue });
+    }
+  };
+
   return (
     <div className='bg-[#F8F9FA] min-h-screen font-sans text-gray-800'>
       <div className='container mx-auto px-4 lg:px-8 py-6'>
@@ -215,10 +231,11 @@ const ProductList = () => {
                 <div className='relative w-full'>
                   <span className='absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs'>$</span>
                   <input
-                    type='number'
+                    name='Min'
+                    type='text'
                     placeholder='Min'
-                    value={priceRange.min}
-                    onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
+                    value={formatCurrency(priceRange.min)}
+                    onChange={handleChange}
                     className='w-full border border-gray-200 rounded px-2 pl-4 py-1.5 text-sm bg-white focus:outline-none focus:border-teal-500 transition-colors'
                   />
                 </div>
@@ -226,10 +243,11 @@ const ProductList = () => {
                 <div className='relative w-full'>
                   <span className='absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs'>$</span>
                   <input
-                    type='number'
+                    name='Max'
+                    type='text'
                     placeholder='Max'
-                    value={priceRange.max}
-                    onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
+                    value={formatCurrency(priceRange.max)}
+                    onChange={handleChange}
                     className='w-full border border-gray-200 rounded px-2 pl-4 py-1.5 text-sm bg-white focus:outline-none focus:border-teal-500 transition-colors'
                   />
                 </div>
@@ -242,10 +260,6 @@ const ProductList = () => {
                 <Filter size={14} />
                 ÁP DỤNG
               </button>
-            </div>
-
-            <div>
-              <h3 className='font-bold text-xs text-gray-900 uppercase tracking-wider mb-4'>Condition</h3>
             </div>
           </div>
 

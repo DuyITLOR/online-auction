@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Heart, ChevronRight, Clock, Gavel, ChevronDown } from 'lucide-react';
+import { Heart, ChevronRight, Clock, Gavel, ChevronDown, Filter } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ProductContext } from '../../libs/contexts/product.context';
@@ -37,6 +37,19 @@ const ProductList = () => {
   const sortType = searchParams.get('sort') || '';
   const [expandedCatId, setExpandedCatId] = useState<string | null>(null);
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
+  const minPriceParam = searchParams.get('minPrice') || '';
+  const maxPriceParam = searchParams.get('maxPrice') || '';
+  const [priceRange, setPriceRange] = useState({
+    min: minPriceParam,
+    max: maxPriceParam,
+  });
+
+  useEffect(() => {
+    setPriceRange({
+      min: minPriceParam,
+      max: maxPriceParam,
+    });
+  }, [minPriceParam, maxPriceParam]);
 
   useEffect(() => {
     const map: Record<string, boolean> = {};
@@ -49,11 +62,22 @@ const ProductList = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const productRes = await getAllProduct({ page, limit: '9', categoryId, sort: sortType });
-      setProducts(productRes.data);
-      setTotalPage(productRes.totalPage);
-
-      setLoading(false);
+      try {
+        const productRes = await getAllProduct({
+          page,
+          limit: '9',
+          categoryId,
+          sort: sortType,
+          minPrice: minPriceParam,
+          maxPrice: maxPriceParam,
+        });
+        setProducts(productRes.data);
+        setTotalPage(productRes.totalPage);
+      } catch (error) {
+        console.error('Failed to fetch products', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     const fetchCategories = async () => {
@@ -76,7 +100,7 @@ const ProductList = () => {
 
     fetchData();
     fetchCategories();
-  }, [page, categoryId, sortType]);
+  }, [page, categoryId, sortType, minPriceParam, maxPriceParam]);
 
   useEffect(() => {
     if (categoryId && categories.length > 0) {
@@ -93,13 +117,27 @@ const ProductList = () => {
     setSearchParams(next);
   };
 
+  const handleApplyPriceFilter = () => {
+    const next = new URLSearchParams(searchParams);
+
+    next.set('page', '1');
+
+    if (priceRange.min) next.set('minPrice', priceRange.min);
+    else next.delete('minPrice');
+
+    if (priceRange.max) next.set('maxPrice', priceRange.max);
+    else next.delete('maxPrice');
+
+    setSearchParams(next);
+  };
+
   return (
     <div className='bg-[#F8F9FA] min-h-screen font-sans text-gray-800'>
       <div className='container mx-auto px-4 lg:px-8 py-6'>
         <div className='flex flex-col lg:flex-row gap-8'>
           <div className='w-full lg:w-64 shrink-0 space-y-8'>
             <div>
-              <h3 className='font-bold text-xs text-gray-900 uppercase tracking-wider mb-4'>Categories</h3>
+              <h3 className='font-bold text-xs text-gray-900 uppercase tracking-wider mb-4'>Danh mục</h3>
 
               <div className='flex flex-col gap-2'>
                 <div
@@ -172,26 +210,38 @@ const ProductList = () => {
             </div>
 
             <div>
-              <h3 className='font-bold text-xs text-gray-900 uppercase tracking-wider mb-4'>Price Range</h3>
+              <h3 className='font-bold text-xs text-gray-900 uppercase tracking-wider mb-4'>Khoảng giá</h3>
               <div className='flex items-center gap-2 mb-4'>
-                <input
-                  type='text'
-                  value='$ 10'
-                  className='w-full border border-gray-200 rounded px-2 py-1.5 text-sm bg-white'
-                  readOnly
-                />
+                <div className='relative w-full'>
+                  <span className='absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs'>$</span>
+                  <input
+                    type='number'
+                    placeholder='Min'
+                    value={priceRange.min}
+                    onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
+                    className='w-full border border-gray-200 rounded px-2 pl-4 py-1.5 text-sm bg-white focus:outline-none focus:border-teal-500 transition-colors'
+                  />
+                </div>
                 <span className='text-gray-400'>-</span>
-                <input
-                  type='text'
-                  value='$ 1500'
-                  className='w-full border border-gray-200 rounded px-2 py-1.5 text-sm bg-white'
-                  readOnly
-                />
+                <div className='relative w-full'>
+                  <span className='absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs'>$</span>
+                  <input
+                    type='number'
+                    placeholder='Max'
+                    value={priceRange.max}
+                    onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
+                    className='w-full border border-gray-200 rounded px-2 pl-4 py-1.5 text-sm bg-white focus:outline-none focus:border-teal-500 transition-colors'
+                  />
+                </div>
               </div>
-              <div className='h-1 bg-gray-200 rounded-full relative'>
-                <div className='absolute left-0 w-1/2 h-full bg-teal-400 rounded-full'></div>
-                <div className='absolute left-1/2 w-3 h-3 bg-teal-400 rounded-full -top-1 border-2 border-white shadow'></div>
-              </div>
+
+              <button
+                onClick={handleApplyPriceFilter}
+                className='w-full bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-2 rounded transition-colors flex items-center justify-center gap-2'
+              >
+                <Filter size={14} />
+                ÁP DỤNG
+              </button>
             </div>
 
             <div>

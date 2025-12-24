@@ -45,7 +45,7 @@ const SortBar = () => {
   const handleSortChange = (value: string) => {
     const next = new URLSearchParams(searchParams);
     if (value === 'relevance') {
-      next.delete('sort'); // Nếu là mặc định thì xóa param cho sạch URL
+      next.delete('sort');
     } else {
       next.set('sort', value);
     }
@@ -55,7 +55,6 @@ const SortBar = () => {
 
   return (
     <div className='flex items-center justify-end'>
-      {/* Label nhỏ bên cạnh giúp user hiểu ngữ cảnh */}
       <span className='text-sm text-gray-500 mr-2 hidden sm:block'>Sắp xếp theo:</span>
 
       <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -67,7 +66,7 @@ const SortBar = () => {
             className='w-[200px] justify-between bg-white hover:bg-gray-50 text-gray-700 font-normal border-gray-200 shadow-sm transition-all duration-200 hover:border-teal-500 hover:text-teal-600'
           >
             <div className='flex items-center gap-2 truncate'>
-              {/* Hiển thị Icon của mục đang chọn */}
+
               <currentSelectedItem.icon className='h-4 w-4 opacity-70' />
               <span>{currentSelectedItem.label}</span>
             </div>
@@ -98,13 +97,9 @@ const SortBar = () => {
                     }
                   `}
                 >
-                  {/* Icon minh họa */}
                   <option.icon className={`h-4 w-4 ${isSelected ? 'text-teal-600' : 'text-gray-400'}`} />
 
-                  {/* Text */}
                   <span className='flex-1'>{option.label}</span>
-
-                  {/* Icon Check nếu đang chọn */}
                   {isSelected && <Check className='h-4 w-4 text-teal-600 animate-in zoom-in duration-200' />}
                 </div>
               );

@@ -73,6 +73,7 @@ const ProductList = () => {
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
   const minPriceParam = searchParams.get('minPrice') || '';
   const maxPriceParam = searchParams.get('maxPrice') || '';
+  const searchQuery = searchParams.get('q') || '';
   const [priceRange, setPriceRange] = useState({
     min: minPriceParam,
     max: maxPriceParam,
@@ -104,6 +105,7 @@ const ProductList = () => {
           sort: sortType,
           minPrice: minPriceParam,
           maxPrice: maxPriceParam,
+          q: searchQuery,
         });
         setProducts(productRes.data);
         setTotalPage(productRes.totalPage);
@@ -134,7 +136,7 @@ const ProductList = () => {
 
     fetchData();
     fetchCategories();
-  }, [page, categoryId, sortType, minPriceParam, maxPriceParam]);
+  }, [page, categoryId, sortType, minPriceParam, maxPriceParam, searchQuery]);
 
   useEffect(() => {
     if (categoryId && categories.length > 0) {

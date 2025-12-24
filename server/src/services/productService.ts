@@ -126,11 +126,15 @@ export const searchProducts = async (query: productQueryDto) => {
 
   const where: Prisma.ProductsWhereInput = {};
 
-  if (query.q) {
-    where.title = {
-      contains: query.q,
-      mode: 'insensitive',
-    };
+  const keywords = query.q?.trim().split(/\s+/);
+
+  if (keywords?.length) {
+    where.AND = keywords.map((word) => ({
+      title: {
+        contains: word,
+        mode: 'insensitive',
+      },
+    }));
   }
 
   if (!isNaN(minPrice) || !isNaN(maxPrice)) {

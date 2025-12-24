@@ -2,7 +2,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ProductContext } from '../libs/contexts/product.context';
-import { Heart, Gavel, Clock, Users, Sparkles, Calendar, User, ShoppingCart } from 'lucide-react';
+import { Heart, Gavel, Clock, Users, Sparkles, Calendar, User, ShoppingCart, ArrowRight } from 'lucide-react';
 import type { WatchList } from '../libs/types/types';
 import { getSession } from '../libs/session';
 
@@ -69,11 +69,13 @@ const ProductSection = ({
   products,
   toggleWatchList,
   watchList,
+  isWatchMore,
 }: {
   title: string;
   products: any[];
   toggleWatchList: (id: string) => void;
   watchList: WatchList[];
+  isWatchMore: boolean;
 }) => {
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
   useEffect(() => {
@@ -88,9 +90,22 @@ const ProductSection = ({
 
   return (
     <div className='flex flex-col gap-5 py-2'>
-      <div className='flex items-center gap-3'>
-        <div className='w-1 h-8 bg-teal-500 rounded-full'></div>
-        <p className='font-bold text-3xl text-gray-800'>{title}</p>
+      <div className='flex items-center justify-between mb-6'>
+        {' '}
+        {/* Thêm mb-6 để tạo khoảng cách dưới */}
+        <div className='flex items-center gap-3'>
+          <div className='w-1 h-8 bg-teal-500 rounded-full'></div>
+          <p className='font-bold text-3xl text-gray-800'>{title}</p>
+        </div>
+        <Link
+          to={'/products'}
+          className={`group flex items-center gap-2 text-sm font-semibold text-teal-600 hover:text-teal-800 transition-colors duration-300 ${
+            !isWatchMore ? 'hidden' : ''
+          }`}
+        >
+          <span className='text-base underline'>Xem thêm</span>
+          <ArrowRight className='w-4 h-4 transition-transform duration-300 group-hover:translate-x-1' />
+        </Link>
       </div>
 
       <div className='flex flex-1 items-stretch gap-4 overflow-x-auto scroll-container pb-8 px-1'>
@@ -250,6 +265,7 @@ const DisplayProduct = () => {
             products={watchList}
             watchList={watchList}
             toggleWatchList={toggleWatchList}
+            isWatchMore={false}
           />
 
           <ProductSection
@@ -257,6 +273,7 @@ const DisplayProduct = () => {
             products={endingSoonProducts}
             watchList={watchList}
             toggleWatchList={toggleWatchList}
+            isWatchMore={true}
           />
 
           <ProductSection
@@ -264,6 +281,7 @@ const DisplayProduct = () => {
             products={highestBidProducts}
             watchList={watchList}
             toggleWatchList={toggleWatchList}
+            isWatchMore={true}
           />
 
           <ProductSection
@@ -271,6 +289,7 @@ const DisplayProduct = () => {
             products={highestPriceProducts}
             watchList={watchList}
             toggleWatchList={toggleWatchList}
+            isWatchMore={true}
           />
         </div>
       )}

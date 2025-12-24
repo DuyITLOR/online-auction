@@ -23,6 +23,40 @@ const convertTime = (date: string) => {
   return { text: `${diffDays} days`, type: 'normal' };
 };
 
+const getTimeStatusStyle = (date: string) => {
+  const now = new Date();
+  const end = new Date(date);
+  const diff = end.getTime() - now.getTime();
+  const diffHours = diff / (1000 * 60 * 60);
+
+  if (diff <= 0) return 'bg-gray-200 text-gray-500';
+  if (diffHours < 24) return 'bg-red-100 text-red-600 animate-pulse';
+  if (diffHours < 72) return 'bg-orange-100 text-orange-600';
+  return 'bg-emerald-100 text-emerald-600';
+};
+
+const formatTimeLeft = (date: string) => {
+  const now = new Date();
+  const end = new Date(date);
+  const diff = end.getTime() - now.getTime();
+
+  if (diff <= 0) return 'Đã kết thúc';
+
+  const diffDays = diff / (1000 * 60 * 60 * 24);
+  const diffHours = diff / (1000 * 60 * 60);
+  const diffMinutes = diff / (1000 * 60);
+
+  if (diffDays > 3) {
+    return `${end.getDate()}/${end.getMonth() + 1}`;
+  } else if (diffDays >= 1) {
+    return `${Math.ceil(diffDays)} ngày`;
+  } else if (diffHours >= 1) {
+    return `${Math.ceil(diffHours)} giờ`;
+  } else {
+    return `${Math.ceil(diffMinutes)} phút`;
+  }
+};
+
 const ProductList = () => {
   const { watchList, toggleWatchList } = useContext(ProductContext);
   const [products, setProducts] = useState<Product[]>([]);
@@ -310,6 +344,15 @@ const ProductList = () => {
                           >
                             <Heart size={16} className={likedMap[item.id] ? 'fill-red-500 text-red-500' : ''} />
                           </button>
+
+                          <div
+                            className={`absolute top-2 left-2 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm ${getTimeStatusStyle(
+                              item?.endAt
+                            )}`}
+                          >
+                            <Clock size={12} />
+                            {formatTimeLeft(item?.endAt)}
+                          </div>
                         </div>
 
                         <div>

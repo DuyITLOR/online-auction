@@ -438,3 +438,26 @@ export const deleteComment = async (req: Request, res: Response) => {
     }
   }
 };
+
+
+export const getInforOfProfile = async (req: Request, res: Response) => {
+  try {
+  if (!req.user){
+    const response = gatewayResponse(400, null, 'Token Invalid');
+    return res.status(response.code).send(response);
+  }
+
+  const id = req.user.id;
+  const data = await service.getInfoProfile(id);
+  if (!data) {
+    const response = gatewayResponse(400, null, 'Bad request');
+    return res.status(response.code).send(response);
+  }
+
+  const response = gatewayResponse(200, data, 'Get profile info successfully');
+  return res.status(response.code).send(response)
+  } catch (error: any){
+    const response = gatewayResponse(500, null, error.message);
+    res.status(response.code).send(response);
+  }
+}

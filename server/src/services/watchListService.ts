@@ -64,6 +64,17 @@ export const getWatchList = async (userId: string, query: getWatchListDto) => {
   };
 };
 
+
+export const getCountWatchListOfUser = async (userId: string) =>{
+  if (!userId) throw new Error("User ID is required");
+  const count = await prisma.watchList.count({
+    where: {
+      userId: userId,
+    },
+  });
+
+  return count;
+}
 export const getAllWatchList = async (userId: string) => {
 
   const data = await prisma.watchList.findMany({

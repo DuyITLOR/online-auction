@@ -361,3 +361,14 @@ export const getBidHistoryByUserId = async (
     data: autoBids,
   };
 };
+
+
+export const getBidCountOfUser = async (userId: string) => {
+  if (!userId) throw new Error("User ID is required");
+
+  const count = await prisma.bidHistory.count({
+    where: { bidderId: userId },
+  })
+
+  return count
+}

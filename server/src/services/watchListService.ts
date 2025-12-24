@@ -56,3 +56,15 @@ export const getWatchList = async (userId: string, query: getWatchListDto) => {
     totalPages: Math.ceil(total / limit),
   };
 };
+
+
+export const getCountWatchListOfUser = async (userId: string) =>{
+  if (!userId) throw new Error("User ID is required");
+  const count = await prisma.watchList.count({
+    where: {
+      userId: userId,
+    },
+  });
+
+  return count;
+}

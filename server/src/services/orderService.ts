@@ -83,3 +83,12 @@ export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
     data: data,
   };
 };
+
+
+export const getCountOrderByUser = async (userId: string) => {
+  const count = await prisma.orders.count({
+    where: {buyerId: userId},
+  })
+
+  return count;
+}

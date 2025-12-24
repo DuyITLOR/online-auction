@@ -129,7 +129,7 @@ const PaymentQR = ({ userRole, onComplete }: StepQrSetupProps) => {
             {/* Submit */}
             <Button
                 size="lg"
-                className="w-full"
+                className="w-full bg-[#10b981] hover:bg-[#10b981]/50"
                 disabled={!isFormValid}
                 onClick={onComplete}
             >

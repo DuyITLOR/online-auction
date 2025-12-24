@@ -50,7 +50,7 @@ const PaymentPage = () => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const { id } = useParams();
   const [loading, setIsLoading] = useState(true);
-  const [step, setStep] = useState(2);
+  const [step, setStep] = useState(1);
 
 
   useEffect(() => {

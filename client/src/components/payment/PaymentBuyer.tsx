@@ -142,7 +142,7 @@ const PaymentBuyer = ({ userRole, onComplete }: StepPaymentProps) => {
                 />
             </div>
 
-            <Button className="w-full" size="lg" onClick={handleSubmit}>
+            <Button className="w-full bg-[#10b981] hover:bg-[#10b981]/50" size="lg" onClick={handleSubmit}>
                 Xác nhận đã thanh toán
             </Button>
         </Card>

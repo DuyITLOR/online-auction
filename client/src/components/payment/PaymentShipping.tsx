@@ -8,7 +8,7 @@ interface StepShippingProps {
     onComplete: () => void
 }
 
-export const StepShipping = ({ userRole, onComplete }: StepShippingProps) => {
+export const PaymentShipping = ({ userRole, onComplete }: StepShippingProps) => {
     const [shippingCode, setShippingCode] = useState("")
     const [shippingInvoice, setShippingInvoice] = useState<File | null>(null)
     const [paymentConfirmed, setPaymentConfirmed] = useState(false)
@@ -46,10 +46,10 @@ export const StepShipping = ({ userRole, onComplete }: StepShippingProps) => {
                         </h4>
 
                         <div className="space-y-3">
-                            <InfoRow icon={ImageIcon} label="Ảnh xác nhận thanh toán" value="Đã tải lên" />
-                            <InfoRow icon={User} label="Tên người nhận hàng" value="Duy đẹp trai" />
-                            <InfoRow icon={MapPin} label="Địa chỉ giao hàng" value="123 Nguyễn Văn Linh, Q7, TP.HCM" />
-                            <InfoRow icon={Phone} label="Số điện thoại" value="0901234567" />
+                            <InfoRow icon={ImageIcon} label="Ảnh xác nhận thanh toán" value="Đã tải lên"  highlight/>
+                            <InfoRow icon={User} label="Tên người nhận hàng" value="Duy đẹp trai" highlight/>
+                            <InfoRow icon={MapPin} label="Địa chỉ giao hàng" value="123 Nguyễn Văn Linh, Q7, TP.HCM" highlight/>
+                            <InfoRow icon={Phone} label="Số điện thoại" value="0901234567" highlight/>
                         </div>
                     </div>
                 </div>
@@ -69,8 +69,8 @@ export const StepShipping = ({ userRole, onComplete }: StepShippingProps) => {
                 <h4 className="text-sm font-medium">Thông tin từ người mua</h4>
 
                 <InfoRow icon={CheckCircle2} label="Thanh toán" value="Đã xác nhận" highlight />
-                <InfoRow icon={MapPin} label="Địa chỉ" value="Nhà Nguyễn Văn cười" />
-                <InfoRow icon={Phone} label="SĐT" value="HUHU" />
+                <InfoRow icon={MapPin} label="Địa chỉ" value="Nhà Nguyễn Văn cười" highlight/>
+                <InfoRow icon={Phone} label="SĐT" value="HUHU" highlight/>
 
                 {/* Confirm checkbox */}
                 <label className="flex items-start gap-3 cursor-pointer pt-2">
@@ -170,4 +170,4 @@ function InfoRow({
 }
 
 
-export default StepShipping
+export default PaymentShipping

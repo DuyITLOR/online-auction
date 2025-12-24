@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import type { Category } from '../libs/types/types';
 import { getCategories } from '../api/category';
 
-
 const Dashboard = () => {
   const [categories, setCategories] = useState<Record<string, Category & { children: Category[] }>>();
   const [loading, setLoading] = useState(true);
@@ -27,10 +26,12 @@ const Dashboard = () => {
       });
       setCategories(categoriesMap);
       setLoading(false);
-    }
+    };
 
     fetchCategories();
   }, []);
+
+  console.log(categories);
   return (
     <>
       {loading && <div className='loader' />}

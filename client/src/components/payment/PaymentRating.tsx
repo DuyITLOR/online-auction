@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ThumbsUp, ThumbsDown, Star, User} from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 
 interface StepRatingProps {
   userRole: "ADMIN" | "SELLER" | "BIDDER"
@@ -118,7 +119,7 @@ function InfoRow({
   value,
   highlight = false,
 }: {
-  icon: any
+  icon: LucideIcon
   label: string
   value: string
   highlight?: boolean

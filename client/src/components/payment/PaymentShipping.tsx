@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Upload, Package, CheckCircle2, MapPin, Phone, ImageIcon, User } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 
 interface StepShippingProps {
     userRole: "ADMIN" | "SELLER" | "BIDDER";
@@ -153,7 +154,7 @@ function InfoRow({
     value,
     highlight = false,
 }: {
-    icon: any
+    icon: LucideIcon
     label: string
     value: string
     highlight?: boolean

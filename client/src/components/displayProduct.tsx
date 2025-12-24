@@ -75,9 +75,14 @@ const ProductSection = ({
   toggleWatchList: (id: string) => void;
   watchList: WatchList[];
 }) => {
-  const isLike = (id: string) => {
-    return watchList.some((item) => id === item.productId || id === item.userId);
-  };
+  const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    const map: Record<string, boolean> = {};
+    watchList.forEach((item) => {
+      map[item.productId] = true;
+    });
+    setLikedMap(map);
+  }, [watchList]);
 
   if (!products || products.length === 0) return null;
 
@@ -103,7 +108,7 @@ const ProductSection = ({
             <Link
               to={`/product/${productId}`}
               key={productId}
-              className={`flex flex-col min-w-[calc(20%-12.8px)] bg-white rounded-xl border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative ${
+              className={`flex flex-col min-w-[calc(20%-12.8px)] max-w-[calc(20%-12.8px)] bg-white rounded-xl border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative ${
                 isNew ? 'border-purple-300 ring-4 ring-purple-100' : 'border-gray-100'
               }`}
             >
@@ -134,14 +139,18 @@ const ProductSection = ({
                 <button
                   onClick={(e) => {
                     e.preventDefault();
-                    toggleWatchList(productData?.id);
+
+                    setLikedMap((prev) => ({
+                      ...prev,
+                      [productId]: !prev[productId],
+                    }));
+
+                    toggleWatchList(productId);
                   }}
                   className='absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-red-500 transition-colors shadow-sm backdrop-blur-sm'
                 >
                   <Heart
-                    className={`w-5 h-5 transition-colors ${
-                      isLike(productData?.id) ? 'fill-red-500 text-red-500' : ''
-                    }`}
+                    className={`w-5 h-5 transition-colors ${likedMap[productId] ? 'fill-red-500 text-red-500' : ''}`}
                   />
                 </button>
 
@@ -210,6 +219,7 @@ const ProductSection = ({
 
 const DisplayProduct = () => {
   const [session, setSession] = useState<any>(null);
+
   const { endingSoonProducts, highestPriceProducts, highestBidProducts, watchList, toggleWatchList, loading, refresh } =
     useContext(ProductContext);
 

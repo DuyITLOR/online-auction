@@ -63,3 +63,33 @@ export const getWatchList = async (userId: string, query: getWatchListDto) => {
     totalPages: Math.ceil(total / limit),
   };
 };
+
+export const getAllWatchList = async (userId: string) => {
+
+  const data = await prisma.watchList.findMany({
+    where: {
+      userId: userId,
+    },
+    include: {
+      product: {
+        include: {
+          images: true,
+          category: true,
+          seller: true,
+          bidHistory: {
+            orderBy: { amount: 'desc' },
+            take: 1,
+            include: {
+              bidder: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+
+  return {
+    data,
+  };
+};

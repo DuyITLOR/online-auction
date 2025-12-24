@@ -24,7 +24,7 @@ const PaymentQR = ({ userRole, onComplete }: StepQrSetupProps) => {
 
     const isFormValid = Boolean(qrImage && bankInfo.trim())
 
-    if (userRole === "buyer") {
+    if (userRole === "BIDDER") {
         return (
             <Card className="p-6">
                 <div className="text-center py-10">
@@ -129,7 +129,7 @@ const PaymentQR = ({ userRole, onComplete }: StepQrSetupProps) => {
             {/* Submit */}
             <Button
                 size="lg"
-                className="w-full"
+                className="w-full bg-[#10b981] hover:bg-[#10b981]/50"
                 disabled={!isFormValid}
                 onClick={onComplete}
             >

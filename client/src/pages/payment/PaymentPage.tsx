@@ -1,6 +1,11 @@
 import PaymentHeader from '../../components/payment/PaymentHeader'
 import PaymentProcess from '../../components/payment/PaymentProcess'
 import PaymentQR from '../../components/payment/PaymentQR'
+import PaymentBuyer from '../../components/payment/PaymentBuyer'
+import PaymentShipping from '../../components/payment/PaymentShipping'
+import PaymentReceive from '../../components/payment/PaymentReceive'
+import PaymentRating from '../../components/payment/PaymentRating'
+
 import { type Product, type User } from '../../libs/types/types';
 
 import { useParams } from 'react-router-dom';
@@ -14,13 +19,13 @@ const paymentSteps = [
     numberOrder: 1,
     title: "Mã QR",
     description: "Người bán cấp mã QR",
-    complete: true,
+    complete: false,
   },
   {
     numberOrder: 2,
     title: "Thanh toán",
     description: "Người mua quét mã QR",
-    complete: true,
+    complete: false,
   },
   {
     numberOrder: 3,
@@ -49,6 +54,7 @@ const PaymentPage = () => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const { id } = useParams();
   const [loading, setIsLoading] = useState(true);
+  const [step, setStep] = useState(5);
 
 
   useEffect(() => {
@@ -64,6 +70,8 @@ const PaymentPage = () => {
           getProduct(id),
           getRole({ token }),
         ])
+
+        console.log('Role: ', userData)
         setProduct(productData);
         setUser(userData);
       } catch (error) {
@@ -72,18 +80,41 @@ const PaymentPage = () => {
         setIsLoading(false);
       }
     }
-
     init();
+    // if (step === 1) {
+
+    // } else {
+    //   setIsLoading(false);
+    // }
   }, [id])
+
+  const computedSteps = paymentSteps.map((s) => ({
+    ...s,
+    complete: s.numberOrder < step,
+  }));
 
   if (loading) return <div className='loader' />;
   if (!product) return <div>Không tìm thấy sản phẩm</div>;
   return (
     <div className='gap-2 flex flex-col'>
-      <PaymentHeader title={product.title} price={Number(product?.currentPrice)} seller={product?.seller.fullname || "Người bán"} bidder={user?.fullname || "Người mua"} userRole ={user?.role || "BIDDER"} />
-      <div className="sm:mx-30 sm: mt-3 flex flex-col  gap-2">
-        <PaymentProcess steps={paymentSteps} />
-        <PaymentQR userRole={user?.role || "BIDDER"} onComplete={() => { }} />
+      <PaymentHeader title={product.title} price={Number(product?.currentPrice)} seller={product?.seller.fullname || "Người bán"} bidder={user?.fullname || "Người mua"} userRole={user?.role || "BIDDER"} />
+      <div className="sm:mx-60 sm: mt-3 flex flex-col  gap-2">
+        <PaymentProcess steps={computedSteps} />
+        {
+          (step === 1) && (<PaymentQR userRole={user?.role || "BIDDER"} onComplete={() => { }} />)   
+        } 
+        {
+          (step === 2) && (<PaymentBuyer userRole={user?.role || "BIDDER"} onComplete={() => { }} />)
+        }
+        {
+          (step === 3) && (<PaymentShipping userRole={user?.role || "BIDDER"} onComplete={() => { }} />)
+        }
+        {
+          (step === 4) && (<PaymentReceive userRole={user?.role || "BIDDER"} onComplete={() => { }} />)
+        }
+        {
+          (step === 5) && (<PaymentRating userRole={user?.role || "BIDDER"} otherPartyName={user?.role === "BIDDER" ? product.seller.fullname || "Người bán" : user?.fullname || "Người mua"} onComplete={() => { }} />)
+        }
       </div>
 
     </div>

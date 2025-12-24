@@ -1,31 +1,60 @@
 'use client';
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { useActionState, useContext, useEffect, useRef, useState } from 'react';
 import { Button } from '../../components/ui/button';
 import { SignInFormAction } from '../../libs/actions/auth';
-import { CircleAlert } from 'lucide-react';
+import { CircleAlert, Loader2 } from 'lucide-react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { UserContext } from '../../libs/contexts/user.context';
 
 const SignIn = () => {
-  const [state, action] = useActionState(SignInFormAction, undefined);
+  const [state, action, isPending] = useActionState(SignInFormAction, undefined);
+
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const [captchaValue, setCaptchaValue] = useState(null);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
 
+  const { refresh } = useContext(UserContext);
+  const navigate = useNavigate();
+
   useEffect(() => {
-    if (state?.errors || state?.messages) {
-      toast.error('Đăng nhập thất bại');
-      recaptchaRef.current?.reset();
-      setCaptchaValue(null);
-    }
-  }, [state]);
+    const handleAuthResult = async () => {
+      if (state?.errors || (state?.messages && !state?.success)) {
+        toast.error('Đăng nhập thất bại');
+        recaptchaRef.current?.reset();
+        setCaptchaValue(null);
+      }
+
+      if (state?.success) {
+        setIsRedirecting(true);
+        toast.success(state.messages || 'Đăng nhập thành công');
+
+        try {
+          await refresh();
+          if (state.role === 'ADMIN') {
+            navigate('/admin/dashboard');
+          } else {
+            navigate('/');
+          }
+        } catch (error) {
+          console.error('Lỗi khi refresh session:', error);
+          setIsRedirecting(false); // Tắt loading nếu lỗi
+        }
+      }
+    };
+
+    handleAuthResult();
+  }, [state, refresh, navigate]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleRecaptcha = (value: any) => {
-    console.log(value);
+    // console.log(value);
     setCaptchaValue(value);
   };
+
+  const isLoading = isPending || isRedirecting; // Gộp trạng thái loading
 
   return (
     <div className='min-h-screen flex items-center'>
@@ -35,6 +64,7 @@ const SignIn = () => {
             src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rockylinux/rockylinux-original.svg'
             width={50}
             height={50}
+            alt='Logo'
           />
           <p className='font-bold text-4xl text-black'>
             Snap<span className='text-teal-600'>Bid</span>
@@ -51,7 +81,8 @@ const SignIn = () => {
                 type='email'
                 name='email'
                 placeholder='ThDang@example.com'
-                className=' py-1 px-3 bg-white border border-0.5 border-gray-400 focus-visible:outline-0 focus-visible:border-teal-500 focus-visible:border-2 rounded-lg w-full '
+                disabled={isLoading} // Disable khi loading
+                className='py-1 px-3 bg-white border border-0.5 border-gray-400 focus-visible:outline-0 focus-visible:border-teal-500 focus-visible:border-2 rounded-lg w-full disabled:opacity-50'
               />
               {state?.errors?.email && <p className='text-red-500 text-sm'>{state.errors.email}</p>}
             </div>
@@ -61,15 +92,16 @@ const SignIn = () => {
               <input
                 type='password'
                 name='password'
-                className=' py-1 px-3 bg-white border border-0.5 border-gray-400 focus-visible:outline-0 focus-visible:border-teal-500 focus-visible:border-2 rounded-lg w-full '
+                disabled={isLoading} // Disable khi loading
+                className='py-1 px-3 bg-white border border-0.5 border-gray-400 focus-visible:outline-0 focus-visible:border-teal-500 focus-visible:border-2 rounded-lg w-full disabled:opacity-50'
               />
-
               {state?.errors?.password && <p className='text-red-500 text-sm'>{state?.errors.password[0]}</p>}
             </div>
 
             <input type='hidden' name='recaptcha' value={captchaValue || ''} />
 
-            {state?.messages && (
+            {/* Chỉ hiện lỗi nếu không phải là success */}
+            {state?.messages && !state?.success && (
               <div className='w-full border border-red-300 rounded bg-[#fcc4c4] py-1 px-3 items-center flex gap-2'>
                 <CircleAlert className='w-5 h-5' color='red' />
                 <p className='text-red-500 font-semibold text-sm'>{state?.messages}</p>
@@ -77,19 +109,28 @@ const SignIn = () => {
             )}
 
             <Button
-              disabled={!captchaValue}
+              disabled={!captchaValue || isLoading}
               type='submit'
-              className='bg-teal-600 text-white font-bold mt-2 hover:opacity-80 w-full'
+              className='bg-teal-600 text-white font-bold mt-2 hover:opacity-80 w-full flex items-center justify-center gap-2'
             >
-              Đăng nhập
+              {isLoading ? (
+                <>
+                  <Loader2 className='animate-spin h-5 w-5' />
+                  Đang xử lý...
+                </>
+              ) : (
+                'Đăng nhập'
+              )}
             </Button>
           </form>
 
           <a
             href={`${import.meta.env.VITE_BACKEND_URL}/auth/google`}
-            className='flex items-center justify-center gap-2 rounded-md h-10 text-sm font-bold mt-2 hover:opacity-80 bg-white border border-gray-300'
+            className={`flex items-center justify-center gap-2 rounded-md h-10 text-sm font-bold mt-2 hover:opacity-80 bg-white border border-gray-300 ${
+              isLoading ? 'pointer-events-none opacity-50' : ''
+            }`}
           >
-            <img src='/gg-logo.svg' width={18} height={18} />
+            <img src='/gg-logo.svg' width={18} height={18} alt='Google Logo' />
             <span>Đăng nhập bằng Google</span>
           </a>
 

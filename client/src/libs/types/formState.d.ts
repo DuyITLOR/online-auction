@@ -5,6 +5,8 @@ export type SignInFormState =
         password?: string[];
       };
       messages?: string;
+      success?: boolean;
+      role?: string;
     }
   | undefined;
 

@@ -10,6 +10,7 @@ import {
   ScrollText,
   ShoppingBag,
   ShoppingBasket,
+  Store,
   ThumbsDown,
   ThumbsUp,
   UserRound,
@@ -78,6 +79,7 @@ const Profile = () => {
     fullname: '',
     email: '',
     dateOfBirth: '', // yyyy-mm-dd
+    address: '',
   });
 
   useEffect(() => {
@@ -85,14 +87,13 @@ const Profile = () => {
       setPreviewAvatar(user?.avtUrl);
     }
 
-    console.log(user?.dateOfBirth);
-
     if (user?.fullname) {
       setFormData((prev) => ({
         ...prev,
         ['fullname']: user.fullname || '',
         ['email']: user.email || '',
         ['dateOfBirth']: user.dateOfBirth ? convertISO(user?.dateOfBirth, true) : '',
+        ['address']: user.address || '',
       }));
     }
   }, [user]);
@@ -148,6 +149,7 @@ const Profile = () => {
       fullname: formData.fullname,
       email: formData.email,
       dateOfBirth: formData.dateOfBirth,
+      address: formData.address,
     };
 
     if (image) {
@@ -155,7 +157,6 @@ const Profile = () => {
     }
     await updateUser({ user: payload, token: session.token });
     refresh();
-    window.location.reload();
   };
 
   const handleUpdateRating = async (id: string, statusValue: boolean, commentValue: string) => {
@@ -187,24 +188,25 @@ const Profile = () => {
       <div className='mx-18 mt-5 mb-5'>
         <div className='border border-gray-200 h-[150px] rounded-xl flex items-center justify-between px-10'>
           <div className='flex items-center gap-5'>
-            <Avatar className='w-24 h-24'>
-              <AvatarImage src={user?.avtUrl} alt='User Avatar' className='border border-gray-400 rounded-full' />
-              <AvatarFallback>?</AvatarFallback>
-            </Avatar>
+            <div className='relative'>
+              <Avatar className='w-24 h-24 border-4 border-white shadow-md'>
+                <AvatarImage src={user?.avtUrl} />
+                <AvatarFallback>{user?.fullname}</AvatarFallback>
+              </Avatar>
+              {user?.currentRoles.includes('SELLER') ? (
+                <div className='absolute -bottom-2 -right-2 bg-indigo-500 text-white text-[10px] px-2 py-0.5 rounded-full border-2 border-white font-bold flex items-center gap-1'>
+                  <Store size={12} /> Người bán
+                </div>
+              ) : (
+                <div className='absolute -bottom-2 -right-2 bg-teal-500 text-white text-[10px] px-2 py-0.5 rounded-full border-2 border-white font-bold flex items-center gap-1'>
+                  <Store size={12} /> Người mua
+                </div>
+              )}
+            </div>
 
             <div className='flex flex-col justify-start gap-1'>
               <div className='flex items-center gap-5'>
                 <span className='text-2xl font-bold'>{user?.fullname}</span>
-
-                {user?.currentRoles.includes('SELLER') ? (
-                  <div className='border border-amber-500 bg-amber-100 rounded-2xl px-2 py-0.5 text-xs font-semibold text-amber-700'>
-                    Người bán
-                  </div>
-                ) : (
-                  <div className='border border-blue-400 bg-blue-100 rounded-2xl px-2 py-0.5 text-xs font-semibold text-blue-700'>
-                    Người mua
-                  </div>
-                )}
               </div>
 
               <span className='text-gray-500'>{user?.email}</span>
@@ -336,9 +338,9 @@ const Profile = () => {
                       Địa chỉ
                     </p>
                     <input
-                      id='address'
-                      value={formData.email}
-                      disabled
+                      name='address'
+                      value={formData.address}
+                      onChange={handleChange}
                       className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
                     />
                   </div>

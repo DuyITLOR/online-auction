@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import ProductDescription from './description';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tab';
 import Review from './review';
+import { useNavigate } from 'react-router-dom';
 
 import type { BidHistory, Product, ProductImage, User, WatchList } from '../../libs/types/types';
 import { useContext, useEffect, useState } from 'react';
@@ -32,7 +33,7 @@ interface ProductProp {
   user: User;
 }
 
-const maskName = (fullname: string | undefined) => {
+const maskName = (fullname: string | null | undefined) => {
   if (!fullname) return 'Người dùng ẩn danh';
   const parts = fullname.trim().split(' ');
 
@@ -100,6 +101,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
   const [isBidding, setIsBidding] = useState(false);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { watchList, toggleWatchList } = useContext(ProductContext);
   const isLike = (id: string) => {
@@ -117,6 +119,10 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
       setLoading(false);
     }
   };
+
+  const handleBuyNow = () =>{
+    navigate(`/payment/${product.id}`);
+  }
 
   useEffect(() => {
     fetchProducts();
@@ -216,7 +222,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
             </div>
             <div className='relative'>
               <div className='border border-gray-300 rounded-xl w-190 h-140 bg-gray-200 flex justify-center items-center'>
-                <img src={image} className='w-170 h-full' />
+                <img src={image} className='h-140 object-cover' />
               </div>
               <Heart
                 onClick={(e) => {
@@ -285,44 +291,62 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
           </div>
           <div className='border-spacing-0.5 border-t border-gray-200 mt-2 mb-3 w-full' />
           <div className='flex flex-col'>
-            <p className='text-gray-700 font-semibold text-lg mb-2'>Đặt mức giá tối đa cho sản phẩm</p>
+            {!isExpired(product.endAt) && (
+              <>
+                <p className='text-gray-700 font-semibold text-lg mb-2'>Đặt mức giá tối đa cho sản phẩm</p>
 
-            <div className='flex gap-3 items-center'>
-              <Plus
-                onClick={plusPriceHandle}
-                className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full'
-              />
-              <input
-                type='text'
-                value={price.toLocaleString('vi-VN')}
-                onChange={handleChange}
-                className='h-10 p-2 border text-lg border-gray-200 rounded-md focus-visible:outline-0.5 focus-visible:outline-gray-600 w-[330px] pl-2'
-              />
+                <div className='flex gap-3 items-center'>
+                  <Plus
+                    onClick={plusPriceHandle}
+                    className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full'
+                  />
+                  <input
+                    type='text'
+                    value={price.toLocaleString('vi-VN')}
+                    onChange={handleChange}
+                    className='h-10 p-2 border text-lg border-gray-200 rounded-md focus-visible:outline-0.5 focus-visible:outline-gray-600 w-[330px] pl-2'
+                  />
 
-              <div className='bg-gray-400 p-2 font-semibold rounded-md w-15 h-10 text-center'>VND</div>
+                  <div className='bg-gray-400 p-2 font-semibold rounded-md w-15 h-10 text-center'>VND</div>
 
-              {price > Number(product.currentPrice) + Number(product.stepPrice) && (
-                <Minus
-                  onClick={minusPriceHandle}
-                  className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full'
-                />
-              )}
-            </div>
+                  {price > Number(product.currentPrice) + Number(product.stepPrice) && (
+                    <Minus
+                      onClick={minusPriceHandle}
+                      className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full'
+                    />
+                  )}
+                </div>
 
-            <p className='text-gray-600 text-xs mt-4 '>
-              Mức giá tối thiểu có thể đặt là:{' '}
-              {(Number(product?.currentPrice) + Number(product?.stepPrice)).toLocaleString()} VND (Bước giá:{' '}
-              {Number(product.stepPrice).toLocaleString()} VND)
-            </p>
+                <p className='text-gray-600 text-xs mt-4 '>
+                  Mức giá tối thiểu có thể đặt là:{' '}
+                  {(Number(product?.currentPrice) + Number(product?.stepPrice)).toLocaleString()} VND (Bước giá:{' '}
+                  {Number(product.stepPrice).toLocaleString()} VND)
+                </p>
+              </>
+            )}
           </div>
           {isExpired(product.endAt) ? (
-            <Button
-              variant={'outline'}
-              className='bg-black text-white transition delay-150 duration-200 ease-in-out hover:scale-102 mt-12 hover:cursor-pointer h-12'
-              disabled
-            >
-              Sản phẩm đã hết hạn
-            </Button>
+            <div className='mt-6 border-2 border-dashed border-gray-300 bg-gray-50 rounded-xl p-6 text-center'>
+              <p className='text-xl font-bold text-gray-800 mb-2'>Phiên đấu giá đã đóng</p>
+              <p className='text-gray-500 mb-6'>Sản phẩm này không còn nhận thêm lượt đặt giá nào nữa.</p>
+
+              {historyBid.length > 0 && (
+                <div className='bg-white border border-yellow-200 rounded-lg p-4 shadow-sm flex items-center gap-4 mb-4'>
+                  <div className='bg-yellow-100 p-2 rounded-full'>
+                    <Crown className='w-6 h-6 text-yellow-600 fill-yellow-400' />
+                  </div>
+                  <div className='text-left'>
+                    <p className='text-xs text-gray-500 font-semibold uppercase'>Người chiến thắng</p>
+                    <p className='font-bold text-teal-700'>{maskName(historyBid[0].bidder?.fullname)}</p>
+                  </div>
+                  <div className='ml-auto'>
+                    <span className='font-mono font-bold text-lg'>
+                      {Number(historyBid[0].amount).toLocaleString()} ₫
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <Button
@@ -370,7 +394,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                       <DialogClose asChild>
                         <Button variant='outline'>Hủy</Button>
                       </DialogClose>
-                      <Button className='bg-teal-500 hover:bg-teal-600 text-white px-5' type='submit'>
+                      <Button onClick={handleBuyNow} className='bg-teal-500 hover:bg-teal-600 text-white px-5' type='submit'>
                         Xác nhận
                       </Button>
                     </div>

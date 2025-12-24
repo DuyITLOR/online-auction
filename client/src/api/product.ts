@@ -73,9 +73,6 @@
     images: File[];
   }
 
-  const localToUTC7 = (local: string) =>
-    new Date(local + ":00+07:00").toISOString();
-
   export const createProduct = async ({
     product,
     token,
@@ -99,9 +96,6 @@
     formData.append("buyNowPrice", product.buyNowPrice.toString());
     formData.append("startedAt", product.startedAt);
     formData.append("endAt", product.endAt);
-
-    // console.log("Start Time: ", product.startedAt);
-    // console.log("End Time: ", product.endAt);
 
     product.images.forEach((file: File) => {
       formData.append("images", file);

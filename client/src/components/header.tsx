@@ -44,7 +44,7 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    console.log(session);
+    console.log('hello', session);
     refresh();
   }, [session]);
 
@@ -95,7 +95,7 @@ const Header = () => {
           </div>
         </div>
 
-        {!session ? (
+        {!session && !user ? (
           <div className='flex gap-2 items-center ml-3'>
             <Link to='/auth/signin'>
               <button className='border border-gray-300 px-1 text-sm font-semibold h-10 rounded-md bg-slate-200'>

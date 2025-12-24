@@ -1,6 +1,9 @@
-import { Check } from "lucide-react";
+import Box from "@mui/material/Box";
+import Stepper from "@mui/material/Stepper";
+import Step from "@mui/material/Step";
+import StepLabel from "@mui/material/StepLabel";
 
-interface Step {
+interface StepType {
   numberOrder: number;
   title: string;
   description: string;
@@ -8,75 +11,63 @@ interface Step {
 }
 
 interface PaymentProcessProps {
-  steps: Step[];
+  steps: StepType[];
 }
 
 const PaymentProcess = ({ steps }: PaymentProcessProps) => {
-  // xác định step đang active = step đầu tiên chưa complete
-  const activeIndex = steps.findIndex((s) => !s.complete);
+  // step hiện tại = step đầu tiên chưa complete
+  const activeStep = steps.findIndex((s) => !s.complete);
 
   return (
-    <div className="bg-card border border-border rounded-xl shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex items-start justify-between">
-          {steps.map((step, index) => {
-            const isCompleted = step.complete;
-            const isActive = index === activeIndex;
+    <Box
+      sx={{
+        backgroundColor: "#fff",
+        border: "1px solid #e5e7eb",
+        borderRadius: 3,
+        padding: 3,
+      }}
+    >
+      <Stepper
+        alternativeLabel
+        activeStep={activeStep === -1 ? steps.length : activeStep}
+        sx={{
+          /* ===== STEP ICON (CIRCLE + CHECK) ===== */
+          "& .MuiStepIcon-root": {
+            color: "#9ca3af", // xám (chưa tới)
+          },
+          "& .MuiStepIcon-root.Mui-active": {
+            color: "#10b981", // xanh lá
+          },
+          "& .MuiStepIcon-root.Mui-completed": {
+            color: "#10b981", // xanh lá
+          },
 
-            return (
-              <div key={step.numberOrder} className="flex flex-1 items-start">
-                {/* Step */}
-                <div className="flex flex-col items-center flex-1">
-                  {/* Circle */}
-                  <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all
-                      ${
-                        isCompleted
-                          ? "bg-primary border-primary text-primary-foreground"
-                          : isActive
-                          ? "border-primary bg-primary/10 text-primary font-semibold"
-                          : "border-muted bg-background text-muted-foreground"
-                      }
-                    `}
-                  >
-                    {isCompleted ? (
-                      <Check className="h-6 w-6" />
-                    ) : (
-                      <span>{step.numberOrder}</span>
-                    )}
-                  </div>
-
-                  {/* Text */}
-                  <div className="mt-3 text-center">
-                    <p
-                      className={`text-sm font-medium ${
-                        isCompleted || isActive
-                          ? "text-foreground"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {step.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1 max-w-[120px]">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Connector */}
-                {index < steps.length - 1 && (
-                  <div
-                    className={`h-0.5 w-full mt-6 transition-all ${
-                      isCompleted ? "bg-primary" : "bg-muted"
-                    }`}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
+          "& .MuiStepConnector-line": {
+            borderColor: "#d1d5db",
+          },
+          "& .MuiStepConnector-root.Mui-active .MuiStepConnector-line": {
+            borderColor: "#10b981",
+          },
+          "& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line": {
+            borderColor: "#10b981",
+          },
+        }}
+      >
+        {steps.map((step) => (
+          <Step key={step.numberOrder} completed={step.complete}>
+            <StepLabel
+              optional={
+                <Box sx={{ fontSize: 12, color: "#6b7280" }}>
+                  {step.description}
+                </Box>
+              }
+            >
+              {step.title}
+            </StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+    </Box>
   );
 };
 

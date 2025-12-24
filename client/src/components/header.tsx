@@ -77,7 +77,7 @@ const Header = () => {
               <input
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                className='h-10 border border-gray-300 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 pl-4 pr-10 py-2  transition-all w-3xl'
+                className='h-10 border border-gray-300 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 pl-4 pr-10 py-2  transition-all max-w-3xl md:min-w-3xl'
                 placeholder='Search...'
               />
 
@@ -111,7 +111,7 @@ const Header = () => {
           </div>
         ) : (
           <div className='flex gap-2 items-center ml-3 text-sm'>
-            <span className='font-semibold'>Xin chào, {user?.fullname}</span>
+            <span className='font-semibold hidden xl:flex'>Xin chào, {user?.fullname}</span>
 
             <Button variant={'ghost'} className='underline' onClick={onSignOut}>
               Đăng xuất

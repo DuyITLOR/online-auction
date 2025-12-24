@@ -4,6 +4,7 @@ import PaymentQR from '../../components/payment/PaymentQR'
 import PaymentBuyer from '../../components/payment/PaymentBuyer'
 import PaymentShipping from '../../components/payment/PaymentShipping'
 import PaymentReceive from '../../components/payment/PaymentReceive'
+import PaymentRating from '../../components/payment/PaymentRating'
 
 import { type Product, type User } from '../../libs/types/types';
 
@@ -53,7 +54,7 @@ const PaymentPage = () => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const { id } = useParams();
   const [loading, setIsLoading] = useState(true);
-  const [step, setStep] = useState(4);
+  const [step, setStep] = useState(5);
 
 
   useEffect(() => {
@@ -110,6 +111,9 @@ const PaymentPage = () => {
         }
         {
           (step === 4) && (<PaymentReceive userRole={user?.role || "BIDDER"} onComplete={() => { }} />)
+        }
+        {
+          (step === 5) && (<PaymentRating userRole={user?.role || "BIDDER"} otherPartyName={user?.role === "BIDDER" ? product.seller.fullname || "Người bán" : user?.fullname || "Người mua"} onComplete={() => { }} />)
         }
       </div>
 

@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { createContext, type ReactNode, useEffect, useState } from 'react';
 import type { Product, WatchList } from '../types/types';
 import { getAllProduct } from '../../api/product';
-import { createWatchList, deleteWatchList, getAllWatchList } from '../../api/watchlist';
+import { createWatchList, deleteWatchList, getAllWatchLists } from '../../api/watchlist';
 import { getSession } from '../session';
 
 type ProductContextType = {
@@ -39,6 +40,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         getAllProduct({ limit: '5', sort: 'ending_soon' }),
         getAllProduct({ limit: '5', sort: 'price_desc' }),
         getAllProduct({ limit: '5', sort: 'countBids_desc' }),
+        getAllProduct({}),
       ]);
       setEndingProducts(endings.data);
       setPriceProducts(prices.data);
@@ -51,12 +53,15 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const fetchWatchList = async (currentToken: string) => {
     if (currentToken === '') return;
     try {
-      const watchs = await getAllWatchList({ token: currentToken });
+      const watchs = await getAllWatchLists({ token: currentToken });
+      setWatchSet(new Set(watchs.data.map((w: WatchList) => w.productId)));
       setWatchProducts(watchs.data);
     } catch (err) {
       console.error('Lỗi fetch watchlist:', err);
     }
   };
+
+  const [watchSet, setWatchSet] = useState<Set<string>>(new Set());
 
   const getData = async () => {
     setLoading(true);
@@ -79,19 +84,19 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     getData();
   }, []);
-
   const handleToggleWatchList = async (productId: string) => {
-    if (!token) {
-      alert('Vui lòng đăng nhập để sử dụng tính năng này!');
-      return;
-    }
+    if (!token) return;
 
-    const existingItem = watchProducts.find((item: WatchList) => item.productId === productId);
+    setWatchSet((prev) => {
+      const next = new Set(prev);
+      next.has(productId) ? next.delete(productId) : next.add(productId);
+      return next;
+    });
 
     try {
-      if (existingItem) {
-        setWatchProducts((prev: WatchList[]) => prev.filter((item) => item.productId !== productId));
+      if (watchSet.has(productId)) {
         await deleteWatchList({ productId, token });
+        setWatchProducts((prev: WatchList[]) => prev.filter((item) => item.productId !== productId));
       } else {
         const newItem = await createWatchList({ productId, token });
         const products = [...endingSoonProducts, ...highestPriceProducts, ...highestBidProducts];
@@ -105,8 +110,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
 
         setWatchProducts((prev) => [...prev, newProduct]);
       }
-    } catch (error) {
-      console.error('Lỗi khi toggle watchlist:', error);
+    } catch {
       fetchWatchList(token);
     }
   };

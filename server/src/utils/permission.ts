@@ -3,10 +3,7 @@ import { googleCallback } from '../controllers/authControllers';
 import { updateCate } from '../services/cateService';
 import { updateCategory } from '../controllers/categoryControllers';
 import { get, request } from 'http';
-import {
-  createAutoBid,
-  getBidHistoryByUserId,
-} from '../services/autoBidService';
+import { createAutoBid, getBidHistoryByUserId } from '../services/autoBidService';
 import { getMaxBidByUser } from '../controllers/autoBiderController';
 import path from 'path';
 import { getAllCommentsByProductId } from '../controllers/userControllers';
@@ -391,6 +388,11 @@ export const API_WATCHLIST_ROUTES = {
     method: 'GET',
     role: [Role.ALL],
   },
+  getAllWatchList: {
+    path: '/watchlists',
+    method: 'GET',
+    role: [Role.ALL],
+  },
 };
 
 export const API_AUTO_BID_ROUTES = {
@@ -421,11 +423,10 @@ export const API_AUTO_BID_ROUTES = {
   },
 };
 
-
 export const API_ORDER_ROUTES = {
-    getOrders: {
-      path: '/orders',
-      method: 'GET',
-      role: [Role.ADMIN, Role.BIDDER, Role.SELLER],
-    }
-  }
+  getOrders: {
+    path: '/orders',
+    method: 'GET',
+    role: [Role.ADMIN, Role.BIDDER, Role.SELLER],
+  },
+};

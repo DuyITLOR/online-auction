@@ -121,6 +121,8 @@ export const searchProducts = async (query: productQueryDto) => {
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 10;
   const skip = (page - 1) * limit;
+  const minPrice = Number(query.minPrice);
+  const maxPrice = Number(query.maxPrice);
 
   const where: Prisma.ProductsWhereInput = {};
 
@@ -129,6 +131,16 @@ export const searchProducts = async (query: productQueryDto) => {
       contains: query.q,
       mode: 'insensitive',
     };
+  }
+
+  if (!isNaN(minPrice) || !isNaN(maxPrice)) {
+    where.currentPrice = {};
+    if (!isNaN(minPrice)) {
+      where.currentPrice.gte = new Prisma.Decimal(minPrice);
+    }
+    if (!isNaN(maxPrice)) {
+      where.currentPrice.lte = new Prisma.Decimal(maxPrice);
+    }
   }
 
   if (query.sellerId) {
@@ -173,10 +185,18 @@ export const searchProducts = async (query: productQueryDto) => {
     skip,
     take: limit,
     orderBy,
+
     include: {
       images: true,
       seller: true,
       category: true,
+      bidHistory: {
+        orderBy: { amount: 'desc' },
+        take: 1,
+        include: {
+          bidder: true,
+        },
+      },
     },
   });
 

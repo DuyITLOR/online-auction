@@ -2,6 +2,8 @@ import PaymentHeader from '../../components/payment/PaymentHeader'
 import PaymentProcess from '../../components/payment/PaymentProcess'
 import PaymentQR from '../../components/payment/PaymentQR'
 import PaymentBuyer from '../../components/payment/PaymentBuyer'
+import PaymentShipping from '../../components/payment/PaymentShipping'
+
 import { type Product, type User } from '../../libs/types/types';
 
 import { useParams } from 'react-router-dom';
@@ -50,7 +52,7 @@ const PaymentPage = () => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const { id } = useParams();
   const [loading, setIsLoading] = useState(true);
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(3);
 
 
   useEffect(() => {
@@ -101,6 +103,9 @@ const PaymentPage = () => {
         } 
         {
           (step === 2) && (<PaymentBuyer userRole={user?.role || "BIDDER"} onComplete={() => { }} />)
+        }
+        {
+          (step === 3) && (<PaymentShipping userRole={user?.role || "BIDDER"} onComplete={() => { }} />)
         }
       </div>
 

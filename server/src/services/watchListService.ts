@@ -40,6 +40,13 @@ export const getWatchList = async (userId: string, query: getWatchListDto) => {
           images: true,
           category: true,
           seller: true,
+          bidHistory: {
+            orderBy: { amount: 'desc' },
+            take: 1,
+            include: {
+              bidder: true,
+            },
+          },
         },
       },
     },

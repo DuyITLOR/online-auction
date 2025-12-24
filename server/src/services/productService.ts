@@ -177,6 +177,13 @@ export const searchProducts = async (query: productQueryDto) => {
       images: true,
       seller: true,
       category: true,
+      bidHistory: {
+        orderBy: { amount: 'desc' },
+        take: 1,
+        include: {
+          bidder: true,
+        },
+      },
     },
   });
 

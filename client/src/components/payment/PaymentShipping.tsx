@@ -62,7 +62,7 @@ export const StepShipping = ({ userRole, onComplete }: StepShippingProps) => {
             </h3>
 
             {/* Buyer Info */}
-            <div className="bg-muted/40 border border-border rounded-lg p-4 space-y-3">
+            <div className="bg-[rgb(240,246,242)] border border-border rounded-lg p-4 space-y-3">
                 <h4 className="text-sm font-medium">Thông tin từ người mua</h4>
 
                 <InfoRow icon={CheckCircle2} label="Thanh toán" value="Đã xác nhận" highlight />
@@ -75,7 +75,7 @@ export const StepShipping = ({ userRole, onComplete }: StepShippingProps) => {
                         type="checkbox"
                         checked={paymentConfirmed}
                         onChange={(e) => setPaymentConfirmed(e.target.checked)}
-                        className="mt-1 h-4 w-4 rounded border border-input text-primary focus:ring-primary"
+                        className="mt-1 h-4 w-4 rounded border border-input text-primary focus:ring-primary accent-[rgb(73,201,73)]"
                     />
                     <div>
                         <p className="text-sm font-medium">
@@ -133,7 +133,7 @@ export const StepShipping = ({ userRole, onComplete }: StepShippingProps) => {
 
             <Button
                 size="lg"
-                className="w-full"
+                className="w-full bg-[#10b981] hover:bg-[#10b981]/50"
                 disabled={!paymentConfirmed || !shippingCode || !shippingInvoice}
                 onClick={handleSubmit}
             >
@@ -157,7 +157,7 @@ function InfoRow({
 }) {
     return (
         <div className="flex items-start gap-3 text-sm">
-            <Icon className={`h-4 w-4 mt-0.5 ${highlight ? "text-primary" : "text-muted-foreground"}`} />
+            <Icon className={`h-4 w-4 mt-0.5 ${highlight ? "text-[rgb(73,201,73)]" : "text-muted-foreground"}`} />
             <div>
                 <p className="font-medium">{label}</p>
                 <p className="text-muted-foreground text-xs">{value}</p>

@@ -81,11 +81,7 @@ const PaymentPage = () => {
       }
     }
     init();
-    // if (step === 1) {
 
-    // } else {
-    //   setIsLoading(false);
-    // }
   }, [id])
 
   const computedSteps = paymentSteps.map((s) => ({

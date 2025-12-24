@@ -244,12 +244,8 @@ export const buyNowProuct = async (bidderId: string, data: buyNowProuctDto) => {
           data: {
             productId: data.productId,
             buyerId: bidderId,
-            phoneNumber: data.phoneNumber,
+            sellerId: product.sellerId,
             totalAmount: new Prisma.Decimal(product.buyNowPrice),
-            status: 'UNPAID',
-            paymentStatus: 'PENDING',
-            shippingAddress: data.shippingAddress,
-            paymentDueAt: new Date(Date.now() + timeout),
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -299,68 +295,4 @@ export const getExpiredActiveProducts = async () => {
   }
 
   return products;
-};
-
-export const handleAuctionEnd = async (productId: string) => {
-  const product = await prisma.$transaction(async (tx) => {
-    const exitOrder = await tx.orders.findUnique({
-      where: { productId: productId },
-    });
-
-    if (exitOrder) {
-      return null;
-    }
-    await tx.products.update({
-      where: { id: productId, status: 'ACTIVE' },
-      data: {
-        status: 'SOLD',
-        updatedAt: new Date(),
-      },
-    });
-
-    return await tx.products.findUnique({
-      where: { id: productId },
-      include: {
-        seller: true,
-      },
-    });
-  });
-
-  if (!product) {
-    throw new Error(`Không tìm thấy sản phẩm với productId ${productId}`);
-  }
-
-  // Nếu không có người mua
-  if (product.winnerId === null) {
-    return {
-      type: 'NO_BIDDER',
-      product: product,
-    };
-  }
-
-  const timeout = 24 * 60 * 60 * 1000;
-  const order = await prisma.orders.create({
-    data: {
-      productId: productId,
-      buyerId: product.winnerId,
-      totalAmount: new Prisma.Decimal(product.buyNowPrice),
-      status: 'UNPAID',
-      paymentStatus: 'PENDING',
-      paymentDueAt: new Date(Date.now() + timeout),
-      createdAt: new Date(),
-    },
-    include: {
-      buyer: true,
-    },
-  });
-
-  if (!order) {
-    throw new Error('Tạo đơn hàng thất bại');
-  }
-
-  return {
-    type: 'HAS_BIDDER',
-    product: product,
-    order: order,
-  };
 };

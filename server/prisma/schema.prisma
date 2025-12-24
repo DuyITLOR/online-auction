@@ -26,6 +26,7 @@ model User {
   chat            Chat[]
   comments        Comments[]
   ordersAsBuyer   Orders[]          @relation("OrdersBuyer")
+  ordersAsSeller  Orders[]          @relation("OrdersSeller")
   products        Products[]        @relation("SellerProducts")
   productWinner   Products[]        @relation("ProductWinner")
   ratingsReceived Ratings[]         @relation("RatingsReceived")
@@ -189,34 +190,32 @@ model Ratings {
 }
 
 model Orders {
-  id                 String        @id @default(uuid())
-  productId          String        @unique
-  buyerId            String
-  phoneNumber        String?
-  status             OrderStatus   @default(UNPAID)
-  shippingAddress    String?
-  paymentInvoiceUrl  String?
-  shippingInvoiceUrl String?
-  cancelReason       String?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  paymentDueAt       DateTime?
-  paymentStatus      PaymentStatus @default(UNPAID)
-  totalAmount        Decimal       @db.Decimal(15, 2)
-  buyer              User          @relation("OrdersBuyer", fields: [buyerId], references: [id])
-  product            Products      @relation(fields: [productId], references: [id])
+  id              String      @id @default(uuid())
+  productId       String      @unique
+  buyerId         String
+  status          OrderStatus @default(WAIT_SELLER_BANK_INFO)
+  cancelReason    String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  totalAmount     Decimal     @db.Decimal(15, 2)
+  billUrl         String?
+  buyerAddress    String?
+  buyerPhone      String?
+  isReceived      Boolean     @default(false)
+  qrInfo          String?
+  qrUrl           String?
+  receivedAt      DateTime?
+  sellerId        String
+  shippingCompany String?
+  shippingUrl     String?
+  buyer           User        @relation("OrdersBuyer", fields: [buyerId], references: [id])
+  product         Products    @relation(fields: [productId], references: [id])
+  seller          User        @relation("OrdersSeller", fields: [sellerId], references: [id])
 }
 
 enum Role {
   BIDDER
   ADMIN
-}
-
-enum OrderStatus {
-  UNPAID
-  SHIPPING
-  COMPLETED
-  CANCELED
 }
 
 enum VerificationStatus {
@@ -239,9 +238,12 @@ enum ProductStatus {
   EXPIRED
 }
 
-enum PaymentStatus {
-  UNPAID
-  PENDING
-  PAID
-  FAILED
+enum OrderStatus {
+  WAIT_SELLER_BANK_INFO
+  WAIT_BUYER_PAYMENT
+  WAIT_SELLER_SHIPPING
+  WAIT_BUYER_CONFIRM_RECEIVE
+  WAIT_REVIEW
+  COMPLETED
+  CANCELLED
 }

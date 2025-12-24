@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Upload, Package, CheckCircle2, MapPin, Phone, ImageIcon } from "lucide-react"
+import { Upload, Package, CheckCircle2, MapPin, Phone, ImageIcon, User } from "lucide-react"
 
 interface StepShippingProps {
     userRole: "ADMIN" | "SELLER" | "BIDDER";
@@ -22,7 +22,9 @@ export const StepShipping = ({ userRole, onComplete }: StepShippingProps) => {
     }
 
     /* ================= BUYER ================= */
-    if (userRole === "BIDDER") {
+    // if (userRole === "BIDDER")
+    if(userRole)
+         {
         return (
             <Card className="p-6">
                 <div className="py-8">
@@ -38,13 +40,14 @@ export const StepShipping = ({ userRole, onComplete }: StepShippingProps) => {
                         </p>
                     </div>
 
-                    <div className="bg-muted/40 border border-border rounded-lg p-4">
+                    <div className="bg-[rgb(240,246,242)] border border-border rounded-lg p-4">
                         <h4 className="text-sm font-medium mb-3">
                             Thông tin bạn đã cung cấp
                         </h4>
 
                         <div className="space-y-3">
                             <InfoRow icon={ImageIcon} label="Ảnh xác nhận thanh toán" value="Đã tải lên" />
+                            <InfoRow icon={User} label="Tên người nhận hàng" value="Duy đẹp trai" />
                             <InfoRow icon={MapPin} label="Địa chỉ giao hàng" value="123 Nguyễn Văn Linh, Q7, TP.HCM" />
                             <InfoRow icon={Phone} label="Số điện thoại" value="0901234567" />
                         </div>

@@ -25,7 +25,7 @@ export const PaymentShipping = ({ userRole, onComplete }: StepShippingProps) => 
 
     /* ================= BUYER ================= */
     // if (userRole === "BIDDER")
-    if(userRole)
+    if(!userRole)
          {
         return (
             <Card className="p-6">

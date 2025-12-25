@@ -33,7 +33,7 @@ import {
 
 import { useContext, useEffect, useRef, useState } from 'react';
 import { clearSession, getSession } from '../libs/session';
-import { requestToUpgrade, updateUser } from '../api/user';
+import { getStatisticProfile, requestToUpgrade, updateUser } from '../api/user';
 import { type Ratings } from '../libs/types/types';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -54,6 +54,13 @@ const convertISO = (isoString: string | undefined, revert: boolean = false) => {
   return revert ? `${yyyy}-${mm}-${dd}` : `${dd}-${mm}-${yyyy}`;
 };
 
+interface statisic {
+  BidCount: number;
+  WatchListCount: number;
+  OrderCount: number;
+  RatingCount: number;
+}
+
 const Profile = () => {
   const navigate = useNavigate();
   const { user, refresh } = useContext(UserContext);
@@ -71,9 +78,9 @@ const Profile = () => {
   const negativeCount = raters.filter((r) => r.value === -1).length;
   const positiveRatio = totalReviews > 0 ? ((positiveCount + 20 - negativeCount) / (totalReviews + 20)) * 100 : 0;
 
-  // update rating
   const [status, setStatus] = useState(false);
   const [comment, setComment] = useState('');
+  const [statistics, setStatistics] = useState<statisic>();
 
   const [formData, setFormData] = useState({
     fullname: '',
@@ -117,6 +124,12 @@ const Profile = () => {
       setRatees(data.ratings);
     };
 
+    const fetchStatistic = async () => {
+      const data = await getStatisticProfile({ token: session.token });
+      setStatistics(data);
+    };
+
+    fetchStatistic();
     fetchRaters();
     fetchRatees();
   }, [session]);
@@ -358,53 +371,62 @@ const Profile = () => {
 
             <Button onClick={() => signout()} variant={'outline'} className='text-red-500'>
               <LogOut size={16} />
-              Đăng xuất
             </Button>
           </div>
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-4 mt-5 mb-8'>
-          <div className='border border-gray-200 rounded-lg p-6'>
-            <div className='flex items-center justify-between'>
-              <div className='flex flex-col'>
-                <span className='text-gray-500'>Tổng số lượt ra giá</span>
-                <span className='text-3xl  font-bold'>28</span>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 mb-10'>
+          <div className='bg-white rounded-xl p-6 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group'>
+            <div className='flex items-center justify-between mb-4'>
+              <div className='w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300'>
+                <Gavel className='w-6 h-6' />
               </div>
-
-              <Gavel className='w-10 h-10 stroke-2' />
+              <span className='text-xs font-bold px-2 py-1 bg-gray-50 text-gray-500 rounded-full'>Hoạt động</span>
+            </div>
+            <div>
+              <span className='block text-3xl font-extrabold text-gray-900 mb-1'>{statistics?.BidCount || 0}</span>
+              <span className='text-sm font-medium text-gray-500'>Lượt ra giá</span>
             </div>
           </div>
 
-          <div className='border border-gray-200 rounded-lg p-6'>
-            <div className='flex items-center justify-between'>
-              <div className='flex flex-col'>
-                <span className='text-gray-500'>Yêu thích</span>
-                <span className='text-3xl  font-bold'>19</span>
+          <div className='bg-white rounded-xl p-6 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group'>
+            <div className='flex items-center justify-between mb-4'>
+              <div className='w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center text-rose-500 group-hover:bg-rose-500 group-hover:text-white transition-colors duration-300'>
+                <Heart className='w-6 h-6' />
               </div>
-
-              <Heart className='w-10 h-10 stroke-2' />
+              <span className='text-xs font-bold px-2 py-1 bg-gray-50 text-gray-500 rounded-full'>Quan tâm</span>
+            </div>
+            <div>
+              <span className='block text-3xl font-extrabold text-gray-900 mb-1'>
+                {statistics?.WatchListCount || 0}
+              </span>
+              <span className='text-sm font-medium text-gray-500'>Sản phẩm yêu thích</span>
             </div>
           </div>
 
-          <div className='border border-gray-200 rounded-lg p-6'>
-            <div className='flex items-center justify-between'>
-              <div className='flex flex-col'>
-                <span className='text-gray-500'>Đơn hàng</span>
-                <span className='text-4xl  font-bold'>2</span>
+          <div className='bg-white rounded-xl p-6 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group'>
+            <div className='flex items-center justify-between mb-4'>
+              <div className='w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300'>
+                <ShoppingBag className='w-6 h-6' />
               </div>
-
-              <ShoppingBag className='w-10 h-10 stroke-2' />
+              <span className='text-xs font-bold px-2 py-1 bg-gray-50 text-gray-500 rounded-full'>Mua sắm</span>
+            </div>
+            <div>
+              <span className='block text-3xl font-extrabold text-gray-900 mb-1'>{statistics?.OrderCount || 0}</span>
+              <span className='text-sm font-medium text-gray-500'>Đơn hàng thành công</span>
             </div>
           </div>
 
-          <div className='border border-gray-200 rounded-lg p-6'>
-            <div className='flex items-center justify-between'>
-              <div className='flex flex-col'>
-                <span className='text-gray-500'>Đánh giá</span>
-                <span className='text-4xl  font-bold'>19</span>
+          <div className='bg-white rounded-xl p-6 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group'>
+            <div className='flex items-center justify-between mb-4'>
+              <div className='w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300'>
+                <ScrollText className='w-6 h-6' />
               </div>
-
-              <ScrollText className='w-10 h-10 stroke-2' />
+              <span className='text-xs font-bold px-2 py-1 bg-gray-50 text-gray-500 rounded-full'>Uy tín</span>
+            </div>
+            <div>
+              <span className='block text-3xl font-extrabold text-gray-900 mb-1'>{statistics?.RatingCount || 0}</span>
+              <span className='text-sm font-medium text-gray-500'>Lượt đánh giá</span>
             </div>
           </div>
         </div>

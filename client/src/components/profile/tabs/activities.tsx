@@ -56,7 +56,7 @@ const Activities = ({ token }: { token: string }) => {
           id: `win-${item.id}`,
           type: 'WIN',
           title: item.product?.title || 'Winning Order',
-          amount: item.totalPrice || item.finalPrice || 0,
+          amount: item.totalPrice || item.totalAmount || 0,
           createdAt: item.createdAt,
           status: item.status,
         }));

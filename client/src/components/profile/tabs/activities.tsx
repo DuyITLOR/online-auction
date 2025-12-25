@@ -109,18 +109,11 @@ const Activities = ({ token }: { token: string }) => {
             return (
               <div
                 key={item.id}
-                className={`group relative flex items-center justify-between p-4 rounded-lg border transition-all duration-200 
-                  ${
-                    isWin
-                      ? 'bg-white border-amber-200 shadow-sm hover:shadow-md hover:border-amber-300'
-                      : 'bg-white border-gray-100 hover:border-teal-200 hover:bg-slate-50'
-                  }`}
+                className='group relative flex items-center justify-between p-4 rounded-lg border transition-all duration-200 
+                  
+                      bg-white border-gray-100 hover:border-teal-200 hover:bg-slate-50'
               >
-                <div
-                  className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full ${
-                    isWin ? 'bg-amber-400' : 'bg-teal-400'
-                  }`}
-                ></div>
+                <div className='absolute left-0 top-3 bottom-3 w-1 rounded-r-full bg-teal-400'></div>
 
                 <div className='flex items-center gap-4 pl-3'>
                   {/* Icon Box */}

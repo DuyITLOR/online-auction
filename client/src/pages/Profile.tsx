@@ -378,7 +378,7 @@ const Profile = () => {
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 mb-10'>
           <div className='bg-white rounded-xl p-6 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group'>
             <div className='flex items-center justify-between mb-4'>
-              <div className='w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300'>
+              <div className='w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-300 group-hover:text-white transition-colors duration-300'>
                 <Gavel className='w-6 h-6' />
               </div>
               <span className='text-xs font-bold px-2 py-1 bg-gray-50 text-gray-500 rounded-full'>Hoạt động</span>
@@ -391,7 +391,7 @@ const Profile = () => {
 
           <div className='bg-white rounded-xl p-6 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group'>
             <div className='flex items-center justify-between mb-4'>
-              <div className='w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center text-rose-500 group-hover:bg-rose-500 group-hover:text-white transition-colors duration-300'>
+              <div className='w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-300 group-hover:text-white transition-colors duration-300'>
                 <Heart className='w-6 h-6' />
               </div>
               <span className='text-xs font-bold px-2 py-1 bg-gray-50 text-gray-500 rounded-full'>Quan tâm</span>
@@ -406,7 +406,7 @@ const Profile = () => {
 
           <div className='bg-white rounded-xl p-6 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group'>
             <div className='flex items-center justify-between mb-4'>
-              <div className='w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300'>
+              <div className='w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-300 group-hover:text-white transition-colors duration-300'>
                 <ShoppingBag className='w-6 h-6' />
               </div>
               <span className='text-xs font-bold px-2 py-1 bg-gray-50 text-gray-500 rounded-full'>Mua sắm</span>
@@ -419,7 +419,7 @@ const Profile = () => {
 
           <div className='bg-white rounded-xl p-6 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group'>
             <div className='flex items-center justify-between mb-4'>
-              <div className='w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300'>
+              <div className='w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-300 group-hover:text-white transition-colors duration-300'>
                 <ScrollText className='w-6 h-6' />
               </div>
               <span className='text-xs font-bold px-2 py-1 bg-gray-50 text-gray-500 rounded-full'>Uy tín</span>

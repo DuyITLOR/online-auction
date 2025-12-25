@@ -12,7 +12,7 @@ const ProductDescription = ({
   token,
 }: {
   product: Product;
-  currentUser: User;
+  currentUser: User | undefined;
   token: string;
 }) => {
   const isOwner = currentUser && product.sellerId === currentUser.id;

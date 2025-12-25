@@ -9,7 +9,7 @@ import { calculateRating } from '../../libs/utils';
 interface UserProps {
   seller: User | undefined;
   productId: string;
-  user: User;
+  user: User | undefined;
   token: string | undefined;
 }
 
@@ -161,13 +161,13 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
           </p>
         </div>
 
-        {token && seller.id !== user.id && (
+        {token && seller.id !== user?.id && (
           <div className='flex gap-3 mb-8 items-start'>
             <div className='bg-gray-200 rounded-full p-2 mt-1'>
               <Avatar className='w-8 h-8 mt-1'>
-                <AvatarImage src={user.avtUrl} className='w-8 h-8 rounded-full' />
+                <AvatarImage src={user?.avtUrl} className='w-8 h-8 rounded-full' />
                 <AvatarFallback className='w-8 h-8 rounded-full bg-teal-200 text-teal-800 text-xs flex items-center justify-center font-bold'>
-                  {user.fullname}
+                  {user?.fullname}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -239,7 +239,7 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
                 </div>
               )}
 
-              {item.replies.length === 0 && user.id === seller.id && (
+              {item.replies.length === 0 && user?.id === seller.id && (
                 <div className='ml-11'>
                   <button
                     onClick={() => setHiddenAns(item.id)}

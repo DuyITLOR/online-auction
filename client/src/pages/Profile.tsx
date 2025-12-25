@@ -78,7 +78,7 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
-    dateOfBirth: '', // yyyy-mm-dd
+    dateOfBirth: '',
     address: '',
   });
 
@@ -155,6 +155,7 @@ const Profile = () => {
     if (image) {
       payload.avatar = image;
     }
+
     await updateUser({ user: payload, token: session.token });
     refresh();
   };

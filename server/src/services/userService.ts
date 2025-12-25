@@ -53,6 +53,8 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
       ...(dateOfBirth !== undefined && { dateOfBirth: new Date(dateOfBirth) }),
     };
 
+    console.log(Data);
+
     const updated = await prisma.user.update({
       where: { id },
       data: data,

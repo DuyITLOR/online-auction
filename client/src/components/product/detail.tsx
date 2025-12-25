@@ -30,7 +30,7 @@ interface ProductProp {
   historyBid: BidHistory[];
   token: string;
   onRefresh: () => void;
-  user: User;
+  user: User | undefined;
 }
 
 const maskName = (fullname: string | null | undefined) => {

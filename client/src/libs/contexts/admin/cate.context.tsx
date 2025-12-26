@@ -4,11 +4,10 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  ReactNode,
+  type ReactNode,
 } from "react";
 
-import { getSession } from "../session";
-import { ChevronsLeftIcon } from "lucide-react";
+import { useAdmin } from "./admin.context";
 
 // --- Types ---
 export type NodeType = "category" | "subcategory" | "product";
@@ -70,14 +69,9 @@ const updateTreeData = (
 export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const { token } = useAdmin();
   const [treeData, setTreeData] = useState<TreeNode[]>([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [session, setSession] = useState<{ token: string } | null>(null);
-
-  const fetchSession = async () => {
-    const sess = await getSession();
-    setSession(sess);
-  };
 
   /** 1. Fetch Root Categories */
   const fetchRootCategories = useCallback(async () => {
@@ -152,8 +146,8 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
     name: string,
     parentId: string | null = null
   ): Promise<ActionResult> => {
+    if (!token) return { success: false, message: "Unauthorized" };
     try {
-      const token = session?.token || (await getSession())?.token;
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/categories`,
         {
@@ -183,8 +177,8 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
     id: string,
     name: string
   ): Promise<ActionResult> => {
+    if (!token) return { success: false, message: "Unauthorized" };
     try {
-      const token = session?.token || (await getSession())?.token;
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/categories/${id}`,
         {
@@ -211,8 +205,8 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
 
   /** 5. Delete Category */
   const deleteCategory = async (id: string): Promise<ActionResult> => {
+    if (!token) return { success: false, message: "Unauthorized" };
     try {
-      const token = session?.token || (await getSession())?.token;
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/categories/${id}`,
         {
@@ -237,10 +231,6 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
       return { success: false, message: "Lỗi kết nối server" };
     }
   };
-
-  useEffect(() => {
-    fetchSession();
-  }, []);
 
   useEffect(() => {
     fetchRootCategories();

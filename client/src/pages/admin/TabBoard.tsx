@@ -1,16 +1,15 @@
 import { useState } from "react";
-import OverviewTab from "../../components/admin/OverviewTab";
 import UsersTab from "../../components/admin/UsersTab";
 import ProductsTab from "../../components/admin/ProductsTab";
 import CategoriesTab from "../../components/admin/Categories";
-import ReportsTab from "../../components/admin/ReportsTab";
 import ModerationTab from "../../components/admin/ModerationTab";
 
-import { ProductProvider } from "../../libs/contexts/productTab.context";
-import { CategoryProvider } from "../../libs/contexts/cateTab.context";
-import { UserProvider } from "../../libs/contexts/userTab.context";
-import { ModerationProvider } from "../../libs/contexts/moderationTab.context";
+import { ProductProvider } from "../../libs/contexts/admin/product.context";
+import { CategoryProvider } from "../../libs/contexts/admin/cate.context";
+import { UserProvider } from "../../libs/contexts/admin/user.context";
+import { ModerationProvider } from "../../libs/contexts/admin/moderation.context";
 
+import { AdminProvider } from "../../libs/contexts/admin/admin.context";
 const TAB_LIST = [
   { key: "tongquan", label: "Tổng quan" },
   { key: "nguoidung", label: "Người dùng" },
@@ -45,20 +44,7 @@ export default function DashboardTabs() {
 
       {/* Tabs (desktop/tablet) */}
       <ul className='hidden md:flex border border-gray-200 text-sm font-medium text-center bg-gray-100 rounded'>
-        <li className='me-2'>
-          <button
-            onClick={() => setActiveTab("tongquan")}
-            className={`inline-block p-4 ${
-              activeTab === "tongquan"
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-black-500"
-            }`}
-          >
-            Tổng quan
-          </button>
-        </li>
-
-        <li className='me-2'>
+        <li className='me-2 hover:cursor-pointer hover:bg-gray-200 rounded'>
           <button
             onClick={() => setActiveTab("nguoidung")}
             className={`inline-block p-4 ${
@@ -71,7 +57,7 @@ export default function DashboardTabs() {
           </button>
         </li>
 
-        <li className='me-2'>
+        <li className='me-2 hover:cursor-pointer hover:bg-gray-200 rounded'>
           <button
             onClick={() => setActiveTab("sanpham")}
             className={`inline-block p-4 ${
@@ -84,7 +70,7 @@ export default function DashboardTabs() {
           </button>
         </li>
 
-        <li className='me-2'>
+        <li className='me-2 hover:cursor-pointer hover:bg-gray-200 rounded'>
           <button
             onClick={() => setActiveTab("danhmuc")}
             className={`inline-block p-4 ${
@@ -97,7 +83,7 @@ export default function DashboardTabs() {
           </button>
         </li>
 
-        <li className='me-2'>
+        <li className='me-2 hover:cursor-pointer hover:bg-gray-200 rounded'>
           <button
             onClick={() => setActiveTab("kiemduyet")}
             className={`inline-block p-4 ${
@@ -113,28 +99,29 @@ export default function DashboardTabs() {
 
       {/* Nội dung tuỳ tab */}
       <div className='mt-6'>
-        {activeTab === "tongquan" && <OverviewTab />}
-        {activeTab === "nguoidung" && (
-          <UserProvider>
-            <UsersTab />
-          </UserProvider>
-        )}
-        {activeTab === "sanpham" && (
-          <ProductProvider>
-            <ProductsTab />
-          </ProductProvider>
-        )}
+        <AdminProvider>
+          {activeTab === "nguoidung" && (
+            <UserProvider>
+              <UsersTab />
+            </UserProvider>
+          )}
+          {activeTab === "sanpham" && (
+            <ProductProvider>
+              <ProductsTab />
+            </ProductProvider>
+          )}
 
-        {activeTab === "danhmuc" && (
-          <CategoryProvider>
-            <CategoriesTab />
-          </CategoryProvider>
-        )}
-        {activeTab === "kiemduyet" && (
-          <ModerationProvider>
-            <ModerationTab />
-          </ModerationProvider>
-        )}
+          {activeTab === "danhmuc" && (
+            <CategoryProvider>
+              <CategoriesTab />
+            </CategoryProvider>
+          )}
+          {activeTab === "kiemduyet" && (
+            <ModerationProvider>
+              <ModerationTab />
+            </ModerationProvider>
+          )}
+        </AdminProvider>
       </div>
     </div>
   );

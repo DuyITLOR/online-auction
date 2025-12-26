@@ -1,18 +1,7 @@
 import React from "react";
-import {
-  Plus,
-  LogOut,
-  Search,
-  Package,
-  ShoppingCart,
-  DollarSign,
-  TrendingUp,
-  Menu,
-} from "lucide-react";
+import { Package, ShoppingCart, DollarSign, TrendingUp } from "lucide-react";
 
 import TabBoard from "./TabBoard";
-import Header from "../../components/header";
-import Footer from "../../components/footer";
 
 // --- Mock Data (Hardcoded) ---
 const STATS = [

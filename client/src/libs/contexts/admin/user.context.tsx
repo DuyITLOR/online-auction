@@ -4,10 +4,10 @@ import {
   useState,
   useEffect,
   useCallback,
-  ReactNode,
+  type ReactNode,
 } from "react";
 
-import { getSession } from "../session";
+import { useAdmin } from "./admin.context";
 
 interface User {
   id: string;
@@ -38,6 +38,8 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 const limit = 5;
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
+  const { token } = useAdmin();
+
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -50,6 +52,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // ---- FETCH USERS Với cache ----
   const fetchUsers = useCallback(async () => {
+    if (!token) return;
     const cacheKey = `page-${page}`;
 
     // A. Lấy dữ liệu từ cache nếu có
@@ -67,8 +70,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       setIsLoading(true);
 
-      const session = await getSession();
-
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/admin/users?limit=${limit}&page=${
           page - 1
@@ -77,16 +78,20 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${session?.token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status}`);
+      }
+
       const json = await res.json();
 
-      const newUsers = json.data.data.users || [];
-      const newTotalUsers = json.data.data.totalUsers || 0;
-      const newTotalPages = json.data.data.totalPages || 1;
+      const newUsers = json?.data?.data?.users || [];
+      const newTotalUsers = json?.data?.data?.totalUsers || 0;
+      const newTotalPages = json?.data?.data?.totalPages || 1;
 
       setUsers(newUsers);
       setTotalUsers(newTotalUsers);
@@ -106,7 +111,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, cache]);
+  }, [token, page, cache]);
 
   // Refresh thủ công hoặc sau xóa user
   const refreshUsers = () => {
@@ -123,12 +128,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setTotalUsers((prev) => prev - 1);
 
     try {
-      const session = await getSession();
-
       await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/users/${userId}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${session?.token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 

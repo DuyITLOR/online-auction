@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 
 // Import Pagination Component
-import Pagination from "../pagination"; // Đảm bảo đường dẫn đúng tới file Pagination của bạn
+import Pagination from "../pagination";
 
-import { useModeration } from "../../libs/contexts/moderationTab.context";
+import { useModeration } from "../../libs/contexts/admin/moderation.context";
 
 import {
   Dialog,
@@ -25,13 +25,13 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 
-// Define ActionType locally to avoid import errors
+// Define ActionType locally
 type ActionType = "APPROVE" | "REFUSE";
 
 const ModerationTab: FC = () => {
-  // Lấy data và hàm từ Context (Bao gồm các state Pagination mới)
+  // Lấy data và hàm từ Context
   const {
-    filteredData,
+    paginatedData, // <--- THAY ĐỔI QUAN TRỌNG: Dùng dữ liệu đã cắt theo trang
     loading,
     filterStatus,
     searchTerm,
@@ -84,6 +84,7 @@ const ModerationTab: FC = () => {
       );
     }
     if (s === "VALID" || s === "APPROVED") {
+      // Thêm APPROVED phòng trường hợp backend trả về
       return (
         <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
           <span className='w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5'></span>
@@ -127,8 +128,9 @@ const ModerationTab: FC = () => {
           {[
             { id: "ALL", label: "Tất cả" },
             { id: "PENDING", label: "Chờ duyệt" },
-            { id: "APPROVED", label: "Đã duyệt" },
-            { id: "REJECTED", label: "Đã hủy/Từ chối" },
+            { id: "VALID", label: "Đã duyệt" },
+            { id: "FAILED", label: "Đã từ chối" },
+            { id: "EXPIRED", label: "Hết hạn" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -203,7 +205,7 @@ const ModerationTab: FC = () => {
                     </td>
                   </tr>
                 ))
-              ) : filteredData.length === 0 ? (
+              ) : paginatedData.length === 0 ? ( // <--- Kiểm tra paginatedData
                 <tr>
                   <td
                     colSpan={5}
@@ -216,78 +218,89 @@ const ModerationTab: FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredData.map((item) => (
-                  <tr
-                    key={item.id}
-                    className='hover:bg-gray-50 transition-colors duration-150'
-                  >
-                    <td className='px-6 py-4'>
-                      <div className='flex items-center gap-3'>
-                        <div className='w-9 h-9 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-bold shrink-0'>
-                          {item.user?.fullName?.charAt(0) || "U"}
-                        </div>
-                        <div className='min-w-0'>
-                          <p className='font-semibold text-gray-900 truncate'>
-                            {item.user?.fullName}
-                          </p>
-                          <div className='flex items-center text-xs text-gray-500 mt-0.5'>
-                            <Mail className='w-3 h-3 mr-1' />
-                            <span className='truncate'>{item.user?.email}</span>
+                paginatedData.map(
+                  (
+                    item // <--- Map qua paginatedData
+                  ) => (
+                    <tr
+                      key={item.id}
+                      className='hover:bg-gray-50 transition-colors duration-150'
+                    >
+                      <td className='px-6 py-4'>
+                        <div className='flex items-center gap-3'>
+                          <div className='w-9 h-9 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-bold shrink-0'>
+                            {item.user?.fullname?.charAt(0) || "U"}{" "}
+                            {/* Sửa fullName thành fullname theo Type */}
+                          </div>
+                          <div className='min-w-0'>
+                            <p className='font-semibold text-gray-900 truncate'>
+                              {item.user?.fullname}{" "}
+                              {/* Sửa fullName thành fullname */}
+                            </p>
+                            <div className='flex items-center text-xs text-gray-500 mt-0.5'>
+                              <Mail className='w-3 h-3 mr-1' />
+                              <span className='truncate'>
+                                {item.user?.email}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className='px-6 py-4 max-w-xs'>
-                      <p className='text-gray-600 truncate' title={item.note}>
-                        {item.note || "Không có ghi chú"}
-                      </p>
-                    </td>
-                    <td className='px-6 py-4'>
-                      {renderStatusBadge(item.status)}
-                    </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-gray-500'>
-                      <div className='flex items-center gap-1.5'>
-                        <Calendar className='w-3.5 h-3.5' />
-                        {formatDate(item.createdAt)}
-                      </div>
-                    </td>
-                    <td className='px-6 py-4 text-right'>
-                      {item.status === "PENDING" ? (
-                        <div className='flex items-center justify-end gap-2'>
-                          <button
-                            onClick={() =>
-                              openConfirmDialog(item.id, "APPROVE")
-                            }
-                            className='p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors border border-transparent hover:border-green-200'
-                            title='Duyệt yêu cầu'
-                          >
-                            <Check className='w-4 h-4' />
-                          </button>
-                          <button
-                            onClick={() => openConfirmDialog(item.id, "REFUSE")}
-                            className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200'
-                            title='Từ chối yêu cầu'
-                          >
-                            <X className='w-4 h-4' />
-                          </button>
+                      </td>
+                      <td className='px-6 py-4 max-w-xs'>
+                        <p className='text-gray-600 truncate' title={item.note}>
+                          {item.note || "Không có ghi chú"}
+                        </p>
+                      </td>
+                      <td className='px-6 py-4'>
+                        {renderStatusBadge(item.status)}
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-gray-500'>
+                        <div className='flex items-center gap-1.5'>
+                          <Calendar className='w-3.5 h-3.5' />
+                          {formatDate(item.createdAt)}
                         </div>
-                      ) : (
-                        <button
-                          className='p-2 text-gray-400 cursor-not-allowed'
-                          disabled
-                        >
-                          <MoreHorizontal className='w-4 h-4' />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className='px-6 py-4 text-right'>
+                        {item.status === "PENDING" ? (
+                          <div className='flex items-center justify-end gap-2'>
+                            <button
+                              onClick={() =>
+                                openConfirmDialog(item.id, "APPROVE")
+                              }
+                              className='p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors border border-transparent hover:border-green-200'
+                              title='Duyệt yêu cầu'
+                            >
+                              <Check className='w-4 h-4' />
+                            </button>
+                            <button
+                              onClick={() =>
+                                openConfirmDialog(item.id, "REFUSE")
+                              }
+                              className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200'
+                              title='Từ chối yêu cầu'
+                            >
+                              <X className='w-4 h-4' />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className='p-2 text-gray-400 cursor-not-allowed'
+                            disabled
+                          >
+                            <MoreHorizontal className='w-4 h-4' />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                )
               )}
             </tbody>
           </table>
         </div>
 
         {/* --- PAGINATION SECTION --- */}
+        {/* Chỉ hiện khi không loading và có dữ liệu (totalRecords > 0) */}
         {!loading && totalRecords > 0 && (
           <div className='p-4 border-t border-gray-100 mt-auto'>
             <div className='flex items-center justify-between'>
@@ -296,7 +309,6 @@ const ModerationTab: FC = () => {
                 <span className='font-medium'>{totalPage}</span>
               </div>
               <Pagination
-                className='flex justify-end'
                 page={page}
                 onPageChange={onPageChange}
                 totalPage={totalPage}

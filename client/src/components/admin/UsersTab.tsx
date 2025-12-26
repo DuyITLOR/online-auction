@@ -1,5 +1,5 @@
-import { useUsers } from "../../libs/contexts/userTab.context";
-import { Loader2, Mail, User, Shield, Calendar, Search } from "lucide-react";
+import { useUsers } from "../../libs/contexts/admin/user.context";
+import { Mail, User, Shield, Calendar, Search } from "lucide-react";
 import Pagination from "../pagination";
 
 const TabUsers = () => {
@@ -142,7 +142,6 @@ const TabUsers = () => {
                 <span className='font-medium'>{totalPages}</span>
               </div>
               <Pagination
-                className='flex justify-end'
                 page={page}
                 onPageChange={onPageChange}
                 totalPage={totalPages}

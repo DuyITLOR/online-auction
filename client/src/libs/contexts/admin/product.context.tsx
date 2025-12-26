@@ -4,11 +4,11 @@ import React, {
   useContext,
   useState,
   useEffect,
-  ReactNode,
+  type ReactNode,
   useCallback,
 } from "react";
 
-import { getSession } from "../session";
+import { useAdmin } from "./admin.context";
 
 // --- Types ---
 interface Product {
@@ -56,6 +56,7 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const { token } = useAdmin();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,17 +66,10 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   const [totalPage, setTotalPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
 
-  const [session, setSession] = useState<{ token: string } | null>(null);
-
   const limit = 5;
 
   // CACHE
   const [cache, setCache] = useState<Record<string, CacheData>>({});
-
-  async function initializeSession() {
-    const sess = await getSession();
-    setSession(sess);
-  }
 
   // Fetch Categories
   const fetchCategories = async () => {
@@ -141,14 +135,18 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
 
   // Delete Product (KHÔNG xoá UI trước → tránh mất dialog)
   const deleteProduct = async (productId: string): Promise<DeleteResult> => {
+    if (!token) return { success: false, message: "Unauthorized" };
     try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/${productId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.token}`,
-        },
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/product/${productId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await res.json();
 
@@ -173,7 +171,6 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   useEffect(() => {
-    initializeSession();
     fetchCategories();
   }, []);
 

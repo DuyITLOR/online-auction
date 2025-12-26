@@ -1,22 +1,15 @@
 import { useState, useTransition } from "react";
-import {
-  Loader2,
-  LayoutDashboard,
-  Box,
-  ShoppingCart,
-  CreditCard,
-} from "lucide-react";
+import { Loader2, LayoutDashboard, Box, ShoppingCart } from "lucide-react";
 import OverviewTab from "../../components/seller/OverviewTab";
 import ProductsTab from "../../components/seller/ProductsTab";
 import OrdersTab from "../../components/seller/OrdersTab";
-import PayoutsTab from "../../components/seller/PayoutsTab";
-import { ProductProvider } from "../../libs/contexts/sellerProduct.context.tsx";
-
+import { ProductProvider } from "../../libs/contexts/seller/product.context.tsx";
+import { SellerProvider } from "../../libs/contexts/seller/seller.context.tsx";
+import { OrderProvider } from "../../libs/contexts/seller/order.context.tsx";
 const TAB_LIST = [
   { key: "overview", label: "Tổng quan", icon: LayoutDashboard },
   { key: "products", label: "Sản phẩm", icon: Box },
   { key: "orders", label: "Đơn hàng", icon: ShoppingCart },
-  { key: "payouts", label: "Thanh toán", icon: CreditCard },
 ];
 
 export default function TabBoard() {
@@ -84,45 +77,45 @@ export default function TabBoard() {
       </div>
 
       {/* --- TAB CONTENT AREA --- */}
-      <div className='relative min-h-[400px]'>
-        {/* Loading Overlay khi chuyển tab (Sử dụng Transition) */}
-        {isPending && (
-          <div className='absolute inset-0 z-10 bg-white/60 backdrop-blur-[1px] flex items-center justify-center rounded-xl'>
-            <div className='flex flex-col items-center gap-2 bg-white p-4 rounded-lg shadow-lg border border-gray-100'>
-              <Loader2 className='w-8 h-8 animate-spin text-teal-600' />
-              <span className='text-sm font-medium text-gray-600'>
-                Đang chuyển tab...
-              </span>
+      <SellerProvider>
+        <div className='relative min-h-[400px]'>
+          {/* Loading Overlay khi chuyển tab (Sử dụng Transition) */}
+          {isPending && (
+            <div className='absolute inset-0 z-10 bg-white/60 backdrop-blur-[1px] flex items-center justify-center rounded-xl'>
+              <div className='flex flex-col items-center gap-2 bg-white p-4 rounded-lg shadow-lg border border-gray-100'>
+                <Loader2 className='w-8 h-8 animate-spin text-teal-600' />
+                <span className='text-sm font-medium text-gray-600'>
+                  Đang chuyển tab...
+                </span>
+              </div>
             </div>
+          )}
+
+          <div
+            className={`transition-all duration-300 ${
+              isPending ? "opacity-30 scale-[0.99]" : "opacity-100 scale-100"
+            }`}
+          >
+            {activeTab === "overview" && <OverviewTab />}
+
+            {activeTab === "products" && (
+              <div className='animate-in fade-in slide-in-from-bottom-4 duration-500'>
+                <ProductProvider>
+                  <ProductsTab />
+                </ProductProvider>
+              </div>
+            )}
+
+            {activeTab === "orders" && (
+              <div className='animate-in fade-in slide-in-from-bottom-4 duration-500'>
+                <OrderProvider>
+                  <OrdersTab />
+                </OrderProvider>
+              </div>
+            )}
           </div>
-        )}
-
-        <div
-          className={`transition-all duration-300 ${
-            isPending ? "opacity-30 scale-[0.99]" : "opacity-100 scale-100"
-          }`}
-        >
-          {activeTab === "overview" && <OverviewTab />}
-
-          {activeTab === "products" && (
-            <ProductProvider>
-              <ProductsTab />
-            </ProductProvider>
-          )}
-
-          {activeTab === "orders" && (
-            <div className='animate-in fade-in slide-in-from-bottom-4 duration-500'>
-              <OrdersTab />
-            </div>
-          )}
-
-          {activeTab === "payouts" && (
-            <div className='animate-in fade-in slide-in-from-bottom-4 duration-500'>
-              <PayoutsTab />
-            </div>
-          )}
         </div>
-      </div>
+      </SellerProvider>
     </div>
   );
 }

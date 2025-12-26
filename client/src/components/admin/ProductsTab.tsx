@@ -1,5 +1,5 @@
 import { type FC, useState } from "react";
-import { Eye, Trash2, Loader2, Filter, Search } from "lucide-react";
+import { Eye, Trash2, Loader2, Search } from "lucide-react";
 import Pagination from "../pagination";
 import { useProducts } from "../../libs/contexts/admin/product.context";
 import { toast } from "sonner";
@@ -225,7 +225,6 @@ const ProductsTab: FC = () => {
                 <span className='font-medium'>{totalPage}</span>
               </div>
               <Pagination
-                className='flex justify-end'
                 page={page}
                 onPageChange={onPageChange}
                 totalPage={totalPage}

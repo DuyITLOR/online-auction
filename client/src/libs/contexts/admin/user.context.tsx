@@ -4,7 +4,7 @@ import {
   useState,
   useEffect,
   useCallback,
-  ReactNode,
+  type ReactNode,
 } from "react";
 
 import { useAdmin } from "./admin.context";
@@ -39,6 +39,7 @@ const limit = 5;
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { token } = useAdmin();
+
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -51,6 +52,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // ---- FETCH USERS Với cache ----
   const fetchUsers = useCallback(async () => {
+    if (!token) return;
     const cacheKey = `page-${page}`;
 
     // A. Lấy dữ liệu từ cache nếu có
@@ -81,11 +83,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         }
       );
 
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status}`);
+      }
+
       const json = await res.json();
 
-      const newUsers = json.data.data.users || [];
-      const newTotalUsers = json.data.data.totalUsers || 0;
-      const newTotalPages = json.data.data.totalPages || 1;
+      const newUsers = json?.data?.data?.users || [];
+      const newTotalUsers = json?.data?.data?.totalUsers || 0;
+      const newTotalPages = json?.data?.data?.totalPages || 1;
 
       setUsers(newUsers);
       setTotalUsers(newTotalUsers);
@@ -105,7 +111,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, cache]);
+  }, [token, page, cache]);
 
   // Refresh thủ công hoặc sau xóa user
   const refreshUsers = () => {

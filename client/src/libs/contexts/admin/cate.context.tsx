@@ -4,10 +4,9 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  ReactNode,
+  type ReactNode,
 } from "react";
 
-import { ChevronsLeftIcon } from "lucide-react";
 import { useAdmin } from "./admin.context";
 
 // --- Types ---
@@ -147,6 +146,7 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
     name: string,
     parentId: string | null = null
   ): Promise<ActionResult> => {
+    if (!token) return { success: false, message: "Unauthorized" };
     try {
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/categories`,
@@ -177,6 +177,7 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
     id: string,
     name: string
   ): Promise<ActionResult> => {
+    if (!token) return { success: false, message: "Unauthorized" };
     try {
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/categories/${id}`,
@@ -204,6 +205,7 @@ export const CategoryProvider: React.FC<{ children: ReactNode }> = ({
 
   /** 5. Delete Category */
   const deleteCategory = async (id: string): Promise<ActionResult> => {
+    if (!token) return { success: false, message: "Unauthorized" };
     try {
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/categories/${id}`,

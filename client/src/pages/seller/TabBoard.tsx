@@ -1,11 +1,5 @@
 import { useState, useTransition } from "react";
-import {
-  Loader2,
-  LayoutDashboard,
-  Box,
-  ShoppingCart,
-  CreditCard,
-} from "lucide-react";
+import { Loader2, LayoutDashboard, Box, ShoppingCart } from "lucide-react";
 import OverviewTab from "../../components/seller/OverviewTab";
 import ProductsTab from "../../components/seller/ProductsTab";
 import OrdersTab from "../../components/seller/OrdersTab";

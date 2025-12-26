@@ -3,7 +3,7 @@ import React, {
   useContext,
   useState,
   useEffect,
-  ReactNode,
+  type ReactNode,
   useCallback,
 } from "react";
 import { useSeller } from "./seller.context";
@@ -65,8 +65,8 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
         }/orders?view=SELLER&page=${page}&limit=${limit}&sellerId=${userId}`,
         {
           method: "GET",
-          contentType: "application/json",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }

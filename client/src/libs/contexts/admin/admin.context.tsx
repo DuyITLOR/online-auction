@@ -3,14 +3,14 @@ import React, {
   useContext,
   useState,
   useEffect,
-  ReactNode,
+  type ReactNode,
 } from "react";
 import { getSession, type UserSession } from "../../session";
 
 interface AdminContextType {
   user: UserSession | null;
   token: string | null;
-  isLoading: boolean;
+  isAuthLoading: boolean; // Đây là loading của việc check đăng nhập
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -20,13 +20,12 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<UserSession | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const session = await getSession();
-        // The payload from getSession is typed as any/JWTPayload but we know it matches Session structure
         if (session) {
           if ((session as any).user) setUser((session as any).user);
           if ((session as any).token) setToken((session as any).token);
@@ -34,7 +33,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({
       } catch (error) {
         console.error("Failed to fetch seller session:", error);
       } finally {
-        setIsLoading(false);
+        setIsAuthLoading(false);
       }
     };
 
@@ -42,7 +41,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   return (
-    <AdminContext.Provider value={{ user, token, isLoading }}>
+    <AdminContext.Provider value={{ user, token, isAuthLoading }}>
       {children}
     </AdminContext.Provider>
   );

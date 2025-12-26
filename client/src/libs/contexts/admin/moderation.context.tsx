@@ -3,7 +3,7 @@ import React, {
   useContext,
   useState,
   useEffect,
-  ReactNode,
+  type ReactNode,
   useMemo,
   useCallback,
 } from "react";
@@ -30,8 +30,8 @@ export interface ReportItem {
 export type ActionType = "APPROVE" | "REFUSE";
 
 interface ModerationContextType {
-  moderationData: ReportItem[];
-  filteredData: ReportItem[];
+  // Dữ liệu đã phân trang để hiển thị lên UI (chỉ chứa 5 item của trang hiện tại)
+  paginatedData: ReportItem[];
   loading: boolean;
   filterStatus: string;
   searchTerm: string;
@@ -49,37 +49,34 @@ const ModerationContext = createContext<ModerationContextType | undefined>(
   undefined
 );
 
-// Dùng 1 key đơn giản, không nối chuỗi phức tạp
 const STORAGE_KEY = "moderation_requests_cache";
 
 export const ModerationProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const { token } = useAdmin();
+
   // --- States ---
-  const [moderationData, setModerationData] = useState<ReportItem[]>([]);
+  // allData: Chứa TOÀN BỘ dữ liệu từ API
+  const [allData, setAllData] = useState<ReportItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
   const [searchTerm, setSearchTerm] = useState<string>("");
+
+  // Pagination State
   const [page, setPage] = useState<number>(1);
-  const [totalPage, setTotalPage] = useState<number>(1);
-  const [totalRecords, setTotalRecords] = useState<number>(0);
+  const limit = 5; // Số lượng item mỗi trang
 
-  const limit = 5;
-
-  // --- Helper: Load từ LocalStorage (Chạy 1 lần khi mount) ---
+  // --- Helper: Load từ LocalStorage ---
   useEffect(() => {
     const cached = localStorage.getItem(STORAGE_KEY);
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
-        // Chỉ load cache nếu nó có cấu trúc hợp lệ
-        if (parsed.data && Array.isArray(parsed.data)) {
-          setModerationData(parsed.data);
-          setTotalRecords(parsed.total || 0);
-          setTotalPage(parsed.totalPages || 1);
-          setLoading(false); // Hiển thị luôn để người dùng đỡ chờ
+        if (Array.isArray(parsed)) {
+          setAllData(parsed);
+          setLoading(false);
         }
       } catch (e) {
         console.error("Cache parsing error", e);
@@ -87,22 +84,22 @@ export const ModerationProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
-  // --- 1. Fetch Data ---
+  // --- 1. Fetch ALL Data ---
+  // Lưu ý: Vì ta cần filter ở client, ta phải fetch HẾT.
+  // Ta set limit thật lớn hoặc bỏ param page/limit nếu API hỗ trợ lấy all.
   const fetchModerationData = useCallback(async () => {
+    if (!token) return;
     try {
       setLoading(true);
 
-      // console.log("Fetching with params:", params.toString());
-      // Nếu API hỗ trợ filter status thì uncomment.
-      // Nếu không, ta vẫn fetch all về và client-filter (như logic filteredData bên dưới).
-      // if (filterStatus !== "ALL") {
-      //   params.append("status", filterStatus);
-      // }
+      // Giả sử API cho phép lấy nhiều record (ví dụ 1000).
+      // Nếu API ép buộc phân trang nhỏ (vd max 50), bạn cần viết hàm loop để fetch hết các trang.
+      const maxLimit = 1000;
 
       const response = await fetch(
         `${
           import.meta.env.VITE_BACKEND_URL
-        }/users/requests?limit=${limit}&page=${page}`,
+        }/users/requests?limit=${maxLimit}&page=1`,
         {
           method: "GET",
           headers: {
@@ -115,43 +112,76 @@ export const ModerationProvider: React.FC<{ children: ReactNode }> = ({
       if (!response.ok) throw new Error("Failed to fetch");
 
       const result = await response.json();
-      console.log("Fetched moderation data:", result);
       const dataWrapper = result.data?.data || {};
-
       const dataList: ReportItem[] = dataWrapper.requests || [];
-      const totalRequests = dataWrapper.totalRequests || 0;
-      const totalPagesRes = dataWrapper.totalPages || 1;
 
-      // Cập nhật State
-      setModerationData(dataList);
-      setTotalRecords(totalRequests);
-      setTotalPage(totalPagesRes);
+      // Cập nhật State gốc
+      setAllData(dataList);
       setLoading(false);
 
-      // Lưu Cache đơn giản (Ghi đè cái mới nhất)
-      // Chỉ lưu khi ở trang 1 và filter ALL để đảm bảo cache là dữ liệu "gốc" sạch sẽ nhất
-      // Hoặc lưu luôn trang hiện tại để reload lại đúng trang đó
-      if (page === 1 && filterStatus === "ALL") {
-        localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify({
-            data: dataList,
-            total: totalRequests,
-            totalPages: totalPagesRes,
-          })
-        );
-      }
+      // Lưu Cache toàn bộ dữ liệu
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataList));
     } catch (error) {
       console.error("Error fetching moderation data:", error);
-      if (moderationData.length === 0) {
+      if (allData.length === 0) {
         toast.error("Không thể tải dữ liệu kiểm duyệt.");
       }
       setLoading(false);
     }
-  }, [page, filterStatus]); // Bỏ cache dependency, chỉ phụ thuộc params API
+  }, [token]); // Bỏ page, filterStatus khỏi dependency vì ta fetch 1 lần cục to
 
-  // --- 2. Xử lý Duyệt/Từ chối ---
+  // --- 2. Filter Logic (Lọc trên tập dữ liệu tổng) ---
+  const filteredData = useMemo(() => {
+    let data = allData;
+
+    // Filter theo Status
+    if (filterStatus !== "ALL") {
+      data = data.filter((item) => item.status === filterStatus);
+    }
+
+    // Filter theo Search Term
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      data = data.filter((item) => {
+        const userName = item.user?.fullname || "";
+        const userEmail = item.user?.email || "";
+        return (
+          userName.toLowerCase().includes(term) ||
+          userEmail.toLowerCase().includes(term)
+        );
+      });
+    }
+
+    return data;
+  }, [allData, filterStatus, searchTerm]);
+
+  // --- 3. Pagination Logic (Cắt dữ liệu đã lọc để hiển thị) ---
+  const paginatedData = useMemo(() => {
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    return filteredData.slice(startIndex, endIndex);
+  }, [filteredData, page, limit]);
+
+  // Tính toán lại tổng số trang dựa trên kết quả đã lọc
+  const totalRecords = filteredData.length;
+  const totalPage = Math.ceil(totalRecords / limit) || 1;
+
+  // Reset page về 1 khi đổi điều kiện lọc
+  useEffect(() => {
+    setPage(1);
+  }, [filterStatus, searchTerm]);
+
+  // Fetch dữ liệu lần đầu (chỉ chạy 1 lần khi mount hoặc khi token đổi)
+  useEffect(() => {
+    fetchModerationData();
+  }, [fetchModerationData]);
+
+  // --- 4. Xử lý Duyệt/Từ chối ---
   const processRequest = async (id: string, action: ActionType) => {
+    if (!token) {
+      toast.error("Unauthorized");
+      return;
+    }
     try {
       let url =
         action === "APPROVE"
@@ -170,7 +200,7 @@ export const ModerationProvider: React.FC<{ children: ReactNode }> = ({
 
       toast.success(action === "APPROVE" ? "Đã duyệt!" : "Đã từ chối!");
 
-      // Reload lại data
+      // Refresh lại toàn bộ data để cập nhật status mới nhất
       await fetchModerationData();
     } catch (error: any) {
       console.error("Error processing request:", error);
@@ -178,53 +208,16 @@ export const ModerationProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  // --- 3. Filter Client-side ---
-  const filteredData = useMemo(() => {
-    let data = moderationData;
-
-    // Nếu API đã filter theo status thì data trả về đã đúng,
-    // nhưng nếu API trả về hỗn hợp (do param sai/thiếu) thì đoạn này giúp lọc lại cho chắc.
-    if (filterStatus !== "ALL") {
-      // Logic filter client bổ sung
-      // data = data.filter(...)
-    }
-
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      data = data.filter((item) => {
-        const userName = item.user?.fullname || "";
-        const userEmail = item.user?.email || "";
-        return (
-          userName.toLowerCase().includes(term) ||
-          userEmail.toLowerCase().includes(term)
-        );
-      });
-    }
-
-    return data;
-  }, [moderationData, filterStatus, searchTerm]);
-
-  // Reset page về 1 khi đổi filter
-  useEffect(() => {
-    setPage(1);
-  }, [filterStatus]);
-
-  // Trigger fetch khi page/filter đổi
-  useEffect(() => {
-    fetchModerationData();
-  }, [fetchModerationData]);
-
   return (
     <ModerationContext.Provider
       value={{
-        moderationData,
-        filteredData,
+        paginatedData, // Dùng biến này để render bảng (Table)
         loading,
         filterStatus,
         searchTerm,
         page,
-        totalPage,
-        totalRecords,
+        totalPage, // Tổng page này là của dữ liệu đã lọc
+        totalRecords, // Tổng record này là của dữ liệu đã lọc
         setPage,
         setFilterStatus,
         setSearchTerm,

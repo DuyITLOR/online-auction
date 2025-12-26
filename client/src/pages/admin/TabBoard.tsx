@@ -1,9 +1,7 @@
 import { useState } from "react";
-import OverviewTab from "../../components/admin/OverviewTab";
 import UsersTab from "../../components/admin/UsersTab";
 import ProductsTab from "../../components/admin/ProductsTab";
 import CategoriesTab from "../../components/admin/Categories";
-import ReportsTab from "../../components/admin/ReportsTab";
 import ModerationTab from "../../components/admin/ModerationTab";
 
 import { ProductProvider } from "../../libs/contexts/admin/product.context";
@@ -46,20 +44,7 @@ export default function DashboardTabs() {
 
       {/* Tabs (desktop/tablet) */}
       <ul className='hidden md:flex border border-gray-200 text-sm font-medium text-center bg-gray-100 rounded'>
-        <li className='me-2'>
-          <button
-            onClick={() => setActiveTab("tongquan")}
-            className={`inline-block p-4 ${
-              activeTab === "tongquan"
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-black-500"
-            }`}
-          >
-            Tổng quan
-          </button>
-        </li>
-
-        <li className='me-2'>
+        <li className='me-2 hover:cursor-pointer hover:bg-gray-200 rounded'>
           <button
             onClick={() => setActiveTab("nguoidung")}
             className={`inline-block p-4 ${
@@ -72,7 +57,7 @@ export default function DashboardTabs() {
           </button>
         </li>
 
-        <li className='me-2'>
+        <li className='me-2 hover:cursor-pointer hover:bg-gray-200 rounded'>
           <button
             onClick={() => setActiveTab("sanpham")}
             className={`inline-block p-4 ${
@@ -85,7 +70,7 @@ export default function DashboardTabs() {
           </button>
         </li>
 
-        <li className='me-2'>
+        <li className='me-2 hover:cursor-pointer hover:bg-gray-200 rounded'>
           <button
             onClick={() => setActiveTab("danhmuc")}
             className={`inline-block p-4 ${
@@ -98,7 +83,7 @@ export default function DashboardTabs() {
           </button>
         </li>
 
-        <li className='me-2'>
+        <li className='me-2 hover:cursor-pointer hover:bg-gray-200 rounded'>
           <button
             onClick={() => setActiveTab("kiemduyet")}
             className={`inline-block p-4 ${
@@ -115,7 +100,6 @@ export default function DashboardTabs() {
       {/* Nội dung tuỳ tab */}
       <div className='mt-6'>
         <AdminProvider>
-          {activeTab === "tongquan" && <OverviewTab />}
           {activeTab === "nguoidung" && (
             <UserProvider>
               <UsersTab />

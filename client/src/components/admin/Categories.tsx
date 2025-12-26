@@ -5,7 +5,6 @@ import {
   ChevronDown,
   Folder,
   Box,
-  Monitor,
   Pencil,
   Trash2,
   Loader2,
@@ -17,7 +16,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
 } from "../ui/dialog";
 import { toast } from "sonner";
 

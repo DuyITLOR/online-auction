@@ -4,7 +4,7 @@ import React, {
   useContext,
   useState,
   useEffect,
-  ReactNode,
+  type ReactNode,
   useCallback,
 } from "react";
 
@@ -135,6 +135,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
 
   // Delete Product (KHÔNG xoá UI trước → tránh mất dialog)
   const deleteProduct = async (productId: string): Promise<DeleteResult> => {
+    if (!token) return { success: false, message: "Unauthorized" };
     try {
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/product/${productId}`,

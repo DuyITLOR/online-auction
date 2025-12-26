@@ -3,10 +3,11 @@ import React, {
   useContext,
   useState,
   useEffect,
-  ReactNode,
+  type ReactNode,
   useCallback,
 } from "react";
 import { useSeller } from "./seller.context";
+import { getSession } from "../../session";
 
 interface Product {
   id: string;

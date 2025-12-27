@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function isoToYYYYMMDD(isoString: string) {
+export function isoToYYYYMMDD(isoString: string | undefined) {
+  if (!isoString) return '-----';
   const d = new Date(isoString);
 
   const year = d.getFullYear();
@@ -15,7 +16,7 @@ export function isoToYYYYMMDD(isoString: string) {
   return `${year}-${month}-${day}`;
 }
 
-export function calculateRating(pos: number | null, neg: number | null) {
+export function calculateRating(pos: number | null | undefined, neg: number | null | undefined) {
   const posValue = pos ? pos : 0;
   const negValue = neg ? neg : 0;
   return Number(((20 + posValue - negValue) / (20 + posValue + negValue)) * 10).toFixed(1);

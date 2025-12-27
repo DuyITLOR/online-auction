@@ -27,18 +27,6 @@ import { Button } from '@/components/ui/button';
 import { UserContext } from '@/libs/contexts/user.context';
 import { calculateRating, isoToYYYYMMDD } from '@/libs/utils';
 
-const convertTime = (date: string) => {
-  const now = new Date();
-  const endDate = new Date(date);
-  const diffTime = endDate.getTime() - now.getTime();
-  const diffHours = diffTime / (1000 * 60 * 60);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffTime < 0) return { text: 'Ended', type: 'ended' };
-  if (diffHours < 24) return { text: `${Math.ceil(diffHours)}h left`, type: 'urgent' };
-  return { text: `${diffDays} days`, type: 'normal' };
-};
-
 const getTimeStatusStyle = (date: string) => {
   const now = new Date();
   const end = new Date(date);
@@ -78,7 +66,7 @@ const ProductList = () => {
   const { watchList, toggleWatchList } = useContext(ProductContext);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useContext(UserContext);
+  const { user } = useContext(UserContext); 
 
   // Params & Pagination
   const [searchParams, setSearchParams] = useSearchParams();
@@ -384,30 +372,14 @@ const ProductList = () => {
           </div>
 
           <div className='flex-1 min-w-0'>
-            <div className='flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4'>
-              <div>
-                <h1 className='text-2xl font-bold text-gray-900'>Danh sách sản phẩm</h1>
-                {/* Hiển thị số lượng kết quả nếu có */}
-                {!loading && products.length > 0 && (
-                  <p className='text-sm text-gray-500 mt-1'>Hiển thị {products.length} kết quả</p>
-                )}
-              </div>
-
-              <SortBar />
-            </div>
-
             {loading ? (
               <div className='flex items-center justify-center h-64'>
                 <div className='animate-spin rounded-full h-10 w-10 border-4 border-teal-500 border-t-transparent'></div>
               </div>
             ) : products.length > 0 ? (
-              // TRƯỜNG HỢP 1: CÓ SẢN PHẨM (Code cũ giữ nguyên logic, chỉ tút lại UI chút xíu)
               <>
                 <div className='grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'>
                   {products.map((item) => {
-                    const timeStatus = convertTime(item.endAt);
-                    const isLiked = likedMap[item.id]; // Giả sử bạn đã có logic này ở trên
-
                     return (
                       <Link
                         to={`/product/${item.id}`}

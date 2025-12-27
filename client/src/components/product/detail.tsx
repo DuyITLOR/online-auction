@@ -120,9 +120,9 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
     }
   };
 
-  const handleBuyNow = () =>{
+  const handleBuyNow = () => {
     navigate(`/payment/${product.id}`);
-  }
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -267,7 +267,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                   <Link to={'/'} className='text-sm text-teal-600 font-semibold underline'>
                     Đánh giá: {calculateRating(product.seller.ratingPos, product.seller.ratingNeg)}
                   </Link>
-                  <Link to={'/'} className='text-sm text-gray-500 underline'>
+                  <Link to={`/shop/${user?.id}`} className='text-sm text-gray-500 underline hover:text-teal-600'>
                     Sản phẩm khác
                   </Link>
                   <Link to={'/'} className='text-sm text-gray-500 underline'>
@@ -394,7 +394,11 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                       <DialogClose asChild>
                         <Button variant='outline'>Hủy</Button>
                       </DialogClose>
-                      <Button onClick={handleBuyNow} className='bg-teal-500 hover:bg-teal-600 text-white px-5' type='submit'>
+                      <Button
+                        onClick={handleBuyNow}
+                        className='bg-teal-500 hover:bg-teal-600 text-white px-5'
+                        type='submit'
+                      >
                         Xác nhận
                       </Button>
                     </div>

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { type Comments, type User } from '../../libs/types/types';
 import { getCommentsByProduct, postAnswer, postQuestion } from '../../api/comment';
 import { calculateRating } from '../../libs/utils';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 interface UserProps {
   seller: User | undefined;
@@ -34,6 +35,7 @@ function formatDate(isoString: string | undefined, options = { time: false }) {
 const ITEM_PER_PAGE = 10;
 
 const ProductQA = ({ seller, productId, user, token }: UserProps) => {
+  const navigate = useNavigate();
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [comments, setComments] = useState<Comments[]>([]);
@@ -144,7 +146,12 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
             <button className='flex-1 bg-teal-50 text-teal-600 border border-teal-200 text-sm font-semibold h-9 rounded-lg hover:bg-teal-100 transition'>
               Chat ngay
             </button>
-            <button className='flex-1 bg-teal-500 text-white text-sm font-semibold h-9 rounded-lg hover:bg-teal-600 transition shadow-sm'>
+            <button
+              onClick={() => {
+                navigate(`shop/${seller.id}`);
+              }}
+              className='flex-1 bg-teal-500 text-white text-sm font-semibold h-9 rounded-lg hover:bg-teal-600 transition shadow-sm'
+            >
               Xem Shop
             </button>
           </div>

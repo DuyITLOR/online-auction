@@ -2,6 +2,7 @@
 import {
   Calendar,
   Camera,
+  ChartArea,
   Edit,
   Gavel,
   Heart,
@@ -270,7 +271,6 @@ const Profile = () => {
                 </DialogContent>
               </Dialog>
             )}
-
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant='outline' className=''>
@@ -368,7 +368,15 @@ const Profile = () => {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-
+            <Button
+              onClick={() => {
+                navigate('/seller/dashboard');
+              }}
+              variant={'outline'}
+              className='text-teal-600'
+            >
+              <ChartArea size={16} />
+            </Button>
             <Button onClick={() => signout()} variant={'outline'} className='text-red-500'>
               <LogOut size={16} />
             </Button>

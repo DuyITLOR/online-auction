@@ -243,6 +243,11 @@ export const API_ROUTES = {
     role: [Role.ADMIN],
     method: 'PATCH',
   },
+  getAdminDashboardData: {
+    path: '/admin/data',
+    role: [Role.ADMIN],
+    method: 'GET',
+  },
 };
 
 export const API_RATING_ROUTES = {

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { type Comments, type User } from '../../libs/types/types';
 import { getCommentsByProduct, postAnswer, postQuestion } from '../../api/comment';
 import { calculateRating } from '../../libs/utils';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface UserProps {
   seller: User | undefined;

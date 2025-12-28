@@ -16,12 +16,12 @@ const Footer = () => {
           <h2 className='text-lg font-semibold mb-3'>Liên kết nhanh</h2>
           <ul className='space-y-2 text-sm'>
             <li>
-              <a href='#' className='hover:text-black transition'>
+              <a href='/' className='hover:text-black transition'>
                 Trang chủ
               </a>
             </li>
             <li>
-              <a href='#' className='hover:text-black transition'>
+              <a href='/products' className='hover:text-black transition'>
                 Sản phẩm
               </a>
             </li>

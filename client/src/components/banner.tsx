@@ -2,7 +2,6 @@ import { CircleChevronLeft, CircleChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// 1. Dữ liệu phù hợp với Auction Platform
 const banners = [
   {
     id: 1,

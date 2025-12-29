@@ -8,7 +8,7 @@ const router = Router();
 router.get(
     API_ORDER_ROUTES.getOrders.path,
     authMiddleware,
-    orderController.getOrderById
+    orderController.getOrder
 )
 
 export default router;

@@ -5,7 +5,7 @@ import { checkRole } from "../utils/checkRole";
 import { orderQueryDto } from "../dto/orderDto";
 import * as orderService from "../services/orderService";
 
-export const getOrderById = async (req: Request, res: Response) => {
+export const getOrder = async (req: Request, res: Response) => {
     try{
         if (!req.user) {
             const response = gatewayResponse(

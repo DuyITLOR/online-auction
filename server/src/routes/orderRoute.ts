@@ -11,4 +11,10 @@ router.get(
     orderController.getOrder
 )
 
+router.get(
+    API_ORDER_ROUTES.getOrderById.path,
+    authMiddleware,
+    orderController.getOrderById
+)
+
 export default router;

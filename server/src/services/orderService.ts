@@ -155,3 +155,22 @@ export const createOrder = async (productId: string) => {
     order: order,
   };
 };
+
+
+export const getOrderById = async (orderId: string) => {
+    const order = await prisma.orders.findUnique({
+      where: { id: orderId },
+      select: {
+        id: true,
+        totalAmount: true,
+        status: true,
+        sellerId: true,
+        buyerId: true,
+        product: { select: { title: true }},
+        buyer: { select: { fullname: true } },
+        seller: { select: { fullname: true } },
+      }
+    })
+
+    return order;
+}

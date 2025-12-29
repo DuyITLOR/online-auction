@@ -211,6 +211,11 @@ model Orders {
   buyer           User        @relation("OrdersBuyer", fields: [buyerId], references: [id])
   product         Products    @relation(fields: [productId], references: [id])
   seller          User        @relation("OrdersSeller", fields: [sellerId], references: [id])
+
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 enum Role {

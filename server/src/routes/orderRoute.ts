@@ -8,6 +8,12 @@ const router = Router();
 router.get(
     API_ORDER_ROUTES.getOrders.path,
     authMiddleware,
+    orderController.getOrder
+)
+
+router.get(
+    API_ORDER_ROUTES.getOrderById.path,
+    authMiddleware,
     orderController.getOrderById
 )
 

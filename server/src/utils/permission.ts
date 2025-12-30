@@ -7,7 +7,7 @@ import { createAutoBid, getBidHistoryByUserId } from '../services/autoBidService
 import { getMaxBidByUser } from '../controllers/autoBiderController';
 import path from 'path';
 import { getAllCommentsByProductId } from '../controllers/userControllers';
-import { getOrderById } from '../services/orderService';
+import { getOrderById, uploadBankInfo } from '../services/orderService';
 
 enum Role {
   ADMIN = 'ADMIN',
@@ -445,5 +445,10 @@ export const API_ORDER_ROUTES = {
     path: '/orders/:id',
     method: 'GET',
     role: [Role.BIDDER, Role.SELLER],
+  }, 
+  uploadBankInfo: {
+    path: '/orders/:id/qr',
+    method: 'POST',
+    role: [Role.SELLER],
   }
 };

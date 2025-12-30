@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authMiddleware } from "../middleware/authentication";
 import * as orderController from "../controllers/orderControlller";
 import { API_ORDER_ROUTES } from "../utils/permission";
+import { upload } from "../middleware/upload";
 
 const router = Router();
 
@@ -17,4 +18,11 @@ router.get(
     orderController.getOrderById
 )
 
-export default router;
+router.patch(
+    API_ORDER_ROUTES.uploadBankInfo.path,
+    authMiddleware,
+    upload.single("image"),
+    orderController.uploadBankInfo
+)
+
+export default router;``

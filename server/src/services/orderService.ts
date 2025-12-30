@@ -1,6 +1,7 @@
 import { orderQueryDto } from '../dto/orderDto';
 import { prisma } from './db/prisma';
 import { Prisma } from '@prisma/client';
+import * as orderDto from '../dto/orderDto';
 export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 10;
@@ -194,4 +195,38 @@ export const getOrderById = async (
   });
 };
 
-export const 
+export const uploadBankInfo = async (bankInfo: orderDto.orderBankInfo) => {
+  const exit = await prisma.orders.findUnique({
+    where: {
+      id: bankInfo.orderId,
+      sellerId: bankInfo.sellerId,
+      status: 'WAIT_SELLER_BANK_INFO'
+    },
+    select: {
+      id: true
+    }
+  })
+
+  if (!exit) {
+    throw new Error('Không tìm thấy đơn hàng');
+  }
+
+  return prisma.orders.update({
+    where: {
+      id: bankInfo.orderId,
+      sellerId: bankInfo.sellerId,
+    },
+    data: {
+      qrUrl: bankInfo.qrUrl,
+      qrInfo: bankInfo.bankInfor,
+      status: 'WAIT_BUYER_PAYMENT',
+    },
+
+    select: {
+      id: true,
+      qrUrl: true,
+      qrInfo: true,
+      status: true,
+    }
+  })
+}

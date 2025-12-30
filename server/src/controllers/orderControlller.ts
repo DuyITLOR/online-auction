@@ -3,6 +3,8 @@ import { gatewayResponse } from "../utils/response";
 import { HttpStatus } from "../utils/permission";
 import { checkRole } from "../utils/checkRole";
 import { orderQueryDto } from "../dto/orderDto";
+import { uploadSingleFile } from "../utils/uploadImage";
+import * as orderDto from '../dto/orderDto';
 import * as orderService from "../services/orderService";
 
 export const getOrder = async (req: Request, res: Response) => {
@@ -110,6 +112,54 @@ export const getOrderById = async (req: Request, res: Response) => {
         return res.status(response.code).send(response);
     } catch (error: any) {
         const response = gatewayResponse(HttpStatus.badRequest, null, error.message || "Lấy thông tin đơn hàng thất bại");
+        return res.status(response.code).send(response);
+    }
+}
+
+
+export const uploadBankInfo = async (req: Request, res: Response) => {
+    try {
+        if (!req.user) {
+            const response = gatewayResponse(
+                HttpStatus.unauthorized,
+                null,
+                "Token Invalid"
+            );
+            return res.status(response.code).send(response);
+        }
+
+        const userId = req.user.id;
+        let roles = await checkRole(userId);
+        
+        if (!roles.includes("SELLER")) {
+            const response = gatewayResponse(HttpStatus.forbidden, null, "Tài khoản của bạn không phải là seller");
+            return res.status(response.code).send(response);
+        }
+
+        const uploadFile = await uploadSingleFile(req, "qrUrl");
+
+        if (!uploadFile.success) {
+            const response = gatewayResponse(HttpStatus.badRequest, null, uploadFile.message);
+            return res.status(response.code).send(response);
+        }
+        const body: orderDto.orderBankInfo = {
+            orderId: req.params.id,
+            sellerId: userId,
+            bankInfor: req.body.qrInfo,
+            qrUrl: uploadFile.fileUrl as string,
+        }   
+        const order = await orderService.uploadBankInfo(body)
+
+        if (!order) {
+            const response = gatewayResponse(HttpStatus.badRequest, null, "Cập nhật thông tin ngân hàng thất bại");
+            return res.status(response.code).send(response);
+        }
+
+        const response = gatewayResponse(HttpStatus.ok, order, "Cập nhật thông tin ngân hàng thành công");
+        return res.status(response.code).send(response);
+
+    } catch (error: any) {
+        const response = gatewayResponse(HttpStatus.badRequest, null, error.message || "Cập nhật thông tin ngân hàng thất bại");
         return res.status(response.code).send(response);
     }
 }

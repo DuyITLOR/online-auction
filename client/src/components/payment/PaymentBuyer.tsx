@@ -1,9 +1,13 @@
-import React, { useState } from "react"
+import { useState } from "react"
+import { useParams } from 'react-router-dom';
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Upload, MapPin, Phone, QrCode, CheckCircle2 } from "lucide-react"
+import { Upload, MapPin, Phone, QrCode } from "lucide-react"
 import { type Orders } from '../../libs/types/types';
 import { formatCurrency } from "../../utils/format";
+import { getSession } from "../../libs/session"
+import { toast } from 'sonner';
+import { uploadPayment} from "../../api/order"
 interface StepPaymentProps {
     userRole: "ADMIN" | "SELLER" | "BIDDER";
     onComplete: () => void;
@@ -12,16 +16,46 @@ interface StepPaymentProps {
 
 const PaymentBuyer = ({ userRole, onComplete, order }: StepPaymentProps) => {
     const [paymentProof, setPaymentProof] = useState<File | null>(null)
+    const [paymentPreview, setPaymentPreview] = useState<string | null>(null)
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { id } = useParams();
     const [address, setAddress] = useState("")
     const [phone, setPhone] = useState("")
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files?.[0]) setPaymentProof(e.target.files[0])
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setPaymentProof(file)
+        setPaymentPreview(URL.createObjectURL(file))
     }
 
-    const handleSubmit = () => {
-        if (paymentProof && address && phone) onComplete()
+    const handleSubmit = async () => {
+        if (!id) return;
+        if (!paymentProof || !address.trim() || !phone.trim()) return;
+        if (isSubmitting) return;
+
+        try {
+            setIsSubmitting(true);
+            const session = await getSession();
+            const token = typeof session?.token === 'string' ? session.token : '';
+            await uploadPayment(id, token, address, phone, paymentProof);
+            toast.success('Thành công!', {
+                description: 'Bạn đã tải lên thông tin thanh toán thành công.',
+            });
+
+            onComplete();
+        } catch (error) {
+            console.error("Error uploading payment info:", error);
+            toast.error('Thất bại', {
+                description: `Bạn đã tải lên thông tin thanh toán thất bại. Vui lòng thử lại.`,
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     }
+
+    const isFormValid = Boolean(address && phone.trim() && paymentProof)
 
     /* ===== SELLER VIEW ===== */
     if (userRole === "SELLER") {
@@ -100,10 +134,16 @@ const PaymentBuyer = ({ userRole, onComplete, order }: StepPaymentProps) => {
                 <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition">
                     <input type="file" id="payment-proof" onChange={handleFileChange} className="hidden" />
                     <label htmlFor="payment-proof" className="cursor-pointer flex flex-col items-center gap-2">
-                        {paymentProof ? (
+                        {paymentPreview ? (
                             <>
-                                <CheckCircle2 className="h-10 w-10 text-primary" />
-                                <p className="text-sm font-medium">{paymentProof.name}</p>
+                                <img
+                                    src={paymentPreview}
+                                    alt="QR preview"
+                                    className="max-h-40 rounded-md border"
+                                />
+                                <p className="text-sm text-muted-foreground">
+                                    Nhấn để thay đổi ảnh
+                                </p>
                             </>
                         ) : (
                             <>
@@ -145,8 +185,8 @@ const PaymentBuyer = ({ userRole, onComplete, order }: StepPaymentProps) => {
                 />
             </div>
 
-            <Button className="w-full bg-[#10b981] hover:bg-[#10b981]/50" size="lg" onClick={handleSubmit}>
-                Xác nhận đã thanh toán
+            <Button className="w-full bg-[#10b981] hover:bg-[#10b981]/50" size="lg" disabled={isSubmitting || !isFormValid} onClick={handleSubmit}>
+                {isSubmitting ? 'Đang tải lên...' : 'Xác nhận thanh toán'}
             </Button>
         </Card>
     )

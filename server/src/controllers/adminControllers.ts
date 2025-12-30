@@ -180,3 +180,42 @@ export const refuseRequest = async (req: Request, res: Response) => {
     res.status(response.code).send(response);
   }
 };
+
+export const getAdminDashboardData = async (req: Request, res: Response) => {
+  if (!req.user) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      "Need token before requesting"
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+  const id = req.user.id;
+  const roles = await checkRole(id);
+  if (!roles.includes("ADMIN")) {
+    const response = gatewayResponse(
+      HttpStatus.forbidden,
+      null,
+      "You do not have permission for requesting"
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+  const record = await service.getAdminDashboardData();
+  if (record.success) {
+    const response = gatewayResponse(
+      HttpStatus.ok,
+      { data: record.data },
+      record.message
+    );
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(
+      HttpStatus.serviceUnavailable,
+      null,
+      record.message
+    );
+    res.status(response.code).send(response);
+  }
+};

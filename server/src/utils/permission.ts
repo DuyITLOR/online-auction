@@ -247,6 +247,11 @@ export const API_ROUTES = {
     role: [Role.ADMIN],
     method: 'PATCH',
   },
+  getAdminDashboardData: {
+    path: '/admin/data',
+    role: [Role.ADMIN],
+    method: 'GET',
+  },
   profileSummary: {
     path: '/bidder/statistic',
     role: [Role.ALL],

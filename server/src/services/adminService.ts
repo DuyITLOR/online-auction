@@ -68,7 +68,7 @@ export const getAllRequest = async (data: getAllUsersServiceDto) => {
       });
     } else {
       requests = await prisma.upgradeRequests.findMany({
-        orderBy: { createdAt: "asc" },
+        orderBy: { createdAt: "desc" },
         skip: data.page * data.limit,
         take: data.limit,
         include: {
@@ -159,6 +159,36 @@ export const refuseRequest = async (id: string) => {
       success: true,
       data: record,
       message: "Refuse request successfully",
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err instanceof Error ? err.message : "Unknown error",
+    };
+  }
+};
+
+export const getAdminDashboardData = async () => {
+  try {
+    const totalUsers = await prisma.user.count();
+    const totalProducts = await prisma.products.count();
+    const completedOrders = await prisma.orders.count({
+      where: { status: "COMPLETED" },
+    });
+    const revenueAgg = await prisma.orders.aggregate({
+      _sum: { totalAmount: true },
+      where: { status: "COMPLETED" },
+    });
+    const revenue = revenueAgg._sum.totalAmount || 0;
+    return {
+      success: true,
+      data: {
+        totalUsers,
+        totalProducts,
+        completedOrders,
+        revenue,
+      },
+      message: "Get dashboard data successfully",
     };
   } catch (err) {
     return {

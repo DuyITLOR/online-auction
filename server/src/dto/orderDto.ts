@@ -12,3 +12,13 @@ export interface orderBankInfo {
     bankInfor: string,
     qrUrl:  string,
 }
+
+
+export interface orderPaymentInfo {
+    orderId: string,
+    buyerId: string,
+    billUrl: string,
+    buyerAddress: string,
+    buyerPhone: string,
+}
+

@@ -111,6 +111,8 @@ export const getOrderById = async (req: Request, res: Response) => {
             },
             status: order.status,
             canCancel: canCancel,
+            qrInfo: order.qrInfo,
+            qrUrl: order.qrUrl,
             role: role
         }
 
@@ -138,7 +140,7 @@ export const uploadBankInfo = async (req: Request, res: Response) => {
         let roles = await checkRole(userId);
         
         if (!roles.includes("SELLER")) {
-            const response = gatewayResponse(HttpStatus.forbidden, null, "Tài khoản của bạn không phải là seller");
+            const response = gatewayResponse(HttpStatus.forbidden, null, "Tài khoản của bạn không phải là người bán");
             return res.status(response.code).send(response);
         }
 
@@ -166,6 +168,55 @@ export const uploadBankInfo = async (req: Request, res: Response) => {
 
     } catch (error: any) {
         const response = gatewayResponse(HttpStatus.badRequest, null, error.message || "Cập nhật thông tin ngân hàng thất bại");
+        return res.status(response.code).send(response);
+    }
+}
+
+export const uploadPaymentInfo = async (req: Request, res: Response) => {
+    try {
+        if (!req.user) {
+            const response = gatewayResponse(
+                HttpStatus.unauthorized,
+                null,       
+            "Token Invalid"
+            );
+            return res.status(response.code).send(response);
+        }
+
+        const userId = req.user.id;
+        let roles = await checkRole(userId);
+
+        if (!roles.includes("BIDDER")) {
+            const response = gatewayResponse(HttpStatus.forbidden, null, "Tài khoản của bạn không phải là người mua");
+            return res.status(response.code).send(response);
+        }
+
+        const uploadFile = await uploadSingleFile(req, "billUrl");
+
+        if (!uploadFile.success) {
+            const response = gatewayResponse(HttpStatus.badRequest, null, uploadFile.message);
+            return res.status(response.code).send(response);
+        }
+
+        const body: orderDto.orderPaymentInfo = {
+            orderId: req.params.id,
+            buyerId: userId,
+            billUrl: uploadFile.fileUrl as string,
+            buyerAddress: req.body.buyerAddress,
+            buyerPhone: req.body.buyerPhone,
+        }
+
+        const order = await orderService.uploadPayment(body)
+
+        if (!order) {
+            const response = gatewayResponse(HttpStatus.badRequest, null, "Cập nhật thông tin thanh toán thất bại");
+            return res.status(response.code).send(response);
+        }
+        
+        const response = gatewayResponse(HttpStatus.ok, order, "Cập nhật thông tin thanh toán thành công");
+        return res.status(response.code).send(response);
+    } catch (error: any) {
+        const response = gatewayResponse(HttpStatus.badRequest, null, error.message || "Cập nhật thông tin thanh toán thất bại");
         return res.status(response.code).send(response);
     }
 }

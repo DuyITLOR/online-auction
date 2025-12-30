@@ -175,6 +175,8 @@ export const getOrderById = async (
       status: true,
       sellerId: true,
       buyerId: true,
+      qrInfo: true,
+      qrUrl: true,
 
       product: {
         select: {
@@ -230,3 +232,4 @@ export const uploadBankInfo = async (bankInfo: orderDto.orderBankInfo) => {
     }
   })
 }
+

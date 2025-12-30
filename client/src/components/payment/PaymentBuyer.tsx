@@ -2,13 +2,15 @@ import React, { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Upload, MapPin, Phone, QrCode, CheckCircle2 } from "lucide-react"
-
+import { type Orders } from '../../libs/types/types';
+import { formatCurrency } from "../../utils/format";
 interface StepPaymentProps {
     userRole: "ADMIN" | "SELLER" | "BIDDER";
-    onComplete: () => void
+    onComplete: () => void;
+    order: Orders;
 }
 
-const PaymentBuyer = ({ userRole, onComplete }: StepPaymentProps) => {
+const PaymentBuyer = ({ userRole, onComplete, order }: StepPaymentProps) => {
     const [paymentProof, setPaymentProof] = useState<File | null>(null)
     const [address, setAddress] = useState("")
     const [phone, setPhone] = useState("")
@@ -22,7 +24,7 @@ const PaymentBuyer = ({ userRole, onComplete }: StepPaymentProps) => {
     }
 
     /* ===== SELLER VIEW ===== */
-    if (userRole) {
+    if (userRole === "SELLER") {
         return (
             <Card className="p-6">
                 <div className="text-center py-10">
@@ -44,8 +46,7 @@ const PaymentBuyer = ({ userRole, onComplete }: StepPaymentProps) => {
                         </h4>
 
                         <div className="space-y-2 text-sm text-muted-foreground">
-                            <p>💳 Vietcombank – STK: 1234567890</p>
-                            <p>👤 NGUYEN VAN A</p>
+                            <p>💳  {order.qrInfo}</p>
                         </div>
                     </div>
                 </div>
@@ -68,17 +69,19 @@ const PaymentBuyer = ({ userRole, onComplete }: StepPaymentProps) => {
                 </h4>
 
                 <div className="bg-card rounded-lg p-4 flex flex-col items-center">
-                    <div className="w-48 h-48 bg-muted flex items-center justify-center rounded-lg">
-                        <QrCode className="h-32 w-32 text-muted-foreground" />
-                    </div>
+                    {order.qrUrl && (
+                        <img
+                            src={order.qrUrl}
+                            alt="QR Code"
+                            className="h-32 w-32 text-muted-foreground"
+                        />
+                    )}
+
 
                     <div className="mt-4 text-center">
-                        <p className="text-sm font-medium">Ngân hàng Vietcombank</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            STK: 1234567890 – NGUYEN VAN A
-                        </p>
+                        <p className="text-sm font-medium">{order.qrInfo}</p>
                         <p className="text-sm font-semibold text-primary mt-2">
-                            Số tiền: 2.400.000 VND
+                            Số tiền: {formatCurrency(order.totalAmount)} VND
                         </p>
                     </div>
                 </div>

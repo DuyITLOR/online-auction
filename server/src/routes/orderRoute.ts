@@ -25,4 +25,10 @@ router.patch(
     orderController.uploadBankInfo
 )
 
-export default router;``
+router.patch(
+    API_ORDER_ROUTES.uploadPayment.path,
+    authMiddleware,
+    upload.single("image"),
+    orderController.uploadPaymentInfo
+)
+export default router;

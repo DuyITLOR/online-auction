@@ -233,3 +233,40 @@ export const uploadBankInfo = async (bankInfo: orderDto.orderBankInfo) => {
   })
 }
 
+export const uploadPayment = async (paymentInfor: orderDto.orderPaymentInfo) => {
+    const exit = await prisma.orders.findUnique({
+    where: {
+      id: paymentInfor.orderId,
+      buyerId: paymentInfor.buyerId,
+      status: 'WAIT_BUYER_PAYMENT'
+    },
+    select: {
+      id: true
+    }
+  })
+
+  if (!exit) {
+    throw new Error('Không tìm thấy đơn hàng');
+  }
+
+  return prisma.orders.update({
+    where: {
+      id: paymentInfor.orderId,
+      buyerId: paymentInfor.buyerId,
+    },
+    data: {
+      buyerAddress: paymentInfor.buyerAddress,
+      buyerPhone: paymentInfor.buyerPhone,
+      billUrl: paymentInfor.billUrl,
+      status: 'WAIT_SELLER_SHIPPING',
+    },
+
+    select: {
+      id: true,
+      buyerAddress: true,
+      buyerPhone: true,
+      billUrl: true,
+      status: true,
+    }
+  })
+}

@@ -1,9 +1,12 @@
 import type React from "react"
 import { useState } from "react"
+import { useParams } from 'react-router-dom';
 import { Button } from "../ui/button"
 import { Card } from "../ui/card"
 import { Upload, QrCode, AlertCircle } from "lucide-react"
-
+import { getSession } from "../../libs/session"
+import { uploadOrderQR } from "../../api/order"
+import { toast } from 'sonner';
 interface StepQrSetupProps {
     userRole: "ADMIN" | "SELLER" | "BIDDER";
     onComplete: () => void
@@ -13,6 +16,8 @@ const PaymentQR = ({ userRole, onComplete }: StepQrSetupProps) => {
     const [qrImage, setQrImage] = useState<File | null>(null)
     const [qrPreview, setQrPreview] = useState<string | null>(null)
     const [bankInfo, setBankInfo] = useState("")
+    const { id } = useParams();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -22,9 +27,34 @@ const PaymentQR = ({ userRole, onComplete }: StepQrSetupProps) => {
         setQrPreview(URL.createObjectURL(file))
     }
 
+    const handleSubmit = async () => {
+        if (!id) return;
+        if (!qrImage || !bankInfo.trim()) return;
+        if (isSubmitting) return;
+
+        try {
+            setIsSubmitting(true);
+            const session = await getSession();
+            const token = typeof session?.token === 'string' ? session.token : '';
+            await uploadOrderQR(id, token, bankInfo, qrImage);
+            toast.success('Thành công!', {
+                description: 'Bạn đã tải lên mã QR thành công.',
+            });
+
+            onComplete();
+        } catch (error) {
+            console.error("Error uploading QR:", error);
+            toast.error('Thất bại', {
+                description: `Bạn đã tải lên mã QR thất bại. Vui lòng thử lại.`,
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    }
+
     const isFormValid = Boolean(qrImage && bankInfo.trim())
 
-    if (userRole) {
+    if (userRole === "BIDDER") {
         return (
             <Card className="p-6">
                 <div className="text-center py-10">
@@ -130,10 +160,10 @@ const PaymentQR = ({ userRole, onComplete }: StepQrSetupProps) => {
             <Button
                 size="lg"
                 className="w-full bg-[#10b981] hover:bg-[#10b981]/50"
-                disabled={!isFormValid}
-                onClick={onComplete}
+                disabled={!isFormValid || isSubmitting}
+                onClick={handleSubmit}
             >
-                Xác nhận thông tin
+                {isSubmitting ? 'Đang tải...' : 'Xác nhận thông tin'}
             </Button>
         </Card>
     )

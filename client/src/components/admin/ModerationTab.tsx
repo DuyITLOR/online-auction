@@ -95,7 +95,7 @@ const ModerationTab: FC = () => {
     return (
       <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800'>
         <span className='w-1.5 h-1.5 bg-gray-500 rounded-full mr-1.5'></span>
-        {s === "EXPIRED" ? "Hết hạn" : "Từ chối"}
+        {s === "FAILED" ? "Từ chối" : status}
       </span>
     );
   };
@@ -130,7 +130,6 @@ const ModerationTab: FC = () => {
             { id: "PENDING", label: "Chờ duyệt" },
             { id: "VALID", label: "Đã duyệt" },
             { id: "FAILED", label: "Đã từ chối" },
-            { id: "EXPIRED", label: "Hết hạn" },
           ].map((tab) => (
             <button
               key={tab.id}

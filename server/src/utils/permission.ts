@@ -7,6 +7,7 @@ import { createAutoBid, getBidHistoryByUserId } from '../services/autoBidService
 import { getMaxBidByUser } from '../controllers/autoBiderController';
 import path from 'path';
 import { getAllCommentsByProductId } from '../controllers/userControllers';
+import { getOrderById } from '../services/orderService';
 
 enum Role {
   ADMIN = 'ADMIN',
@@ -157,6 +158,12 @@ export const API_ROUTES = {
   getUserById: {
     path: '/users',
     role: [Role.BIDDER, Role.ADMIN, Role.SELLER],
+    method: 'GET',
+    request: {},
+  },
+  getUserInformation: {
+    path: '/users/:userId',
+    role: [Role.ALL],
     method: 'GET',
     request: {},
   },
@@ -434,4 +441,9 @@ export const API_ORDER_ROUTES = {
     method: 'GET',
     role: [Role.ADMIN, Role.BIDDER, Role.SELLER],
   },
+  getOrderById: {
+    path: '/orders/:id',
+    method: 'GET',
+    role: [Role.BIDDER, Role.SELLER],
+  }
 };

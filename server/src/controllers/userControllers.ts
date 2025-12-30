@@ -4,8 +4,16 @@ import * as service from '../services/userService';
 import { uploadSingleFile } from '../utils/uploadImage';
 import { HttpStatus } from '../utils/permission';
 import { checkRole } from '../utils/checkRole';
-import { loadAskTemplate, loadAnswerTemplate, sendEmail } from '../utils/sendEmail';
-import { deleteCommentDto, getALlCommentsDto, updateUserDto } from '../dto/userDto';
+import {
+  loadAskTemplate,
+  loadAnswerTemplate,
+  sendEmail,
+} from '../utils/sendEmail';
+import {
+  deleteCommentDto,
+  getALlCommentsDto,
+  updateUserDto,
+} from '../dto/userDto';
 
 export const getUserById = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -31,6 +39,26 @@ export const getUserById = async (req: Request, res: Response) => {
     res.status(response.code).send(response);
   } else {
     const response = gatewayResponse(400, null, 'Bad request');
+    res.status(response.code).send(response);
+  }
+};
+
+export const getUser = async (req: Request, res: Response) => {
+  const id = req.params.userId;
+  const user = await service.getUserInformation(id);
+  if (user.success) {
+    const response = gatewayResponse(
+      HttpStatus.ok,
+      user.user,
+      'Get user information successfully'
+    );
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Bad request'
+    );
     res.status(response.code).send(response);
   }
 };
@@ -67,7 +95,11 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const requestUpgrade = async (req: Request, res: Response) => {
   if (!req.user) {
-    const response = gatewayResponse(HttpStatus.badRequest, null, 'Need token before requesting');
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Need token before requesting'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -75,7 +107,11 @@ export const requestUpgrade = async (req: Request, res: Response) => {
   // Check role
   const roles = await checkRole(id);
   if (!roles.includes('BIDDER')) {
-    const response = gatewayResponse(HttpStatus.forbidden, null, 'You do not have permission for requesting');
+    const response = gatewayResponse(
+      HttpStatus.forbidden,
+      null,
+      'You do not have permission for requesting'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -92,14 +128,22 @@ export const requestUpgrade = async (req: Request, res: Response) => {
     );
     res.status(response.code).send(response);
   } else {
-    const response = gatewayResponse(HttpStatus.badRequest, null, record.message);
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      record.message
+    );
     res.status(response.code).send(response);
   }
 };
 
 export const getAllBlockedUser = async (req: Request, res: Response) => {
   if (!req.user) {
-    const response = gatewayResponse(HttpStatus.badRequest, null, 'Need token before requesting');
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Need token before requesting'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -107,7 +151,11 @@ export const getAllBlockedUser = async (req: Request, res: Response) => {
   // Check role
   const roles = await checkRole(id);
   if (!roles.includes('SELLER') && !roles.includes('ADMIN')) {
-    const response = gatewayResponse(HttpStatus.forbidden, null, 'You do not have permission for requesting');
+    const response = gatewayResponse(
+      HttpStatus.forbidden,
+      null,
+      'You do not have permission for requesting'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -123,14 +171,22 @@ export const getAllBlockedUser = async (req: Request, res: Response) => {
     );
     res.status(response.code).send(response);
   } else {
-    const response = gatewayResponse(HttpStatus.badRequest, null, record.message);
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      record.message
+    );
     res.status(response.code).send(response);
   }
 };
 
 export const blockBidder = async (req: Request, res: Response) => {
   if (!req.user) {
-    const response = gatewayResponse(HttpStatus.badRequest, null, 'Need token before requesting');
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Need token before requesting'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -138,7 +194,11 @@ export const blockBidder = async (req: Request, res: Response) => {
   // Check role
   const roles = await checkRole(id);
   if (!roles.includes('SELLER')) {
-    const response = gatewayResponse(HttpStatus.forbidden, null, 'You do not have permission for requesting');
+    const response = gatewayResponse(
+      HttpStatus.forbidden,
+      null,
+      'You do not have permission for requesting'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -161,14 +221,22 @@ export const blockBidder = async (req: Request, res: Response) => {
     );
     res.status(response.code).send(response);
   } else {
-    const response = gatewayResponse(HttpStatus.badRequest, null, record.message);
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      record.message
+    );
     res.status(response.code).send(response);
   }
 };
 
 export const askSeller = async (req: Request, res: Response) => {
   if (!req.user) {
-    const response = gatewayResponse(HttpStatus.badRequest, null, 'Need token before requesting');
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Need token before requesting'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -176,7 +244,11 @@ export const askSeller = async (req: Request, res: Response) => {
   // Check role
   const roles = await checkRole(id);
   if (!roles.includes('BIDDER')) {
-    const response = gatewayResponse(HttpStatus.forbidden, null, 'You do not have permission for requesting');
+    const response = gatewayResponse(
+      HttpStatus.forbidden,
+      null,
+      'You do not have permission for requesting'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -199,7 +271,11 @@ export const askSeller = async (req: Request, res: Response) => {
   const record = await service.askSeller(data);
   console.log('Record from controller:', record);
   if (record.success) {
-    const emailContent = loadAskTemplate(record.askerEmail, record.productName, record.question);
+    const emailContent = loadAskTemplate(
+      record.askerEmail,
+      record.productName,
+      record.question
+    );
     const mailData = {
       data: {
         email: record.sellerEmail,
@@ -224,14 +300,22 @@ export const askSeller = async (req: Request, res: Response) => {
       res.status(response.code).send(response);
     }
   } else {
-    const response = gatewayResponse(HttpStatus.badRequest, null, record.message);
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      record.message
+    );
     res.status(response.code).send(response);
   }
 };
 
 export const answerBidder = async (req: Request, res: Response) => {
   if (!req.user) {
-    const response = gatewayResponse(HttpStatus.badRequest, null, 'Cần token trước khi yêu cầu');
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Cần token trước khi yêu cầu'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -239,7 +323,11 @@ export const answerBidder = async (req: Request, res: Response) => {
   // Check role
   const roles = await checkRole(id);
   if (!roles.includes('BIDDER')) {
-    const response = gatewayResponse(HttpStatus.forbidden, null, 'Bạn không có quyền để thực hiện yêu cầu này');
+    const response = gatewayResponse(
+      HttpStatus.forbidden,
+      null,
+      'Bạn không có quyền để thực hiện yêu cầu này'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -263,7 +351,11 @@ export const answerBidder = async (req: Request, res: Response) => {
   };
   const record = await service.answerBidder(data);
   if (record.success) {
-    const emailContent = loadAnswerTemplate(record.bidderEmail, record.productName, record.answer);
+    const emailContent = loadAnswerTemplate(
+      record.bidderEmail,
+      record.productName,
+      record.answer
+    );
     const mailData = {
       data: {
         email: record.bidderEmail,
@@ -288,12 +380,19 @@ export const answerBidder = async (req: Request, res: Response) => {
       res.status(response.code).send(response);
     }
   } else {
-    const response = gatewayResponse(HttpStatus.badRequest, null, record.message);
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      record.message
+    );
     res.status(response.code).send(response);
   }
 };
 
-export const getAllCommentsByProductId = async (req: Request, res: Response) => {
+export const getAllCommentsByProductId = async (
+  req: Request,
+  res: Response
+) => {
   const productId = req.params.productId;
   const page = Number(req.params.page) || 1;
   const limit = Number(req.params.limit) || 100;
@@ -313,7 +412,11 @@ export const getAllCommentsByProductId = async (req: Request, res: Response) => 
     );
     res.status(response.code).send(response);
   } else {
-    const response = gatewayResponse(HttpStatus.badRequest, null, record.message);
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      record.message
+    );
     res.status(response.code).send(response);
   }
 };
@@ -321,7 +424,11 @@ export const getAllCommentsByProductId = async (req: Request, res: Response) => 
 export const deleteComment = async (req: Request, res: Response) => {
   try {
     if (!req.user || !req.params.commentId) {
-      const response = gatewayResponse(HttpStatus.badRequest, null, 'Nhập đầy đủ thông tin yêu cầu');
+      const response = gatewayResponse(
+        HttpStatus.badRequest,
+        null,
+        'Nhập đầy đủ thông tin yêu cầu'
+      );
       return res.status(response.code).send(response);
     }
 
@@ -336,34 +443,45 @@ export const deleteComment = async (req: Request, res: Response) => {
   } catch (err) {
     if (err instanceof Error) {
       console.log('From user controller: ', err.message);
-      const response = gatewayResponse(HttpStatus.serviceUnavailable, null, err.message);
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        err.message
+      );
       res.status(response.code).send(response);
     } else {
-      const response = gatewayResponse(HttpStatus.serviceUnavailable, null, 'Lỗi từ server');
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        'Lỗi từ server'
+      );
       res.status(response.code).send(response);
     }
   }
 };
 
-
 export const getInforOfProfile = async (req: Request, res: Response) => {
   try {
-  if (!req.user){
-    const response = gatewayResponse(400, null, 'Token Invalid');
-    return res.status(response.code).send(response);
-  }
+    if (!req.user) {
+      const response = gatewayResponse(400, null, 'Token Invalid');
+      return res.status(response.code).send(response);
+    }
 
-  const id = req.user.id;
-  const data = await service.getInfoProfile(id);
-  if (!data) {
-    const response = gatewayResponse(400, null, 'Bad request');
-    return res.status(response.code).send(response);
-  }
+    const id = req.user.id;
+    const data = await service.getInfoProfile(id);
+    if (!data) {
+      const response = gatewayResponse(400, null, 'Bad request');
+      return res.status(response.code).send(response);
+    }
 
-  const response = gatewayResponse(200, data, 'Get profile info successfully');
-  return res.status(response.code).send(response)
-  } catch (error: any){
+    const response = gatewayResponse(
+      200,
+      data,
+      'Get profile info successfully'
+    );
+    return res.status(response.code).send(response);
+  } catch (error: any) {
     const response = gatewayResponse(500, null, error.message);
     res.status(response.code).send(response);
   }
-}
+};

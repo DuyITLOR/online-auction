@@ -32,7 +32,7 @@ function formatDate(isoString: string | undefined, options = { time: false }) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-const ITEM_PER_PAGE = 10;
+const ITEM_PER_PAGE = 6;
 
 const ProductQA = ({ seller, productId, user, token }: UserProps) => {
   const navigate = useNavigate();
@@ -53,8 +53,12 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
   };
 
   const updatePage = () => {
-    setTotalPage(Math.ceil(comments.length / ITEM_PER_PAGE) > 0 ? Math.ceil(comments.length / ITEM_PER_PAGE) : 1);
-    setCurComment(comments.slice(page - 1, page - 1 + ITEM_PER_PAGE));
+    const total = Math.ceil(comments.length / ITEM_PER_PAGE);
+    setTotalPage(total > 0 ? total : 1);
+    const startIndex = (page - 1) * ITEM_PER_PAGE;
+    const endIndex = startIndex + ITEM_PER_PAGE;
+
+    setCurComment(comments.slice(startIndex, endIndex));
   };
 
   useEffect(() => {
@@ -82,7 +86,7 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
     if (!answerValue.trim()) return;
     setIsSubmitting(true);
     try {
-      setQuestion('');
+      setAnswer('');
       await postAnswer({ questionId: questId, productId: productId, token: token, content: answerValue });
       setHiddenAns('');
       fetchComment();
@@ -96,6 +100,20 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
   const handlePageChange = async (page: number) => {
     if (page >= 1 && page <= totalPage) {
       setCurPage(page);
+    }
+  };
+
+  const handleKeyDownQuestion = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handlePostQuestion(question);
+    }
+  };
+
+  const handleKeyDownAnswer = (e: React.KeyboardEvent<HTMLInputElement>, id: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handlePostAnswer(id, answer);
     }
   };
 
@@ -182,6 +200,7 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
               <textarea
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
+                onKeyDown={handleKeyDownQuestion}
                 placeholder='Bạn có thắc mắc về sản phẩm? Hãy đặt câu hỏi cho người bán...'
                 className='w-full border border-gray-300 rounded-lg p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent min-h-20 resize-none text-sm'
               />
@@ -270,6 +289,7 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
                       <textarea
                         value={answer}
                         onChange={(e) => setAnswer(e.target.value)}
+                        onKeyDown={(e) => handleKeyDownAnswer(e, item.id)}
                         placeholder='Trả lời người mua'
                         className='w-full border border-gray-300 rounded-lg p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent min-h-20 resize-none text-sm'
                       />

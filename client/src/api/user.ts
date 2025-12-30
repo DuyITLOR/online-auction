@@ -87,7 +87,7 @@ export const updateUser = async ({ user, token }: { user: UpdateUserPayload; tok
 
 export const getStatisticProfile = async ({ token }: { token: string }) => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/profile`, {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bidder/statistic`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

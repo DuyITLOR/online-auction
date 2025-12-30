@@ -37,9 +37,9 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const fetchPublicProducts = async () => {
     try {
       const [endings, prices, bidTimes] = await Promise.all([
-        getAllProduct({ limit: '5', sort: 'ending_soon' }),
-        getAllProduct({ limit: '5', sort: 'price_desc' }),
-        getAllProduct({ limit: '5', sort: 'countBids_desc' }),
+        getAllProduct({ limit: '5', sort: 'ending_soon', isBidder: 'true' }),
+        getAllProduct({ limit: '5', sort: 'price_desc', isBidder: 'true' }),
+        getAllProduct({ limit: '5', sort: 'countBids_desc', isBidder: 'true' }),
         getAllProduct({}),
       ]);
       setEndingProducts(endings.data);

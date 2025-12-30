@@ -137,6 +137,7 @@ const ProductList = () => {
           maxPrice: maxPriceParam,
           q: searchQuery,
           sellerId,
+          isBidder: 'true',
         });
         setProducts(productRes.data);
         setTotalPage(productRes.totalPage);

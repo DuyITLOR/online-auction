@@ -106,6 +106,7 @@ const ProductList = () => {
           minPrice: minPriceParam,
           maxPrice: maxPriceParam,
           q: searchQuery,
+          isBidder: 'true',
         });
         setProducts(productRes.data);
         setTotalPage(productRes.totalPage);

@@ -42,6 +42,7 @@ export interface productQueryDto {
   sellerId?: string;
   minPrice?: string;
   maxPrice?: string;
+  isBidder?: string; 
 }
 
 export interface buyNowProuctDto {

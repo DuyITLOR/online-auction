@@ -29,7 +29,7 @@ export const createProduct = async (id: string, data: createProductDto) => {
           url: img.url,
           sortOrder: img.sortOrder,
         })),
-      }, 
+      },
     },
     include: {
       images: true,
@@ -123,6 +123,7 @@ export const searchProducts = async (query: productQueryDto) => {
   const skip = (page - 1) * limit;
   const minPrice = Number(query.minPrice);
   const maxPrice = Number(query.maxPrice);
+  const isBidder = query.isBidder === 'true' ? true : false;
 
   const where: Prisma.ProductsWhereInput = {};
 
@@ -153,6 +154,12 @@ export const searchProducts = async (query: productQueryDto) => {
 
   if (query.categoryId) {
     where.categoryId = query.categoryId;
+  }
+
+  if (isBidder) {
+    where.endAt = {
+      gt: new Date(),
+    };
   }
 
   let orderBy: Prisma.ProductsOrderByWithRelationInput = {};

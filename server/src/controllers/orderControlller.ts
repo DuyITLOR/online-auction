@@ -99,10 +99,16 @@ export const getOrderById = async (req: Request, res: Response) => {
         }
 
         const data = {
-            productName: order.product.title,
-            price: order.totalAmount,
-            sellerName: order.seller.fullname,
-            buyerName: order.buyer.fullname,
+            product: {
+                title: order.product.title,
+            },
+            totalAmount: order.totalAmount,
+            seller: {
+                fullname: order.seller.fullname,
+            },
+            buyer: {
+                fullname: order.buyer.fullname,
+            },
             status: order.status,
             canCancel: canCancel,
             role: role

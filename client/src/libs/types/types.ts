@@ -180,21 +180,49 @@ export interface Ratings {
   rater: User;
 }
 
+export type OrderStatus =
+  | 'WAIT_SELLER_BANK_INFO'
+  | 'WAIT_BUYER_PAYMENT'
+  | 'WAIT_SELLER_SHIPPING'
+  | 'WAIT_BUYER_CONFIRM_RECEIVE'
+  | 'WAIT_REVIEW'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
 export interface Orders {
   id: string;
   productId: string;
-  sellerId: string;
   buyerId: string;
-  phoneNumber: number;
-  status: 'unpaid' | 'shipping' | 'canceled' | 'completed';
-  shippingAddress: string;
-  paymentInvoiceUrl?: string | null;
-  shippingInvoiceUrl?: string | null;
+  sellerId: string;
+  status: OrderStatus;
   cancelReason?: string | null;
+  totalAmount: number; // Decimal -> number (FE)
+  billUrl?: string | null;
+  buyerAddress?: string | null;
+  buyerPhone?: string | null;
+  isReceived: boolean;
+  qrInfo?: string | null;
+  qrUrl?: string | null;
+  shippingCompany?: string | null;
+  shippingUrl?: string | null;
+  receivedAt?: string | null;
   createdAt: string;
   updatedAt: string;
-
-  buyer: User;
-  product: Product;
-  seller: User;
+  role: 'BIDDER' | 'ADMIN' | 'SELLER';
+  canCancel: boolean;
+  // relations
+  buyer: {
+    id: string;
+    fullname: string;
+  }
+  seller: {
+    id: string;
+    fullname: string;
+  }
+  product: {
+    id: string;
+    title: string;
+  }
 }
+
+

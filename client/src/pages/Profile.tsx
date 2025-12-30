@@ -370,7 +370,7 @@ const Profile = () => {
             </Dialog>
             <Button
               onClick={() => {
-                navigate('/seller/dashboard');
+                navigate(`${user?.role === 'ADMIN' ? '/admin/dashboard' : '/seller/dashboard'}`);
               }}
               variant={'outline'}
               className='text-teal-600'

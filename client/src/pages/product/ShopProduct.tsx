@@ -18,14 +18,14 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ProductContext } from '../../libs/contexts/product.context';
 import { getAllProduct } from '../../api/product';
 import { getCategories } from '../../api/category';
-import type { Category, Product } from '../../libs/types/types';
+import type { Category, Product, User } from '../../libs/types/types';
 import Pagination from '../../components/pagination';
 // Giả sử bạn có UI components, nếu không có thể dùng thẻ div thường
 import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
 import SortBar from '../../components/product/sortBar';
 import { Button } from '@/components/ui/button';
-import { UserContext } from '@/libs/contexts/user.context';
 import { calculateRating, isoToYYYYMMDD } from '@/libs/utils';
+import { getUser } from '@/api/user';
 
 const getTimeStatusStyle = (date: string) => {
   const now = new Date();
@@ -66,9 +66,9 @@ const ProductList = () => {
   const { watchList, toggleWatchList } = useContext(ProductContext);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useContext(UserContext); 
+  const [productLoading, setProductLoading] = useState(true);
+  const [seller, setSeller] = useState<User>();
 
-  // Params & Pagination
   const [searchParams, setSearchParams] = useSearchParams();
   const [totalPage, setTotalPage] = useState(1);
   const [categories, setCategories] = useState<(Category & { children: Category[] })[]>([]);
@@ -107,9 +107,26 @@ const ProductList = () => {
     setExpandedCatId(null);
   };
 
+  const fetchSeller = async () => {
+    try {
+      setLoading(true);
+      const data = await getUser(sellerId ? { id: sellerId } : { id: '1' });
+      setSeller(data);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSeller();
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      setProductLoading(true);
       try {
         const productRes = await getAllProduct({
           page,
@@ -126,7 +143,7 @@ const ProductList = () => {
       } catch (error) {
         console.error('Failed to fetch products', error);
       } finally {
-        setLoading(false);
+        setProductLoading(false);
       }
     };
 
@@ -213,8 +230,8 @@ const ProductList = () => {
               <div className='flex items-center gap-5 flex-1'>
                 <div className='relative'>
                   <Avatar className='w-24 h-24 border-4 border-white shadow-md'>
-                    <AvatarImage src={user?.avtUrl} />
-                    <AvatarFallback>{user?.fullname}</AvatarFallback>
+                    <AvatarImage src={seller?.avtUrl} />
+                    <AvatarFallback>{seller?.fullname}</AvatarFallback>
                   </Avatar>
                   <div className='absolute -bottom-2 -right-2 bg-indigo-500 text-white text-[10px] px-2 py-0.5 rounded-full border-2 border-white font-bold flex items-center gap-1'>
                     <Store size={12} /> Người bán
@@ -223,17 +240,18 @@ const ProductList = () => {
 
                 <div className='flex flex-col gap-1'>
                   <h1 className='text-2xl font-bold text-gray-800 flex items-center gap-2'>
-                    {user?.fullname}
+                    {seller?.fullname}
                     <UserCheck className='w-5 h-5 text-blue-500 fill-blue-100' />
                   </h1>
-                  <p className='text-gray-500 text-sm line-clamp-1 max-w-md'>{user?.email}</p>
+                  <p className='text-gray-500 text-sm line-clamp-1 max-w-md'>{seller?.email}</p>
 
                   <div className='flex items-center gap-4 mt-1 text-sm text-gray-600'>
                     <div className='flex items-center gap-1 text-yellow-500 font-semibold'>
-                      <Star className='w-4 h-4 fill-yellow-500' /> {calculateRating(user?.ratingPos, user?.ratingNeg)}
-                      /10
+                      <Star className='w-4 h-4 fill-yellow-500' />{' '}
+                      {calculateRating(seller?.ratingPos, seller?.ratingNeg)}
+                      /10.0
                       <span className='text-gray-400 font-normal'>
-                        ({Number(user?.ratingNeg) + Number(user?.ratingPos)} đánh giá)
+                        ({Number(seller?.ratingNeg) + Number(seller?.ratingPos)} đánh giá)
                       </span>
                     </div>
                   </div>
@@ -247,7 +265,7 @@ const ProductList = () => {
                   </Button>
                 </div>
                 <div className='text-xs text-gray-500 flex items-center justify-end gap-1'>
-                  <MapPin size={14} /> {user?.address} • Tham gia: {isoToYYYYMMDD(user?.createdAt)}
+                  <MapPin size={14} /> {seller?.address} • Tham gia: {isoToYYYYMMDD(seller?.createdAt)}
                 </div>
               </div>
             </div>
@@ -372,8 +390,8 @@ const ProductList = () => {
           </div>
 
           <div className='flex-1 min-w-0'>
-            {loading ? (
-              <div className='flex items-center justify-center h-64'>
+            {productLoading ? (
+              <div className='flex items-center justify-center h-120'>
                 <div className='animate-spin rounded-full h-10 w-10 border-4 border-teal-500 border-t-transparent'></div>
               </div>
             ) : products.length > 0 ? (
@@ -468,7 +486,6 @@ const ProductList = () => {
                 </div>
               </>
             ) : (
-              // TRƯỜNG HỢP 2: KHÔNG CÓ SẢN PHẨM (EMPTY STATE)
               <div className='flex flex-col items-center justify-center py-16 px-4 text-center animate-in fade-in zoom-in duration-500'>
                 <div className='bg-gray-100 p-6 rounded-full mb-6 relative'>
                   <SearchX className='w-12 h-12 text-gray-400' />

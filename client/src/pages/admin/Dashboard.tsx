@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import TabBoard from './TabBoard';
 import { useAdmin } from '../../libs/contexts/admin/admin.context';
 import { UserContext } from '@/libs/contexts/user.context';
-import NotFoundPage from '../NotFound';
 import UnauthorizedPage from '../Unauthorization';
 
 // Interface khớp với API Response
@@ -61,7 +60,6 @@ const Dashboard: React.FC = () => {
     }
   }, [token, isAuthLoading]);
 
-  // Gom trạng thái loading để hiển thị clean hơn
   const isLoading = isAuthLoading || isDataLoading;
   if (isLoading || !user?.role) {
     return <div className='loader' />;

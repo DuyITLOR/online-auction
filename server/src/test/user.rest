@@ -2,7 +2,10 @@ GET http://localhost:4000/users
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3NzM3MjFlLWU1NjQtNDQ2Ny05MzYyLTAyMWU3OTlhYjI5YiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQwMzA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NTEyMzE4NCwiZXhwIjoxNzY3NzE1MTg0fQ.zNdsFMsC4od5cRcVYE98ndJb-bzfzbcHej_55ybnr80
 ###
+GET http://localhost:4000/users/075271ae-23fe-486c-8018-29e2660cd677
+Content-Type: application/json
 
+###
 PATCH http://localhost:4000/users/update
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3NzM3MjFlLWU1NjQtNDQ2Ny05MzYyLTAyMWU3OTlhYjI5YiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQwMzA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NTEyMzE4NCwiZXhwIjoxNzY3NzE1MTg0fQ.zNdsFMsC4od5cRcVYE98ndJb-bzfzbcHej_55ybnr80
 Content-Type: application/json

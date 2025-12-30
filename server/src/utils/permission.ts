@@ -161,6 +161,12 @@ export const API_ROUTES = {
     method: 'GET',
     request: {},
   },
+  getUserInformation: {
+    path: '/users/:userId',
+    role: [Role.ALL],
+    method: 'GET',
+    request: {},
+  },
   updateUser: {
     path: '/users/update',
     role: [Role.BIDDER, Role.ADMIN, Role.SELLER],

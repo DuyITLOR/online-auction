@@ -1,4 +1,4 @@
-import { prisma } from "./db/prisma";
+import { prisma } from './db/prisma';
 import {
   blockUserDto,
   updateUserDto,
@@ -8,12 +8,12 @@ import {
   answerBidderReturnDto,
   returnErrorDto,
   getALlCommentsDto,
-  responseProfileDto
-} from "../dto/userDto";
-import { deleteCommentDto } from "../dto/userDto";
-import { getBidCountOfUser } from "./autoBidService";
-import { getCountWatchListOfUser } from "./watchListService";
-import { getCountOrderByUser } from "./orderService";
+  responseProfileDto,
+} from '../dto/userDto';
+import { deleteCommentDto } from '../dto/userDto';
+import { getBidCountOfUser } from './autoBidService';
+import { getCountWatchListOfUser } from './watchListService';
+import { getCountOrderByUser } from './orderService';
 
 export const getUserById = async (id: string) => {
   try {
@@ -27,7 +27,7 @@ export const getUserById = async (id: string) => {
       user: user,
     };
   } catch (err) {
-    console.error("Error from userService:", err);
+    console.error('Error from userService:', err);
 
     if (err instanceof Error) {
       return {
@@ -38,7 +38,35 @@ export const getUserById = async (id: string) => {
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
+    };
+  }
+};
+
+export const getUserInformation = async (id: string) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+    return {
+      success: true,
+      user: user,
+    }
+  } catch (err) {
+    console.error('Error from userService:', err);
+
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Unknown error',
     };
   }
 };
@@ -62,10 +90,10 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
     return {
       success: true,
       data: updated,
-      message: "Update successful",
+      message: 'Update successful',
     };
   } catch (err) {
-    console.error("Error from userService:", err);
+    console.error('Error from userService:', err);
 
     if (err instanceof Error) {
       return {
@@ -76,7 +104,7 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
     };
   }
 };
@@ -92,10 +120,10 @@ export const upgradeUser = async (id: string, note: string) => {
     return {
       success: true,
       data: record,
-      message: "Request successfully",
+      message: 'Request successfully',
     };
   } catch (err) {
-    console.error("Error from userService:", err);
+    console.error('Error from userService:', err);
 
     if (err instanceof Error) {
       return {
@@ -106,18 +134,18 @@ export const upgradeUser = async (id: string, note: string) => {
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
     };
   }
 };
 
 export const checkRating = async (id: string) => {
-  console.log("Checking rating for user:", id);
+  console.log('Checking rating for user:', id);
   const user = await prisma.user.findUnique({
     where: { id },
   });
 
-  if (!user) throw new Error("User not found");
+  if (!user) throw new Error('User not found');
   const total = user.ratingNeg + user.ratingPos;
   // console.log("positive ratings:", user.ratingPos);
   // console.log("negative ratings:", user.ratingNeg);
@@ -140,10 +168,10 @@ export const getAllBlockedUser = async (productId: string) => {
     return {
       success: true,
       data: record,
-      message: "Get successfully",
+      message: 'Get successfully',
     };
   } catch (err) {
-    console.error("Error from userService:", err);
+    console.error('Error from userService:', err);
 
     if (err instanceof Error) {
       return {
@@ -154,7 +182,7 @@ export const getAllBlockedUser = async (productId: string) => {
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
     };
   }
 };
@@ -170,7 +198,7 @@ export const getBlockUserByProductId = async (
 
     return record.map((r) => r.userId);
   } catch (err) {
-    console.error("Error from userService:", err);
+    console.error('Error from userService:', err);
     return [];
   }
 };
@@ -189,7 +217,7 @@ export const blockUser = async (data: blockUserDto) => {
       return {
         success: true,
         data: check,
-        message: "Already blocked",
+        message: 'Already blocked',
       };
     }
     const record = await prisma.blockedBidders.create({
@@ -202,7 +230,7 @@ export const blockUser = async (data: blockUserDto) => {
     return {
       success: true,
       data: record,
-      message: "Blocked successfully",
+      message: 'Blocked successfully',
     };
   } catch (err) {
     if (err instanceof Error) {
@@ -214,7 +242,7 @@ export const blockUser = async (data: blockUserDto) => {
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
     };
   }
 };
@@ -265,7 +293,7 @@ export const askSeller = async (
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
     };
   }
 };
@@ -299,7 +327,7 @@ export const answerBidder = async (
       },
     });
     if (record.parent === null) {
-      throw new Error("Câu hỏi không tồn tại");
+      throw new Error('Câu hỏi không tồn tại');
     }
     return {
       success: true,
@@ -317,7 +345,7 @@ export const answerBidder = async (
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
     };
   }
 };
@@ -333,13 +361,13 @@ export const getAllCommentsByProductId = async (data: getALlCommentsDto) => {
       skip,
       take: data.limit,
       orderBy: {
-        sendAt: "desc",
+        sendAt: 'desc',
       },
       include: {
         sender: true,
         replies: {
           orderBy: {
-            sendAt: "desc",
+            sendAt: 'desc',
           },
           include: {
             sender: true,
@@ -350,7 +378,7 @@ export const getAllCommentsByProductId = async (data: getALlCommentsDto) => {
     return {
       success: true,
       data: comments,
-      message: "Truy cập bình luận thành công",
+      message: 'Truy cập bình luận thành công',
     };
   } catch (err) {
     if (err instanceof Error) {
@@ -362,7 +390,7 @@ export const getAllCommentsByProductId = async (data: getALlCommentsDto) => {
 
     return {
       success: false,
-      message: "Unknown error",
+      message: 'Unknown error',
     };
   }
 };
@@ -375,7 +403,7 @@ export const deleteComment = async (data: deleteCommentDto) => {
     },
   });
   if (check === null) {
-    throw new Error("Bạn không đủ thẩm quyền để xóa bình luận này");
+    throw new Error('Bạn không đủ thẩm quyền để xóa bình luận này');
   }
   return await prisma.comments.delete({
     where: {
@@ -385,17 +413,16 @@ export const deleteComment = async (data: deleteCommentDto) => {
 };
 
 export const getCountRatingForUser = async (userId: string) => {
-
   const user = await prisma.user.findUnique({
-    where: { id : userId},
+    where: { id: userId },
     select: {
       ratingNeg: true,
       ratingPos: true,
-    }
-  })
-  if (!user) throw new Error("User not found");
+    },
+  });
+  if (!user) throw new Error('User not found');
   return user.ratingNeg + user.ratingPos;
-}
+};
 
 export const getInfoProfile = async (userId: string) => {
   const bidCount = await getBidCountOfUser(userId);
@@ -403,12 +430,12 @@ export const getInfoProfile = async (userId: string) => {
   const orderCount = await getCountOrderByUser(userId);
   const ratingCount = await getCountRatingForUser(userId);
 
-  const data : responseProfileDto = {
+  const data: responseProfileDto = {
     BidCount: bidCount,
     WatchListCount: watchListCount,
     OrderCount: orderCount,
-    RatingCount: ratingCount  
-  }
+    RatingCount: ratingCount,
+  };
 
   return data;
 };

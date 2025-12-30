@@ -248,7 +248,7 @@ export const API_ROUTES = {
     method: 'PATCH',
   },
   profileSummary: {
-    path: '/users/profile',
+    path: '/bidder/statistic',
     role: [Role.ALL],
     method: 'GET',
   }

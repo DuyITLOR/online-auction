@@ -267,7 +267,10 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                   <Link to={'/'} className='text-sm text-teal-600 font-semibold underline'>
                     Đánh giá: {calculateRating(product.seller.ratingPos, product.seller.ratingNeg)}
                   </Link>
-                  <Link to={`/shop/${user?.id}`} className='text-sm text-gray-500 underline hover:text-teal-600'>
+                  <Link
+                    to={`/shop/${product?.sellerId}`}
+                    className='text-sm text-gray-500 underline hover:text-teal-600'
+                  >
                     Sản phẩm khác
                   </Link>
                   <Link to={'/'} className='text-sm text-gray-500 underline'>

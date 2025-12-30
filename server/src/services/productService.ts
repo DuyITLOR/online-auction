@@ -121,14 +121,30 @@ export const searchProducts = async (query: productQueryDto) => {
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 10;
   const skip = (page - 1) * limit;
+  const minPrice = Number(query.minPrice);
+  const maxPrice = Number(query.maxPrice);
 
   const where: Prisma.ProductsWhereInput = {};
 
-  if (query.q) {
-    where.title = {
-      contains: query.q,
-      mode: 'insensitive',
-    };
+  const keywords = query.q?.trim().split(/\s+/);
+
+  if (keywords?.length) {
+    where.AND = keywords.map((word) => ({
+      title: {
+        contains: word,
+        mode: 'insensitive',
+      },
+    }));
+  }
+
+  if (!isNaN(minPrice) || !isNaN(maxPrice)) {
+    where.currentPrice = {};
+    if (!isNaN(minPrice)) {
+      where.currentPrice.gte = new Prisma.Decimal(minPrice);
+    }
+    if (!isNaN(maxPrice)) {
+      where.currentPrice.lte = new Prisma.Decimal(maxPrice);
+    }
   }
 
   if (query.sellerId) {
@@ -173,10 +189,18 @@ export const searchProducts = async (query: productQueryDto) => {
     skip,
     take: limit,
     orderBy,
+
     include: {
       images: true,
       seller: true,
       category: true,
+      bidHistory: {
+        orderBy: { amount: 'desc' },
+        take: 1,
+        include: {
+          bidder: true,
+        },
+      },
     },
   });
 
@@ -220,12 +244,8 @@ export const buyNowProuct = async (bidderId: string, data: buyNowProuctDto) => {
           data: {
             productId: data.productId,
             buyerId: bidderId,
-            phoneNumber: data.phoneNumber,
+            sellerId: product.sellerId,
             totalAmount: new Prisma.Decimal(product.buyNowPrice),
-            status: 'UNPAID',
-            paymentStatus: 'PENDING',
-            shippingAddress: data.shippingAddress,
-            paymentDueAt: new Date(Date.now() + timeout),
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -275,68 +295,4 @@ export const getExpiredActiveProducts = async () => {
   }
 
   return products;
-};
-
-export const handleAuctionEnd = async (productId: string) => {
-  const product = await prisma.$transaction(async (tx) => {
-    const exitOrder = await tx.orders.findUnique({
-      where: { productId: productId },
-    });
-
-    if (exitOrder) {
-      return null;
-    }
-    await tx.products.update({
-      where: { id: productId, status: 'ACTIVE' },
-      data: {
-        status: 'SOLD',
-        updatedAt: new Date(),
-      },
-    });
-
-    return await tx.products.findUnique({
-      where: { id: productId },
-      include: {
-        seller: true,
-      },
-    });
-  });
-
-  if (!product) {
-    throw new Error(`Không tìm thấy sản phẩm với productId ${productId}`);
-  }
-
-  // Nếu không có người mua
-  if (product.winnerId === null) {
-    return {
-      type: 'NO_BIDDER',
-      product: product,
-    };
-  }
-
-  const timeout = 24 * 60 * 60 * 1000;
-  const order = await prisma.orders.create({
-    data: {
-      productId: productId,
-      buyerId: product.winnerId,
-      totalAmount: new Prisma.Decimal(product.buyNowPrice),
-      status: 'UNPAID',
-      paymentStatus: 'PENDING',
-      paymentDueAt: new Date(Date.now() + timeout),
-      createdAt: new Date(),
-    },
-    include: {
-      buyer: true,
-    },
-  });
-
-  if (!order) {
-    throw new Error('Tạo đơn hàng thất bại');
-  }
-
-  return {
-    type: 'HAS_BIDDER',
-    product: product,
-    order: order,
-  };
 };

@@ -40,6 +40,13 @@ export const getWatchList = async (userId: string, query: getWatchListDto) => {
           images: true,
           category: true,
           seller: true,
+          bidHistory: {
+            orderBy: { amount: 'desc' },
+            take: 1,
+            include: {
+              bidder: true,
+            },
+          },
         },
       },
     },
@@ -54,5 +61,46 @@ export const getWatchList = async (userId: string, query: getWatchListDto) => {
   return {
     data,
     totalPages: Math.ceil(total / limit),
+  };
+};
+
+
+export const getCountWatchListOfUser = async (userId: string) =>{
+  if (!userId) throw new Error("User ID is required");
+  const count = await prisma.watchList.count({
+    where: {
+      userId: userId,
+    },
+  });
+
+  return count;
+}
+export const getAllWatchList = async (userId: string) => {
+
+  const data = await prisma.watchList.findMany({
+    where: {
+      userId: userId,
+    },
+    include: {
+      product: {
+        include: {
+          images: true,
+          category: true,
+          seller: true,
+          bidHistory: {
+            orderBy: { amount: 'desc' },
+            take: 1,
+            include: {
+              bidder: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+
+  return {
+    data,
   };
 };

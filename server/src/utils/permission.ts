@@ -3,13 +3,11 @@ import { googleCallback } from '../controllers/authControllers';
 import { updateCate } from '../services/cateService';
 import { updateCategory } from '../controllers/categoryControllers';
 import { get, request } from 'http';
-import {
-  createAutoBid,
-  getBidHistoryByUserId,
-} from '../services/autoBidService';
+import { createAutoBid, getBidHistoryByUserId } from '../services/autoBidService';
 import { getMaxBidByUser } from '../controllers/autoBiderController';
 import path from 'path';
 import { getAllCommentsByProductId } from '../controllers/userControllers';
+import { getOrderById, uploadBankInfo } from '../services/orderService';
 
 enum Role {
   ADMIN = 'ADMIN',
@@ -163,6 +161,12 @@ export const API_ROUTES = {
     method: 'GET',
     request: {},
   },
+  getUserInformation: {
+    path: '/users/:userId',
+    role: [Role.ALL],
+    method: 'GET',
+    request: {},
+  },
   updateUser: {
     path: '/users/update',
     role: [Role.BIDDER, Role.ADMIN, Role.SELLER],
@@ -248,6 +252,11 @@ export const API_ROUTES = {
     role: [Role.ADMIN],
     method: 'GET',
   },
+  profileSummary: {
+    path: '/bidder/statistic',
+    role: [Role.ALL],
+    method: 'GET',
+  }
 };
 
 export const API_RATING_ROUTES = {
@@ -396,6 +405,11 @@ export const API_WATCHLIST_ROUTES = {
     method: 'GET',
     role: [Role.ALL],
   },
+  getAllWatchList: {
+    path: '/watchlists',
+    method: 'GET',
+    role: [Role.ALL],
+  },
 };
 
 export const API_AUTO_BID_ROUTES = {
@@ -426,11 +440,20 @@ export const API_AUTO_BID_ROUTES = {
   },
 };
 
-
 export const API_ORDER_ROUTES = {
-    getOrders: {
-      path: '/orders',
-      method: 'GET',
-      role: [Role.ADMIN, Role.BIDDER, Role.SELLER],
-    }
+  getOrders: {
+    path: '/orders',
+    method: 'GET',
+    role: [Role.ADMIN, Role.BIDDER, Role.SELLER],
+  },
+  getOrderById: {
+    path: '/orders/:id',
+    method: 'GET',
+    role: [Role.BIDDER, Role.SELLER],
+  }, 
+  uploadBankInfo: {
+    path: '/orders/:id/qr',
+    method: 'POST',
+    role: [Role.SELLER],
   }
+};

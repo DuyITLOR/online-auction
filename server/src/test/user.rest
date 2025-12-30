@@ -2,7 +2,10 @@ GET http://localhost:4000/users
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3NzM3MjFlLWU1NjQtNDQ2Ny05MzYyLTAyMWU3OTlhYjI5YiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQwMzA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NTEyMzE4NCwiZXhwIjoxNzY3NzE1MTg0fQ.zNdsFMsC4od5cRcVYE98ndJb-bzfzbcHej_55ybnr80
 ###
+GET http://localhost:4000/users/075271ae-23fe-486c-8018-29e2660cd677
+Content-Type: application/json
 
+###
 PATCH http://localhost:4000/users/update
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3NzM3MjFlLWU1NjQtNDQ2Ny05MzYyLTAyMWU3OTlhYjI5YiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQwMzA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NTEyMzE4NCwiZXhwIjoxNzY3NzE1MTg0fQ.zNdsFMsC4od5cRcVYE98ndJb-bzfzbcHej_55ybnr80
 Content-Type: application/json
@@ -60,3 +63,11 @@ Content-Type: application/json
 DELETE http://localhost:4000/comments/cd7bfbac-9db1-49aa-9d61-0826a02244ed
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NTEwMDM4NywiZXhwIjoxNzY3NjkyMzg3fQ.juhQXZzKw_KZj9a6JUwM7COE2nQxQSpo2SDWFcsrkBk
+
+
+
+
+### Lấy profile của một user
+GET http://localhost:4000/bidder/statistic
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU1YmM3NzY4LTIxNTctNDhiMi1iM2VhLTAxYzYwYzZlZjAzOCIsImVtYWlsIjoibnRkYW5nMjNAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NjY2NTUwMSwiZXhwIjoxNzY5MjU3NTAxfQ.VUuczoh7j_nfHRWl5lOimaBnf_thw5PZxfPpKKkSKMM
+Content-Type: application/json

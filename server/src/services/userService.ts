@@ -8,8 +8,12 @@ import {
   answerBidderReturnDto,
   returnErrorDto,
   getALlCommentsDto,
+  responseProfileDto,
 } from '../dto/userDto';
 import { deleteCommentDto } from '../dto/userDto';
+import { getBidCountOfUser } from './autoBidService';
+import { getCountWatchListOfUser } from './watchListService';
+import { getCountOrderByUser } from './orderService';
 
 export const getUserById = async (id: string) => {
   try {
@@ -39,6 +43,34 @@ export const getUserById = async (id: string) => {
   }
 };
 
+export const getUserInformation = async (id: string) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+    return {
+      success: true,
+      user: user,
+    }
+  } catch (err) {
+    console.error('Error from userService:', err);
+
+    if (err instanceof Error) {
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Unknown error',
+    };
+  }
+};
+
 export const updateUser = async (id: string, Data: updateUserDto) => {
   try {
     const { fullname, avtUrl, dateOfBirth, address } = Data;
@@ -48,6 +80,8 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
       ...(address !== undefined && { address }),
       ...(dateOfBirth !== undefined && { dateOfBirth: new Date(dateOfBirth) }),
     };
+
+    console.log(Data);
 
     const updated = await prisma.user.update({
       where: { id },
@@ -153,7 +187,9 @@ export const getAllBlockedUser = async (productId: string) => {
   }
 };
 
-export const getBlockUserByProductId = async (productId: string): Promise<string[]> => {
+export const getBlockUserByProductId = async (
+  productId: string
+): Promise<string[]> => {
   try {
     const record = await prisma.blockedBidders.findMany({
       where: { productId },
@@ -211,7 +247,9 @@ export const blockUser = async (data: blockUserDto) => {
   }
 };
 
-export const askSeller = async (data: askSellerDto): Promise<askSellerReturnDto | returnErrorDto> => {
+export const askSeller = async (
+  data: askSellerDto
+): Promise<askSellerReturnDto | returnErrorDto> => {
   try {
     const record = await prisma.comments.create({
       data: {
@@ -260,7 +298,9 @@ export const askSeller = async (data: askSellerDto): Promise<askSellerReturnDto 
   }
 };
 
-export const answerBidder = async (data: answerBidderDto): Promise<answerBidderReturnDto | returnErrorDto> => {
+export const answerBidder = async (
+  data: answerBidderDto
+): Promise<answerBidderReturnDto | returnErrorDto> => {
   try {
     const record = await prisma.comments.create({
       data: {
@@ -370,4 +410,32 @@ export const deleteComment = async (data: deleteCommentDto) => {
       id: data.commentId,
     },
   });
+};
+
+export const getCountRatingForUser = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      ratingNeg: true,
+      ratingPos: true,
+    },
+  });
+  if (!user) throw new Error('User not found');
+  return user.ratingNeg + user.ratingPos;
+};
+
+export const getInfoProfile = async (userId: string) => {
+  const bidCount = await getBidCountOfUser(userId);
+  const watchListCount = await getCountWatchListOfUser(userId);
+  const orderCount = await getCountOrderByUser(userId);
+  const ratingCount = await getCountRatingForUser(userId);
+
+  const data: responseProfileDto = {
+    BidCount: bidCount,
+    WatchListCount: watchListCount,
+    OrderCount: orderCount,
+    RatingCount: ratingCount,
+  };
+
+  return data;
 };

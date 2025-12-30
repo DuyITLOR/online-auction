@@ -2,7 +2,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Button } from './ui/button';
 import { clearSession, getSession } from '../libs/session';
 import { Popover } from './ui/popover';
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
@@ -14,20 +13,30 @@ const Header = () => {
   const { user, refresh } = useContext(UserContext);
   const [searchValue, setSearchValue] = useState('');
 
-  const [, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const handleSearch = (value: string) => {
-    if (location.pathname !== '/products') {
-      navigate(`/products?q=${value}`);
-    }
-    const next = new URLSearchParams();
-    if (!value) {
-      next.delete('q');
+  useEffect(() => {
+    const query = searchParams.get('q');
+    if (query) {
+      setSearchValue(query);
     } else {
-      next.set('q', value);
+      setSearchValue('');
     }
-    setSearchParams(next);
+  }, [searchParams]);
+
+  const executeSearch = () => {
+    const trimmedValue = searchValue.trim();
+    if (trimmedValue) {
+      navigate(`/products?q=${encodeURIComponent(trimmedValue)}`);
+    } else {
+      navigate('/products');
+    }
+  };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      executeSearch();
+    }
   };
 
   useEffect(() => {
@@ -44,7 +53,6 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    console.log('hello', session);
     refresh();
   }, [session]);
 
@@ -58,6 +66,7 @@ const Header = () => {
   const handleAddProduct = () => {
     navigate('/post-product');
   };
+
   return (
     <header className='sticky top-0 z-50 border-b border-b-gray-200 bg-white'>
       <div className='flex flex-1 items-center justify-between mx-3 py-4 lg:px-8'>
@@ -77,18 +86,19 @@ const Header = () => {
               <input
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                className='h-10 border border-gray-300 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 pl-4 pr-10 py-2  transition-all w-3xl'
+                onKeyDown={handleKeyDown}
+                className='h-10 border border-gray-300 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 pl-4 pr-10 py-2 transition-all max-w-3xl md:min-w-3xl'
                 placeholder='Search...'
               />
 
               <Search
                 className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 cursor-pointer hover:text-teal-500 transition-colors'
-                onClick={() => handleSearch(searchValue)}
+                onClick={executeSearch}
               />
             </div>
             <Plus
               onClick={handleAddProduct}
-              className={`w-8 h-8 stroke-2 text-white p-1 rounded-full bg-teal-500 ${
+              className={`w-8 h-8 stroke-2 text-white p-1 rounded-full bg-teal-500 cursor-pointer hover:bg-teal-600 transition-colors ${
                 user?.currentRoles.includes('SELLER') ? '' : 'hidden'
               }`}
             />
@@ -98,61 +108,58 @@ const Header = () => {
         {!session && !user ? (
           <div className='flex gap-2 items-center ml-3'>
             <Link to='/auth/signin'>
-              <button className='border border-gray-300 px-1 text-sm font-semibold h-10 rounded-md bg-slate-200'>
+              <button className='border border-gray-300 px-3 py-2 text-sm font-semibold rounded-md bg-slate-100 hover:bg-slate-200 transition-colors'>
                 Đăng nhập
               </button>
             </Link>
 
             <Link to='/auth/signup'>
-              <button className='border border-gray-300 px-2 text-sm font-semibold h-10 rounded-md bg-teal-500 text-white'>
+              <button className='border border-transparent px-3 py-2 text-sm font-semibold rounded-md bg-teal-500 text-white hover:bg-teal-600 transition-colors'>
                 Đăng Ký
               </button>
             </Link>
           </div>
         ) : (
           <div className='flex gap-2 items-center ml-3 text-sm'>
-            <span className='font-semibold'>Xin chào, {user?.fullname}</span>
+            <span className='font-semibold hidden xl:flex'>Xin chào, {user?.fullname}</span>
 
-            <Button variant={'ghost'} className='underline' onClick={onSignOut}>
-              Đăng xuất
-            </Button>
             <Popover>
               <PopoverTrigger>
-                <Avatar>
+                <Avatar className='cursor-pointer hover:opacity-80 transition-opacity'>
                   <AvatarImage src={user?.avtUrl} alt='User Avatar' className='border border-gray-400 rounded-full' />
                   <AvatarFallback>{user?.fullname?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
                 </Avatar>
               </PopoverTrigger>
 
-              <PopoverContent className='w-52 mt-1 bg-slate-50 border border-gray-300 shadow-lg rounded-md px-2 py-2 gap-2'>
-                <div className='flex flex-col justify-end gap-1'>
-                  <div className='flex items-center gap-2'>
+              <PopoverContent className='w-64 mt-2 bg-white border border-gray-200 shadow-xl rounded-lg p-3 z-50'>
+                <div className='flex flex-col gap-1'>
+                  <div className='flex items-center gap-3 pb-3 border-b border-gray-100 mb-2'>
                     <Avatar>
                       <AvatarImage
                         src={user?.avtUrl}
                         alt='User Avatar'
-                        className='border border-gray-400 rounded-full'
+                        className='border border-gray-200 rounded-full'
                       />
                       <AvatarFallback>{user?.fullname?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
                     </Avatar>
-                    <div className='flex flex-col'>
-                      <span className='font-semibold text-start'>{user?.fullname}</span>
-                      <span className='text-xs text-start text-gray-500'>{user?.email}</span>
+                    <div className='flex flex-col overflow-hidden'>
+                      <span className='font-bold text-gray-800 truncate'>{user?.fullname}</span>
+                      <span className='text-xs text-gray-500 truncate'>{user?.email}</span>
                     </div>
                   </div>
 
                   <Link
-                    className='font-semibold hover:bg-gray-200 p-2 rounded-md text-start mt-2 items-center flex'
+                    className='flex items-center px-2 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-teal-50 hover:text-teal-700 transition-colors'
                     to='/profile'
                   >
-                    <UserRound className='inline-block mr-2' size={16} />
+                    <UserRound className='mr-3 h-4 w-4' />
                     Tài khoản của tôi
                   </Link>
                   <button
-                    className='font-semibold hover:bg-gray-200 p-2 rounded-md text-start mt-2 items-center flex'
+                    className='flex items-center w-full px-2 py-2 text-sm font-medium text-red-600 rounded-md hover:bg-red-50 transition-colors text-left'
                     onClick={onSignOut}
                   >
-                    <LogOut className='inline-block mr-2' size={16} />
+                    <LogOut className='mr-3 h-4 w-4' />
                     Đăng xuất
                   </button>
                 </div>

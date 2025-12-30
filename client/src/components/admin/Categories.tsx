@@ -49,6 +49,9 @@ const TreeItem: FC<TreeItemProps> = ({
 
   const isCategory = node.type !== "product";
   const hasChildren = node.children && node.children.length > 0;
+  const hasProductChildren = node.children?.some(
+    (child) => child.type === "product" || (child.children && child.children.some((c) => c.type === "product"))
+  );
 
   const handleToggle = async () => {
     if (!isCategory) return;
@@ -121,7 +124,7 @@ const TreeItem: FC<TreeItemProps> = ({
                 <Plus size={16} />
               </button>
             )}
-
+             {node.name !== "Khác" && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -132,17 +135,19 @@ const TreeItem: FC<TreeItemProps> = ({
             >
               <Pencil size={16} />
             </button>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(node);
-              }}
-              title='Xóa'
-              className='p-1.5 rounded hover:bg-red-100 text-red-600 transition'
-            >
-              <Trash2 size={16} />
-            </button>
+            )}
+            {node.name !== "Khác" && !hasProductChildren && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(node);
+                }}
+                title='Xóa'
+                className='p-1.5 rounded hover:bg-red-100 text-red-600 transition'
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -290,9 +295,21 @@ const CategoriesTab: FC = () => {
         {/* Tree Content */}
         <div className='flex-1 overflow-y-auto bg-white'>
           {isInitialLoading ? (
-            <div className='flex justify-center items-center py-20 text-gray-500'>
-              <Loader2 className='w-6 h-6 animate-spin mr-2 text-teal-600' />{" "}
-              Đang tải dữ liệu...
+            <div className='divide-y divide-gray-100'>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className='animate-pulse py-3 px-5 flex items-center justify-between'>
+                  <div className='flex items-center gap-3'>
+                    <div className='h-5 w-5 bg-gray-200 rounded' />
+                    <div className='h-5 w-5 bg-gray-200 rounded' />
+                    <div className='h-4 w-40 bg-gray-200 rounded' />
+                  </div>
+                  <div className='flex gap-1'>
+                    <div className='h-7 w-7 bg-gray-200 rounded' />
+                    <div className='h-7 w-7 bg-gray-200 rounded' />
+                    <div className='h-7 w-7 bg-gray-200 rounded' />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : treeData.length === 0 ? (
             <div className='text-center py-20 text-gray-400 italic'>

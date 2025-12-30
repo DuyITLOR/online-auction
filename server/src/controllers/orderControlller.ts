@@ -67,7 +67,7 @@ export const getOrderById = async (req: Request, res: Response) => {
         const userId = req.user.id;
         let roles = await checkRole(userId);
         const orderId = req.params.id;
-        const order = await orderService.getOrderById(orderId)
+        const order = await orderService.getOrderById(orderId, userId)
 
         if(!order) {
             const response = gatewayResponse(HttpStatus.notFound, null, "Không tìm thấy đơn hàng");

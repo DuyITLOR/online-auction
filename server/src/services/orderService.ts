@@ -156,21 +156,42 @@ export const createOrder = async (productId: string) => {
   };
 };
 
+export const getOrderById = async (
+  orderId: string,
+  userId: string
+) => {
+  return prisma.orders.findFirst({
+    where: {
+      id: orderId,
+      OR: [
+        { buyerId: userId },
+        { sellerId: userId },
+      ],
+    },
+    select: {
+      id: true,
+      totalAmount: true,
+      status: true,
+      sellerId: true,
+      buyerId: true,
 
-export const getOrderById = async (orderId: string) => {
-    const order = await prisma.orders.findUnique({
-      where: { id: orderId },
-      select: {
-        id: true,
-        totalAmount: true,
-        status: true,
-        sellerId: true,
-        buyerId: true,
-        product: { select: { title: true }},
-        buyer: { select: { fullname: true } },
-        seller: { select: { fullname: true } },
-      }
-    })
+      product: {
+        select: {
+          title: true,
+        },
+      },
+      buyer: {
+        select: {
+          fullname: true,
+        },
+      },
+      seller: {
+        select: {
+          fullname: true,
+        },
+      },
+    },
+  });
+};
 
-    return order;
-}
+export const 

@@ -36,8 +36,21 @@ const ProductsTab: FC = () => {
   const [editProduct, setEditProduct] = useState<any>(null);
   const [newDesc, setNewDesc] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState<"all" | "active" | "completed">("all");
 
   const productToDelete = products.find((p) => p.id === deleteId);
+
+  // Filter products based on active tab
+  const filteredProducts = products.filter((p) => {
+    if (activeTab === "all") return true;
+    if (activeTab === "active") {
+      return p.status === "ACTIVE" && new Date(p.endAt) > new Date();
+    }
+    if (activeTab === "completed") {
+      return p.status === "SOLD" || (p.status === "ACTIVE" && new Date(p.endAt) <= new Date());
+    }
+    return true;
+  });
 
   const onPageChange = (p: number | string) => {
     if (p === "...") return;
@@ -81,6 +94,40 @@ const ProductsTab: FC = () => {
         </h3>
       </div>
 
+      {/* Tabs */}
+      <div className='flex border-b border-gray-200 bg-white px-4'>
+        <button
+          onClick={() => setActiveTab("all")}
+          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === "all"
+              ? "border-teal-600 text-teal-600"
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Tất cả
+        </button>
+        <button
+          onClick={() => setActiveTab("active")}
+          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === "active"
+              ? "border-teal-600 text-teal-600"
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Đang hoạt động
+        </button>
+        <button
+          onClick={() => setActiveTab("completed")}
+          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === "completed"
+              ? "border-teal-600 text-teal-600"
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Đã hoàn thành
+        </button>
+      </div>
+
       {/* Table */}
       <div className='overflow-x-auto'>
         <table className='w-full text-sm text-left'>
@@ -103,7 +150,7 @@ const ProductsTab: FC = () => {
                   </td>
                 </tr>
               ))
-            ) : products.length === 0 ? (
+            ) : filteredProducts.length === 0 ? (
               <tr>
                 <td
                   colSpan={5}
@@ -111,12 +158,18 @@ const ProductsTab: FC = () => {
                 >
                   <div className='flex flex-col items-center gap-2'>
                     <Search className='w-8 h-8 text-gray-300' />
-                    <span>Bạn chưa có sản phẩm nào.</span>
+                    <span>
+                      {activeTab === "all"
+                        ? "Bạn chưa có sản phẩm nào."
+                        : activeTab === "active"
+                        ? "Không có sản phẩm đang hoạt động."
+                        : "Không có sản phẩm đã hoàn thành."}
+                    </span>
                   </div>
                 </td>
               </tr>
             ) : (
-              products.map((p) => (
+              filteredProducts.map((p) => (
                 <tr key={p.id} className='hover:bg-gray-50 transition-colors'>
                   <td className='px-6 py-4 font-medium text-gray-900'>
                     {p.title}
@@ -126,15 +179,24 @@ const ProductsTab: FC = () => {
                   </td>
                   <td className='px-6 py-4 text-gray-600'>{p.countbids}</td>
                   <td className='px-6 py-4'>
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        p.status === "ACTIVE"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {p.status === "ACTIVE" ? "Đang đấu giá" : p.status}
-                    </span>
+                    {(() => {
+                      const isExpired = new Date(p.endAt) <= new Date();
+                      const isCompleted = p.status === "SOLD" || (p.status === "ACTIVE" && isExpired);
+                      
+                      if (isCompleted) {
+                        return (
+                          <span className='px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
+                            Đã hoàn thành
+                          </span>
+                        );
+                      }
+                      
+                      return (
+                        <span className='px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+                          Đang hoạt động
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className='px-6 py-4'>
                     <div className='flex justify-center gap-2'>
@@ -145,23 +207,44 @@ const ProductsTab: FC = () => {
                       >
                         <Eye className='w-4 h-4' />
                       </Link>
-                      <button
-                        onClick={() => {
-                          setEditProduct(p);
-                          setNewDesc(p.description || "");
-                        }}
-                        className='p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors border border-transparent hover:border-yellow-200'
-                        title='Chỉnh sửa mô tả'
-                      >
-                        <Pencil className='w-4 h-4' />
-                      </button>
-                      <button
-                        onClick={() => setDeleteId(p.id)}
-                        className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200'
-                        title='Xóa sản phẩm'
-                      >
-                        <Trash2 className='w-4 h-4' />
-                      </button>
+                      {(() => {
+                        const isExpired = new Date(p.endAt) <= new Date();
+                        const isCompleted = p.status === "SOLD" || (p.status === "ACTIVE" && isExpired);
+                        
+                        if (isCompleted && p.countbids > 0) {
+                          return (
+                            <Link
+                              to={`/product/${p.id}?tab=rating`}
+                              className='px-3 py-1.5 text-xs font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors'
+                              title='Đánh giá người mua'
+                            >
+                              Đánh giá
+                            </Link>
+                          );
+                        }
+                        
+                        return (
+                          <>
+                            <button
+                              onClick={() => {
+                                setEditProduct(p);
+                                setNewDesc(p.description || "");
+                              }}
+                              className='p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors border border-transparent hover:border-yellow-200'
+                              title='Chỉnh sửa mô tả'
+                            >
+                              <Pencil className='w-4 h-4' />
+                            </button>
+                            <button
+                              onClick={() => setDeleteId(p.id)}
+                              className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200'
+                              title='Xóa sản phẩm'
+                            >
+                              <Trash2 className='w-4 h-4' />
+                            </button>
+                          </>
+                        );
+                      })()}
                     </div>
                   </td>
                 </tr>

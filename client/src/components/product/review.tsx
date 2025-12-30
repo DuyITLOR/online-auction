@@ -110,7 +110,7 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
     }
   };
 
-  const handleKeyDownAnswer = (e: React.KeyboardEvent<HTMLInputElement>, id: string) => {
+  const handleKeyDownAnswer = (e: React.KeyboardEvent<HTMLTextAreaElement>, id: string) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handlePostAnswer(id, answer);
@@ -166,7 +166,7 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
             </button>
             <button
               onClick={() => {
-                navigate(`shop/${seller.id}`);
+                navigate(`/shop/${seller.id}`);
               }}
               className='flex-1 bg-teal-500 text-white text-sm font-semibold h-9 rounded-lg hover:bg-teal-600 transition shadow-sm'
             >

@@ -22,6 +22,7 @@ export const getAllProduct = async ({
   minPrice,
   maxPrice,
   sellerId,
+  isBidder,
 }: {
   page?: number;
   limit?: string;
@@ -31,6 +32,7 @@ export const getAllProduct = async ({
   minPrice?: string;
   maxPrice?: string;
   sellerId?: string;
+  isBidder?: string;
 }) => {
   try {
     const params = new URLSearchParams({
@@ -44,6 +46,7 @@ export const getAllProduct = async ({
     if (minPrice) params.append('minPrice', minPrice);
     if (maxPrice) params.append('maxPrice', maxPrice);
     if (sellerId) params.append('sellerId', sellerId);
+    if (isBidder) params.append('isBidder', isBidder); 
 
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product?${params}`);
     const data = await res.json();

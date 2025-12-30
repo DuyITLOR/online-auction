@@ -19,7 +19,7 @@ export const PaymentReceive = ({ userRole, onComplete }: StepDeliveryProps) => {
     const [confirmed, setConfirmed] = useState(false)
 
     /* ================= SELLER ================= */
-    if (userRole) {
+    if (!userRole) {
         return (
             <Card className="p-6">
                 <div className="py-8">

@@ -43,6 +43,26 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 };
 
+export const getUser = async (req: Request, res: Response) => {
+  const id = req.params.userId;
+  const user = await service.getUserInformation(id);
+  if (user.success) {
+    const response = gatewayResponse(
+      HttpStatus.ok,
+      user.user,
+      'Get user information successfully'
+    );
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Bad request'
+    );
+    res.status(response.code).send(response);
+  }
+};
+
 export const updateUser = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({
@@ -60,8 +80,9 @@ export const updateUser = async (req: Request, res: Response) => {
     fullname: fullname,
     dateOfBirth: dateOfBirth,
     address: address,
-    avt: avtUrl,
+    avtUrl: avtUrl,
   } as updateUserDto;
+
   const record = await service.updateUser(req.user.id, data);
   if (record.success) {
     const response = gatewayResponse(200, null, 'update user');
@@ -436,5 +457,31 @@ export const deleteComment = async (req: Request, res: Response) => {
       );
       res.status(response.code).send(response);
     }
+  }
+};
+
+export const getInforOfProfile = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      const response = gatewayResponse(400, null, 'Token Invalid');
+      return res.status(response.code).send(response);
+    }
+    
+    const id = req.user.id;
+    const data = await service.getInfoProfile(id);
+    if (!data) {
+      const response = gatewayResponse(400, null, 'Bad request');
+      return res.status(response.code).send(response);
+    }
+
+    const response = gatewayResponse(
+      200,
+      data,
+      'Get profile info successfully'
+    );
+    return res.status(response.code).send(response);
+  } catch (error: any) {
+    const response = gatewayResponse(500, null, error.message);
+    res.status(response.code).send(response);
   }
 };

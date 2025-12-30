@@ -46,6 +46,29 @@ export const getAllWatchList = async ({ token, page }: { token: string; limit?: 
   }
 };
 
+export const getAllWatchLists = async ({ token }: { token: string }) => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/watchlists`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      const message = data.message || data.error || 'Failed to get all watch list';
+      throw new Error(message);
+    }
+
+    return data.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 export const deleteWatchList = async ({ productId, token }: { productId: string; token: string }) => {
   try {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/watchlist`, {

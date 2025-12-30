@@ -1,5 +1,6 @@
 import cron from "node-cron";
-import * as productService from "../services/productService.js";
+import * as orderService from "../services/orderService";
+import * as productService from "../services/productService";
 import {
   sendEmail,
   loadOrderTemplate,
@@ -20,7 +21,7 @@ export const auctionEndJob = cron.schedule("* * * * *", async () => {
     console.log(`The number of products: ${listProduct.length}`);
     for (const product of listProduct) {
       try {
-        const data = await productService.handleAuctionEnd(product.id);
+        const data = await orderService.createOrder(product.id);
         if (!data) {
           console.log(`Tạo đơn hàng thất bại cho sản phẩm ${product.id}`);
           continue;

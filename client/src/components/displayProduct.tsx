@@ -2,7 +2,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ProductContext } from '../libs/contexts/product.context';
-import { Heart, Gavel, Clock, Users, Sparkles } from 'lucide-react';
+import { Heart, Gavel, Clock, Users, Sparkles, Calendar, User, ShoppingCart, ArrowRight } from 'lucide-react';
 import type { WatchList } from '../libs/types/types';
 import { getSession } from '../libs/session';
 
@@ -11,8 +11,23 @@ const checkIsNew = (dateString: string) => {
   const now = new Date().getTime();
   const start = new Date(dateString).getTime();
   const diffMinutes = (now - start) / (1000 * 60);
-
   return diffMinutes <= 10 && diffMinutes >= 0;
+};
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}/${date.getFullYear()}`;
+};
+
+const maskBidderName = (name: string) => {
+  if (!name) return 'Chưa có';
+  if (name.length <= 3) return '***';
+  const count = Math.max(0, name.length - 5);
+  const stars = '*'.repeat(count);
+  return stars + name.slice(-5);
 };
 
 const getTimeStatusStyle = (date: string) => {
@@ -54,37 +69,62 @@ const ProductSection = ({
   products,
   toggleWatchList,
   watchList,
+  isWatchMore,
 }: {
   title: string;
   products: any[];
   toggleWatchList: (id: string) => void;
   watchList: WatchList[];
+  isWatchMore: boolean;
 }) => {
-  const isLike = (id: string) => {
-    return watchList.some((item) => id === item.productId || id === item.userId);
-  };
+  const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    const map: Record<string, boolean> = {};
+    watchList.forEach((item) => {
+      map[item.productId] = true;
+    });
+    setLikedMap(map);
+  }, [watchList]);
 
   if (!products || products.length === 0) return null;
 
   return (
     <div className='flex flex-col gap-5 py-2'>
-      <div className='flex items-center gap-3'>
-        <div className='w-1 h-8 bg-teal-500 rounded-full'></div>
-        <p className='font-bold text-2xl text-gray-800'>{title}</p>
+      <div className='flex items-center justify-between mb-6'>
+        {' '}
+        {/* Thêm mb-6 để tạo khoảng cách dưới */}
+        <div className='flex items-center gap-3'>
+          <div className='w-1 h-8 bg-teal-500 rounded-full'></div>
+          <p className='font-bold text-3xl text-gray-800'>{title}</p>
+        </div>
+        <Link
+          to={'/products'}
+          className={`group flex items-center gap-2 text-sm font-semibold text-teal-600 hover:text-teal-800 transition-colors duration-300 ${
+            !isWatchMore ? 'hidden' : ''
+          }`}
+        >
+          <span className='text-base underline'>Xem thêm</span>
+          <ArrowRight className='w-4 h-4 transition-transform duration-300 group-hover:translate-x-1' />
+        </Link>
       </div>
 
       <div className='flex flex-1 items-stretch gap-4 overflow-x-auto scroll-container pb-8 px-1'>
         {products.map((item: any) => {
           const productData = item.product || item;
           const productId = item.productId || item.id;
+
           const timeStyle = getTimeStatusStyle(productData?.endAt);
           const isNew = checkIsNew(productData?.startedAt);
+          const bidCount = productData?.countbids || productData?.bids?.length || 0;
+
+          const highestBidderName =
+            productData?.highestBidder?.fullName || productData?.bidHistory?.[0]?.bidder?.fullname || null;
           return (
             <Link
               to={`/product/${productId}`}
               key={productId}
-              className={`flex flex-col min-w-[calc(20%-12.8px)] bg-white rounded-xl border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative ${
-                isNew ? 'border-purple-300 ring-4 ring-purple-200' : 'border-gray-100'
+              className={`flex flex-col min-w-[calc(20%-12.8px)] max-w-[calc(20%-12.8px)] bg-white rounded-xl border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative ${
+                isNew ? 'border-purple-300 ring-4 ring-purple-100' : 'border-gray-100'
               }`}
             >
               <div className='relative w-full aspect-square overflow-hidden'>
@@ -103,6 +143,7 @@ const ProductSection = ({
                     </div>
                   </div>
                 )}
+
                 <div
                   className={`absolute top-2 left-2 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm ${timeStyle}`}
                 >
@@ -113,14 +154,18 @@ const ProductSection = ({
                 <button
                   onClick={(e) => {
                     e.preventDefault();
-                    toggleWatchList(productData?.id);
+
+                    setLikedMap((prev) => ({
+                      ...prev,
+                      [productId]: !prev[productId],
+                    }));
+
+                    toggleWatchList(productId);
                   }}
                   className='absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-red-500 transition-colors shadow-sm backdrop-blur-sm'
                 >
                   <Heart
-                    className={`w-5 h-5 transition-colors ${
-                      isLike(productData?.id) ? 'fill-red-500 text-red-500' : ''
-                    }`}
+                    className={`w-5 h-5 transition-colors ${likedMap[productId] ? 'fill-red-500 text-red-500' : ''}`}
                   />
                 </button>
 
@@ -132,24 +177,49 @@ const ProductSection = ({
               </div>
 
               <div className='flex flex-col flex-1 p-3 gap-2'>
-                <p className='font-medium text-gray-700 line-clamp-2 text-sm min-h-9 group-hover:text-teal-600 transition-colors'>
+                <p className='font-bold text-gray-800 line-clamp-2 text-sm min-h-10 group-hover:text-teal-600 transition-colors'>
                   {productData?.title}
                 </p>
-                <div className='mt-auto pt-2 border-t border-gray-100 flex items-end justify-between'>
-                  <div className='flex flex-col'>
-                    <span className='text-[10px] uppercase font-bold text-gray-400'>Giá hiện tại</span>
-                    <span className='font-bold text-lg text-teal-600 leading-none'>
-                      {Number(productData?.currentPrice).toLocaleString()} đ
-                    </span>
+
+                <div className='flex flex-col gap-1.5 mt-1 border-b border-dashed border-gray-100 pb-2 mb-1'>
+                  <div className='flex items-center gap-1.5 text-[11px] text-gray-400'>
+                    <Calendar size={12} />
+                    <span>Đăng: {formatDate(productData?.startedAt || productData?.createdAt)}</span>
                   </div>
 
-                  <div className='flex flex-col items-end'>
-                    <span className='text-[10px] uppercase font-bold text-gray-400'>Lượt đấu</span>
-                    <div className='flex items-center gap-1 text-gray-600'>
-                      <Users size={14} />
-                      <span className='font-semibold text-sm'>
-                        {productData?.countbids > 0 ? productData?.countbids : '-'}
+                  <div className='flex items-center gap-1.5 text-[11px] text-gray-500 bg-gray-50 px-2 py-1 rounded-md w-fit'>
+                    <User size={12} className='text-teal-500' />
+                    <span className='font-medium'>Top Bid:</span>
+                    <span className='text-gray-700 font-semibold'>{maskBidderName(highestBidderName)}</span>
+                  </div>
+                </div>
+
+                <div className='mt-auto flex flex-col gap-1'>
+                  {productData?.buyNowPrice > 0 && (
+                    <div className='flex justify-between items-center text-[11px] mb-1'>
+                      <span className='text-gray-400 flex items-center gap-1'>
+                        <ShoppingCart size={10} /> Mua ngay:
                       </span>
+                      <span className='font-bold text-orange-500'>
+                        {Number(productData.buyNowPrice).toLocaleString()} VND
+                      </span>
+                    </div>
+                  )}
+
+                  <div className='flex items-end justify-between'>
+                    <div className='flex flex-col'>
+                      <span className='text-[10px] uppercase font-bold text-gray-400'>Giá hiện tại</span>
+                      <span className='font-bold text-lg text-teal-600 leading-none'>
+                        {Number(productData?.currentPrice).toLocaleString()} VND
+                      </span>
+                    </div>
+
+                    <div className='flex flex-col items-end'>
+                      <span className='text-[10px] uppercase font-bold text-gray-400'>Lượt đấu</span>
+                      <div className='flex items-center gap-1 text-gray-600 bg-gray-100 px-2 py-0.5 rounded'>
+                        <Users size={12} />
+                        <span className='font-bold text-xs'>{bidCount > 0 ? bidCount : '-'}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -164,6 +234,7 @@ const ProductSection = ({
 
 const DisplayProduct = () => {
   const [session, setSession] = useState<any>(null);
+
   const { endingSoonProducts, highestPriceProducts, highestBidProducts, watchList, toggleWatchList, loading, refresh } =
     useContext(ProductContext);
 
@@ -188,12 +259,13 @@ const DisplayProduct = () => {
       )}
 
       {!loading && (
-        <div className='flex flex-col mx-auto max-w-[1400px] px-5 md:px-10 mb-5 gap-8'>
+        <div className='flex flex-col mx-auto max-w-full px-10 mb-5 gap-8'>
           <ProductSection
             title='Sản phẩm yêu thích'
             products={watchList}
             watchList={watchList}
             toggleWatchList={toggleWatchList}
+            isWatchMore={false}
           />
 
           <ProductSection
@@ -201,6 +273,7 @@ const DisplayProduct = () => {
             products={endingSoonProducts}
             watchList={watchList}
             toggleWatchList={toggleWatchList}
+            isWatchMore={true}
           />
 
           <ProductSection
@@ -208,6 +281,7 @@ const DisplayProduct = () => {
             products={highestBidProducts}
             watchList={watchList}
             toggleWatchList={toggleWatchList}
+            isWatchMore={true}
           />
 
           <ProductSection
@@ -215,6 +289,7 @@ const DisplayProduct = () => {
             products={highestPriceProducts}
             watchList={watchList}
             toggleWatchList={toggleWatchList}
+            isWatchMore={true}
           />
         </div>
       )}

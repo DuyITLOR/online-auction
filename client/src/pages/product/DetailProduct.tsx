@@ -69,7 +69,7 @@ const DetailProduct = () => {
     }
   };
 
-  if (isLoading || !user) return <div className='loader' />;
+  if (isLoading) return <div className='loader' />;
   if (!product) return <div>Không tìm thấy sản phẩm</div>;
 
   return (

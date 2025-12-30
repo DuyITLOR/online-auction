@@ -5,3 +5,10 @@ export interface orderQueryDto {
     q?: string;
     view?: string;
 }
+
+export interface orderBankInfo {
+    orderId: string,
+    sellerId: string,
+    bankInfor: string,
+    qrUrl:  string,
+}

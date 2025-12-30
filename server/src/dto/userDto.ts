@@ -29,7 +29,6 @@ export interface askSellerReturnDto {
   productName: string;
   question: string;
 }
-
 export interface answerBidderDto {
   commentId: string;
   productId: string;
@@ -58,4 +57,12 @@ export interface getALlCommentsDto {
 export interface returnErrorDto {
   success: false;
   message: string;
+}
+
+
+export interface responseProfileDto {
+  BidCount: number;
+  WatchListCount: number;
+  OrderCount: number;
+  RatingCount: number;
 }

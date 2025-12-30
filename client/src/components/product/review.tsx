@@ -5,11 +5,12 @@ import { useEffect, useState } from 'react';
 import { type Comments, type User } from '../../libs/types/types';
 import { getCommentsByProduct, postAnswer, postQuestion } from '../../api/comment';
 import { calculateRating } from '../../libs/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface UserProps {
   seller: User | undefined;
   productId: string;
-  user: User;
+  user: User | undefined;
   token: string | undefined;
 }
 
@@ -34,6 +35,7 @@ function formatDate(isoString: string | undefined, options = { time: false }) {
 const ITEM_PER_PAGE = 10;
 
 const ProductQA = ({ seller, productId, user, token }: UserProps) => {
+  const navigate = useNavigate();
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [comments, setComments] = useState<Comments[]>([]);
@@ -144,7 +146,12 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
             <button className='flex-1 bg-teal-50 text-teal-600 border border-teal-200 text-sm font-semibold h-9 rounded-lg hover:bg-teal-100 transition'>
               Chat ngay
             </button>
-            <button className='flex-1 bg-teal-500 text-white text-sm font-semibold h-9 rounded-lg hover:bg-teal-600 transition shadow-sm'>
+            <button
+              onClick={() => {
+                navigate(`shop/${seller.id}`);
+              }}
+              className='flex-1 bg-teal-500 text-white text-sm font-semibold h-9 rounded-lg hover:bg-teal-600 transition shadow-sm'
+            >
               Xem Shop
             </button>
           </div>
@@ -161,13 +168,13 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
           </p>
         </div>
 
-        {token && seller.id !== user.id && (
+        {token && seller.id !== user?.id && (
           <div className='flex gap-3 mb-8 items-start'>
             <div className='bg-gray-200 rounded-full p-2 mt-1'>
               <Avatar className='w-8 h-8 mt-1'>
-                <AvatarImage src={user.avtUrl} className='w-8 h-8 rounded-full' />
+                <AvatarImage src={user?.avtUrl} className='w-8 h-8 rounded-full' />
                 <AvatarFallback className='w-8 h-8 rounded-full bg-teal-200 text-teal-800 text-xs flex items-center justify-center font-bold'>
-                  {user.fullname}
+                  {user?.fullname}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -239,7 +246,7 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
                 </div>
               )}
 
-              {item.replies.length === 0 && user.id === seller.id && (
+              {item.replies.length === 0 && user?.id === seller.id && (
                 <div className='ml-11'>
                   <button
                     onClick={() => setHiddenAns(item.id)}

@@ -114,7 +114,10 @@ const PostProduct = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     const rawValue = value.replace(/\./g, '');
-    setFormData((prev) => ({ ...prev, [name]: rawValue ? rawValue : Number(rawValue) }));
+    if (name === 'name') {
+      setFormData((prev) => ({ ...prev, [name]: rawValue ? rawValue : rawValue }));
+      console.log(formData.name);
+    } else setFormData((prev) => ({ ...prev, [name]: rawValue ? rawValue : Number(rawValue) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

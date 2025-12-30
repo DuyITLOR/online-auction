@@ -1,6 +1,7 @@
-import { orderQueryDto } from "../dto/orderDto";
-import { prisma } from "./db/prisma";
-import { Prisma } from "@prisma/client";
+import { orderQueryDto } from '../dto/orderDto';
+import { prisma } from './db/prisma';
+import { Prisma } from '@prisma/client';
+import * as orderDto from '../dto/orderDto';
 export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 10;
@@ -8,48 +9,50 @@ export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
 
   const where: Prisma.OrdersWhereInput = {};
 
-  if (query.userId && role === "BIDDER") {
+  if (query.userId && role === 'BIDDER') {
     where.buyerId = query.userId;
-  } else if (query.userId && role === "SELLER") {
+  } else if (query.userId && role === 'SELLER') {
     where.product = { sellerId: query.userId };
-  } else if (query.userId && role === "ADMIN") {
+  } else if (query.userId && role === 'ADMIN') {
   } else {
-    throw new Error("Thiếu role không thể truy cập");
+    throw new Error('Thiếu role không thể truy cập');
   }
 
-  const q = (query.q ?? "").trim();
+  const q = (query.q ?? '').trim();
   if (q) {
-    const productWhere : Prisma.ProductsWhereInput = where.product ?? {};
+    const productWhere: Prisma.ProductsWhereInput = where.product ?? {};
     where.product = {
       ...productWhere,
       title: {
         contains: q,
-        mode: "insensitive",
+        mode: 'insensitive',
       },
     };
   }
 
   let selectByRole: Prisma.OrdersSelect;
-  if (role === "ADMIN") {
+  if (role === 'ADMIN') {
     selectByRole = {
       id: true,
       totalAmount: true,
       status: true,
+      createdAt: true,
       product: {
         select: { title: true, seller: { select: { fullname: true } } },
       },
       buyer: { select: { fullname: true } },
     };
-  } else if (role === "BIDDER") {
+  } else if (role === 'BIDDER') {
     selectByRole = {
       id: true,
       totalAmount: true,
       status: true,
+      createdAt: true,
       product: {
         select: { title: true, seller: { select: { fullname: true } } },
       },
     };
-  } else if (role === "SELLER") {
+  } else if (role === 'SELLER') {
     selectByRole = {
       id: true,
       totalAmount: true,
@@ -60,7 +63,7 @@ export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
       buyer: { select: { fullname: true } },
     };
   } else {
-    throw new Error("Role không hợp lệ");
+    throw new Error('Role không hợp lệ');
   }
 
   const data = await prisma.orders.findMany({
@@ -68,7 +71,7 @@ export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
     skip,
     take: limit,
     orderBy: {
-      createdAt: "desc",
+      createdAt: 'desc',
     },
     select: selectByRole,
   });
@@ -83,3 +86,147 @@ export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
     data: data,
   };
 };
+
+export const getCountOrderByUser = async (userId: string) => {
+  const count = await prisma.orders.count({
+    where: { buyerId: userId },
+  });
+
+  return count;
+};
+
+export const createOrder = async (productId: string) => {
+  const product = await prisma.$transaction(async (tx) => {
+    const exitOrder = await tx.orders.findUnique({
+      where: { productId: productId },
+    });
+
+    if (exitOrder) {
+      return null;
+    }
+    await tx.products.update({
+      where: { id: productId, status: 'ACTIVE' },
+      data: {
+        status: 'SOLD',
+        updatedAt: new Date(),
+      },
+    });
+
+    return await tx.products.findUnique({
+      where: { id: productId },
+      include: {
+        seller: true,
+      },
+    });
+  });
+
+  if (!product) {
+    throw new Error(`Không tìm thấy sản phẩm với productId ${productId}`);
+  }
+
+  // Nếu không có người mua
+  if (product.winnerId === null) {
+    return {
+      type: 'NO_BIDDER',
+      product: product,
+    };
+  }
+
+  const timeout = 24 * 60 * 60 * 1000;
+  const order = await prisma.orders.create({
+    data: {
+      productId: productId,
+      buyerId: product.winnerId,
+      sellerId: product.sellerId,
+      totalAmount: new Prisma.Decimal(product.buyNowPrice),
+      createdAt: new Date(),
+    },
+    include: {
+      buyer: true,
+    },
+  });
+
+  if (!order) {
+    throw new Error('Tạo đơn hàng thất bại');
+  }
+
+  return {
+    type: 'HAS_BIDDER',
+    product: product,
+    order: order,
+  };
+};
+
+export const getOrderById = async (
+  orderId: string,
+  userId: string
+) => {
+  return prisma.orders.findFirst({
+    where: {
+      id: orderId,
+      OR: [
+        { buyerId: userId },
+        { sellerId: userId },
+      ],
+    },
+    select: {
+      id: true,
+      totalAmount: true,
+      status: true,
+      sellerId: true,
+      buyerId: true,
+
+      product: {
+        select: {
+          title: true,
+        },
+      },
+      buyer: {
+        select: {
+          fullname: true,
+        },
+      },
+      seller: {
+        select: {
+          fullname: true,
+        },
+      },
+    },
+  });
+};
+
+export const uploadBankInfo = async (bankInfo: orderDto.orderBankInfo) => {
+  const exit = await prisma.orders.findUnique({
+    where: {
+      id: bankInfo.orderId,
+      sellerId: bankInfo.sellerId,
+      status: 'WAIT_SELLER_BANK_INFO'
+    },
+    select: {
+      id: true
+    }
+  })
+
+  if (!exit) {
+    throw new Error('Không tìm thấy đơn hàng');
+  }
+
+  return prisma.orders.update({
+    where: {
+      id: bankInfo.orderId,
+      sellerId: bankInfo.sellerId,
+    },
+    data: {
+      qrUrl: bankInfo.qrUrl,
+      qrInfo: bankInfo.bankInfor,
+      status: 'WAIT_BUYER_PAYMENT',
+    },
+
+    select: {
+      id: true,
+      qrUrl: true,
+      qrInfo: true,
+      status: true,
+    }
+  })
+}

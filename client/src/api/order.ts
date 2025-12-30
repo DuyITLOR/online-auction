@@ -15,6 +15,7 @@ export const getAllProductByBidder = async (token: string) => {
       throw new Error(message);
     }
 
+    console.log('Fetched products by bidder:', data.data);
     return data.data;
   } catch (err) {
     console.error(err);

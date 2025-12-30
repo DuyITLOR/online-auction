@@ -40,6 +40,8 @@ export interface productQueryDto {
   limit?: string;
   sort?: string; // "price_asc", "price_desc", "createdAt_asc", "createdAt_desc"
   sellerId?: string;
+  minPrice?: string;
+  maxPrice?: string;
 }
 
 export interface buyNowProuctDto {

@@ -1,22 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { ArrowLeft, Home, SearchX } from 'lucide-react';
+import { ArrowLeft, Home, ShieldBan } from 'lucide-react';
 
-const NotFoundPage = () => {
+const UnauthorizedPage = () => {
   const navigate = useNavigate();
 
   return (
     <div className='min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4 text-center'>
-      <div className='bg-teal-50 p-6 rounded-full mb-6 animate-bounce-slow'>
-        <SearchX className='w-20 h-20 text-teal-600' />
+      <div className='bg-red-50 p-6 rounded-full mb-6 animate-pulse'>
+        <ShieldBan className='w-20 h-20 text-red-500' />
       </div>
 
-      <h1 className='text-9xl font-extrabold text-teal-600 tracking-widest'>404</h1>
+      <h2 className='text-2xl md:text-3xl font-bold text-gray-800 mt-8 mb-4'>Truy cập bị từ chối!</h2>
 
-      <h2 className='text-2xl md:text-3xl font-bold text-gray-800 mt-8 mb-4'>Oops! Trang này không tồn tại.</h2>
-
-      <p className='text-gray-500 max-w-md mb-8 text-base md:text-lg'>
-        Có vẻ như đường dẫn bạn đang truy cập bị hỏng hoặc trang đã bị xóa. Hãy thử quay lại hoặc về trang chủ nhé.
+      <p className='text-gray-500 max-w-lg mb-8 text-base md:text-lg'>
+        Xin lỗi, bạn không có đủ quyền hạn để xem trang này.
       </p>
 
       <div className='flex flex-col sm:flex-row gap-4'>
@@ -45,4 +43,4 @@ const NotFoundPage = () => {
   );
 };
 
-export default NotFoundPage;
+export default UnauthorizedPage;

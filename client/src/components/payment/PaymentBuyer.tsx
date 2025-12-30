@@ -22,7 +22,7 @@ const PaymentBuyer = ({ userRole, onComplete }: StepPaymentProps) => {
     }
 
     /* ===== SELLER VIEW ===== */
-    if (userRole.includes("SELLER")) {
+    if (userRole) {
         return (
             <Card className="p-6">
                 <div className="text-center py-10">

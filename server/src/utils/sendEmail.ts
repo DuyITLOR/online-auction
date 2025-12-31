@@ -273,10 +273,10 @@ export const sendEmail = async (
 
   try {
     const info = await transporter.sendMail({
-      from: '"LetBid" <group2hcmus@gmail.com>',
+      from: '"SnapBid" <group2hcmus@gmail.com>',
       to: data.email,
       subject: data.subject ?? "Verification code",
-      text: "Message from Online Auction", // plain‑text body
+      text: "Message from SnapBid", // plain‑text body
       html: data.content, // HTML body
     });
 

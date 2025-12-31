@@ -8,6 +8,8 @@ import jwt from 'jsonwebtoken';
 import { HttpStatus } from '../utils/permission';
 import { verifyDto } from '../dto/authenticationDto';
 import { checkRole } from '../utils/checkRole';
+import { prisma } from '../services/db/prisma';
+import bcrypt from 'bcryptjs';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -22,7 +24,10 @@ export const signIn = async (req: Request, res: Response) => {
   params.append('secret', secretKey);
   params.append('response', recaptchaToken);
 
-  const ggRes = await axios.post('https://www.google.com/recaptcha/api/siteverify', params);
+  const ggRes = await axios.post(
+    'https://www.google.com/recaptcha/api/siteverify',
+    params
+  );
   const ggData = ggRes.data;
 
   if (!ggData.success && process.env.NODE_ENV !== 'development') {
@@ -34,7 +39,11 @@ export const signIn = async (req: Request, res: Response) => {
 
   const bidder = await service.getBidder(email);
   if (!bidder) {
-    const response = gatewayResponse(400, null, 'Email has not been registered');
+    const response = gatewayResponse(
+      400,
+      null,
+      'Email has not been registered'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -49,7 +58,11 @@ export const signIn = async (req: Request, res: Response) => {
       const response = gatewayResponse(200, { token, user }, 'Welcome back');
       res.status(response.code).send(response);
     } else {
-      const response = gatewayResponse(400, null, 'Email or password is invalid');
+      const response = gatewayResponse(
+        400,
+        null,
+        'Email or password is invalid'
+      );
       res.status(response.code).send(response);
       return;
     }
@@ -107,6 +120,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
   const hashed = await service.hashPassword(password);
   const fullname = req.body.fullname;
   const dateOfBirth = req.body.dateOfBirth;
+  const address = req.body.address;
   const avtUrl =
     'https://lqxrdsayuzjybccsuhmb.supabase.co/storage/v1/object/public/images/avatar/765-default-avatar.png';
   const data = {
@@ -115,6 +129,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     fullname,
     avtUrl,
     dateOfBirth,
+    address,
   } as verifyDto;
   const record = await service.verifyCode(code, email);
   if (record.success) {
@@ -159,7 +174,11 @@ export const forgetPassword = async (req: Request, res: Response) => {
   const user = await service.getBidder(email);
   const url = process.env.FRONTEND_URL;
   if (!user) {
-    const response = gatewayResponse(HttpStatus.badRequest, null, 'Email has not been registered');
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Email has not been registered'
+    );
     res.status(response.code).send(response);
     return;
   }
@@ -190,26 +209,100 @@ export const forgetPassword = async (req: Request, res: Response) => {
     const response = gatewayResponse(HttpStatus.accepted, null, record.message);
     res.status(response.code).send(response);
   } else {
-    const response = gatewayResponse(HttpStatus.badRequest, null, record.message);
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      record.message
+    );
+    res.status(response.code).send(response);
+  }
+};
+
+const checkPassword = async (
+  userId: string,
+  password: string
+): Promise<boolean> => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!user) return false;
+  const isCorrect = await bcrypt.compare(password, user.password!);
+  return isCorrect;
+};
+
+export const updatePassword = async (req: Request, res: Response) => {
+  if (!req.user) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Token required'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+  const id = req.user.id;
+  const oldPassword = req.body.oldPassword;
+  const newPassword = req.body.newPassword;
+
+  if (!oldPassword || !newPassword) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Thiếu thông tin mật khẩu'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+
+  const isCorrect = await checkPassword(id, oldPassword);
+  if (!isCorrect) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Mật khẩu cũ không đúng'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+
+  const hashed = await service.hashPassword(newPassword);
+  const record = await service.updatePassword(id, hashed);
+  if (record.success) {
+    const response = gatewayResponse(HttpStatus.ok, null, record.message);
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(
+      HttpStatus.serviceUnavailable,
+      null,
+      record.message
+    );
     res.status(response.code).send(response);
   }
 };
 
 export const resetPassword = async (req: Request, res: Response) => {
   if (!req.user) {
-    const response = gatewayResponse(HttpStatus.badRequest, null, 'Token required');
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Token required'
+    );
     res.status(response.code).send(response);
     return;
   }
   const id = req.user.id;
-  const password = req.body.password;
-  const hashed = await service.hashPassword(password);
+  const newPassword = req.body.password;
+  const hashed = await service.hashPassword(newPassword);
   const record = await service.updatePassword(id, hashed);
   if (record.success) {
     const response = gatewayResponse(HttpStatus.ok, null, record.message);
     res.status(response.code).send(response);
   } else {
-    const response = gatewayResponse(HttpStatus.serviceUnavailable, null, record.message);
+    const response = gatewayResponse(
+      HttpStatus.serviceUnavailable,
+      null,
+      record.message
+    );
     res.status(response.code).send(response);
   }
 };
@@ -279,7 +372,11 @@ export const googleCallback = async (req: Request, res: Response) => {
 
     const { bidder, token } = await service.signInWithGoogle({
       email: profile?.emails?.[0]?.value,
-      fullname: profile?.displayName ?? `${profile?.name?.givenName ?? ''} ${profile?.name?.familyName ?? ''}`.trim(),
+      fullname:
+        profile?.displayName ??
+        `${profile?.name?.givenName ?? ''} ${
+          profile?.name?.familyName ?? ''
+        }`.trim(),
       avtUrl:
         profile?._json.picture ||
         'https://lqxrdsayuzjybccsuhmb.supabase.co/storage/v1/object/public/images/avatar/765-default-avatar.png',

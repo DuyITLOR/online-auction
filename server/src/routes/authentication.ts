@@ -9,6 +9,11 @@ const router = Router();
 router.post(API_ROUTES.signIn.path, controllers.signIn);
 router.post(API_ROUTES.signUp.path, controllers.signUp);
 router.post(API_ROUTES.verifyEmail.path, controllers.verifyEmail);
+router.post(
+  API_ROUTES.updatePassword.path,
+  authMiddleware,
+  controllers.updatePassword
+);
 router.post(API_ROUTES.forgetPassword.path, controllers.forgetPassword);
 router.post(
   API_ROUTES.resetPassword.path,

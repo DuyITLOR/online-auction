@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useMemo } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Link } from 'react-router-dom';
-import { ChevronDown, ArrowRight, LayoutGrid, Sparkles } from 'lucide-react';
+import { ChevronDown, ArrowRight } from 'lucide-react';
 import type { Category } from '../libs/types/types';
 
 const ListItem = ({ to, title }: { to: string; title: string }) => {

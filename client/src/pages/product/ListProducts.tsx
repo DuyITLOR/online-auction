@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Heart, ChevronRight, Clock, Gavel, ChevronDown, Filter } from 'lucide-react';
+import { Heart, ChevronRight, Clock, Gavel, ChevronDown, Filter, SearchX } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ProductContext } from '../../libs/contexts/product.context';
@@ -308,12 +308,11 @@ const ProductList = () => {
 
               <SortBar />
             </div>
-
             {loading ? (
-              <div className='flex items-center justify-center h-64'>
+              <div className='flex items-center justify-center h-128'>
                 <div className='animate-spin rounded-full h-10 w-10 border-4 border-teal-500 border-t-transparent'></div>
               </div>
-            ) : (
+            ) : products.length > 0 ? (
               <>
                 <div className='grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'>
                   {products.map((item) => {
@@ -412,7 +411,24 @@ const ProductList = () => {
                   <Pagination page={page} totalPage={totalPage} onPageChange={handlePage} />
                 </div>
               </>
+            ) : (
+              <div className='flex flex-col items-center justify-center py-16 px-4 text-center animate-in fade-in zoom-in duration-500'>
+                <div className='bg-gray-100 p-6 rounded-full mb-6 relative'>
+                  <SearchX className='w-12 h-12 text-gray-400' />
+                  <div className='absolute -bottom-1 -right-1 bg-white p-1 rounded-full shadow-sm'>
+                    <div className='w-4 h-4 bg-red-400 rounded-full animate-pulse'></div>
+                  </div>
+                </div>
+
+                <h3 className='text-xl font-bold text-gray-900 mb-2'>Không tìm thấy sản phẩm nào</h3>
+
+                <p className='text-gray-500 max-w-md mb-8 leading-relaxed'>
+                  Chúng tôi không tìm thấy sản phẩm nào phù hợp với bộ lọc hiện tại. Hãy thử điều chỉnh khoảng giá hoặc
+                  danh mục khác.
+                </p>
+              </div>
             )}
+            x
           </div>
         </div>
       </div>

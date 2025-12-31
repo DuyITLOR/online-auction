@@ -113,6 +113,9 @@ export const getOrderById = async (req: Request, res: Response) => {
             canCancel: canCancel,
             qrInfo: order.qrInfo,
             qrUrl: order.qrUrl,
+            buyerAddress: order.buyerAddress,
+            buyerPhone: order.buyerPhone,
+            billUrl: order.billUrl,
             role: role
         }
 

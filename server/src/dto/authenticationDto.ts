@@ -16,4 +16,5 @@ export interface verifyDto {
   hashed: string;
   avtUrl: string;
   dateOfBirth: string;
+  address: string;
 }

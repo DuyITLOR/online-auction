@@ -1,9 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useEffect, useState, type ReactNode } from 'react';
 import type { User } from '../types/types';
 import { getRole } from '../../api/user';
 import { getSession } from '../session';
+import { io, type Socket } from 'socket.io-client';
+
+// Connect to socket
+const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5050';
+export const socket: Socket = io(backendUrl, {
+  autoConnect: false,
+  transports: ['websocket'],
+});
 
 type UserContextType = {
   user: User | null;
@@ -43,6 +50,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const session = await getSession();
       const curToken = typeof session?.token === 'string' ? session.token : '';
 
+      if (curToken !== '') {
+        if (socket.connected) {
+          socket.disconnect();
+        }
+        socket.auth = { token: curToken };
+        socket.connect();
+      } else {
+        socket.disconnect();
+      }
+
       await fetchUserInfor(curToken);
     } catch (err) {
       console.error(err);
@@ -54,7 +71,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user: userState, refresh: () => getData(), rating: ratingValue }}>
+    <UserContext.Provider
+      value={{ user: userState, refresh: () => getData(), rating: ratingValue }}
+    >
       {children}
     </UserContext.Provider>
   );

@@ -2,8 +2,49 @@ import { Request, Response } from 'express';
 import { gatewayResponse } from '../utils/response';
 import { HttpStatus } from '../utils/permission';
 import { checkRole } from '../utils/checkRole';
-import type { getMessageDto, sendMessageDto } from '../dto/chatDto';
+import type {
+  getAllChatsDto,
+  getMessageDto,
+  sendMessageDto,
+} from '../dto/chatDto';
 import * as services from '../services/chatService';
+
+export const getAllChats = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      throw new Error('Thiếu thông tin');
+    }
+    const userId = req.user.id;
+    const data = {
+      userId,
+    } as getAllChatsDto;
+    const chats = await services.getAllChats(data);
+
+    const response = gatewayResponse(
+      HttpStatus.ok,
+      chats,
+      `Lấy tất cả cuộc hội thoại thành công`
+    );
+    res.status(response.code).send(response);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.log('From chat controller: ', err.message);
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        err.message
+      );
+      res.status(response.code).send(response);
+    } else {
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        'Lỗi từ server'
+      );
+      res.status(response.code).send(response);
+    }
+  }
+};
 
 export const getAllMessage = async (req: Request, res: Response) => {
   try {

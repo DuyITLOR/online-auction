@@ -6,6 +6,11 @@ import * as controllers from '../controllers/chatControllers';
 const router = Router();
 
 router.get(
+  API_CHAT_ROUTES.getAllChats.path,
+  authMiddleware,
+  controllers.getAllChats
+);
+router.get(
   API_CHAT_ROUTES.getMessagesByProduct.path,
   authMiddleware,
   controllers.getAllMessage

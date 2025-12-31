@@ -1,10 +1,13 @@
-import "dotenv/config";
-import express from "express";
-import cors from "cors";
-import { routes } from "./routes";
-import passport from "passport";
-import "./jobs/auctionEndJob";
-require("./config/passport");
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import passport from 'passport';
+import http from 'http';
+import { Server } from 'socket.io';
+import { setupSocket } from './socket';
+import { routes } from './routes';
+import './jobs/auctionEndJob';
+import './config/passport';
 
 const app = express();
 app.use(cors());
@@ -14,11 +17,21 @@ app.use(passport.initialize());
 // Define routes
 routes(app);
 
-const PORT = process.env.PORT || 5050;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// 🔹 Tạo HTTP server từ Express
+const server = http.createServer(app);
+
+// 🔹 Gắn Socket.IO
+const feUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+const io = new Server(server, {
+  cors: {
+    origin: feUrl,
+    credentials: true,
+  },
 });
 
-// app.listen(Number(PORT), "0.0.0.0", () => {
-//   console.log(`Server is running on http://0.0.0.0:${PORT}`);
-// });
+setupSocket(io);
+
+const PORT = process.env.PORT || 5050;
+server.listen(PORT, () => {
+  console.log(`Server + Socket running on port ${PORT}`);
+});

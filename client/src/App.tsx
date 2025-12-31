@@ -1,6 +1,10 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import './App.css';
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import AuthCallback from './pages/auth/AuthCallback';
 import SignIn from './pages/auth/SignIn';
@@ -18,6 +22,7 @@ import PaymentPage from './pages/payment/PaymentPage';
 import MainLayout from './layouts/MainLayout';
 import NotFoundPage from './pages/NotFound';
 import ShopPage from './pages/product/ShopProduct';
+import ChatPage from './pages/chat/ChatPage';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -40,6 +45,7 @@ const router = createBrowserRouter(
         <Route path='payment/:id' element={<PaymentPage />} />
         <Route path='seller/dashboard' element={<SellerDashboard />} />
       </Route>
+      <Route path='chat' element={<ChatPage />} />
     </>
   )
 );

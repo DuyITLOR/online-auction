@@ -1,27 +1,28 @@
-import "./App.css";
+import './App.css';
 import {
   createBrowserRouter,
   createRoutesFromElements,
   Route,
   RouterProvider,
-} from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import AuthCallback from "./pages/auth/AuthCallback";
-import SignIn from "./pages/auth/SignIn";
-import SignUp from "./pages/auth/SignUp";
-import Verify from "./pages/auth/Verify";
-import ProductList from "./pages/product/ProductList";
-import Admin from "./pages/admin/Admin";
-import Profile from "./pages/Profile";
-import DetailProduct from "./pages/product/DetailProduct";
-import ForgetPassword from "./pages/auth/ForgetPassword";
-import ResetPassword from "./pages/auth/ResetPassword";
-import PostProduct from "./pages/product/PostProduct";
-import SellerDashboard from "./pages/seller/Dashboard";
-import PaymentPage from "./pages/payment/PaymentPage";
-import MainLayout from "./layouts/MainLayout";
-import NotFoundPage from "./pages/NotFound";
-import ShopPage from "./pages/product/ShopProduct";
+} from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
+import AuthCallback from './pages/auth/AuthCallback';
+import SignIn from './pages/auth/SignIn';
+import SignUp from './pages/auth/SignUp';
+import Verify from './pages/auth/Verify';
+import ProductList from './pages/product/productList';
+import Admin from './pages/admin/Admin';
+import Profile from './pages/Profile';
+import DetailProduct from './pages/product/DetailProduct';
+import ForgetPassword from './pages/auth/ForgetPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+import PostProduct from './pages/product/PostProduct';
+import SellerDashboard from './pages/seller/Dashboard';
+import PaymentPage from './pages/payment/PaymentPage';
+import MainLayout from './layouts/MainLayout';
+import NotFoundPage from './pages/NotFound';
+import ShopPage from './pages/product/ShopProduct';
+import ChatPage from './pages/chat/ChatPage';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -44,6 +45,7 @@ const router = createBrowserRouter(
         <Route path='payment/:id' element={<PaymentPage />} />
         <Route path='seller/dashboard' element={<SellerDashboard />} />
       </Route>
+      <Route path='chat' element={<ChatPage />} />
     </>
   )
 );

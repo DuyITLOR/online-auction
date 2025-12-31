@@ -295,6 +295,11 @@ export const API_RATING_ROUTES = {
 };
 
 export const API_CHAT_ROUTES = {
+  getAllChats: {
+    path: '/chats',
+    role: [Role.BIDDER, Role.SELLER],
+    method: 'GET',
+  },
   getMessagesByProduct: {
     path: '/products/:productId/chat',
     role: [Role.BIDDER, Role.SELLER],

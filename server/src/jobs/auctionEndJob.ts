@@ -15,10 +15,10 @@ export const auctionEndJob = cron.schedule("* * * * *", async () => {
     return;
   }
   isRunning = true;
-  console.log("Running auction end job...");
+  // console.log("Running auction end job...");
   try {
     const listProduct = await productService.getExpiredActiveProducts();
-    console.log(`The number of products: ${listProduct.length}`);
+    // console.log(`The number of products: ${listProduct.length}`);
     for (const product of listProduct) {
       try {
         const data = await orderService.createOrder(product.id);

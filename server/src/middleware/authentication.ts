@@ -22,6 +22,31 @@ declare global {
   }
 }
 
+export const verifyToken = (token: string) => {
+  try {
+    const decoded = jwt.verify(
+      token,
+      JWT_SECRET
+    ) as unknown as JwtPayloadCustom;
+    return {
+      valid: true,
+      expired: false,
+      decoded: decoded,
+    };
+  } catch (error: any) {
+    if (error.name === 'TokenExpiredError') {
+      return {
+        valid: true,
+        expired: true,
+      };
+    }
+    return {
+      valid: false,
+      expired: false,
+    };
+  }
+};
+
 // Middleware xác thực JWT
 export const authMiddleware = (
   req: Request,

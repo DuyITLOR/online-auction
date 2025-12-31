@@ -31,3 +31,21 @@ export type VerifyFormState =
       messages?: string;
     }
   | undefined;
+
+export type ForgetPasswordFormState =
+  | {
+      errors?: {
+        email?: string[];
+      };
+      messages?: string;
+    }
+  | undefined;
+
+export type ResetPasswordFormState =
+  | {
+      errors?: {
+        password?: string[];
+      };
+      messages?: string;
+    }
+  | undefined;

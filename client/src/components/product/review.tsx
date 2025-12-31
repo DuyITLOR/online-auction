@@ -161,9 +161,6 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
           </div>
 
           <div className='flex gap-2'>
-            <button className='flex-1 bg-teal-50 text-teal-600 border border-teal-200 text-sm font-semibold h-9 rounded-lg hover:bg-teal-100 transition'>
-              Chat ngay
-            </button>
             <button
               onClick={() => {
                 navigate(`/shop/${seller.id}`);

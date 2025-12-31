@@ -1,8 +1,17 @@
 import { SignInSchema } from '../schema/signInSchema';
-import type { SignInFormState, SignUpFormState, VerifyFormState } from '../types/formState';
+import type {
+  ForgetPasswordFormState,
+  ResetPasswordFormState,
+  SignInFormState,
+  SignUpFormState,
+  VerifyFormState,
+} from '../types/formState';
 import { SignUpSchema } from '../schema/signUpSchema';
 import { VerifySchema } from '../schema/verifySchema';
 import { createSession } from '../session';
+import { ForgetPasswordSchema } from '../schema/forgetPasswordSchema';
+import { ResetPasswordSchema } from '../schema/resetPasswordSchema';
+import { toast } from 'sonner';
 
 export async function SignInFormAction(_state: SignInFormState, formData: FormData): Promise<SignInFormState> {
   try {
@@ -141,6 +150,80 @@ export async function VerifyFormAction(_state: VerifyFormState, formData: FormDa
     window.location.href = '/auth/signin';
   } catch (error) {
     console.error('[auth-form][form-submit::verify]:', error);
+    return {
+      messages: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.',
+    };
+  }
+}
+
+export async function ForgetPasswordFormAction(
+  _state: ForgetPasswordFormState,
+  formData: FormData
+): Promise<SignUpFormState> {
+  try {
+    const forgetForm = ForgetPasswordSchema.safeParse({
+      email: formData.get('email'),
+    });
+
+    if (!forgetForm.success) {
+      return {
+        errors: forgetForm.error.flatten().fieldErrors,
+      };
+    }
+
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/forget-password`, {
+      method: 'Post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(forgetForm.data),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      return {
+        messages: data.message,
+      };
+    }
+  } catch (error) {
+    console.error('[auth-form][form-submit::forget-password]:', error);
+    return {
+      messages: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.',
+    };
+  }
+}
+
+export async function ResetPasswordFormAction(
+  _state: ResetPasswordFormState,
+  formData: FormData
+): Promise<ResetPasswordFormState> {
+  try {
+    const forgetForm = ResetPasswordSchema.safeParse({
+      password: formData.get('password'),
+    });
+
+    if (!forgetForm.success) {
+      return {
+        errors: forgetForm.error.flatten().fieldErrors,
+      };
+    }
+
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/reset-password`, {
+      method: 'Post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(forgetForm.data),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      return {
+        messages: data.message,
+      };
+    }
+
+    toast.success('Thay đổi mật khẩu thành công');
+
+    window.location.href = '/auth/signin'
+  } catch (error) {
+    console.error('[auth-form][form-submit::reset-password]:', error);
     return {
       messages: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.',
     };

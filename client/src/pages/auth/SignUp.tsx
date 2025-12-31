@@ -6,6 +6,7 @@ import { useActionState } from 'react';
 
 const SignUp = () => {
   const [state, action] = useActionState(SignUpFormAction, undefined);
+  
   return (
     <div className='min-h-screen flex items-center'>
       <form action={action} className='w-[450px] mx-auto'>

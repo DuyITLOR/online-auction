@@ -24,6 +24,7 @@ export type VerifyFormState =
       errors?: {
         email?: string[];
         name?: string[];
+        address?: string[];
         password?: string[];
         code?: string[];
       };

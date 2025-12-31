@@ -1,9 +1,14 @@
 import React, { useState } from "react"
+import { useParams } from 'react-router-dom';
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Upload, Package, CheckCircle2, MapPin, Phone, ImageIcon, User } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { type Orders } from '../../libs/types/types'
+import { uploadShippingInfo } from "../../api/order";
+import { getSession } from "../../libs/session"
+import { toast } from "sonner";
+import { set } from "zod";
 
 interface StepShippingProps {
     userRole: "ADMIN" | "SELLER" | "BIDDER";
@@ -14,23 +19,49 @@ interface StepShippingProps {
 
 export const PaymentShipping = ({ userRole, onComplete, order }: StepShippingProps) => {
     const [shippingCode, setShippingCode] = useState("")
-    const [shippingInvoice, setShippingInvoice] = useState<File | null>(null)
+    const [shippingUrl, setShippingUrl] = useState<File | null>(null)
     const [shippingPreview, setShippingPreview] = useState<string | null>(null)
     const [paymentConfirmed, setPaymentConfirmed] = useState(false)
+    const { id } = useParams();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (!file) return
 
-        setShippingInvoice(file)
+        setShippingUrl(file)
         setShippingPreview(URL.createObjectURL(file))
     }
 
-    const handleSubmit = () => {
-        if (paymentConfirmed && shippingCode && shippingInvoice) onComplete()
+    const handleSubmit = async () => {
+        if (!id) return;
+        if (!paymentConfirmed || !shippingCode || !shippingUrl) return;
+        if (isSubmitting) return;
+
+        try {
+            setIsSubmitting(true);
+            const session = await getSession();
+            const token = typeof session?.token === 'string' ? session.token : '';
+            await uploadShippingInfo(id, token, shippingCode, shippingUrl);
+            
+            toast.success('Thành công!', {
+                description: 'Bạn đã xác nhận gửi hàng thành công.',
+            });
+
+            onComplete();
+        } catch (error) {
+            console.error("Error uploading shipping info:", error);
+            toast.error('Thất bại', {
+                description: `Xác nhận gửi hàng thất bại. Vui lòng thử lại.`,
+            });
+        } finally{
+            setIsSubmitting(false);
+        }
     }
 
+    const isFormValid = Boolean(paymentConfirmed && shippingCode && shippingUrl)
+
     /* ================= BUYER ================= */
-    if(userRole === "BIDDER"){
+    if (userRole === "BIDDER") {
         return (
             <Card className="p-6">
                 <div className="py-8">
@@ -52,10 +83,10 @@ export const PaymentShipping = ({ userRole, onComplete, order }: StepShippingPro
                         </h4>
 
                         <div className="space-y-3">
-                            <InfoRow icon={ImageIcon} label="Ảnh xác nhận thanh toán" value="Đã tải lên"  highlight/>
-                            <InfoRow icon={User} label="Tên người nhận hàng" value={order.buyer.fullname || ""} highlight/>
-                            <InfoRow icon={MapPin} label="Địa chỉ giao hàng" value={order.buyerAddress?.toString() || ""} highlight/>
-                            <InfoRow icon={Phone} label="Số điện thoại" value={order.buyerPhone || ""} highlight/>
+                            <InfoRow icon={ImageIcon} label="Ảnh xác nhận thanh toán" value="Đã tải lên" highlight />
+                            <InfoRow icon={User} label="Tên người nhận hàng" value={order.buyer.fullname || ""} highlight />
+                            <InfoRow icon={MapPin} label="Địa chỉ giao hàng" value={order.buyerAddress?.toString() || ""} highlight />
+                            <InfoRow icon={Phone} label="Số điện thoại" value={order.buyerPhone || ""} highlight />
                         </div>
                     </div>
                 </div>
@@ -70,7 +101,7 @@ export const PaymentShipping = ({ userRole, onComplete, order }: StepShippingPro
             <h3 className="text-lg font-semibold">
                 Bước 3: Xác nhận thanh toán & gửi mã vận đơn
             </h3>
-    
+
             {/* Display QR */}
             <div className="rounded-lg border border-border bg-[rgb(240,246,242)] p-2">
                 <div className="bg-card rounded-lg p-4 flex flex-col items-center">
@@ -89,8 +120,8 @@ export const PaymentShipping = ({ userRole, onComplete, order }: StepShippingPro
                 <h4 className="text-sm font-medium">Thông tin từ người mua</h4>
 
                 <InfoRow icon={CheckCircle2} label="Thanh toán" value={order.totalAmount.toString()} highlight />
-                <InfoRow icon={MapPin} label="Địa chỉ" value={order.buyerAddress?.toString() || ""} highlight/>
-                <InfoRow icon={Phone} label="SĐT" value={order.buyerPhone || ""} highlight/>
+                <InfoRow icon={MapPin} label="Địa chỉ" value={order.buyerAddress?.toString() || ""} highlight />
+                <InfoRow icon={Phone} label="SĐT" value={order.buyerPhone || ""} highlight />
 
                 {/* Confirm checkbox */}
                 <label className="flex items-start gap-3 cursor-pointer pt-2">
@@ -137,10 +168,16 @@ export const PaymentShipping = ({ userRole, onComplete, order }: StepShippingPro
                             className="hidden"
                         />
                         <label htmlFor="shipping-invoice" className="cursor-pointer flex flex-col items-center gap-2">
-                            {shippingInvoice ? (
+                            {shippingPreview ? (
                                 <>
-                                    <CheckCircle2 className="h-10 w-10 text-primary" />
-                                    <p className="text-sm font-medium">{shippingInvoice.name}</p>
+                                    <img
+                                        src={shippingPreview}
+                                        alt="shipping preview"
+                                        className="max-h-40 rounded-md border"
+                                    />
+                                    <p className="text-sm text-muted-foreground">
+                                        Nhấn để thay đổi ảnh
+                                    </p>
                                 </>
                             ) : (
                                 <>
@@ -157,7 +194,7 @@ export const PaymentShipping = ({ userRole, onComplete, order }: StepShippingPro
             <Button
                 size="lg"
                 className="w-full bg-[#10b981] hover:bg-[#10b981]/50"
-                disabled={!paymentConfirmed || !shippingCode || !shippingInvoice}
+                disabled={!isFormValid || isSubmitting}
                 onClick={handleSubmit}
             >
                 Xác nhận đã gửi hàng

@@ -482,5 +482,10 @@ export const API_ORDER_ROUTES = {
     path: '/orders/:id/shipping',
     method: 'PATCH',
     role: [Role.SELLER],
+  },
+  confirmOrder: {
+    path: '/orders/:id/confirm',
+    method: 'PATCH',
+    role: [Role.BIDDER],
   }
 };

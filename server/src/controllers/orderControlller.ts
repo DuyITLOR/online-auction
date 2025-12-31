@@ -129,6 +129,8 @@ export const getOrderById = async (req: Request, res: Response) => {
       buyerAddress: order.buyerAddress,
       buyerPhone: order.buyerPhone,
       billUrl: order.billUrl,
+      shippingUrl: order.shippingUrl,
+      shippingCode: order.shippingCode,
       role: role,
     };
 
@@ -321,7 +323,7 @@ export const uploadShippingInfo = async (req: Request, res: Response) => {
       orderId: req.params.id,
       sellerId: userId,
       shippingCode: req.body.shippingCode,
-      shippingUrl : uploadFile.fileUrl as string,
+      shippingUrl: uploadFile.fileUrl as string,
     };
 
     const order = await orderService.uploadShippingInfo(body);
@@ -346,6 +348,57 @@ export const uploadShippingInfo = async (req: Request, res: Response) => {
       HttpStatus.badRequest,
       null,
       error.message || "Cập nhật thông tin vận chuyển thất bại"
+    );
+    return res.status(response.code).send(response);
+  }
+};
+
+export const confirmOrder = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      const response = gatewayResponse(
+        HttpStatus.unauthorized,
+        null,
+        "Token Invalid"
+      );
+      return res.status(response.code).send(response);
+    }
+
+    const userId = req.user.id;
+    let roles = await checkRole(userId);
+
+    if (!roles.includes("BIDDER")) {
+      const response = gatewayResponse(
+        HttpStatus.forbidden,
+        null,
+        "Tài khoản của bạn không phải là người mua"
+      );
+      return res.status(response.code).send(response);
+    }
+
+    const orderId = req.params.id;
+    const order = await orderService.confirmReceive(orderId, userId);
+
+    if (!order) {
+      const response = gatewayResponse(
+        HttpStatus.badRequest,
+        null,
+        "Xác nhận đơn hàng thất bại"
+      );
+      return res.status(response.code).send(response);
+    }
+
+    const response = gatewayResponse(
+      HttpStatus.ok,
+      order,
+      "Xác nhận đơn hàng thành công"
+    );
+    return res.status(response.code).send(response);
+  } catch (error: any) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      error.message || "Xác nhận đơn hàng thất bại"
     );
     return res.status(response.code).send(response);
   }

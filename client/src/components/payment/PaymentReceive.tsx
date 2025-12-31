@@ -1,28 +1,58 @@
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useParams } from 'react-router-dom';
 import {
     PackageCheck,
     Truck,
     MapPin,
     Phone,
-    ImageIcon,
 } from "lucide-react"
+import { type Orders } from '../../libs/types/types'
 import type { LucideIcon } from "lucide-react"
+import { getSession } from "../../libs/session"
+import { toast } from "sonner";
+import { confirmOrder } from "../../api/order"
+import { is } from "zod/v4/locales";
 
 interface StepDeliveryProps {
     userRole: "ADMIN" | "SELLER" | "BIDDER"
     onComplete: () => void
+    order: Orders
 }
 
-export const PaymentReceive = ({ userRole, onComplete }: StepDeliveryProps) => {
+export const PaymentReceive = ({ userRole, onComplete, order }: StepDeliveryProps) => {
     const [confirmed, setConfirmed] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { id } = useParams()
 
-    /* ================= SELLER ================= */
-    if (!userRole) {
+    const handleSubmit = async () => {
+        if (!id) return
+        if (!confirmed) return
+
+        try {
+            setIsSubmitting(true);
+            const session = await getSession();
+            const token = typeof session?.token === 'string' ? session.token : '';
+            await confirmOrder(id, token);
+            toast.success('Thành công!', {
+                description: 'Bạn đã xác nhận nhận hàng thành công.',
+            });
+
+            onComplete();
+        } catch (error) {
+            console.error("Error confirming order receipt:", error);
+            toast.error('Thất bại', {
+                description: `Xác nhận nhận hàng thất bại. Vui lòng thử lại.`,
+            });
+        }
+    }
+
+
+    if (userRole === "SELLER") {
         return (
             <Card className="p-6">
-                <div className="py-8">
+                <div className="py-4">
                     <div className="text-center mb-6">
                         <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">
                             <Truck className="h-8 w-8 text-muted-foreground" />
@@ -43,9 +73,9 @@ export const PaymentReceive = ({ userRole, onComplete }: StepDeliveryProps) => {
                         </h4>
 
                         <div className="space-y-3">
-                            <InfoRow icon={PackageCheck} label="Mã vận đơn" value="VN123456789" highlight />
-                            <InfoRow icon={MapPin} label="Địa chỉ" value="123 Nguyễn Văn Linh, Q7, TP.HCM" highlight />
-                            <InfoRow icon={Phone} label="SĐT" value="0901234567" highlight />
+                            <InfoRow icon={PackageCheck} label="Mã vận đơn" value={order.shippingCode || ""} highlight />
+                            <InfoRow icon={MapPin} label="Địa chỉ" value={order.buyerAddress || ""} highlight />
+                            <InfoRow icon={Phone} label="SĐT" value={order.buyerPhone || ""} highlight />
                         </div>
                     </div>
                 </div>
@@ -55,19 +85,28 @@ export const PaymentReceive = ({ userRole, onComplete }: StepDeliveryProps) => {
 
     /* ================= BUYER ================= */
     return (
-        <Card className="p-6 space-y-6">
+        <Card className="p-6 space-y-2">
             <h3 className="text-lg font-semibold">
                 Bước 4: Xác nhận đã nhận hàng
             </h3>
 
+            <div className="rounded-lg border border-border bg-[rgb(240,246,242)] p-2">
+                <div className="bg-card rounded-lg p-4 flex flex-col items-center">
+                    {order.shippingUrl && (
+                        <img
+                            src={order.shippingUrl}
+                            alt="bill code"
+                            className="h-32 w-32 text-muted-foreground"
+                        />
+                    )}
+                </div>
+            </div>
             {/* Shipping info */}
-            <div className="bg-[rgb(240,246,242)] border border-border rounded-lg p-4 space-y-3">
+            <div className="bg-[rgb(240,246,242)] border border-border rounded-lg p-2 space-y-3">
                 <h4 className="text-sm font-medium">Thông tin từ người bán</h4>
-
-                <InfoRow icon={ImageIcon} label="Ảnh mã vận đơn" value="Đã cung cấp" highlight />
-                <InfoRow icon={PackageCheck} label="Mã vận đơn" value="VN123456789" highlight />
-                <InfoRow icon={MapPin} label="Địa chỉ giao hàng" value="123 Nguyễn Văn Linh, Q7, TP.HCM" highlight />
-                <InfoRow icon={Phone} label="SĐT liên hệ" value="0901234567" highlight />
+                <InfoRow icon={PackageCheck} label="Mã vận đơn" value={order.shippingCode || ""} highlight />
+                <InfoRow icon={MapPin} label="Địa chỉ giao hàng" value={order.buyerAddress || ""} highlight />
+                <InfoRow icon={Phone} label="SĐT liên hệ" value={order.buyerPhone || ""} highlight />
 
                 {/* Confirm checkbox */}
                 <label className="flex items-start gap-3 cursor-pointer pt-2">
@@ -91,11 +130,11 @@ export const PaymentReceive = ({ userRole, onComplete }: StepDeliveryProps) => {
             <Button
                 size="lg"
                 className="w-full bg-[#10b981] hover:bg-[#10b981]/50"
-                disabled={!confirmed}
-                onClick={onComplete}
+                disabled={!confirmed || isSubmitting}
+                onClick={handleSubmit}
             >
-                <PackageCheck className="mr-2 h-5 w-5" />
-                Xác nhận đã nhận hàng
+                <PackageCheck className="mr-1 h-5 w-5" />
+                {isSubmitting ? 'Đang tải...' : 'Xác nhận đã nhận hàng'}
             </Button>
         </Card>
     )

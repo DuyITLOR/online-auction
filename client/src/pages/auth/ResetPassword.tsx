@@ -1,133 +1,78 @@
-import { Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+'use client';
+import { ResetPasswordFormAction } from '@/libs/actions/auth';
+import { Button } from '../../components/ui/button';
+import { CircleAlert } from 'lucide-react';
+import { useActionState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-type formValues = {
-  password: string;
-  rePassword: string;
-};
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
-  const [error, setError] = useState('');
   const token = searchParams.get('token');
-  const API_URL = import.meta.env.VITE_BACKEND_URL;
-  const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isSubmitting },
-  } = useForm<formValues>();
-
-  const onSubmit = async (data: formValues) => {
-    const pwd = data.password;
-    const rePwd = data.rePassword;
-    if (pwd !== rePwd) {
-      setError('Mật khẩu không trùng');
-      reset();
-      return;
-    }
-    if (pwd.length < 6) {
-      setError('Mật khẩu phải dài hơn 6 kí tự');
-      reset();
-      return;
-    }
-    try {
-      const res = await fetch(`${API_URL}/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          password: data.password,
-        }),
-      });
-      const result = await res.json();
-
-      if (!res.ok) {
-        if (result.message === 'Token expired') setError('Quá hạn');
-        else setError(result.message || 'Có lỗi xảy ra');
-        return;
-      }
-
-      reset();
-      navigate('/auth/signin');
-    } catch (err) {
-      console.log(err);
-      setError('Không thể kết nối đến server');
-    }
-  };
+  const [state, action] = useActionState(ResetPasswordFormAction, undefined);
 
   return (
-    <>
-      <header className='flex justify-around mt-5 shadow-[0_4px_10px_rgba(0,0,0,0.08)] pb-5'>
-        <div className='flex gap-5'>
-          <img src='/vite.svg' width={40} height={40} alt='logo' />
-          <h3 className='text-lg font-semibold'>Đặt lại mật khẩu</h3>
-        </div>
-        <Link
-          to={'/auth/signin'}
-          className='hover:text-orange-500 hover:underline transition-all font-semibold'
-        >
-          Đăng nhập
-        </Link>
-      </header>
-
-      <form
-        className='max-w-md mx-auto bg-white p-6 rounded-xl shadow-md mt-20 mb-20'
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <div className='flex flex-col mb-5'>
-          <label
-            htmlFor='password'
-            className='mb-1 text-sm font-medium text-gray-700'
-          >
-            Nhập mật khẩu mới
-          </label>
-          <input
-            id='password'
-            type='password'
-            {...register('password', { required: true })}
-            className='border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
-            placeholder='Nhập mật khẩu mới...'
+    <div className='min-h-screen flex items-center'>
+      <form action={action} className='w-[450px] mx-auto'>
+        <div className='flex items-center justify-center gap-2'>
+          <img
+            src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rockylinux/rockylinux-original.svg'
+            width={50}
+            height={50}
           />
+          <p className='font-bold text-4xl text-black'>
+            Snap<span className='text-teal-600'>Bid</span>
+          </p>
         </div>
 
-        <div className='flex flex-col mb-6'>
-          <label
-            htmlFor='re-password'
-            className='mb-1 text-sm font-medium text-gray-700'
-          >
-            Nhập lại mật khẩu
-          </label>
-          <input
-            id='re-password'
-            type='password'
-            {...register('rePassword', { required: true })}
-            className='border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
-            placeholder='Nhập lại mật khẩu...'
-          />
+        <div className='font-semibold mt-3 text-teal-700 text-center'>Đặt lại mật khẩu mới cho tài khoản của bạn</div>
+
+        <div className='flex flex-col gap-6 bg-slate-200 shadow-md rounded-md mt-7 py-7 px-5'>
+          <input type='hidden' name='token' value={token || ''} />
+          <div className='flex flex-col space-y-2'>
+            <h3 className='font-bold text-sm'>Mật khẩu</h3>
+            <input
+              type='password'
+              name='password'
+              placeholder='ThDang@example.com'
+              className=' py-1 px-3 bg-white border border-0.5 border-gray-400 focus-visible:outline-0 focus-visible:border-teal-500 focus-visible:border-2 rounded-lg w-full '
+            />
+
+            {state?.errors?.password && <p className='text-red-500 text-sm'>{state.errors.password}</p>}
+          </div>
+
+          <div className='flex flex-col space-y-2'>
+            <h3 className='font-bold text-sm'>Nhập lại mật khẩu</h3>
+            <input
+              type='password'
+              name='confirm-password'
+              placeholder='ThDang@example.com'
+              className=' py-1 px-3 bg-white border border-0.5 border-gray-400 focus-visible:outline-0 focus-visible:border-teal-500 focus-visible:border-2 rounded-lg w-full '
+            />
+
+            {state?.errors?.confirmPassword && <p className='text-red-500 text-sm'>{state.errors.confirmPassword}</p>}
+          </div>
+
+          {state?.messages && (
+            <div className='w-full border border-red-300 rounded bg-[#fcc4c4] py-1 px-3 items-center flex gap-2'>
+              <CircleAlert className='w-5 h-5' color='red' />
+              <p className='text-red-500 font-semibold text-sm'>{state?.messages}</p>
+            </div>
+          )}
+
+          <Button className='bg-teal-600 text-white font-bold mt-2 hover:opacity-80'>Xác nhận </Button>
+
+          <div className='flex items-center gap-1 justify-center'>
+            <p className='font-semibold text-sm'>Bạn nhớ mật khẩu cũ? </p>
+            <a href='/auth/signin' className='font-extrabold text-sm text-teal-700'>
+              Đăng nhập ngay
+            </a>
+          </div>
         </div>
-        {error !== '' && (
-          <div className='text-red-600 font-semibold'>{error}</div>
-        )}
-        <button
-          type='submit'
-          className={`w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 ${
-            isSubmitting
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 transition cursor-pointer'
-          }`}
-        >
-          Gửi
-        </button>
+
+        <p className='text-center text-sm mt-7 font-semibold text-teal-700'>Tiếp tục mua sắm với SnapBid</p>
       </form>
-    </>
+    </div>
   );
 };
 

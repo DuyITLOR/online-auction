@@ -2,12 +2,18 @@
 import { Button } from '../../components/ui/button';
 import { VerifyFormAction } from '../../libs/actions/auth';
 import { CircleAlert } from 'lucide-react';
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '../../components/ui/input-otp';
 
 const Verify = () => {
   const [state, action] = useActionState(VerifyFormAction, undefined);
   const [otpValue, setOtpValue] = useState('');
+
+  useEffect(() => {
+    if (state?.errors?.code || state?.messages) {
+      setOtpValue('');
+    }
+  }, [state]);
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-slate-50 py-10'>

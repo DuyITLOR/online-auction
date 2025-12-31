@@ -273,9 +273,6 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                   >
                     Sản phẩm khác
                   </Link>
-                  <Link to={'/'} className='text-sm text-gray-500 underline'>
-                    Liên hệ
-                  </Link>
                 </div>
               </div>
               <ChevronRight className='text-end w-10 h-10 rounded-full p-2 hover:bg-gray-200' />

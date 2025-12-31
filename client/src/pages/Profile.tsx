@@ -40,7 +40,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { UserContext } from '../libs/contexts/user.context';
 import { getAllRatees, getAllRaters, updateRating } from '../api/rating';
-import { isoToYYYYMMDD } from '../libs/utils';
+import { calculateRating, isoToYYYYMMDD } from '../libs/utils';
 import Activities from '../components/profile/tabs/activities';
 import WatchProducts from '../components/profile/tabs/watchList';
 
@@ -78,7 +78,6 @@ const Profile = () => {
   const totalReviews = raters.length;
   const positiveCount = raters.filter((r) => r.value === 1).length;
   const negativeCount = raters.filter((r) => r.value === -1).length;
-  const positiveRatio = totalReviews > 0 ? ((positiveCount + 20 - negativeCount) / (totalReviews + 20)) * 100 : 0;
 
   const [status, setStatus] = useState(false);
   const [comment, setComment] = useState('');
@@ -492,7 +491,9 @@ const Profile = () => {
                 <div className='flex flex-col items-start gap-1 w-full md:w-1/3'>
                   <h3 className='text-lg font-bold text-gray-800'>Độ uy tín của Shop</h3>
                   <div className='flex items-baseline gap-2'>
-                    <span className='text-5xl font-extrabold text-emerald-600'>{positiveRatio.toFixed(0)}%</span>
+                    <span className='text-5xl font-extrabold text-emerald-600'>
+                      {calculateRating(positiveCount, negativeCount)}%
+                    </span>
                     <span className='text-gray-500 font-medium'>Đánh giá tích cực</span>
                   </div>
                   <p className='text-sm text-gray-400'>Dựa trên {totalReviews} lượt đánh giá gần nhất</p>
@@ -506,7 +507,7 @@ const Profile = () => {
                         <span className='font-semibold text-gray-700'>Hài lòng</span>
                         <span className='text-gray-500'>{positiveCount}</span>
                       </div>
-                      <Progress value={positiveRatio} className='h-2 bg-gray-100' />
+                      <Progress value={positiveCount} className='h-2 bg-gray-100' />
                     </div>
                   </div>
 
@@ -517,7 +518,7 @@ const Profile = () => {
                         <span className='font-semibold text-gray-700'>Không hài lòng</span>
                         <span className='text-gray-500'>{negativeCount}</span>
                       </div>
-                      <Progress value={100 - positiveRatio} className='h-2 bg-gray-100' />
+                      <Progress value={negativeCount} className='h-2 bg-gray-100' />
                     </div>
                   </div>
                 </div>

@@ -1,111 +1,63 @@
-import { Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useSearchParams } from 'react-router-dom';
-
-const emailSchema = z.object({
-  email: z
-    .string()
-    .min(1, 'Vui lòng nhập email')
-    .email('Địa chỉ email không hợp lệ'),
-});
-
-type EmailForm = z.infer<typeof emailSchema>;
+'use client';
+import { ForgetPasswordFormAction } from '@/libs/actions/auth';
+import { Button } from '../../components/ui/button';
+import { CircleAlert } from 'lucide-react';
+import { useActionState } from 'react';
 
 const ForgetPassword = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
-    reset,
-  } = useForm<EmailForm>({
-    resolver: zodResolver(emailSchema),
-    mode: 'onTouched',
-  });
-
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
-  const API_URL = import.meta.env.VITE_BACKEND_URL;
-
-  const onSubmit = async (data: EmailForm) => {
-    try {
-      const email = data.email;
-      const res = await fetch(`${API_URL}/forget-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          email: email,
-        }),
-      });
-      console.log(res);
-      reset();
-    } catch (err) {
-      console.error(err);
-      // xử lý lỗi server nếu cần
-    }
-  };
+  const [state, action] = useActionState(ForgetPasswordFormAction, undefined);
 
   return (
-    <>
-      <header className='flex justify-around mt-5 shadow-[0_4px_10px_rgba(0,0,0,0.08)] pb-5'>
-        <div className='flex gap-5'>
-          <img src='/vite.svg' width={40} height={40} alt='logo' />
-          <h3 className='text-lg font-semibold'>Bạn quên mật khẩu?</h3>
-        </div>
-        <Link
-          to={'/auth/signin'}
-          className='hover:text-orange-500 hover:underline transition-all font-semibold'
-        >
-          Đăng nhập
-        </Link>
-      </header>
-
-      <div className='max-w-md mx-auto mt-30 p-6 border rounded-md mb-30'>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <label htmlFor='email' className='block text-sm font-medium mb-1'>
-            Email
-          </label>
-
-          <input
-            id='email'
-            type='email'
-            placeholder='your@example.com'
-            {...register('email')}
-            aria-invalid={errors.email ? 'true' : 'false'}
-            aria-describedby={errors.email ? 'email-error' : undefined}
-            className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
+    <div className='min-h-screen flex items-center'>
+      <form action={action} className='w-[450px] mx-auto'>
+        <div className='flex items-center justify-center gap-2'>
+          <img
+            src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rockylinux/rockylinux-original.svg'
+            width={50}
+            height={50}
           />
+          <p className='font-bold text-4xl text-black'>
+            Snap<span className='text-teal-600'>Bid</span>
+          </p>
+        </div>
 
-          {errors.email && (
-            <p id='email-error' className='mt-1 text-sm text-red-600'>
-              {errors.email.message}
-            </p>
+        <div className='font-semibold mt-3 text-teal-700 text-center'>
+          Sử dụng tài khoản email của bạn để chọn thay đổi mật khẩu
+        </div>
+
+        <div className='flex flex-col gap-6 bg-slate-200 shadow-md rounded-md mt-7 py-7 px-5'>
+          <div className='flex flex-col space-y-2'>
+            <h3 className='font-bold text-sm'>Email</h3>
+            <input
+              type='email'
+              name='email'
+              placeholder='ThDang@example.com'
+              className=' py-1 px-3 bg-white border border-0.5 border-gray-400 focus-visible:outline-0 focus-visible:border-teal-500 focus-visible:border-2 rounded-lg w-full '
+            />
+
+            {state?.errors?.email && <p className='text-red-500 text-sm'>{state.errors.email}</p>}
+          </div>
+
+          {state?.messages && (
+            <div className='w-full border border-red-300 rounded bg-[#fcc4c4] py-1 px-3 items-center flex gap-2'>
+              <CircleAlert className='w-5 h-5' color='red' />
+              <p className='text-red-500 font-semibold text-sm'>{state?.messages}</p>
+            </div>
           )}
 
-          <div className='mt-4 flex items-center gap-3'>
-            <button
-              type='submit'
-              disabled={isSubmitting}
-              className='px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-60'
-            >
-              {isSubmitting ? 'Đang gửi...' : 'Gửi yêu cầu'}
-            </button>
+          <Button className='bg-teal-600 text-white font-bold mt-2 hover:opacity-80'>Gửi yêu cầu</Button>
 
-            {isSubmitSuccessful && (
-              <span className='text-sm text-green-600'>
-                Đã gửi thành công ✔️
-              </span>
-            )}
+          <div className='flex items-center gap-1 justify-center'>
+            <p className='font-semibold text-sm'>Quay lại trang? </p>
+            <a href='/auth/signin' className='font-extrabold text-sm text-teal-700'>
+              Đăng nhập
+            </a>
           </div>
-        </form>
-      </div>
-    </>
+        </div>
+
+        <p className='text-center text-sm mt-7 font-semibold text-teal-700'>Tiếp tục mua sắm với SnapBid</p>
+      </form>
+    </div>
   );
 };
 

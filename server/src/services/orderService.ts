@@ -180,7 +180,8 @@ export const getOrderById = async (
       buyerAddress: true,
       buyerPhone: true,
       billUrl: true,
-
+      shippingCode: true,
+      shippingUrl: true,
       product: {
         select: {
           title: true,

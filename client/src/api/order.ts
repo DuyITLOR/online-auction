@@ -19,7 +19,7 @@ export const getAllProductByBidder = async (token: string) => {
       throw new Error(message);
     }
 
-    console.log("Fetched products by bidder:", data.data);
+    // console.log("Fetched products by bidder:", data.data);
     return data.data;
   } catch (err) {
     console.error(err);
@@ -117,6 +117,23 @@ export const uploadShippingInfo = async ( orderId: string, token: string, shippi
     
   if (!res.ok) {
     throw new Error(data.message || data.error || 'Tải thông tin vận chuyển thất bại'); 
+  }
+
+  return data.data;
+}
+
+export const confirmOrder = async (orderId: string, token: string) => {
+   const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/orders/${orderId}/confirm`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    method: 'PATCH',
+   })
+
+  const data = await res.json();
+    
+  if (!res.ok) {
+    throw new Error(data.message || data.error || 'Xác nhận đơn hàng thất bại'); 
   }
 
   return data.data;

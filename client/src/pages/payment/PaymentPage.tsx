@@ -101,7 +101,7 @@ const PaymentPage = () => {
           (step === 3) && (<PaymentShipping userRole={order.role || "BIDDER"} onComplete={fetchOrder} order={order}/>)
         }
         {
-          (step === 4) && (<PaymentReceive userRole={order.role || "BIDDER"} onComplete={fetchOrder} />)
+          (step === 4) && (<PaymentReceive userRole={order.role || "BIDDER"} onComplete={fetchOrder} order={order} />)
         }
         {
           (step === 5) && (<PaymentRating userRole={order?.role || "BIDDER"} otherPartyName={order.role === "BIDDER" ? order.seller.fullname || "Người bán" : order.buyer.fullname || "Người mua"} onComplete={() => { }} />)

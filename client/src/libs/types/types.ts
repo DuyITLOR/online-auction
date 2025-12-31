@@ -203,7 +203,7 @@ export interface Orders {
   isReceived: boolean;
   qrInfo?: string | null;
   qrUrl?: string | null;
-  shippingCompany?: string | null;
+  shippingCode?: string | null;
   shippingUrl?: string | null;
   receivedAt?: string | null;
   createdAt: string;

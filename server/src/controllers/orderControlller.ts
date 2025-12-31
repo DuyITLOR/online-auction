@@ -129,6 +129,8 @@ export const getOrderById = async (req: Request, res: Response) => {
       buyerAddress: order.buyerAddress,
       buyerPhone: order.buyerPhone,
       billUrl: order.billUrl,
+      shippingUrl: order.shippingUrl,
+      shippingCode: order.shippingCode,
       role: role,
     };
 

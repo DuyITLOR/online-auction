@@ -15,7 +15,7 @@ POST http://localhost:4000/sign-up
 Content-Type: application/json
 
 {
-	"email": "group2hcmus@gmail.com"
+	"email": "ttdat23@clc.fitus.edu.vn"
 }
 
 ###
@@ -23,11 +23,12 @@ POST http://localhost:4000/verify-email
 Content-Type: application/json
 
 {
-	"email": "group2hcmus@gmail.com",
-	"fullname": "Snap bid",
+	"email": "ttdat23@clc.fitus.edu.vn",
+	"fullname": "ThDat",
 	"password": "123",
-	"code": "K3AYAL",
-	"dateOfBirth": "2025-09-01"
+	"code": "CL78VD",
+	"dateOfBirth": "2025-09-01",
+	"address": "123 Main St"
 }
 
 ###
@@ -37,6 +38,17 @@ Content-Type: application/json
 {
 	"email": "bidder5@example.com",
 	"fullname": "Thanh Dat"
+}
+
+###
+
+POST http://localhost:4000/update-password
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNlMTk3YWMyLWVjNmUtNGFkYi1iMjA4LTk0ZmVhNGIzOTY2MCIsImVtYWlsIjoidHRkYXQyM0BjbGMuZml0dXMuZWR1LnZuIiwiaWF0IjoxNzY3MTcwNjIwLCJleHAiOjE3Njk3NjI2MjB9.c3Rph-5bQCB4JG3zTL4VkL4UGKb_XvONXyxI59dY7jQ
+
+{
+	"oldPassword": "123",
+	"newPassword": "new-test-password"
 }
 
 ###

@@ -3,7 +3,10 @@ import { googleCallback } from '../controllers/authControllers';
 import { updateCate } from '../services/cateService';
 import { updateCategory } from '../controllers/categoryControllers';
 import { get, request } from 'http';
-import { createAutoBid, getBidHistoryByUserId } from '../services/autoBidService';
+import {
+  createAutoBid,
+  getBidHistoryByUserId,
+} from '../services/autoBidService';
 import { getMaxBidByUser } from '../controllers/autoBiderController';
 import path from 'path';
 import { getAllCommentsByProductId } from '../controllers/userControllers';
@@ -145,6 +148,15 @@ export const API_ROUTES = {
       email: 'string',
     },
   },
+  updatePassword: {
+    path: '/update-password',
+    role: [Role.BIDDER, Role.SELLER, Role.ADMIN],
+    method: 'POST',
+    request: {
+      oldPassword: 'string',
+      newPassword: 'string',
+    },
+  },
   resetPassword: {
     path: '/reset-password',
     role: [Role.ADMIN, Role.BIDDER, Role.SELLER],
@@ -256,7 +268,7 @@ export const API_ROUTES = {
     path: '/bidder/statistic',
     role: [Role.ALL],
     method: 'GET',
-  }
+  },
 };
 
 export const API_RATING_ROUTES = {
@@ -455,15 +467,15 @@ export const API_ORDER_ROUTES = {
     path: '/orders/:id',
     method: 'GET',
     role: [Role.BIDDER, Role.SELLER],
-  }, 
+  },
   uploadBankInfo: {
     path: '/orders/:id/qr',
     method: 'POST',
     role: [Role.SELLER],
   },
-  uploadPayment:{
+  uploadPayment: {
     path: '/orders/:id/payment',
     method: 'PATCH',
     role: [Role.BIDDER],
-  }
+  },
 };

@@ -8,6 +8,8 @@ import jwt from 'jsonwebtoken';
 import { HttpStatus } from '../utils/permission';
 import { verifyDto } from '../dto/authenticationDto';
 import { checkRole } from '../utils/checkRole';
+import { prisma } from '../services/db/prisma';
+import bcrypt from 'bcryptjs';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -216,6 +218,68 @@ export const forgetPassword = async (req: Request, res: Response) => {
   }
 };
 
+const checkPassword = async (
+  userId: string,
+  password: string
+): Promise<boolean> => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!user) return false;
+  const isCorrect = await bcrypt.compare(password, user.password!);
+  return isCorrect;
+};
+
+export const updatePassword = async (req: Request, res: Response) => {
+  if (!req.user) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Token required'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+  const id = req.user.id;
+  const oldPassword = req.body.oldPassword;
+  const newPassword = req.body.newPassword;
+
+  if (!oldPassword || !newPassword) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Thiếu thông tin mật khẩu'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+
+  const isCorrect = await checkPassword(id, oldPassword);
+  if (!isCorrect) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Mật khẩu cũ không đúng'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+
+  const hashed = await service.hashPassword(newPassword);
+  const record = await service.updatePassword(id, hashed);
+  if (record.success) {
+    const response = gatewayResponse(HttpStatus.ok, null, record.message);
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(
+      HttpStatus.serviceUnavailable,
+      null,
+      record.message
+    );
+    res.status(response.code).send(response);
+  }
+};
+
 export const resetPassword = async (req: Request, res: Response) => {
   if (!req.user) {
     const response = gatewayResponse(
@@ -227,8 +291,8 @@ export const resetPassword = async (req: Request, res: Response) => {
     return;
   }
   const id = req.user.id;
-  const password = req.body.password;
-  const hashed = await service.hashPassword(password);
+  const newPassword = req.body.password;
+  const hashed = await service.hashPassword(newPassword);
   const record = await service.updatePassword(id, hashed);
   if (record.success) {
     const response = gatewayResponse(HttpStatus.ok, null, record.message);

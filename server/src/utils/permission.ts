@@ -465,5 +465,10 @@ export const API_ORDER_ROUTES = {
     path: '/orders/:id/payment',
     method: 'PATCH',
     role: [Role.BIDDER],
+  },
+  uploadShippingInfo:{
+    path: '/orders/:id/shipping',
+    method: 'PATCH',
+    role: [Role.SELLER],
   }
 };

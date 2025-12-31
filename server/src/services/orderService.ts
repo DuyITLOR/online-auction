@@ -297,7 +297,7 @@ export const uploadShippingInfo = async (shippingInfor: orderDto.orderShippingIn
       },
       data: {
         shippingCode: shippingInfor.shippingCode,
-        shippingInvoiceUrl: shippingInfor.shippingInvoiceUrl,
+        shippingUrl: shippingInfor.shippingUrl,
         status: 'WAIT_BUYER_CONFIRM_RECEIVE'
       }
     })

@@ -26,5 +26,5 @@ export interface orderShippingInfo {
     orderId: string,
     sellerId: string,
     shippingCode: string,
-    shippingInvoiceUrl: string,
+    shippingUrl : string,
 }

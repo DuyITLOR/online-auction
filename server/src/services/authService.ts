@@ -52,6 +52,7 @@ export const addNewBidder = async (data: verifyDto) => {
         password: data.hashed,
         role: 'BIDDER',
         avtUrl: data.avtUrl,
+        address: data.address,
         ratingNeg: 0,
         ratingPos: 0,
       },

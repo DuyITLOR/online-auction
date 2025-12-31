@@ -22,3 +22,9 @@ export interface orderPaymentInfo {
     buyerPhone: string,
 }
 
+export interface orderShippingInfo {
+    orderId: string,
+    sellerId: string,
+    shippingCode: string,
+    shippingUrl : string,
+}

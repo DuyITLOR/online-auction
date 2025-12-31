@@ -31,4 +31,11 @@ router.patch(
     upload.single("image"),
     orderController.uploadPaymentInfo
 )
+
+router.patch(
+    API_ORDER_ROUTES.uploadShippingInfo.path,
+    authMiddleware,
+    upload.single("image"),
+    orderController.uploadShippingInfo
+)
 export default router;

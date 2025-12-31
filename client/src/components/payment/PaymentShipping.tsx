@@ -8,8 +8,6 @@ import { type Orders } from '../../libs/types/types'
 import { uploadShippingInfo } from "../../api/order";
 import { getSession } from "../../libs/session"
 import { toast } from "sonner";
-import { set } from "zod";
-
 interface StepShippingProps {
     userRole: "ADMIN" | "SELLER" | "BIDDER";
     onComplete: () => void

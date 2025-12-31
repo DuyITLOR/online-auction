@@ -302,3 +302,33 @@ export const uploadShippingInfo = async (shippingInfor: orderDto.orderShippingIn
       }
     })
 }
+
+
+export const confirmReceive = async (orderId: string, buyerId: string) => {
+    const exit = await prisma.orders.findUnique({
+      where: {
+        id: orderId,
+        buyerId: buyerId,
+        status: 'WAIT_BUYER_CONFIRM_RECEIVE'
+      },
+      select: {
+        id: true
+      }
+    })
+    
+    if (!exit) {
+      throw new Error('Không tìm thấy đơn hàng');
+    }
+
+    return prisma.orders.update({
+      where: {
+        id: orderId,
+        buyerId: buyerId,
+      },
+      data: {
+        status: 'WAIT_REVIEW',
+        isReceived: true,
+        receivedAt: new Date(), 
+      }
+    })
+}

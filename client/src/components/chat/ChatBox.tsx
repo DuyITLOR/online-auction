@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useRef } from 'react';
 import { getSession } from '../../libs/session';
 import { getAllMessages } from '../../api/chat';
 import { UserContext } from '../../libs/contexts/user.context';
@@ -41,7 +41,7 @@ interface ChatBoxProps {
 
 const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
   const [message, setMessage] = useState('');
-
+  const bottomRef = useRef<HTMLDivElement>(null);
   const { user } = useContext(UserContext);
 
   const [timeline, setTimeline] = useState<Message[]>([]);
@@ -77,6 +77,10 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
 
     setTimeline((prev) => [...prev, msg]);
   };
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [timeline]);
 
   useEffect(() => {
     setTimeline([]);
@@ -150,6 +154,7 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
           {timeline.map((item, index) => (
             <ChatBubble key={index} cardInfor={item} />
           ))}
+          <div ref={bottomRef} />
         </div>
       )}
       {/* Input */}
@@ -160,6 +165,11 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
             <input
               type='text'
               value={message}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSendMessage(message);
+                }
+              }}
               onChange={(e) => setMessage(e.target.value)}
               placeholder='Type a message...'
               className='

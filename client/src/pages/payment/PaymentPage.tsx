@@ -98,7 +98,7 @@ const PaymentPage = () => {
           (step === 2) && (<PaymentBuyer userRole={order.role || "BIDDER"} onComplete={fetchOrder} order={order} />)
         }
         {
-          (step === 3) && (<PaymentShipping userRole={order.role || "BIDDER"} onComplete={fetchOrder} />)
+          (step === 3) && (<PaymentShipping userRole={order.role || "BIDDER"} onComplete={fetchOrder} order={order}/>)
         }
         {
           (step === 4) && (<PaymentReceive userRole={order.role || "BIDDER"} onComplete={fetchOrder} />)

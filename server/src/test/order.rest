@@ -31,3 +31,27 @@ Content-Type: application/json
 GET http://localhost:4000/orders/2628edb3-fa92-4822-b54b-ba1903eda38d
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA3NTI3MWFlLTIzZmUtNDg2Yy04MDE4LTI5ZTI2NjBjZDY3NyIsImVtYWlsIjoibGVuaHV0ZHV5MTUxMTA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NzAyODA5NSwiZXhwIjoxNzY5NjIwMDk1fQ.42VT-Q74n17s8-kzkmYQ9TLZvZSbOleOdAEJwCR0TbA
 Content-Type: application/json
+
+
+### Cập nhật thông tin ngân hàng (QR)
+PATCH http://localhost:4000/orders/2628edb3-fa92-4822-b54b-ba1903eda38d/qr
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NzAyNzk5MCwiZXhwIjoxNzY5NjE5OTkwfQ.csH9ZXmRGDUuVupV9RJvmgw1W_dXJlFnd1i2F2Jndxo
+
+{
+    "qrInfo": "Ngân hàng Vietcombank - Chủ tài khoản: Lê Nguyễn Đức Huy - Số tài khoản: 123456789",
+    "image": "Bỏ file vào đây"
+}
+
+
+
+### Cập nhật thông tin thanh toán và đĩa chỉ giao hàng
+PATCH http://localhost:4000/orders/2628edb3-fa92-4822-b54b-ba1903eda38d/payment
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NzAyNzk5MCwiZXhwIjoxNzY5NjE5OTkwfQ.csH9ZXmRGDUuVupV9RJvmgw1W_dXJlFnd1i2F2Jndxo
+
+{
+    "buyerAddress": "Xã Thanh Mỹ, Huyện Tháp Mười, Tỉnh Đồng Tháp",
+    "buyerPhone": "0914813749",
+    "image": "Bỏ file vào đây"
+}
+
+

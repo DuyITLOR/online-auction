@@ -65,7 +65,9 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NTEwMDM4NywiZXhwIjoxNzY3NjkyMzg3fQ.juhQXZzKw_KZj9a6JUwM7COE2nQxQSpo2SDWFcsrkBk
 
 
+
+
 ### Lấy profile của một user
-GET http://localhost:4000/users/profile
+GET http://localhost:4000/bidder/statistic
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU1YmM3NzY4LTIxNTctNDhiMi1iM2VhLTAxYzYwYzZlZjAzOCIsImVtYWlsIjoibnRkYW5nMjNAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NjY2NTUwMSwiZXhwIjoxNzY5MjU3NTAxfQ.VUuczoh7j_nfHRWl5lOimaBnf_thw5PZxfPpKKkSKMM
 Content-Type: application/json

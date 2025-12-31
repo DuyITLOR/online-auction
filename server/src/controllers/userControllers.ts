@@ -466,7 +466,7 @@ export const getInforOfProfile = async (req: Request, res: Response) => {
       const response = gatewayResponse(400, null, 'Token Invalid');
       return res.status(response.code).send(response);
     }
-
+    
     const id = req.user.id;
     const data = await service.getInfoProfile(id);
     if (!data) {

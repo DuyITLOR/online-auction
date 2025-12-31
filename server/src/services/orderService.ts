@@ -1,6 +1,7 @@
 import { orderQueryDto } from '../dto/orderDto';
 import { prisma } from './db/prisma';
 import { Prisma } from '@prisma/client';
+import * as orderDto from '../dto/orderDto';
 export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 10;
@@ -156,21 +157,116 @@ export const createOrder = async (productId: string) => {
   };
 };
 
+export const getOrderById = async (
+  orderId: string,
+  userId: string
+) => {
+  return prisma.orders.findFirst({
+    where: {
+      id: orderId,
+      OR: [
+        { buyerId: userId },
+        { sellerId: userId },
+      ],
+    },
+    select: {
+      id: true,
+      totalAmount: true,
+      status: true,
+      sellerId: true,
+      buyerId: true,
+      qrInfo: true,
+      qrUrl: true,
 
-export const getOrderById = async (orderId: string) => {
-    const order = await prisma.orders.findUnique({
-      where: { id: orderId },
-      select: {
-        id: true,
-        totalAmount: true,
-        status: true,
-        sellerId: true,
-        buyerId: true,
-        product: { select: { title: true }},
-        buyer: { select: { fullname: true } },
-        seller: { select: { fullname: true } },
-      }
-    })
+      product: {
+        select: {
+          title: true,
+        },
+      },
+      buyer: {
+        select: {
+          fullname: true,
+        },
+      },
+      seller: {
+        select: {
+          fullname: true,
+        },
+      },
+    },
+  });
+};
 
-    return order;
+export const uploadBankInfo = async (bankInfo: orderDto.orderBankInfo) => {
+  const exit = await prisma.orders.findUnique({
+    where: {
+      id: bankInfo.orderId,
+      sellerId: bankInfo.sellerId,
+      status: 'WAIT_SELLER_BANK_INFO'
+    },
+    select: {
+      id: true
+    }
+  })
+
+  if (!exit) {
+    throw new Error('Không tìm thấy đơn hàng');
+  }
+
+  return prisma.orders.update({
+    where: {
+      id: bankInfo.orderId,
+      sellerId: bankInfo.sellerId,
+    },
+    data: {
+      qrUrl: bankInfo.qrUrl,
+      qrInfo: bankInfo.bankInfor,
+      status: 'WAIT_BUYER_PAYMENT',
+    },
+
+    select: {
+      id: true,
+      qrUrl: true,
+      qrInfo: true,
+      status: true,
+    }
+  })
+}
+
+export const uploadPayment = async (paymentInfor: orderDto.orderPaymentInfo) => {
+    const exit = await prisma.orders.findUnique({
+    where: {
+      id: paymentInfor.orderId,
+      buyerId: paymentInfor.buyerId,
+      status: 'WAIT_BUYER_PAYMENT'
+    },
+    select: {
+      id: true
+    }
+  })
+
+  if (!exit) {
+    throw new Error('Không tìm thấy đơn hàng');
+  }
+
+  return prisma.orders.update({
+    where: {
+      id: paymentInfor.orderId,
+      buyerId: paymentInfor.buyerId,
+    },
+    data: {
+      buyerAddress: paymentInfor.buyerAddress,
+      buyerPhone: paymentInfor.buyerPhone,
+      billUrl: paymentInfor.billUrl,
+      status: 'WAIT_SELLER_SHIPPING',
+    },
+
+    select: {
+      id: true,
+      buyerAddress: true,
+      buyerPhone: true,
+      billUrl: true,
+      status: true,
+    }
+  })
 }

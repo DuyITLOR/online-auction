@@ -87,7 +87,7 @@ export const updateUser = async ({ user, token }: { user: UpdateUserPayload; tok
 
 export const getStatisticProfile = async ({ token }: { token: string }) => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/profile`, {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bidder/statistic`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -98,6 +98,29 @@ export const getStatisticProfile = async ({ token }: { token: string }) => {
     const data = await res.json();
     if (!res.ok) {
       const message = data.message || data.error || 'Failed to get information profile api';
+      throw new Error(message);
+    }
+
+    return data.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+export const getUser = async ({ id }: { id: string }) => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message = data.message || data.error || 'Failed to fetch user';
       throw new Error(message);
     }
 

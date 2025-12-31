@@ -27,4 +27,10 @@ router.patch(
   controllers.refuseRequest
 );
 
+router.get(
+  API_ROUTES.getAdminDashboardData.path,
+  authMiddleware,
+  controllers.getAdminDashboardData
+);
+
 export default router;

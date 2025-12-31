@@ -133,9 +133,12 @@ export const ModerationProvider: React.FC<{ children: ReactNode }> = ({
   // --- 2. Filter Logic (Lọc trên tập dữ liệu tổng) ---
   const filteredData = useMemo(() => {
     let data = allData;
+// Loại bỏ luôn các item EXPIRED
+      data = data.filter((item => item.status !== "EXPIRED"));
 
     // Filter theo Status
     if (filterStatus !== "ALL") {
+      
       data = data.filter((item) => item.status === filterStatus);
     }
 

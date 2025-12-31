@@ -66,6 +66,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { user, refresh } = useContext(UserContext);
   const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [raters, setRaters] = useState<Ratings[]>([]);
   const [ratees, setRatees] = useState<Ratings[]>([]);
 
@@ -126,8 +127,16 @@ const Profile = () => {
     };
 
     const fetchStatistic = async () => {
-      const data = await getStatisticProfile({ token: session.token });
-      setStatistics(data);
+      try {
+        setLoading(true);
+        const data = await getStatisticProfile({ token: session.token });
+        setStatistics(data);
+      } catch (err) {
+        console.error(err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchStatistic();
@@ -197,6 +206,8 @@ const Profile = () => {
     navigate('/');
     window.location.reload();
   };
+
+  if (loading) return <div className='loader'></div>;
 
   return (
     <>
@@ -370,7 +381,7 @@ const Profile = () => {
             </Dialog>
             <Button
               onClick={() => {
-                navigate('/seller/dashboard');
+                navigate(`${user?.role === 'ADMIN' ? '/admin/dashboard' : '/seller/dashboard'}`);
               }}
               variant={'outline'}
               className='text-teal-600'

@@ -10,7 +10,7 @@ import AuthCallback from './pages/auth/AuthCallback';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import Verify from './pages/auth/Verify';
-import ProductList from './pages/product/productList';
+import ProductList from './pages/product/ListProducts';
 import Admin from './pages/admin/Admin';
 import Profile from './pages/Profile';
 import DetailProduct from './pages/product/DetailProduct';

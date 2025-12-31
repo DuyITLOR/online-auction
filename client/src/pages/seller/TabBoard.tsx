@@ -1,19 +1,18 @@
 import { useState, useTransition } from "react";
-import { Loader2, LayoutDashboard, Box, ShoppingCart } from "lucide-react";
-import OverviewTab from "../../components/seller/OverviewTab";
+import { Loader2, Box, ShoppingCart } from "lucide-react";
+
 import ProductsTab from "../../components/seller/ProductsTab";
 import OrdersTab from "../../components/seller/OrdersTab";
 import { ProductProvider } from "../../libs/contexts/seller/product.context.tsx";
 import { SellerProvider } from "../../libs/contexts/seller/seller.context.tsx";
 import { OrderProvider } from "../../libs/contexts/seller/order.context.tsx";
 const TAB_LIST = [
-  { key: "overview", label: "Tổng quan", icon: LayoutDashboard },
   { key: "products", label: "Sản phẩm", icon: Box },
   { key: "orders", label: "Đơn hàng", icon: ShoppingCart },
 ];
 
 export default function TabBoard() {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("products");
   const [isPending, startTransition] = useTransition();
 
   const handleTabChange = (key: string) => {
@@ -96,7 +95,6 @@ export default function TabBoard() {
               isPending ? "opacity-30 scale-[0.99]" : "opacity-100 scale-100"
             }`}
           >
-            {activeTab === "overview" && <OverviewTab />}
 
             {activeTab === "products" && (
               <div className='animate-in fade-in slide-in-from-bottom-4 duration-500'>

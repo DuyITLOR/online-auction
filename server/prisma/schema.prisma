@@ -200,7 +200,7 @@ model Orders {
   totalAmount     Decimal     @db.Decimal(15, 2)
   billUrl         String?
   buyerAddress    String?
-  buyerPhone      String?
+  buyerPhone      String? 
   isReceived      Boolean     @default(false)
   qrInfo          String?
   qrUrl           String?

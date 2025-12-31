@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const VerifySchema = z.object({
   fullname: z.string().min(1, 'User name can not empty').trim(),
   email: z.string().email(),
+  address: z.string().min(1, 'Address can not empty').trim(),
   password: z
     .string()
     .min(8, 'Password must be at least 8 characters')

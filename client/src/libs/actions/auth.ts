@@ -104,11 +104,10 @@ export async function VerifyFormAction(_state: VerifyFormState, formData: FormDa
     const verifyForm = VerifySchema.safeParse({
       fullname: formData.get('name'),
       email: formData.get('email'),
+      address: formData.get('address'),
       password: formData.get('password'),
       code: formData.get('code'),
     });
-
-    console.log(verifyForm);
 
     if (!verifyForm.success) {
       return {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Heart, ChevronRight, Clock, Gavel, ChevronDown, Filter } from 'lucide-react';
+import { Heart, ChevronRight, Clock, Gavel, ChevronDown, Filter, SearchX, User, Calendar } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ProductContext } from '../../libs/contexts/product.context';
@@ -7,9 +7,23 @@ import { getAllProduct } from '../../api/product';
 import { getCategories } from '../../api/category';
 import type { Category, Product } from '../../libs/types/types';
 import Pagination from '../../components/pagination';
-// Giả sử bạn có UI components, nếu không có thể dùng thẻ div thường
-import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
 import SortBar from '../../components/product/sortBar';
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}/${date.getFullYear()}`;
+};
+
+const maskBidderName = (name: string | null) => {
+  if (!name) return 'Chưa có';
+  if (name.length <= 3) return '***';
+  const count = Math.max(0, name.length - 5);
+  const stars = '*'.repeat(count);
+  return stars + name.slice(-5);
+};
 
 const convertTime = (date: string) => {
   const now = new Date();
@@ -308,12 +322,11 @@ const ProductList = () => {
 
               <SortBar />
             </div>
-
             {loading ? (
-              <div className='flex items-center justify-center h-64'>
+              <div className='flex items-center justify-center h-128'>
                 <div className='animate-spin rounded-full h-10 w-10 border-4 border-teal-500 border-t-transparent'></div>
               </div>
-            ) : (
+            ) : products.length > 0 ? (
               <>
                 <div className='grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'>
                   {products.map((item) => {
@@ -375,18 +388,19 @@ const ProductList = () => {
                             <p className='text-xl font-bold text-gray-900 leading-none'>
                               {Number(item.currentPrice).toLocaleString()} VND
                             </p>
+
+                            <div className='flex items-center gap-1.5 text-[11px] text-gray-400 mb-2'>
+                              <Calendar size={12} />
+                              <span>Đăng: {formatDate(item?.startedAt)}</span>
+                            </div>
                           </div>
 
                           <div className='flex items-center justify-between pt-3 mt-2 border-t border-gray-100'>
-                            <div className='flex items-center gap-2'>
-                              <Avatar className='w-6 h-6 border border-gray-200'>
-                                <AvatarImage src={item.seller?.avtUrl} />
-                                <AvatarFallback className='text-[10px]'>
-                                  {item.seller?.fullname?.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className='text-xs font-medium text-gray-600 truncate max-w-20'>
-                                {item.seller?.fullname}
+                            <div className='flex items-center gap-1.5 text-[11px] text-gray-500 bg-gray-50 px-2 py-1 rounded-md w-fit'>
+                              <User size={12} className='text-teal-500' />
+                              <span className='font-medium'>Top Bid:</span>
+                              <span className='text-gray-700 font-semibold'>
+                                {maskBidderName(item.bidHistory?.[0]?.bidder.avtUrl ?? null)}
                               </span>
                             </div>
 
@@ -412,7 +426,24 @@ const ProductList = () => {
                   <Pagination page={page} totalPage={totalPage} onPageChange={handlePage} />
                 </div>
               </>
+            ) : (
+              <div className='flex flex-col items-center justify-center py-16 px-4 text-center animate-in fade-in zoom-in duration-500'>
+                <div className='bg-gray-100 p-6 rounded-full mb-6 relative'>
+                  <SearchX className='w-12 h-12 text-gray-400' />
+                  <div className='absolute -bottom-1 -right-1 bg-white p-1 rounded-full shadow-sm'>
+                    <div className='w-4 h-4 bg-red-400 rounded-full animate-pulse'></div>
+                  </div>
+                </div>
+
+                <h3 className='text-xl font-bold text-gray-900 mb-2'>Không tìm thấy sản phẩm nào</h3>
+
+                <p className='text-gray-500 max-w-md mb-8 leading-relaxed'>
+                  Chúng tôi không tìm thấy sản phẩm nào phù hợp với bộ lọc hiện tại. Hãy thử điều chỉnh khoảng giá hoặc
+                  danh mục khác.
+                </p>
+              </div>
             )}
+            x
           </div>
         </div>
       </div>

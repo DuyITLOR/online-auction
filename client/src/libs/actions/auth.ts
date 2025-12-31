@@ -198,7 +198,10 @@ export async function ResetPasswordFormAction(
   try {
     const forgetForm = ResetPasswordSchema.safeParse({
       password: formData.get('password'),
+      confirmPassword: formData.get('confirm-password'),
     });
+
+    const token = formData.get('token') as string;
 
     if (!forgetForm.success) {
       return {
@@ -208,7 +211,7 @@ export async function ResetPasswordFormAction(
 
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/reset-password`, {
       method: 'Post',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify(forgetForm.data),
     });
 
@@ -221,7 +224,7 @@ export async function ResetPasswordFormAction(
 
     toast.success('Thay đổi mật khẩu thành công');
 
-    window.location.href = '/auth/signin'
+    window.location.href = '/auth/signin';
   } catch (error) {
     console.error('[auth-form][form-submit::reset-password]:', error);
     return {

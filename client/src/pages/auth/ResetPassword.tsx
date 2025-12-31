@@ -25,9 +25,10 @@ const ResetPassword = () => {
           </p>
         </div>
 
-        <div className='font-semibold mt-3 text-teal-700 text-center'>Tạo tài khoản trên nền tảng SnapBid</div>
+        <div className='font-semibold mt-3 text-teal-700 text-center'>Đặt lại mật khẩu mới cho tài khoản của bạn</div>
 
         <div className='flex flex-col gap-6 bg-slate-200 shadow-md rounded-md mt-7 py-7 px-5'>
+          <input type='hidden' name='token' value={token || ''} />
           <div className='flex flex-col space-y-2'>
             <h3 className='font-bold text-sm'>Mật khẩu</h3>
             <input
@@ -43,13 +44,13 @@ const ResetPassword = () => {
           <div className='flex flex-col space-y-2'>
             <h3 className='font-bold text-sm'>Nhập lại mật khẩu</h3>
             <input
-              type='email'
-              name='email'
+              type='password'
+              name='confirm-password'
               placeholder='ThDang@example.com'
               className=' py-1 px-3 bg-white border border-0.5 border-gray-400 focus-visible:outline-0 focus-visible:border-teal-500 focus-visible:border-2 rounded-lg w-full '
             />
 
-            {state?.errors?.email && <p className='text-red-500 text-sm'>{state.errors.email}</p>}
+            {state?.errors?.confirmPassword && <p className='text-red-500 text-sm'>{state.errors.confirmPassword}</p>}
           </div>
 
           {state?.messages && (
@@ -59,12 +60,12 @@ const ResetPassword = () => {
             </div>
           )}
 
-          <Button className='bg-teal-600 text-white font-bold mt-2 hover:opacity-80'>Gửi yêu cầu</Button>
+          <Button className='bg-teal-600 text-white font-bold mt-2 hover:opacity-80'>Xác nhận </Button>
 
           <div className='flex items-center gap-1 justify-center'>
-            <p className='font-semibold text-sm'>Quay lại trang? </p>
+            <p className='font-semibold text-sm'>Bạn nhớ mật khẩu cũ? </p>
             <a href='/auth/signin' className='font-extrabold text-sm text-teal-700'>
-              Đăng nhập
+              Đăng nhập ngay
             </a>
           </div>
         </div>

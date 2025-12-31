@@ -45,6 +45,7 @@ export type ResetPasswordFormState =
   | {
       errors?: {
         password?: string[];
+        confirmPassword?: string[];
       };
       messages?: string;
     }

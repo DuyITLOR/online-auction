@@ -21,7 +21,9 @@ const ForgetPassword = () => {
           </p>
         </div>
 
-        <div className='font-semibold mt-3 text-teal-700 text-center'>Tạo tài khoản trên nền tảng SnapBid</div>
+        <div className='font-semibold mt-3 text-teal-700 text-center'>
+          Sử dụng tài khoản email của bạn để chọn thay đổi mật khẩu
+        </div>
 
         <div className='flex flex-col gap-6 bg-slate-200 shadow-md rounded-md mt-7 py-7 px-5'>
           <div className='flex flex-col space-y-2'>

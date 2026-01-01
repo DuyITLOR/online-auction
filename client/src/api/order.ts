@@ -140,9 +140,7 @@ export const confirmOrder = async (orderId: string, token: string) => {
 }
 
 
-export const ratingOrder = async (token: string, evaluatee:string ,productId: string, rating: number, comment: string) => {
-
-
+export const ratingOrder = async (token: string, evaluatee:string ,productId: string, orderId: string , rating: number, comment: string) => {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/ratings/users/${evaluatee}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -153,6 +151,7 @@ export const ratingOrder = async (token: string, evaluatee:string ,productId: st
         productId: productId,
         value: rating,
         comment: comment, 
+        orderId: orderId,
       })
     })
 

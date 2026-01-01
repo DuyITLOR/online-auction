@@ -99,7 +99,6 @@ export const rateUser = async (req: Request, res: Response) => {
       value: Number(body.value),
       comment: body.comment,
     };
-
     
     const record = await service.createRating(data);
     const response = gatewayResponse(

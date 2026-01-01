@@ -100,7 +100,6 @@ export const createRating = async (data: ratingDto) => {
   await prisma.orders.update({
     where: {
       id: data.orderId,
-      productId: data.productId,   
     },
     data: {
       status : 'COMPLETED',

@@ -26,7 +26,6 @@ export default function AuthCallback() {
 
     const verifyToken = async () => {
       try {
-        // Lưu ý: Kiểm tra lại tên biến môi trường (VITE_BACKEND_URL hay BACKEND_URL)
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/verify-token`, {
           method: 'GET',
           headers: {

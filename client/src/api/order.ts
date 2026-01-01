@@ -54,7 +54,6 @@ export const getOrderInfo = async (orderId: string, token: string) => {
   }
 };
 
-
 export const uploadOrderQR = async ( orderId: string, token: string, qrInfo: string, image: File) => {
   const formData = new FormData();
   formData.append('qrInfo', qrInfo);

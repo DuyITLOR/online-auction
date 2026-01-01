@@ -126,6 +126,7 @@ export const PaymentShipping = ({ userRole, onComplete, order }: StepShippingPro
                     <input
                         type="checkbox"
                         checked={paymentConfirmed}
+                        disabled={isSubmitting}
                         onChange={(e) => setPaymentConfirmed(e.target.checked)}
                         className="mt-1 h-4 w-4 rounded border border-input text-primary focus:ring-primary accent-[rgb(73,201,73)]"
                     />
@@ -149,6 +150,7 @@ export const PaymentShipping = ({ userRole, onComplete, order }: StepShippingPro
                     <input
                         value={shippingCode}
                         onChange={(e) => setShippingCode(e.target.value)}
+                        disabled={isSubmitting}
                         className="w-full rounded-lg border border-input bg-background px-4 py-2 text-sm"
                         placeholder="Nhập mã vận đơn..."
                     />
@@ -161,6 +163,7 @@ export const PaymentShipping = ({ userRole, onComplete, order }: StepShippingPro
                     <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition">
                         <input
                             type="file"
+                            disabled={isSubmitting}
                             id="shipping-invoice"
                             onChange={handleFileChange}
                             className="hidden"

@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  Calendar,
   Camera,
   ChartArea,
   Edit,
   Gavel,
   Heart,
+  KeyRound,
   LogOut,
-  MessageCircle,
   ScrollText,
+  Settings,
   ShoppingBag,
   ShoppingBasket,
   Store,
@@ -28,9 +28,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose,
+  DialogTrigger,
 } from '../components/ui/dialog';
+// Thêm Dropdown Menu
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../components/ui/dropdown-menu';
 
 import { useContext, useEffect, useRef, useState } from 'react';
 import { clearSession, getSession } from '../libs/session';
@@ -40,18 +49,17 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { UserContext } from '../libs/contexts/user.context';
 import { getAllRatees, getAllRaters, updateRating } from '../api/rating';
-import { calculateRating, isoToYYYYMMDD } from '../libs/utils';
+import { calculateRating } from '../libs/utils';
 import Activities from '../components/profile/tabs/activities';
 import WatchProducts from '../components/profile/tabs/watchList';
+import { updatePassword } from '@/api/auth';
 
 const convertISO = (isoString: string | undefined, revert: boolean = false) => {
   if (!isoString) return '';
   const date = new Date(isoString);
-
   const dd = String(date.getDate()).padStart(2, '0');
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const yyyy = date.getFullYear();
-
   return revert ? `${yyyy}-${mm}-${dd}` : `${dd}-${mm}-${yyyy}`;
 };
 
@@ -69,6 +77,10 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [raters, setRaters] = useState<Ratings[]>([]);
   const [ratees, setRatees] = useState<Ratings[]>([]);
+
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
+  const [isChangePassOpen, setIsChangePassOpen] = useState(false);
 
   const [upgradeReason, setUpgradeReason] = useState('');
   const [previewAvatar, setPreviewAvatar] = useState<string | undefined>(undefined);
@@ -88,6 +100,12 @@ const Profile = () => {
     email: '',
     dateOfBirth: '',
     address: '',
+  });
+
+  const [passData, setPassData] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: '',
   });
 
   useEffect(() => {
@@ -147,6 +165,7 @@ const Profile = () => {
     const data = await requestToUpgrade({ note: upgradeReason, token: session.token });
     if (data) {
       toast.success('Gửi yêu cầu thành công');
+      setIsUpgradeOpen(false);
     } else {
       toast.error('Gửi yêu cầu thất bại');
     }
@@ -180,6 +199,8 @@ const Profile = () => {
 
     await updateUser({ user: payload, token: session.token });
     refresh();
+    setIsEditProfileOpen(false); // Đóng dialog
+    toast.success('Cập nhật hồ sơ thành công');
   };
 
   const handleUpdateRating = async (id: string, statusValue: boolean, commentValue: string) => {
@@ -187,15 +208,33 @@ const Profile = () => {
       const value = statusValue ? 1 : -1;
       await updateRating({ id: id, token: session.token, value: value, comment: commentValue });
       toast.success('Cập nhật đánh giá thành công');
-      const fetchRatees = async () => {
-        const data = await getAllRatees({ token: session.token });
-        setRatees(data.ratings);
-      };
-
-      await fetchRatees();
+      const data = await getAllRatees({ token: session.token });
+      setRatees(data.ratings);
     } catch (err) {
       toast.error('Cập nhật đánh giá thất bại');
       console.error(err);
+    }
+  };
+
+  const handleChangePassInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassData({ ...passData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmitPassword = async () => {
+    try {
+      if (passData.newPassword !== passData.confirmPassword) {
+        toast.error('Mật khẩu xác nhận không khớp');
+        return;
+      }
+
+      await updatePassword(session.token, passData.oldPassword, passData.newPassword);
+      toast.success('Đổi mật khẩu thành công');
+    } catch (err) {
+      console.error(err);
+      toast.error('Đổi mật khẩu thất bại');
+      throw err;
+    } finally {
+      setIsChangePassOpen(false);
     }
   };
 
@@ -211,7 +250,7 @@ const Profile = () => {
   return (
     <>
       <div className='mx-18 mt-5 mb-5'>
-        <div className='border border-gray-200 h-[150px] rounded-xl flex items-center justify-between px-10'>
+        <div className='border border-gray-200 h-[150px] rounded-xl flex items-center justify-between px-10 bg-white shadow-sm'>
           <div className='flex items-center gap-5'>
             <div className='relative'>
               <Avatar className='w-24 h-24 border-4 border-white shadow-md'>
@@ -233,165 +272,215 @@ const Profile = () => {
               <div className='flex items-center gap-5'>
                 <span className='text-2xl font-bold'>{user?.fullname}</span>
               </div>
-
               <span className='text-gray-500'>{user?.email}</span>
               <span className='text-gray-500'>Tham gia từ: {convertISO(user?.createdAt)}</span>
             </div>
           </div>
 
-          <div className='flex items-center justify-center gap-5'>
-            {!user?.currentRoles.includes('SELLER') && (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant={'outline'} className='bg-teal-600 text-white hover:bg-teal-700 hover:text-white'>
-                    <ShoppingBasket size={16} />
-                    Nâng cấp người bán hàng
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className='sm:max-w-[500px]'>
-                  <DialogHeader>
-                    <DialogTitle>Đăng ký trở thành người bán</DialogTitle>
-                    <DialogDescription>
-                      Vui lòng cho chúng tôi biết lý do bạn muốn trở thành người bán hàng trên nền tảng.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className='grid gap-4 py-4'>
-                    <div className='grid w-full gap-1.5'>
-                      <textarea
-                        id='reason'
-                        placeholder='Tôi muốn bán các sản phẩm...'
-                        className='outline-0 border border-gray-200 rounded-md px-2 py-3'
-                        value={upgradeReason}
-                        onChange={(e) => setUpgradeReason(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button type='button' variant='outline'>
-                        Hủy
-                      </Button>
-                    </DialogClose>
-                    <DialogClose asChild>
-                      <Button type='submit' onClick={handleUpgradeSubmit} className='bg-teal-600 text-white border-0'>
-                        Gửi yêu cầu
-                      </Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            )}
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant='outline' className=''>
-                  <UserRound size={16} />
-                  Chỉnh sửa hồ sơ
-                </Button>
-              </DialogTrigger>
-              <DialogContent className='sm:max-w-[500px]'>
-                <DialogHeader>
-                  <DialogTitle>Chỉnh sửa hồ sơ</DialogTitle>
-                  <DialogDescription>
-                    Thay đổi thông tin cá nhân của bạn tại đây. Nhấn lưu khi hoàn tất.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className='flex flex-col items-center justify-center gap-3 py-1'>
-                  <div className='relative group cursor-pointer' onClick={() => fileInputRef.current?.click()}>
-                    <Avatar className='w-24 h-24 border-2 border-gray-200'>
-                      <AvatarImage src={previewAvatar || user?.avtUrl} className='object-cover' />
-                      <AvatarFallback className='text-2xl'>
-                        {user?.fullname ? user.fullname.charAt(0).toUpperCase() : '?'}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className='absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
-                      <Camera className='text-white w-8 h-8' />
-                    </div>
-                  </div>
-                  <span className='text-xs text-gray-500'>Nhấn vào ảnh để thay đổi</span>
-
-                  <input
-                    type='file'
-                    ref={fileInputRef}
-                    className='hidden'
-                    accept='image/*'
-                    onChange={handleChangeAvatar}
-                  />
-                </div>
-
-                <div className='grid gap-4 py-4'>
-                  <div className='grid grid-cols-4 items-center gap-2'>
-                    <p id='name' className=''>
-                      Họ tên
-                    </p>
-                    <input
-                      name='fullname'
-                      className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
-                      value={formData.fullname}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className='grid grid-cols-4 items-center gap-2'>
-                    <p id='email' className=''>
-                      Email
-                    </p>
-                    <input
-                      id='email'
-                      value={formData.email}
-                      disabled
-                      className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
-                    />
-                  </div>
-                  <div className='grid grid-cols-4 items-center gap-2'>
-                    <p id='birth' className=''>
-                      Ngày sinh
-                    </p>
-
-                    <input
-                      type='date'
-                      id='date'
-                      name='dateOfBirth'
-                      value={formData.dateOfBirth}
-                      onChange={handleChange}
-                      className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
-                    />
-                  </div>
-
-                  <div className='grid grid-cols-4 items-center gap-2'>
-                    <p id='address' className=''>
-                      Địa chỉ
-                    </p>
-                    <input
-                      name='address'
-                      value={formData.address}
-                      onChange={handleChange}
-                      className='outline-0 border border-gray-200 rounded-md px-2 py-1 min-w-[320px]'
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button type='submit' className='bg-teal-600 text-white border-0' onClick={handleUpdateProfile}>
-                      Lưu thay đổi
-                    </Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+          <div className='flex items-center justify-center gap-3'>
             <Button
               onClick={() => {
                 navigate(`${user?.role === 'ADMIN' ? '/admin/dashboard' : '/seller/dashboard'}`);
               }}
               variant={'outline'}
-              className='text-teal-600'
+              className='text-teal-600 border-teal-200 hover:bg-teal-50'
             >
-              <ChartArea size={16} />
+              <ChartArea size={18} className='mr-2' />{' '}
+              {user?.role === 'ADMIN' ? 'Hệ thống quản lý' : 'Quản lý sản phẩm'}
             </Button>
-            <Button onClick={() => signout()} variant={'outline'} className='text-red-500'>
-              <LogOut size={16} />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant='outline' className='border-gray-200 hover:bg-gray-100'>
+                  <Settings size={18} className='mr-2' /> Cài đặt
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='w-56'>
+                <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem onClick={() => setIsEditProfileOpen(true)} className='cursor-pointer'>
+                  <UserRound className='mr-2 h-4 w-4' />
+                  <span>Chỉnh sửa hồ sơ</span>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem onClick={() => setIsChangePassOpen(true)} className='cursor-pointer'>
+                  <KeyRound className='mr-2 h-4 w-4' />
+                  <span>Đổi mật khẩu</span>
+                </DropdownMenuItem>
+
+                {!user?.currentRoles.includes('SELLER') && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => setIsUpgradeOpen(true)}
+                      className='cursor-pointer text-teal-600 focus:text-teal-700'
+                    >
+                      <ShoppingBasket className='mr-2 h-4 w-4' />
+                      <span>Nâng cấp người bán</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button
+              onClick={() => signout()}
+              variant={'outline'}
+              className='text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600'
+            >
+              <LogOut size={18} />
             </Button>
           </div>
         </div>
+
+        <Dialog open={isUpgradeOpen} onOpenChange={setIsUpgradeOpen}>
+          <DialogContent className='sm:max-w-[500px]'>
+            <DialogHeader>
+              <DialogTitle>Đăng ký trở thành người bán</DialogTitle>
+              <DialogDescription>
+                Vui lòng cho chúng tôi biết lý do bạn muốn trở thành người bán hàng trên nền tảng.
+              </DialogDescription>
+            </DialogHeader>
+            <div className='grid gap-4 py-4'>
+              <textarea
+                placeholder='Tôi muốn bán các sản phẩm...'
+                className='outline-0 border border-gray-200 rounded-md px-2 py-3 min-h-[100px]'
+                value={upgradeReason}
+                onChange={(e) => setUpgradeReason(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button type='button' variant='outline' onClick={() => setIsUpgradeOpen(false)}>
+                Hủy
+              </Button>
+              <Button type='submit' onClick={handleUpgradeSubmit} className='bg-teal-600 text-white'>
+                Gửi yêu cầu
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isEditProfileOpen} onOpenChange={setIsEditProfileOpen}>
+          <DialogContent className='sm:max-w-[500px]'>
+            <DialogHeader>
+              <DialogTitle>Chỉnh sửa hồ sơ</DialogTitle>
+              <DialogDescription>Thay đổi thông tin cá nhân của bạn tại đây.</DialogDescription>
+            </DialogHeader>
+
+            <div className='flex flex-col items-center justify-center gap-3 py-1'>
+              <div className='relative group cursor-pointer' onClick={() => fileInputRef.current?.click()}>
+                <Avatar className='w-24 h-24 border-2 border-gray-200'>
+                  <AvatarImage src={previewAvatar || user?.avtUrl} className='object-cover' />
+                  <AvatarFallback className='text-2xl'>
+                    {user?.fullname ? user.fullname.charAt(0).toUpperCase() : '?'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className='absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
+                  <Camera className='text-white w-8 h-8' />
+                </div>
+              </div>
+              <input type='file' ref={fileInputRef} className='hidden' accept='image/*' onChange={handleChangeAvatar} />
+            </div>
+
+            <div className='grid gap-4 py-4'>
+              <div className='grid grid-cols-4 items-center gap-2'>
+                <p className='text-sm font-medium'>Họ tên</p>
+                <input
+                  name='fullname'
+                  className='col-span-3 outline-0 border border-gray-200 rounded-md px-3 py-2'
+                  value={formData.fullname}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className='grid grid-cols-4 items-center gap-2'>
+                <p className='text-sm font-medium'>Email</p>
+                <input
+                  value={formData.email}
+                  disabled
+                  className='col-span-3 outline-0 border border-gray-200 bg-gray-50 rounded-md px-3 py-2 text-gray-500'
+                />
+              </div>
+              <div className='grid grid-cols-4 items-center gap-2'>
+                <p className='text-sm font-medium'>Ngày sinh</p>
+                <input
+                  type='date'
+                  name='dateOfBirth'
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
+                  className='col-span-3 outline-0 border border-gray-200 rounded-md px-3 py-2'
+                />
+              </div>
+              <div className='grid grid-cols-4 items-center gap-2'>
+                <p className='text-sm font-medium'>Địa chỉ</p>
+                <input
+                  name='address'
+                  value={formData.address}
+                  onChange={handleChange}
+                  className='col-span-3 outline-0 border border-gray-200 rounded-md px-3 py-2'
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button type='submit' className='bg-teal-600 text-white' onClick={handleUpdateProfile}>
+                Lưu thay đổi
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isChangePassOpen} onOpenChange={setIsChangePassOpen}>
+          <DialogContent className='sm:max-w-[500px]'>
+            <DialogHeader>
+              <DialogTitle>Đổi mật khẩu</DialogTitle>
+              <DialogDescription>Nhập mật khẩu hiện tại và mật khẩu mới để bảo vệ tài khoản.</DialogDescription>
+            </DialogHeader>
+            <div className='grid gap-4 py-4'>
+              <div className='flex flex-col gap-2'>
+                <p className='text-sm font-medium'>Mật khẩu hiện tại</p>
+                <input
+                  type='password'
+                  name='oldPassword'
+                  value={passData.oldPassword}
+                  onChange={handleChangePassInput}
+                  className='outline-0 border border-gray-200 rounded-md px-3 py-2'
+                  placeholder='••••••'
+                />
+              </div>
+              <div className='flex flex-col gap-2'>
+                <p className='text-sm font-medium'>Mật khẩu mới</p>
+                <input
+                  type='password'
+                  name='newPassword'
+                  value={passData.newPassword}
+                  onChange={handleChangePassInput}
+                  className='outline-0 border border-gray-200 rounded-md px-3 py-2'
+                  placeholder='••••••'
+                />
+              </div>
+              <div className='flex flex-col gap-2'>
+                <p className='text-sm font-medium'>Xác nhận mật khẩu mới</p>
+                <input
+                  type='password'
+                  name='confirmPassword'
+                  value={passData.confirmPassword}
+                  onChange={handleChangePassInput}
+                  className='outline-0 border border-gray-200 rounded-md px-3 py-2'
+                  placeholder='••••••'
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant='outline' onClick={() => setIsChangePassOpen(false)}>
+                Hủy
+              </Button>
+              <Button type='submit' className='bg-teal-600 text-white' onClick={handleSubmitPassword}>
+                Cập nhật mật khẩu
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 mb-10'>
           <div className='bg-white rounded-xl p-6 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group'>
@@ -406,7 +495,6 @@ const Profile = () => {
               <span className='text-sm font-medium text-gray-500'>Lượt ra giá</span>
             </div>
           </div>
-
           <div className='bg-white rounded-xl p-6 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group'>
             <div className='flex items-center justify-between mb-4'>
               <div className='w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-300 group-hover:text-white transition-colors duration-300'>
@@ -498,7 +586,6 @@ const Profile = () => {
                   </div>
                   <p className='text-sm text-gray-400'>Dựa trên {totalReviews} lượt đánh giá gần nhất</p>
                 </div>
-
                 <div className='flex flex-col gap-3 w-full md:w-2/3 border-l border-gray-100 pl-0 md:pl-6'>
                   <div className='flex items-center gap-3'>
                     <ThumbsUp className='w-5 h-5 text-emerald-500' />
@@ -510,7 +597,6 @@ const Profile = () => {
                       <Progress value={positiveCount} className='h-2 bg-gray-100' />
                     </div>
                   </div>
-
                   <div className='flex items-center gap-3'>
                     <ThumbsDown className='w-5 h-5 text-rose-500' />
                     <div className='w-full'>
@@ -526,7 +612,6 @@ const Profile = () => {
 
               <div className='flex flex-col gap-4'>
                 <h4 className='text-base font-bold text-gray-800 uppercase tracking-wide'>Đánh giá nhận được</h4>
-
                 {raters.map((item: Ratings) => (
                   <div
                     key={item.id}
@@ -538,31 +623,14 @@ const Profile = () => {
                           <AvatarImage src={item?.rater?.avtUrl} />
                         </Avatar>
                         <div className='flex flex-col'>
-                          <div className='flex items-center gap-2 mt-1'>
-                            <span
-                              className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${
-                                !(item.rater.role === 'BIDDER')
-                                  ? 'border-orange-200 bg-orange-50 text-orange-700'
-                                  : 'border-blue-200 bg-blue-50 text-blue-700'
-                              }`}
-                            >
-                              {!(item?.rater.role === 'BIDDER') ? 'Người bán' : 'Người mua'}
-                            </span>
-                          </div>
                           <p className='font-semibold text-gray-900 text-sm'>{item?.rater?.fullname}</p>
                         </div>
                       </div>
-                      <div className='flex items-center gap-1 mt-2 text-sm text-gray-400'>
-                        <Calendar className='w-3 h-3' />
-                        <span>{isoToYYYYMMDD(item?.createdAt)}</span>
-                      </div>
                     </div>
-
                     <div className='grow border-l-0 md:border-l border-gray-100 pl-0 md:pl-4 flex flex-col justify-between'>
                       <div>
                         <div className='flex items-center justify-between mb-2'>
                           <p className='text-sm font-medium text-gray-500 uppercase'>{item.productId}</p>
-
                           {item.value === 1 ? (
                             <div className='flex items-center gap-1 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100'>
                               <ThumbsUp className='w-3.5 h-3.5 fill-current' />
@@ -575,20 +643,7 @@ const Profile = () => {
                             </div>
                           )}
                         </div>
-
                         <p className='text-gray-700 text-sm leading-relaxed'>{item?.comment}</p>
-                      </div>
-
-                      <div className='mt-4 flex justify-end'>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          className='text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 gap-2 transition-colors'
-                          onClick={() => console.log('Open chat with', item.rater.fullname)}
-                        >
-                          <MessageCircle className='w-4 h-4' />
-                          Nhắn tin
-                        </Button>
                       </div>
                     </div>
                   </div>
@@ -602,9 +657,7 @@ const Profile = () => {
               <div className='flex items-center justify-between'>
                 <div>
                   <p className='text-lg font-bold'>Lịch sử đánh giá</p>
-                  <p className='text-sm font-semibold text-gray-400 mb-5'>
-                    Các đánh giá bạn đã để lại cho người mua và sản phẩm.
-                  </p>
+                  <p className='text-sm font-semibold text-gray-400 mb-5'>Các đánh giá bạn đã để lại.</p>
                 </div>
               </div>
 
@@ -620,31 +673,14 @@ const Profile = () => {
                           <AvatarImage src={item?.ratee?.avtUrl} />
                         </Avatar>
                         <div className='flex flex-col'>
-                          <div className='flex items-center gap-2 mt-1'>
-                            <span
-                              className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${
-                                !(item.ratee.role === 'BIDDER')
-                                  ? 'border-orange-200 bg-orange-50 text-orange-700'
-                                  : 'border-blue-200 bg-blue-50 text-blue-700'
-                              }`}
-                            >
-                              {!(item?.ratee.role === 'BIDDER') ? 'Người bán' : 'Người mua'}
-                            </span>
-                          </div>
                           <p className='font-semibold text-gray-900 text-sm'>{item?.ratee?.fullname}</p>
                         </div>
                       </div>
-                      <div className='flex items-center gap-1 mt-2 text-sm text-gray-400'>
-                        <Calendar className='w-3 h-3' />
-                        <span>{isoToYYYYMMDD(item?.createdAt)}</span>
-                      </div>
                     </div>
-
                     <div className='grow border-l-0 md:border-l border-gray-100 pl-0 md:pl-4 flex flex-col justify-between'>
                       <div>
                         <div className='flex items-center justify-between mb-2'>
                           <p className='text-sm font-medium text-gray-500 uppercase'>{item.productId}</p>
-
                           {item.value === 1 ? (
                             <div className='flex items-center gap-1 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100'>
                               <ThumbsUp className='w-3.5 h-3.5 fill-current' />
@@ -657,7 +693,6 @@ const Profile = () => {
                             </div>
                           )}
                         </div>
-
                         <p className='text-gray-700 text-sm leading-relaxed'>{item?.comment}</p>
                       </div>
 
@@ -667,23 +702,20 @@ const Profile = () => {
                             <Button
                               variant='outline'
                               size='sm'
-                              className='text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 gap-2 transition-colors'
                               onClick={() => {
                                 setStatus(item?.value === 1);
                                 setComment(item?.comment ? item?.comment : '');
                               }}
+                              className='text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 gap-2 transition-colors'
                             >
-                              <Edit className='w-4 h-4' />
-                              Chỉnh sửa
+                              <Edit className='w-4 h-4' /> Chỉnh sửa
                             </Button>
                           </DialogTrigger>
-
                           <DialogContent className='min-w-[500px]'>
                             <DialogHeader>
                               <DialogTitle>Chỉnh sửa</DialogTitle>
                               <DialogDescription>Chỉnh sửa thông tin đánh giá</DialogDescription>
                             </DialogHeader>
-
                             <div className='flex flex-col gap-3 w-full mx-1'>
                               <div className=' p-1 rounded-lg grid grid-cols-2 gap-1'>
                                 <button
@@ -713,22 +745,19 @@ const Profile = () => {
                                 onChange={(e) => setComment(e.target.value)}
                               />
                             </div>
-
                             <DialogFooter>
-                              <DialogFooter>
-                                <DialogClose>
-                                  <div className='flex items-center gap-2'>
-                                    <Button variant={'outline'}>Hủy</Button>
-                                    <Button
-                                      variant={'outline'}
-                                      onClick={() => handleUpdateRating(item.id, status, comment)}
-                                      className='bg-teal-700 text-white'
-                                    >
-                                      Chỉnh sửa
-                                    </Button>
-                                  </div>
-                                </DialogClose>
-                              </DialogFooter>
+                              <DialogClose>
+                                <div className='flex items-center gap-2'>
+                                  <Button variant={'outline'}>Hủy</Button>
+                                  <Button
+                                    variant={'outline'}
+                                    onClick={() => handleUpdateRating(item.id, status, comment)}
+                                    className='bg-teal-700 text-white'
+                                  >
+                                    Chỉnh sửa
+                                  </Button>
+                                </div>
+                              </DialogClose>
                             </DialogFooter>
                           </DialogContent>
                         </Dialog>

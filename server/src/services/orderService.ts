@@ -172,6 +172,7 @@ export const getOrderById = async (
     select: {
       id: true,
       totalAmount: true,
+      productId: true,
       status: true,
       sellerId: true,
       buyerId: true,

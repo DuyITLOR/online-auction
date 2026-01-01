@@ -48,6 +48,6 @@ export interface productQueryDto {
 export interface buyNowProuctDto {
   productId: string;
   buyerId: string;
-  phoneNumber: string;
-  shippingAddress: string;
+  sellerId: string;
+  totalAmount: Number;
 }

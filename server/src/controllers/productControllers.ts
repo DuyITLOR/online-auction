@@ -193,13 +193,26 @@ export const buyNowProduct = async (req: Request, res: Response) => {
 
       return res.status(respone.code).send(respone);
     }
-    const data: buyNowProuctDto = req.body;
-    data.productId = productId;
 
-    if (!data.phoneNumber || !data.shippingAddress) {
-      throw new Error('Dữ liệu không hợp lệ');
+    const product = await productService.getProductById(productId);
+
+    if (!product) {
+      const respone = gatewayResponse(
+        HttpStatus.notFound,
+        null,
+        'Không tìm thấy sản phẩm'
+      );
+      return res.status(respone.code).send(respone);
     }
-    const response = await productService.buyNowProuct(bidderId, data);
+
+    const data: buyNowProuctDto = {
+      buyerId: bidderId,
+      sellerId: product.sellerId,
+      totalAmount: Number(product.buyNowPrice) || 0,
+      productId: productId
+    }
+
+    const response = await productService.buyNowProuct(data);
 
     const content = loadOrderTemplate(
       response?.product.title || '',

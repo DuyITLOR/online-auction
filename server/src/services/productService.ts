@@ -3,12 +3,12 @@ import {
   productQueryDto,
   updateProductDto,
   buyNowProuctDto,
-} from '../dto/productDto';
-import { prisma } from './db/prisma';
-import { Prisma } from '@prisma/client';
+} from "../dto/productDto";
+import { prisma } from "./db/prisma";
+import { Prisma } from "@prisma/client";
 
 export const createProduct = async (id: string, data: createProductDto) => {
-  console.log('Time to expired the product: ', data.endAt);
+  console.log("Time to expired the product: ", data.endAt);
   const product = await prisma.products.create({
     data: {
       sellerId: id,
@@ -28,9 +28,9 @@ export const createProduct = async (id: string, data: createProductDto) => {
       endAt: new Date(data.endAt),
       updatedAt: new Date(),
 
-      autoExtendEnabled: data.autoExtendEnabled === 'true',
+      autoExtendEnabled: data.autoExtendEnabled === "true",
       autoExtendMinutes: Number(data.autoExtendMinutes) ?? 0,
-      highRatingRequired: data.highRatingRequired === 'true',
+      highRatingRequired: data.highRatingRequired === "true",
 
       images: {
         create: data.images.map((img) => ({
@@ -71,13 +71,13 @@ export const updateProduct = async (id: string, data: updateProductDto) => {
     });
 
     const now = new Date();
-    const dd = String(now.getDate()).padStart(2, '0');
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, "0");
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
     const yyyy = now.getFullYear();
     const formattedDate = `${dd}/${mm}/${yyyy}`;
 
     updateData.description = `${
-      old?.description ?? ' '
+      old?.description ?? " "
     }  \n\n[Cập nhật ngày ${formattedDate}]: \n\n${data.description}`;
   }
 
@@ -139,7 +139,7 @@ export const searchProducts = async (query: productQueryDto) => {
   const skip = (page - 1) * limit;
   const minPrice = Number(query.minPrice);
   const maxPrice = Number(query.maxPrice);
-  const isBidder = query.isBidder === 'true' ? true : false;
+  const isBidder = query.isBidder === "true" ? true : false;
 
   const where: Prisma.ProductsWhereInput = {};
 
@@ -149,7 +149,7 @@ export const searchProducts = async (query: productQueryDto) => {
     where.AND = keywords.map((word) => ({
       title: {
         contains: word,
-        mode: 'insensitive',
+        mode: "insensitive",
       },
     }));
   }
@@ -181,29 +181,29 @@ export const searchProducts = async (query: productQueryDto) => {
   let orderBy: Prisma.ProductsOrderByWithRelationInput = {};
 
   switch (query.sort) {
-    case 'price_asc':
-      orderBy = { currentPrice: 'asc' };
+    case "price_asc":
+      orderBy = { currentPrice: "asc" };
       break;
-    case 'price_desc':
-      orderBy = { currentPrice: 'desc' };
+    case "price_desc":
+      orderBy = { currentPrice: "desc" };
       break;
-    case 'endAt_asc':
-      orderBy = { endAt: 'asc' };
+    case "endAt_asc":
+      orderBy = { endAt: "asc" };
       break;
-    case 'endAt_desc':
-      orderBy = { endAt: 'desc' };
+    case "endAt_desc":
+      orderBy = { endAt: "desc" };
       break;
-    case 'countBids_desc':
-      orderBy = { countbids: 'desc' };
+    case "countBids_desc":
+      orderBy = { countbids: "desc" };
       break;
-    case 'ending_soon':
-      orderBy = { endAt: 'asc' };
+    case "ending_soon":
+      orderBy = { endAt: "asc" };
       where.endAt = {
         gt: new Date(),
       };
       break;
     default:
-      orderBy = { startedAt: 'desc' };
+      orderBy = { startedAt: "desc" };
       break;
   }
 
@@ -218,7 +218,7 @@ export const searchProducts = async (query: productQueryDto) => {
       seller: true,
       category: true,
       bidHistory: {
-        orderBy: { amount: 'desc' },
+        orderBy: { amount: "desc" },
         take: 1,
         include: {
           bidder: true,
@@ -238,83 +238,66 @@ export const searchProducts = async (query: productQueryDto) => {
   };
 };
 
-export const buyNowProuct = async (bidderId: string, data: buyNowProuctDto) => {
+export const buyNowProuct = async (data: buyNowProuctDto) => {
   const timeout = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-  try {
-    return await prisma.$transaction(async (tx) => {
-      const product = await tx.products.findUnique({
-        where: { id: data.productId },
-      });
+  console.log("Data: ", data);
+  const product = await prisma.products.findUnique({
+    where: { id: data.productId },
+  });
 
-      if (!product) {
-        throw new Error('Không tìm thấy sản phẩm');
-      }
-
-      if (product.sellerId === bidderId) {
-        throw new Error('Người bán không thể mua ngay sản phẩm của chính mình');
-      }
-
-      if (product.status !== 'ACTIVE') {
-        throw new Error('Sản phẩm không khả dụng để mua ngay');
-      }
-
-      if (product.buyNowPrice === null) {
-        throw new Error('Sản phẩm không có giá mua ngay');
-      }
-
-      try {
-        const order = await tx.orders.create({
-          data: {
-            productId: data.productId,
-            buyerId: bidderId,
-            sellerId: product.sellerId,
-            totalAmount: new Prisma.Decimal(product.buyNowPrice),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          include: {
-            product: {
-              include: {
-                seller: true,
-              },
-            },
-            buyer: true,
-          },
-        });
-
-        await tx.products.update({
-          where: { id: data.productId },
-          data: {
-            status: 'SOLD',
-            winnerId: bidderId,
-            updatedAt: new Date(),
-          },
-        });
-
-        return order;
-      } catch (err: any) {
-        // Đụng độ khi dùng unique mà có thêm record thứ hai được tạo
-        if (err?.code === 'P2002' || err?.code === '23505') {
-          const exits = await tx.orders.findUnique({
-            where: { productId: data.productId },
-          });
-
-          if (exits) throw new Error('Đã có người mua thành công');
-        }
-      }
-    });
-  } catch (err: any) {
-    throw new Error(err.message);
+  if (!product) {
+    throw new Error("Không tìm thấy sản phẩm");
   }
+
+  if (product.sellerId === data.buyerId) {
+    throw new Error("Người bán không thể mua ngay sản phẩm của chính mình");
+  }
+
+  if (product.status !== "ACTIVE") {
+    throw new Error("Sản phẩm không khả dụng để mua ngay");
+  }
+
+  if (product.buyNowPrice === null) {
+    throw new Error("Sản phẩm không có giá mua ngay");
+  }
+
+  const order = await prisma.orders.create({
+    data: {
+      productId: data.productId,
+      buyerId: data.buyerId,
+      sellerId: product.sellerId,
+      totalAmount: new Prisma.Decimal(product.buyNowPrice),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    include: {
+      product: {
+        include: {
+          seller: true,
+        },
+      },
+      buyer: true,
+    },
+  });
+
+  await prisma.products.update({
+    where: { id: data.productId },
+    data: {
+      status: "SOLD",
+      winnerId: data.buyerId,
+      updatedAt: new Date(),
+    },
+  });
+  return order;
 };
 
 export const getExpiredActiveProducts = async () => {
   const products = await prisma.products.findMany({
-    where: { status: 'ACTIVE', endAt: { lte: new Date() } },
+    where: { status: "ACTIVE", endAt: { lte: new Date() } },
   });
 
   if (!products) {
-    throw new Error('Không tìm thấy sản phẩm nào');
+    throw new Error("Không tìm thấy sản phẩm nào");
   }
 
   return products;

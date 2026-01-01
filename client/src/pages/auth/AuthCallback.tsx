@@ -20,7 +20,7 @@ export default function AuthCallback() {
 
     if (!userId || !token || !name || !email) {
       console.error('Google Oauth failed: Missing params');
-      navigate('/login');
+      navigate('auth/login'); // Nên navigate về login nếu lỗi
       return;
     }
 

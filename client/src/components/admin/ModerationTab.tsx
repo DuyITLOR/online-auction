@@ -337,7 +337,7 @@ const ModerationTab: FC = () => {
                 : "Bạn có chắc chắn muốn TỪ CHỐI yêu cầu này không?"}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className='gap-2 sm:gap-0'>
+          <DialogFooter className='gap-2 sm:gap-2'>
             <button
               onClick={() => setIsDialogOpen(false)}
               disabled={actionLoading}

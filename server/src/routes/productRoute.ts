@@ -3,6 +3,7 @@ import { Router } from "express";
 import * as productControllers from "../controllers/productControllers";
 import { upload } from "../middleware/upload";
 import { API_PRODUCT_ROUTES } from "../utils/permission";
+import { fullTextSearchController } from "../controllers/fullTextSearch";
 
 const router = Router();
 router.get(
@@ -38,6 +39,11 @@ router.post(
   API_PRODUCT_ROUTES.buyNowProduct.path,
   authMiddleware,
   productControllers.buyNowProduct
+);
+
+router.get(
+    API_PRODUCT_ROUTES.fullTextSearch.path,
+    fullTextSearchController
 );
 
 export default router;

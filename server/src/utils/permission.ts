@@ -367,6 +367,12 @@ export const API_PRODUCT_ROUTES = {
     role: [Role.BIDDER],
     method: 'POST',
   },
+  fullTextSearch:
+    {
+      path: '/products/search',
+      role: [Role.ALL],
+      method: 'GET',
+    },
 };
 
 export const API_CATEGORY_ROUTES = {

@@ -2,7 +2,8 @@ import { useContext, useState } from 'react';
 import Card from './Card';
 import type { dataDto } from './Card';
 import { UserContext } from '../../libs/contexts/user.context';
-import { Pencil } from 'lucide-react';
+import { Pencil, House } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface AsideChatProps {
   data: dataDto[];
@@ -49,8 +50,13 @@ const AsideChat = ({
         <div className='flex-1 min-w-0 ms-2'>
           <p className='font-medium text-heading truncate'>{user?.fullname}</p>
         </div>
-        <div className='cursor-pointer'>
-          <Pencil className='w-5 h-5' />
+        <div className='cursor-pointer flex gap-2'>
+          <Link to='/' className='w-5 h-5 hover:text-teal-500'>
+            <Pencil />
+          </Link>
+          <Link to='/' className='w-5 h-5 hover:text-teal-500'>
+            <House />
+          </Link>
         </div>
       </div>
       {/* Search input */}

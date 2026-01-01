@@ -78,10 +78,10 @@ const ChatPage = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-    setIsLoading(true);
+
     const fetchChats = async () => {
-      setIsLoading(true);
       try {
+        setIsLoading(true);
         const session = await getSession();
         const productList = [];
 
@@ -107,7 +107,9 @@ const ChatPage = () => {
           toast.error('Đã xảy ra lỗi');
         }
       } finally {
-        setIsLoading(false);
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     };
 

@@ -18,6 +18,11 @@ router.get(
   controllers.getAllBlockedUser
 );
 router.get(
+  API_ROUTES.getSellerStatistics.path,
+  authMiddleware,
+  controllers.getSellerStats
+);
+router.get(
   API_ROUTES.getAllCommentsByProductId.path,
   controllers.getAllCommentsByProductId
 );

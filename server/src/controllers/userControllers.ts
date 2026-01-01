@@ -14,6 +14,8 @@ import {
   getALlCommentsDto,
   updateUserDto,
 } from '../dto/userDto';
+import { getCompletedOrder } from '../services/orderService';
+import { getReceivedRatings } from '../services/ratingService';
 
 export const getUserById = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -58,6 +60,61 @@ export const getUser = async (req: Request, res: Response) => {
       HttpStatus.badRequest,
       null,
       'Bad request'
+    );
+    res.status(response.code).send(response);
+  }
+};
+
+export const getSellerStats = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      const response = gatewayResponse(
+        HttpStatus.badRequest,
+        null,
+        'Need token before requesting'
+      );
+      res.status(response.code).send(response);
+      return;
+    }
+    const userId = req.user.id;
+    const products = await service.getActivedProducts(userId);
+    const orders = await getCompletedOrder(userId);
+    const ratings = await getReceivedRatings(userId);
+    const revenue = orders.reduce(
+      (total, order) => total + order.totalAmount.toNumber(),
+      0
+    );
+
+    const posRatings = ratings.filter((rating) => rating.value === 1).length;
+    const ratingValue = (posRatings / (ratings.length || 1)) * 100;
+
+    const data = {
+      products: products,
+      orders: orders,
+      revenue: revenue,
+      ratingValue: ratingValue.toFixed(2),
+    };
+
+    const response = gatewayResponse(
+      HttpStatus.ok,
+      data,
+      'Lấy dữ liệu thành công'
+    );
+
+    res.status(response.code).send(response);
+  } catch (err) {
+    if (err instanceof Error) {
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        err.message
+      );
+      res.status(response.code).send(response);
+    }
+    const response = gatewayResponse(
+      HttpStatus.serviceUnavailable,
+      null,
+      'Lỗi từ server'
     );
     res.status(response.code).send(response);
   }
@@ -466,7 +523,7 @@ export const getInforOfProfile = async (req: Request, res: Response) => {
       const response = gatewayResponse(400, null, 'Token Invalid');
       return res.status(response.code).send(response);
     }
-    
+
     const id = req.user.id;
     const data = await service.getInfoProfile(id);
     if (!data) {

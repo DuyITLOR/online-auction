@@ -53,7 +53,7 @@ export const getUserInformation = async (id: string) => {
     return {
       success: true,
       user: user,
-    }
+    };
   } catch (err) {
     console.error('Error from userService:', err);
 
@@ -68,6 +68,20 @@ export const getUserInformation = async (id: string) => {
       success: false,
       message: 'Unknown error',
     };
+  }
+};
+
+export const getActivedProducts = async (sellerId: string) => {
+  try {
+    const products = await prisma.products.findMany({
+      where: {
+        sellerId,
+        status: 'ACTIVE',
+      },
+    });
+    return products;
+  } catch (err) {
+    throw err;
   }
 };
 

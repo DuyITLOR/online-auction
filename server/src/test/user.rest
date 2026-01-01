@@ -4,6 +4,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3NzM3MjFlL
 ###
 GET http://localhost:4000/users/075271ae-23fe-486c-8018-29e2660cd677
 Content-Type: application/json
+###
+GET http://localhost:4000/sellers/stats
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NzI3MDAxNywiZXhwIjoxNzY5ODYyMDE3fQ.iVrfOwLFkDy4InAsUlYNzBcv1agCaAvzogw1tx9IZoE
 
 ###
 PATCH http://localhost:4000/users/update

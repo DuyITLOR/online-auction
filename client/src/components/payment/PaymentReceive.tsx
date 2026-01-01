@@ -112,6 +112,7 @@ export const PaymentReceive = ({ userRole, onComplete, order }: StepDeliveryProp
                     <input
                         type="checkbox"
                         checked={confirmed}
+                        disabled={isSubmitting}
                         onChange={(e) => setConfirmed(e.target.checked)}
                         className="mt-1 h-4 w-4 rounded border border-input accent-[rgb(73,201,73)]"
                     />

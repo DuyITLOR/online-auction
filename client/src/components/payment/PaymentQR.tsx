@@ -102,6 +102,7 @@ const PaymentQR = ({ userRole, onComplete }: StepQrSetupProps) => {
                 <textarea
                     rows={3}
                     value={bankInfo}
+                    disabled={isSubmitting}
                     onChange={(e) => setBankInfo(e.target.value)}
                     placeholder="Ví dụ: Vietcombank - STK: 1234567890 - NGUYEN VAN A"
                     className="w-full rounded-lg border border-input bg-background px-4 py-2 text-sm focus:ring-2 focus:ring-ring"
@@ -122,6 +123,7 @@ const PaymentQR = ({ userRole, onComplete }: StepQrSetupProps) => {
                         type="file"
                         id="qr-upload"
                         accept="image/*"
+                        disabled={isSubmitting}
                         onChange={handleFileChange}
                         className="hidden"
                     />

@@ -168,6 +168,7 @@ const PaymentBuyer = ({ userRole, onComplete, order }: StepPaymentProps) => {
                     rows={3}
                     className="w-full rounded-lg border border-input bg-background px-4 py-2 text-sm"
                     placeholder="Nhập địa chỉ đầy đủ: Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố..."
+                    disabled={isSubmitting}
                 />
             </div>
 
@@ -179,6 +180,7 @@ const PaymentBuyer = ({ userRole, onComplete, order }: StepPaymentProps) => {
                 </label>
                 <input
                     value={phone}
+                    disabled={isSubmitting}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full rounded-lg border border-input bg-background px-4 py-2 text-sm"
                     placeholder="Nhập số điện thoại liên hệ..."

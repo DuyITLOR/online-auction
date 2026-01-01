@@ -2,7 +2,7 @@ GET http://localhost:4000/ratings?type=given
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NDg3Mjg4NywiZXhwIjoxNzY3NDY0ODg3fQ.LGK5tRmm-zbm8jG_AwkUdMWdN396ceG0ofhwp6Qo8RE
 
 ###
-POST http://localhost:4000/ratings/users/bidder-4
+POST http://localhost:4000/ratings/users/075271ae-23fe-486c-8018-29e2660cd677
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci0yIiwiZW1haWwiOiJiaWRkZXIyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY2MjI5MzM2LCJleHAiOjE3Njg4MjEzMzZ9.eb4oAuobemLc7ls0a4RLWlsRh43ppXnvV-xU8HURhTc
 

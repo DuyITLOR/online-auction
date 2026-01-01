@@ -1,4 +1,4 @@
-import { Request, response, Response } from "express";
+import { Request, Response } from "express";
 import { gatewayResponse } from "../utils/response";
 import { HttpStatus } from "../utils/permission";
 import { checkRole } from "../utils/checkRole";
@@ -122,6 +122,8 @@ export const getOrderById = async (req: Request, res: Response) => {
       buyer: {
         fullname: order.buyer.fullname,
       },
+      buyerId: order.buyerId,
+      sellerId: order.sellerId,
       status: order.status,
       canCancel: canCancel,
       qrInfo: order.qrInfo,
@@ -131,6 +133,7 @@ export const getOrderById = async (req: Request, res: Response) => {
       billUrl: order.billUrl,
       shippingUrl: order.shippingUrl,
       shippingCode: order.shippingCode,
+      productId: order.productId,
       role: role,
     };
 

@@ -70,6 +70,7 @@ export const getAllRatings = async (req: Request, res: Response) => {
 };
 
 export const rateUser = async (req: Request, res: Response) => {
+  
   try {
     const body = req.body as ratingInputDto;
     const rateeId = req.params.rateeId;
@@ -88,6 +89,7 @@ export const rateUser = async (req: Request, res: Response) => {
       res.status(response.code).send(response);
       return;
     }
+
     const data = {
       rateeId: rateeId,
       raterId: req.user.id,
@@ -95,6 +97,8 @@ export const rateUser = async (req: Request, res: Response) => {
       value: Number(body.value),
       comment: body.comment,
     };
+
+    
     const record = await service.createRating(data);
     const response = gatewayResponse(
       HttpStatus.created,

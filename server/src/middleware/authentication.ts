@@ -1,6 +1,7 @@
 // src/middleware/auth.ts
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { prisma } from '../services/db/prisma';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 if (!JWT_SECRET) {
@@ -11,15 +12,6 @@ if (!JWT_SECRET) {
 export interface JwtPayloadCustom extends JwtPayload {
   id: string;
   email: string;
-}
-
-// Mở rộng interface Request của Express để thêm trường `user`
-declare global {
-  namespace Express {
-    interface Request {
-      user?: JwtPayloadCustom;
-    }
-  }
 }
 
 export const verifyToken = (token: string) => {
@@ -48,7 +40,7 @@ export const verifyToken = (token: string) => {
 };
 
 // Middleware xác thực JWT
-export const authMiddleware = (
+export const authMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -73,8 +65,14 @@ export const authMiddleware = (
       return res.status(401).json({ message: 'Token không hợp lệ' });
     }
 
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+    });
+
+    if (!user) return res.status(401).json({ message: 'User not found' });
+
     // Gắn payload vào req.user để route handler có thể dùng
-    req.user = decoded;
+    req.user = user;
 
     next();
   } catch (error: any) {

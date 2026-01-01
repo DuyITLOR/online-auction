@@ -1,6 +1,10 @@
 import * as productService from '../services/productService';
 import { Request, Response } from 'express';
-import { productQueryDto, updateProductDto, buyNowProuctDto } from '../dto/productDto';
+import {
+  productQueryDto,
+  updateProductDto,
+  buyNowProuctDto,
+} from '../dto/productDto';
 import { uploadImagesToSupabase } from '../utils/uploadImage';
 import { uploadedImageDto } from '../dto/uploadImageDto';
 import { checkRole } from '../utils/checkRole';
@@ -181,7 +185,11 @@ export const buyNowProduct = async (req: Request, res: Response) => {
     let roles = await checkRole(bidderId);
 
     if (!roles.includes('BIDDER')) {
-      const respone = gatewayResponse(HttpStatus.forbidden, null, 'Người ra giá phải là BIDDER');
+      const respone = gatewayResponse(
+        HttpStatus.forbidden,
+        null,
+        'Người ra giá phải là BIDDER'
+      );
 
       return res.status(respone.code).send(respone);
     }
@@ -219,10 +227,15 @@ export const buyNowProduct = async (req: Request, res: Response) => {
       console.error('Lỗi gửi email:', err);
     }
 
-    const respone = gatewayResponse(HttpStatus.ok, response, 'Mua ngay sản phẩm thành công');
+    const respone = gatewayResponse(
+      HttpStatus.ok,
+      response,
+      'Mua ngay sản phẩm thành công'
+    );
     return res.status(respone.code).send(respone);
   } catch (error: any) {
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    const message =
+      error instanceof Error ? error.message : 'Internal Server Error';
     const response = gatewayResponse(HttpStatus.badRequest, null, message);
     return res.status(response.code).send(response);
   }

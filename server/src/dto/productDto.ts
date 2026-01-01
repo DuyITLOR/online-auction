@@ -7,7 +7,7 @@ export interface createProductDto {
   description: string;
   startPrice: string;
   stepPrice: string;
-  buyNowPrice: string;
+  buyNowPrice?: string;
   startedAt: string;
   endAt: string;
   autoExtendEnabled?: string;
@@ -42,7 +42,7 @@ export interface productQueryDto {
   sellerId?: string;
   minPrice?: string;
   maxPrice?: string;
-  isBidder?: string; 
+  isBidder?: string;
 }
 
 export interface buyNowProuctDto {

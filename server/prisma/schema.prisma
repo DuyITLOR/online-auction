@@ -44,7 +44,7 @@ model Products {
   startPrice         Decimal          @db.Decimal(15, 2)
   currentPrice       Decimal?         @db.Decimal(15, 2)
   stepPrice          Decimal          @db.Decimal(15, 2)
-  buyNowPrice        Decimal          @db.Decimal(15, 2)
+  buyNowPrice        Decimal?         @db.Decimal(15, 2)
   autoExtendEnabled  Boolean
   autoExtendMinutes  Int              @default(0)
   startedAt          DateTime

@@ -8,7 +8,7 @@ import { prisma } from "./db/prisma";
 import { Prisma } from "@prisma/client";
 
 export const createProduct = async (id: string, data: createProductDto) => {
-  console.log("Time to expired the product: ", data.endAt);
+  // console.log("Time to expired the product: ", data.endAt);
   const product = await prisma.products.create({
     data: {
       sellerId: id,
@@ -240,7 +240,7 @@ export const searchProducts = async (query: productQueryDto) => {
 
 export const buyNowProuct = async (data: buyNowProuctDto) => {
   const timeout = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-  console.log("Data: ", data);
+  // console.log("Data: ", data);
   const product = await prisma.products.findUnique({
     where: { id: data.productId },
   });
@@ -270,13 +270,23 @@ export const buyNowProuct = async (data: buyNowProuctDto) => {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
-    include: {
+    select: {
       product: {
-        include: {
-          seller: true,
+        select: {
+          buyNowPrice: true,
+          title: true,
+          seller: {
+            select: {
+              email: true,
+            },
+          },
         },
       },
-      buyer: true,
+      buyer: {
+        select: {
+          email: true,
+        },
+      },
     },
   });
 

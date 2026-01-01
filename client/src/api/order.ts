@@ -157,27 +157,24 @@ export const confirmOrder = async (orderId: string, token: string) => {
   }
 
   return data.data;
-};
+}
 
-export const ratingOrder = async (
-  token: string,
-  evaluatee: string,
-  productId: string,
-  rating: number,
-  comment: string
-) => {
-  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/ratings/users/${evaluatee}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    body: JSON.stringify({
-      productId: productId,
-      value: rating,
-      comment: comment,
-    }),
-  });
+
+export const ratingOrder = async (token: string, evaluatee:string ,productId: string, orderId: string , rating: number, comment: string) => {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/ratings/users/${evaluatee}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        productId: productId,
+        value: rating,
+        comment: comment, 
+        orderId: orderId,
+      })
+    })
+};
 
   const data = await res.json();
   if (!res.ok) {

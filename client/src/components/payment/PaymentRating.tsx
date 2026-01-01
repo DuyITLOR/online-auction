@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useParams } from "react-router-dom"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ThumbsUp, ThumbsDown, Star, User} from "lucide-react"
@@ -18,18 +19,20 @@ export const PaymentRating = ({ userRole, onComplete, order }: StepRatingProps) 
   const [rating, setRating] = useState<1 | -1 | null>(null)
   const [comment, setComment] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { id } = useParams(); 
 
   const evaluatee = userRole === "BIDDER" ? order.sellerId : order.buyerId 
 
   const handleSubmit = async () => {
     if (!rating || !comment.trim()) return;
     if (isSubmitting) return;
+    if (!id) return;
 
     try {
       setIsSubmitting(true);
       const sesssion = await getSession();
       const token = typeof sesssion?.token === 'string' ? sesssion.token : '';
-      await ratingOrder(token, evaluatee , order.productId ,rating, comment);
+      await ratingOrder(token, evaluatee, order.productId, id, rating, comment);
       toast.success('Thành công!', {
         description: 'Bạn đã gửi đánh giá thành công.',
       });

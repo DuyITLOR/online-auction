@@ -138,7 +138,7 @@ export const createOrder = async (productId: string) => {
       productId: productId,
       buyerId: product.winnerId,
       sellerId: product.sellerId,
-      totalAmount: new Prisma.Decimal(product.buyNowPrice),
+      totalAmount: new Prisma.Decimal(product?.buyNowPrice || 0),
       createdAt: new Date(),
     },
     include: {

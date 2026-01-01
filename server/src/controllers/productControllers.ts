@@ -203,7 +203,7 @@ export const buyNowProduct = async (req: Request, res: Response) => {
 
     const content = loadOrderTemplate(
       response?.product.title || '',
-      response?.product.buyNowPrice.toString() || '',
+      response?.product.buyNowPrice?.toString() || "",
       response?.product.seller.email || '',
       response?.buyer.email || ''
     );

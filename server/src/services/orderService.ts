@@ -109,6 +109,18 @@ export const getCountOrderByUser = async (userId: string) => {
   return count;
 };
 
+export const getOrderByProductId = async (productId: string) => {
+  try {
+    return await prisma.orders.findUnique({
+      where: {
+        productId,
+      },
+    });
+  } catch (err) {
+    throw err;
+  }
+};
+
 export const createOrder = async (productId: string) => {
   const product = await prisma.$transaction(async (tx) => {
     const exitOrder = await tx.orders.findUnique({

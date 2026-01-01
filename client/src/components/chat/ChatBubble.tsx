@@ -1,6 +1,7 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { UserContext } from '../../libs/contexts/user.context';
 import type { Message } from './ChatBox';
+import { formatTimeAgo } from '@/utils/format';
 
 interface ChatBubbleProps {
   cardInfor: Message;
@@ -9,41 +10,9 @@ interface ChatBubbleProps {
 const ChatBubble = ({ cardInfor }: ChatBubbleProps) => {
   const { user } = useContext(UserContext);
 
-  function formatTimeAgo(dateString: string): string {
-    const past = new Date(dateString).getTime();
-    const now = Date.now();
-
-    const diffMs = now - past;
-
-    const minute = 60 * 1000;
-    const hour = 60 * minute;
-    const day = 24 * hour;
-
-    if (diffMs < minute) {
-      return 'bây giờ';
-    }
-
-    if (diffMs < hour) {
-      const mins = Math.floor(diffMs / minute);
-      return `${mins} phút`;
-    }
-
-    if (diffMs < day) {
-      const hours = Math.floor(diffMs / hour);
-      return `${hours} tiếng`;
-    }
-
-    // >= 1 ngày → trả về ngày + giờ
-    const date = new Date(past);
-    const dd = String(date.getDate()).padStart(2, '0');
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const hh = String(date.getHours()).padStart(2, '0');
-    const min = String(date.getMinutes()).padStart(2, '0');
-
-    return `${dd}/${mm} ${hh}:${min}`;
-  }
-
-  const time = formatTimeAgo(cardInfor.sendAt);
+  const time = useMemo(() => {
+    return formatTimeAgo(cardInfor.sendAt);
+  }, [cardInfor.sendAt]);
   return (
     <div
       className={`flex items-start my-5 gap-2

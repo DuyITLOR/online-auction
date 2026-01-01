@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 import type { dataDto } from './Card';
 import ChatBubble from './ChatBubble';
 import { socket } from '../../libs/contexts/user.context';
+import Spinner from './Spinner';
+import { formatTimeAgo, longTimeConversation } from '@/utils/format';
 
 export interface Message {
   id: string;
@@ -41,6 +43,7 @@ interface ChatBoxProps {
 
 const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const { user } = useContext(UserContext);
 
@@ -92,6 +95,7 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
     const fetchMessages = async () => {
       try {
         const session = await getSession();
+        setIsLoading(true);
 
         if (!session?.token) {
           toast.error('Vui lòng đăng nhập');
@@ -111,6 +115,10 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
         } else {
           toast.error('Đã xảy ra lỗi');
         }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -120,6 +128,8 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
       socket.off(`chat/${chatInfor.productId}`, handleReceiveMessage);
     };
   }, [chatInfor]);
+
+  console.log(timeline);
 
   return (
     <div className='flex-1 flex flex-col overflow-hidden rounded-2xl bg-slate-100'>
@@ -149,11 +159,31 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
       )}
 
       {/* Body */}
+      {isLoading && <Spinner />}
       {chatInfor && (
         <div className='flex-1 flex flex-col min-h-0 overflow-y-auto p-3 pt-4 px-5'>
-          {timeline.map((item, index) => (
-            <ChatBubble key={index} cardInfor={item} />
-          ))}
+          {timeline.map((item, index) => {
+            if (index === 0)
+              return (
+                <div key={`div-${index}`} className='w-full h-full'>
+                  <span className='block w-full text-center'>
+                    {formatTimeAgo(item.sendAt)}
+                  </span>
+                  <ChatBubble key={index} cardInfor={item} />
+                </div>
+              );
+            if (longTimeConversation(timeline[index - 1].sendAt, item.sendAt)) {
+              return (
+                <div key={`div-${index}`} className='w-full h-full'>
+                  <span className='block w-full text-center'>
+                    {formatTimeAgo(item.sendAt)}
+                  </span>
+                  <ChatBubble key={index} cardInfor={item} />
+                </div>
+              );
+            }
+            return <ChatBubble key={index} cardInfor={item} />;
+          })}
           <div ref={bottomRef} />
         </div>
       )}

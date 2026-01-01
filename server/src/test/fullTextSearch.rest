@@ -1,0 +1,1 @@
+http://localhost:4000/products/search?q=laptop&page=1&limit=10

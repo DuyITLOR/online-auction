@@ -10,7 +10,6 @@ import {
   sendEmail,
   loadCodeTemplate,
   loadResetTemplate,
-  loadBidSuccessTemplate,
   loadBidFailedTemplate,
   loadNoBuyerTemplate,
   loadOrderTemplate,
@@ -58,24 +57,8 @@ router.post('/test-send-mail/reset', async (req: Request, res: Response) => {
   const record = await sendEmail(data);
   res.status(200).send(null);
 });
-router.post(
-  '/test-send-mail/bid/success',
-  async (req: Request, res: Response) => {
-    const userName = req.body.userName;
-    const productName = req.body.productName;
-    const price = req.body.price;
-    const email = req.body.email;
-    const content = loadBidSuccessTemplate(userName, productName, price);
-    const data = {
-      email: email,
-      subject: 'Đấu giá thành công',
-      content: content,
-    };
 
-    const record = await sendEmail(data);
-    res.status(200).send(null);
-  }
-);
+
 router.post(
   '/test-send-mail/bid/failed',
   async (req: Request, res: Response) => {

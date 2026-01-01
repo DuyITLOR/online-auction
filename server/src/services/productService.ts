@@ -1,4 +1,9 @@
-import { createProductDto, productQueryDto, updateProductDto, buyNowProuctDto } from '../dto/productDto';
+import {
+  createProductDto,
+  productQueryDto,
+  updateProductDto,
+  buyNowProuctDto,
+} from '../dto/productDto';
 import { prisma } from './db/prisma';
 import { Prisma } from '@prisma/client';
 
@@ -14,7 +19,10 @@ export const createProduct = async (id: string, data: createProductDto) => {
       startPrice: new Prisma.Decimal(data.startPrice),
       currentPrice: new Prisma.Decimal(data.startPrice),
       stepPrice: new Prisma.Decimal(data.stepPrice),
-      buyNowPrice: new Prisma.Decimal(data.buyNowPrice),
+
+      ...(data.buyNowPrice && {
+        buyNowPrice: new Prisma.Decimal(data.buyNowPrice),
+      }),
 
       startedAt: new Date(),
       endAt: new Date(data.endAt),
@@ -53,7 +61,8 @@ export const getProductById = async (productId: string) => {
 
 export const updateProduct = async (id: string, data: updateProductDto) => {
   const updateData: Partial<Prisma.ProductsUpdateInput> = {};
-  if (data.categoryId !== undefined) updateData.category = { connect: { id: data.categoryId } };
+  if (data.categoryId !== undefined)
+    updateData.category = { connect: { id: data.categoryId } };
   if (data.title !== undefined) updateData.title = data.title;
   if (data.description !== undefined) {
     const old = await prisma.products.findUnique({
@@ -67,26 +76,33 @@ export const updateProduct = async (id: string, data: updateProductDto) => {
     const yyyy = now.getFullYear();
     const formattedDate = `${dd}/${mm}/${yyyy}`;
 
-    updateData.description = `${old?.description ?? ' '}  \n\n[Cập nhật ngày ${formattedDate}]: \n\n${
-      data.description
-    }`;
+    updateData.description = `${
+      old?.description ?? ' '
+    }  \n\n[Cập nhật ngày ${formattedDate}]: \n\n${data.description}`;
   }
 
-  if (data.startPrice !== undefined) updateData.startPrice = new Prisma.Decimal(data.startPrice);
+  if (data.startPrice !== undefined)
+    updateData.startPrice = new Prisma.Decimal(data.startPrice);
 
-  if (data.stepPrice !== undefined) updateData.stepPrice = new Prisma.Decimal(data.stepPrice);
+  if (data.stepPrice !== undefined)
+    updateData.stepPrice = new Prisma.Decimal(data.stepPrice);
 
-  if (data.buyNowPrice !== undefined) updateData.buyNowPrice = new Prisma.Decimal(data.buyNowPrice);
+  if (data.buyNowPrice !== undefined)
+    updateData.buyNowPrice = new Prisma.Decimal(data.buyNowPrice);
 
-  if (data.startedAt !== undefined) updateData.startedAt = new Date(data.startedAt);
+  if (data.startedAt !== undefined)
+    updateData.startedAt = new Date(data.startedAt);
 
   if (data.endAt !== undefined) updateData.endAt = new Date(data.endAt);
 
-  if (data.autoExtendEnabled !== undefined) updateData.autoExtendEnabled = data.autoExtendEnabled;
+  if (data.autoExtendEnabled !== undefined)
+    updateData.autoExtendEnabled = data.autoExtendEnabled;
 
-  if (data.autoExtendMinutes !== undefined) updateData.autoExtendMinutes = data.autoExtendMinutes;
+  if (data.autoExtendMinutes !== undefined)
+    updateData.autoExtendMinutes = data.autoExtendMinutes;
 
-  if (data.highRatingRequired !== undefined) updateData.highRatingRequired = data.highRatingRequired;
+  if (data.highRatingRequired !== undefined)
+    updateData.highRatingRequired = data.highRatingRequired;
 
   if (data.images !== undefined) {
     updateData.images = {

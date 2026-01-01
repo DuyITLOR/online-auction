@@ -3,23 +3,49 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ThumbsUp, ThumbsDown, Star, User} from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import { type Orders } from '../../libs/types/types'
+import { getSession } from "../../libs/session"
+import { toast } from "sonner";
+import { ratingOrder } from "../../api/order"
 
 interface StepRatingProps {
   userRole: "ADMIN" | "SELLER" | "BIDDER"
-  otherPartyName: string
   onComplete: () => void
+  order: Orders
 }
 
-export const PaymentRating = ({ userRole, otherPartyName, onComplete }: StepRatingProps) => {
-  const [rating, setRating] = useState<"POSITIVE" | "NEGATIVE" | null>(null)
+export const PaymentRating = ({ userRole, onComplete, order }: StepRatingProps) => {
+  const [rating, setRating] = useState<1 | -1 | null>(null)
   const [comment, setComment] = useState("")
-  const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = () => {
-    if (!rating || !comment) return
-    setSubmitted(true)
-    onComplete()
+  const evaluatee = userRole === "BIDDER" ? order.sellerId : order.buyerId 
+
+  const handleSubmit = async () => {
+    if (!rating || !comment.trim()) return;
+    if (isSubmitting) return;
+
+    try {
+      setIsSubmitting(true);
+      const sesssion = await getSession();
+      const token = typeof sesssion?.token === 'string' ? sesssion.token : '';
+      await ratingOrder(token, evaluatee , order.productId ,rating, comment);
+      toast.success('Thành công!', {
+        description: 'Bạn đã gửi đánh giá thành công.',
+      });
+
+      onComplete();
+    } catch (error) {
+      console.error("Error submitting rating:", error);
+      toast.error('Thất bại', {
+        description: `${error instanceof Error ? error.message : 'Đã có lỗi xảy ra khi gửi đánh giá.'}`,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
+
+  const isFormValid = Boolean(rating && comment.trim())
 
   return (
     <Card className="p-6 space-y-6">
@@ -32,39 +58,39 @@ export const PaymentRating = ({ userRole, otherPartyName, onComplete }: StepRati
         <InfoRow
           icon={User}
           label={userRole === "BIDDER" ? "Người bán" : "Người mua"}
-          value={otherPartyName}
+          value={userRole === "BIDDER" ? order.seller.fullname || "" : order.buyer.fullname || ""}
           highlight
         />
 
         <div className="grid grid-cols-2 gap-4 pt-2">
           {/* Positive */}
           <button
-            disabled={submitted}
-            onClick={() => setRating("POSITIVE")}
+            disabled={isSubmitting}
+            onClick={() => setRating(1)}
             className={`rounded-lg border p-4 text-center transition
-              ${rating === "POSITIVE"
+              ${rating === 1
                 ? "border-[rgb(73,201,73)] bg-[rgb(73,201,73)]/10"
                 : "border-border hover:border-[rgb(73,201,73)]/50"}
-              ${submitted ? "opacity-50 cursor-not-allowed" : ""}
+              ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
             `}
           >
-            <ThumbsUp className={`mx-auto h-7 w-7 ${rating === "POSITIVE" ? "text-[rgb(73,201,73)]" : "text-muted-foreground"}`} />
+            <ThumbsUp className={`mx-auto h-7 w-7 ${rating === 1 ? "text-[rgb(73,201,73)]" : "text-muted-foreground"}`} />
             <p className="mt-2 text-sm font-medium">Tích cực (+1)</p>
             <p className="text-xs text-muted-foreground">Giao dịch tốt</p>
           </button>
 
           {/* Negative */}
           <button
-            disabled={submitted}
-            onClick={() => setRating("NEGATIVE")}
+            disabled={isSubmitting}
+            onClick={() => setRating(-1)}
             className={`rounded-lg border p-4 text-center transition
-              ${rating === "NEGATIVE"
+              ${rating === -1
                 ? "border-destructive bg-destructive/10"
                 : "border-border hover:border-destructive/50"}
-              ${submitted ? "opacity-50 cursor-not-allowed" : ""}
+              ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
             `}
           >
-            <ThumbsDown className={`mx-auto h-7 w-7 ${rating === "NEGATIVE" ? "text-destructive" : "text-muted-foreground"}`} />
+            <ThumbsDown className={`mx-auto h-7 w-7 ${rating === -1 ? "text-destructive" : "text-muted-foreground"}`} />
             <p className="mt-2 text-sm font-medium">Tiêu cực (-1)</p>
             <p className="text-xs text-muted-foreground">Giao dịch không tốt</p>
           </button>
@@ -80,7 +106,7 @@ export const PaymentRating = ({ userRole, otherPartyName, onComplete }: StepRati
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          disabled={submitted}
+          disabled={isSubmitting}
           rows={4}
           maxLength={200}
           placeholder="Chia sẻ trải nghiệm giao dịch của bạn..."
@@ -93,21 +119,15 @@ export const PaymentRating = ({ userRole, otherPartyName, onComplete }: StepRati
       </div>
 
       {/* Action */}
-      {!submitted ? (
         <Button
           size="lg"
           className="w-full bg-[#10b981] hover:bg-[#10b981]/50"
-          disabled={!rating || !comment}
+          disabled={!isFormValid || isSubmitting}
           onClick={handleSubmit}
         >
           <Star className="mr-2 h-5 w-5" />
-          Gửi đánh giá
+          {isSubmitting ? 'Đang tải...' : 'Gửi đánh giá'}
         </Button>
-      ) : (
-        <div className="bg-[rgb(240,246,242)] border border-border rounded-lg p-4 text-sm">
-          ✓ Đã gửi đánh giá thành công. Cảm ơn bạn!
-        </div>
-      )}
     </Card>
   )
 }

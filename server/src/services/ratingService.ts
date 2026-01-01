@@ -96,6 +96,17 @@ export const createRating = async (data: ratingDto) => {
       },
     });
   }
+
+  await prisma.orders.update({
+    where: {
+      id: data.orderId,
+      productId: data.productId,   
+    },
+    data: {
+      status : 'COMPLETED',
+    }
+  })
+
   return await prisma.ratings.create({
     data: {
       raterId: data.raterId,

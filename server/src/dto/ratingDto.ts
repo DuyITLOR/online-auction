@@ -1,10 +1,12 @@
 export interface ratingInputDto {
+  orderId: string;
   productId: string;
   value: number;
   comment: string;
 }
 
 export interface ratingDto {
+  orderId: string;
   raterId: string;
   rateeId: string;
   productId: string;

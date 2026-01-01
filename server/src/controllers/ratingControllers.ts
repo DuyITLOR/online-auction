@@ -79,6 +79,7 @@ export const rateUser = async (req: Request, res: Response) => {
       body.productId === undefined ||
       body.value === undefined ||
       rateeId === undefined ||
+      body.orderId === undefined ||
       !req.user
     ) {
       const response = gatewayResponse(
@@ -91,6 +92,7 @@ export const rateUser = async (req: Request, res: Response) => {
     }
 
     const data = {
+      orderId: body.orderId,
       rateeId: rateeId,
       raterId: req.user.id,
       productId: body.productId,

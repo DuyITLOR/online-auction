@@ -237,7 +237,13 @@ export const API_ROUTES = {
     role: [Role.SELLER, Role.ADMIN],
     method: 'GET',
   },
+  // Seller permission
 
+  getSellerStatistics: {
+    path: '/sellers/stats',
+    role: [Role.BIDDER, Role.SELLER, Role.ADMIN],
+    method: 'GET',
+  },
   // Admin permission
   getAllUsers: {
     path: '/admin/users', // Có thể thêm query param limit và page để phân trang
@@ -367,12 +373,11 @@ export const API_PRODUCT_ROUTES = {
     role: [Role.BIDDER],
     method: 'POST',
   },
-  fullTextSearch:
-    {
-      path: '/products/search',
-      role: [Role.ALL],
-      method: 'GET',
-    },
+  fullTextSearch: {
+    path: '/products/search',
+    role: [Role.ALL],
+    method: 'GET',
+  },
 };
 
 export const API_CATEGORY_ROUTES = {

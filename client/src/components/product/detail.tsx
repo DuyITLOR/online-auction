@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
-import { ChevronRight, Clock, Crown, Heart, Minus, Plus, SquarePen } from 'lucide-react';
+import { ArrowRight, ChevronRight, Clock, Crown, Heart, Minus, Package, Plus, SquarePen, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { ProductContext } from '../../libs/contexts/product.context';
 import { buyNow, getAllProduct } from '../../api/product';
 import { calculateRating } from '../../libs/utils';
+import { getOrderByProductId } from '@/api/order';
 
 interface ProductProp {
   product: Product;
@@ -101,6 +102,8 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
   const [isBidding, setIsBidding] = useState(false);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [isBuying, setIsBuying] = useState(false);
+  const [isOrder, setOrder] = useState(false);
   const navigate = useNavigate();
 
   const { watchList, toggleWatchList } = useContext(ProductContext);
@@ -117,16 +120,6 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
       console.error(err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleBuyNow = async () => {
-    try {
-      await buyNow({ productId: product.id, token });
-      navigate(`/payment/${product.id}`);
-    } catch (err) {
-      console.error(err);
-      throw err;
     }
   };
 
@@ -154,6 +147,19 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
     const curPrice = price;
     const stepPrice = Number(product.stepPrice);
     setPrice(curPrice - stepPrice);
+  };
+
+  const handleBuyNow = async () => {
+    try {
+      setIsBuying(true);
+      const data = await buyNow({ productId: product.id, token });
+      await autoBid({ productId: product.id, maxAutoBidAmount: Number(product.buyNowPrice), token });
+      navigate(`/payment/${data.id}`);
+    } catch (err) {
+      toast.error('Có lỗi trong quá trình mua ngay. Vui lòng thử lại');
+      console.error(err);
+      setIsBuying(false);
+    }
   };
 
   const handleAutoBid = async ({
@@ -196,6 +202,18 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
       });
     } finally {
       setIsBidding(false);
+    }
+  };
+
+  const navigateToOrder = async () => {
+    try {
+      setOrder(true);
+      const data = await getOrderByProductId(product.id, token);
+
+      navigate(`/payment/${data.id}`);
+    } catch (err) {
+      console.error(err);
+      setOrder(false);
     }
   };
 
@@ -297,7 +315,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
           </div>
           <div className='border-spacing-0.5 border-t border-gray-200 mt-2 mb-3 w-full' />
           <div className='flex flex-col'>
-            {!isExpired(product.endAt) && (
+            {!isExpired(product.endAt) && !product.winnerId && (
               <>
                 <p className='text-gray-700 font-semibold text-lg mb-2'>Đặt mức giá tối đa cho sản phẩm</p>
 
@@ -331,27 +349,96 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
               </>
             )}
           </div>
-          {isExpired(product.endAt) ? (
-            <div className='mt-6 border-2 border-dashed border-gray-300 bg-gray-50 rounded-xl p-6 text-center'>
-              <p className='text-xl font-bold text-gray-800 mb-2'>Phiên đấu giá đã đóng</p>
-              <p className='text-gray-500 mb-6'>Sản phẩm này không còn nhận thêm lượt đặt giá nào nữa.</p>
+          {isExpired(product.endAt) || product.winnerId ? (
+            <div className='mt-4'>
+              <div className='bg-linear-to-br from-gray-50 to-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs'>
+                <div
+                  className={`p-6 ${
+                    user?.id === product.winnerId
+                      ? 'bg-linear-to-r from-yellow-50 to-orange-50'
+                      : user?.id === product.seller.id
+                      ? 'bg-linear-to-r from-blue-50 to-indigo-50'
+                      : 'bg-gray-50'
+                  }`}
+                >
+                  <div className='flex justify-between items-start mb-4'>
+                    <div>
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border ${
+                          user?.id === product.winnerId
+                            ? 'bg-yellow-100 text-yellow-700 border-yellow-200'
+                            : user?.id === product.seller.id
+                            ? 'bg-blue-100 text-blue-700 border-blue-200'
+                            : 'bg-gray-200 text-gray-600 border-gray-300'
+                        }`}
+                      >
+                        {user?.id === product.winnerId ? (
+                          <Crown className='w-3 h-3' />
+                        ) : (
+                          <Package className='w-3 h-3' />
+                        )}
+                        {user?.id === product.winnerId
+                          ? 'Bạn đã thắng'
+                          : user?.id === product.seller.id
+                          ? 'Sản phẩm của bạn'
+                          : 'Đã kết thúc'}
+                      </span>
+                      <h3 className='mt-3 text-xl font-bold text-gray-900'>Phiên đấu giá hoàn tất</h3>
+                    </div>
+                    <div className='text-right'>
+                      <p className='text-sm text-gray-500 mb-1'>Giá chốt</p>
+                      <p className='text-2xl font-mono font-bold text-teal-700'>
+                        {Number(product.currentPrice).toLocaleString()} ₫
+                      </p>
+                    </div>
+                  </div>
 
-              {historyBid.length > 0 && (
-                <div className='bg-white border border-yellow-200 rounded-lg p-4 shadow-sm flex items-center gap-4 mb-4'>
-                  <div className='bg-yellow-100 p-2 rounded-full'>
-                    <Crown className='w-6 h-6 text-yellow-600 fill-yellow-400' />
-                  </div>
-                  <div className='text-left'>
-                    <p className='text-xs text-gray-500 font-semibold uppercase'>Người chiến thắng</p>
-                    <p className='font-bold text-teal-700'>{maskName(historyBid[0].bidder?.fullname)}</p>
-                  </div>
-                  <div className='ml-auto'>
-                    <span className='font-mono font-bold text-lg'>
-                      {Number(historyBid[0].amount).toLocaleString()} ₫
-                    </span>
-                  </div>
+                  {(user?.id === product.winnerId || user?.id === product.seller.id) && (
+                    <div className='flex flex-col gap-3 mt-4 pt-4 border-t border-gray-200/60'>
+                      <div className='flex items-center gap-3 text-sm text-gray-600 mb-2'>
+                        <div className='bg-white p-2 rounded-full shadow-xs'>
+                          {user?.id === product.winnerId ? (
+                            <Package className='w-5 h-5 text-teal-600' />
+                          ) : (
+                            <Crown className='w-5 h-5 text-yellow-500' />
+                          )}
+                        </div>
+                        {user?.id === product.winnerId ? (
+                          <p>Vui lòng kiểm tra đơn hàng và tiến hành thanh toán để nhận sản phẩm.</p>
+                        ) : (
+                          <p>
+                            Người chiến thắng:{' '}
+                            <span className='font-bold text-gray-900'>
+                              {maskName(historyBid[0]?.bidder?.fullname || 'Ẩn danh')}
+                            </span>
+                            . Vui lòng chuẩn bị hàng.
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        onClick={navigateToOrder}
+                        className={`w-full h-12 text-base shadow-sm group ${
+                          user?.id === product.winnerId
+                            ? 'bg-teal-600 hover:bg-teal-700'
+                            : 'bg-blue-600 hover:bg-blue-700'
+                        }`}
+                      >
+                        {isOrder ? (
+                          <>
+                            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                            Đang xử lý
+                          </>
+                        ) : user?.id === product.winnerId ? (
+                          'Xem đơn hàng'
+                        ) : (
+                          'Quản lý đơn hàng này'
+                        )}
+                        <ArrowRight className='ml-2 w-4 h-4 transition-transform group-hover:translate-x-1' />
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           ) : (
             <>
@@ -402,10 +489,17 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                       </DialogClose>
                       <Button
                         onClick={handleBuyNow}
-                        className='bg-teal-500 hover:bg-teal-600 text-white px-5'
-                        type='submit'
+                        className='bg-teal-600 hover:bg-teal-700 min-w-[100px]'
+                        disabled={isBuying}
                       >
-                        Xác nhận
+                        {isBuying ? (
+                          <>
+                            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                            Đang xử lý
+                          </>
+                        ) : (
+                          'Xác nhận'
+                        )}
                       </Button>
                     </div>
                   </DialogFooter>

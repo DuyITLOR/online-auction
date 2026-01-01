@@ -130,8 +130,8 @@ const PostProduct = () => {
         return;
       }
 
-      if (images.length === 0) {
-        toast.error('Vui lòng chọn ít nhất 1 ảnh sản phẩm');
+      if (images.length < 3) {
+        toast.error('Vui lòng chọn ít nhất 3 ảnh sản phẩm');
         return;
       }
 
@@ -155,11 +155,6 @@ const PostProduct = () => {
         return;
       }
 
-      if (formData.buyNowPrice === '') {
-        toast.error('Vui lòng nhập giá mua ngay cho sản phẩm');
-        return;
-      }
-
       if (formData.endTime === '') {
         toast.error('Vui lòng thiết lập thời gian kết thúc đấu giá cho sản phẩm');
         return;
@@ -172,7 +167,7 @@ const PostProduct = () => {
         description: formData.description,
         startPrice: Number(formData.startPrice),
         stepPrice: Number(formData.stepPrice),
-        buyNowPrice: Number(formData.buyNowPrice),
+        buyNowPrice: formData.buyNowPrice ? Number(formData.buyNowPrice) : '',
         startedAt: formData.startTime,
         endAt: formData.endTime,
         allowedExtend: allowedExtend,
@@ -222,7 +217,7 @@ const PostProduct = () => {
                 <Upload className='w-6 h-6 text-teal-600' />
               </div>
               <p className='text-sm font-medium text-gray-700'>Nhấn để tải ảnh lên</p>
-              <p className='text-xs text-gray-500 mt-1'>Hỗ trợ JPG, PNG, WEBP (Tối thiểu 1 ảnh)</p>
+              <p className='text-xs text-gray-500 mt-1'>Hỗ trợ JPG, PNG, WEBP (Tối thiểu 3 ảnh)</p>
             </div>
 
             {previewUrls.length > 0 && (

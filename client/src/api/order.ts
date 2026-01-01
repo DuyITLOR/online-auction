@@ -54,112 +54,178 @@ export const getOrderInfo = async (orderId: string, token: string) => {
   }
 };
 
+export const getOrderByProductId = async (productId: string, token: string) => {
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/orders/products/${productId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        method: "GET",
+      }
+    );
+    const data = await res.json();
 
-export const uploadOrderQR = async ( orderId: string, token: string, qrInfo: string, image: File) => {
+    if (!res.ok) {
+      const message =
+        data.message || data.errors || "Failed to fetch order by productId";
+      throw new Error(message);
+    }
+
+    return data.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+export const uploadOrderQR = async (
+  orderId: string,
+  token: string,
+  qrInfo: string,
+  image: File
+) => {
   const formData = new FormData();
-  formData.append('qrInfo', qrInfo);
-  formData.append('image', image);
+  formData.append("qrInfo", qrInfo);
+  formData.append("image", image);
 
-  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/orders/${orderId}/qr`, {
-    method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  })
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.message || data.error || 'Tải thông tin QR thất bại');
-  }
-
-  return data.data;
-}
-
-export const uploadPayment = async ( orderId: string, token: string, buyerAddress: string, buyerPhone: string , image: File) => {
-  const formData = new FormData();
-  formData.append('buyerAddress', buyerAddress);
-  formData.append('buyerPhone', buyerPhone);
-  formData.append('image', image);
-
-  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/orders/${orderId}/payment`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    method: 'PATCH',
-    body: formData,
-    })
-
-  const data = await res.json();
-    
-  if (!res.ok) {
-    throw new Error(data.message || data.error || 'Tải thông tin thanh toán thất bại');
-  }
-
-  return data.data;
-}
-
-export const uploadShippingInfo = async ( orderId: string, token: string, shippingCode: string, image: File) => {
-  const formData = new FormData();
-  formData.append('shippingCode', shippingCode);
-  formData.append('image', image);
-
-  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/orders/${orderId}/shipping`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    method: 'PATCH',
-    body: formData,
-    })
-
-  const data = await res.json();
-    
-  if (!res.ok) {
-    throw new Error(data.message || data.error || 'Tải thông tin vận chuyển thất bại'); 
-  }
-
-  return data.data;
-}
-
-export const confirmOrder = async (orderId: string, token: string) => {
-   const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/orders/${orderId}/confirm`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    method: 'PATCH',
-   })
-
-  const data = await res.json();
-    
-  if (!res.ok) {
-    throw new Error(data.message || data.error || 'Xác nhận đơn hàng thất bại'); 
-  }
-
-  return data.data;
-}
-
-
-export const ratingOrder = async (token: string, evaluatee:string ,productId: string, rating: number, comment: string) => {
-
-
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/ratings/users/${evaluatee}`, {
+  const res = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/orders/${orderId}/qr`,
+    {
+      method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
       },
-      method: 'POST',
+      body: formData,
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || data.error || "Tải thông tin QR thất bại");
+  }
+
+  return data.data;
+};
+
+export const uploadPayment = async (
+  orderId: string,
+  token: string,
+  buyerAddress: string,
+  buyerPhone: string,
+  image: File
+) => {
+  const formData = new FormData();
+  formData.append("buyerAddress", buyerAddress);
+  formData.append("buyerPhone", buyerPhone);
+  formData.append("image", image);
+
+  const res = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/orders/${orderId}/payment`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: "PATCH",
+      body: formData,
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(
+      data.message || data.error || "Tải thông tin thanh toán thất bại"
+    );
+  }
+
+  return data.data;
+};
+
+export const uploadShippingInfo = async (
+  orderId: string,
+  token: string,
+  shippingCode: string,
+  image: File
+) => {
+  const formData = new FormData();
+  formData.append("shippingCode", shippingCode);
+  formData.append("image", image);
+
+  const res = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/orders/${orderId}/shipping`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: "PATCH",
+      body: formData,
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(
+      data.message || data.error || "Tải thông tin vận chuyển thất bại"
+    );
+  }
+
+  return data.data;
+};
+
+export const confirmOrder = async (orderId: string, token: string) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/orders/${orderId}/confirm`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: "PATCH",
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || data.error || "Xác nhận đơn hàng thất bại");
+  }
+
+  return data.data;
+};
+
+export const ratingOrder = async (
+  token: string,
+  evaluatee: string,
+  productId: string,
+  orderId: string,
+  rating: number,
+  comment: string
+) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/ratings/users/${evaluatee}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      method: "POST",
       body: JSON.stringify({
         productId: productId,
         value: rating,
-        comment: comment, 
-      })
-    })
-
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.message || data.error || 'Đánh giá thất bại'); 
+        comment: comment,
+        orderId: orderId,
+      }),
     }
-    
-    return data.data;
-}
+  );
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message || data.error || "Đánh giá thất bại");
+  }
+
+  return data.data;
+};

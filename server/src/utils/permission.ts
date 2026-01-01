@@ -479,6 +479,11 @@ export const API_ORDER_ROUTES = {
     method: 'GET',
     role: [Role.BIDDER, Role.SELLER],
   },
+  getOrderByProductId: {
+    path: '/orders/products/:productId',
+    method: 'GET',
+    role: [Role.BIDDER, Role.SELLER],
+  },
   uploadBankInfo: {
     path: '/orders/:id/qr',
     method: 'POST',

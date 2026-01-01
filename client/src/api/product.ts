@@ -46,7 +46,7 @@ export const getAllProduct = async ({
     if (minPrice) params.append('minPrice', minPrice);
     if (maxPrice) params.append('maxPrice', maxPrice);
     if (sellerId) params.append('sellerId', sellerId);
-    if (isBidder) params.append('isBidder', isBidder); 
+    if (isBidder) params.append('isBidder', isBidder);
 
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product?${params}`);
     const data = await res.json();
@@ -137,6 +137,25 @@ export const updateProduct = async ({ id, description, token }: { id: string; de
       throw new Error(message);
     }
 
+    return data.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+export const buyNow = async ({ productId, token }: { productId: string; token: string }) => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/${productId}/buy-now`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      const message = data.message || data.error || 'Failed to buy now product';
+      throw new Error(message);
+    }
     return data.data;
   } catch (err) {
     console.error(err);

@@ -53,7 +53,7 @@ export const getUserInformation = async (id: string) => {
     return {
       success: true,
       user: user,
-    };
+    }
   } catch (err) {
     console.error('Error from userService:', err);
 
@@ -438,32 +438,4 @@ export const getInfoProfile = async (userId: string) => {
   };
 
   return data;
-};
-
-export const getAllActivedProducts = async (sellerId: string) => {
-  try {
-    const products = await prisma.products.findMany({
-      where: {
-        sellerId,
-        status: 'ACTIVE',
-      },
-    });
-    return products;
-  } catch (err) {
-    throw err;
-  }
-};
-
-export const getAllCompletedOrders = async (sellerId: string) => {
-  try {
-    const orders = await prisma.orders.findMany({
-      where: {
-        sellerId,
-        status: 'WAIT_REVIEW',
-      },
-    });
-    return orders;
-  } catch (err) {
-    throw err;
-  }
 };

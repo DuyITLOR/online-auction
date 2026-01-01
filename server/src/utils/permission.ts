@@ -238,6 +238,13 @@ export const API_ROUTES = {
     method: 'GET',
   },
 
+  // Selller permission
+  getSellerStats: {
+    path: '/seller/stats',
+    role: [Role.ALL],
+    method: 'GET',
+  },
+
   // Admin permission
   getAllUsers: {
     path: '/admin/users', // Có thể thêm query param limit và page để phân trang
@@ -410,6 +417,7 @@ export const API_CATEGORY_ROUTES = {
     method: 'GET',
   },
 };
+
 export const API_WATCHLIST_ROUTES = {
   addWatchList: {
     path: '/watchlist',

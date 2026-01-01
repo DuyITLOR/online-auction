@@ -26,6 +26,11 @@ router.get(
   authMiddleware,
   controllers.getInforOfProfile
 );
+router.get(
+  API_ROUTES.getSellerStats.path,
+  authMiddleware,
+  controllers.getSellerStats
+);
 router.post(
   API_ROUTES.requestUpgrade.path,
   authMiddleware,

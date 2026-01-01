@@ -49,6 +49,18 @@ export const getAllRatings = async (data: getRatingDto) => {
   };
 };
 
+export const getReceivedRatings = async (userId: string) => {
+  try {
+    return await prisma.ratings.findMany({
+      where: {
+        rateeId: userId,
+      },
+    });
+  } catch (err) {
+    throw err;
+  }
+};
+
 export const createRating = async (data: ratingDto) => {
   const existCount = await prisma.ratings.count({
     where: {

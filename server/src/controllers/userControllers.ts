@@ -14,6 +14,7 @@ import {
   getALlCommentsDto,
   updateUserDto,
 } from '../dto/userDto';
+import { getReceivedRatings } from '../services/ratingService';
 
 export const getUserById = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -466,7 +467,7 @@ export const getInforOfProfile = async (req: Request, res: Response) => {
       const response = gatewayResponse(400, null, 'Token Invalid');
       return res.status(response.code).send(response);
     }
-    
+
     const id = req.user.id;
     const data = await service.getInfoProfile(id);
     if (!data) {
@@ -483,5 +484,58 @@ export const getInforOfProfile = async (req: Request, res: Response) => {
   } catch (error: any) {
     const response = gatewayResponse(500, null, error.message);
     res.status(response.code).send(response);
+  }
+};
+
+export const getSellerStats = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      const response = gatewayResponse(400, null, 'Token Invalid');
+      return res.status(response.code).send(response);
+    }
+
+    const userId = req.user.id;
+    const products = await service.getAllActivedProducts(userId);
+    const orders = await service.getAllCompletedOrders(userId);
+
+    const totalRevenue = orders.reduce((sum, order) => {
+      return sum + Number(order.totalAmount);
+    }, 0);
+    const ratings = await getReceivedRatings(userId);
+    const posRatings = ratings.reduce((count, rating) => {
+      return rating.value === 1 ? count + 1 : count;
+    }, 0);
+    const ratingScore = posRatings / ratings.length * 100;
+
+    const data = {
+      products: products,
+      orders: orders,
+      totalRevenue: totalRevenue,
+      ratings: ratingScore.toFixed(2),
+    };
+
+    const response = gatewayResponse(
+      HttpStatus.accepted,
+      data,
+      'Lấy dữ liệu thành công'
+    );
+    res.status(response.code).send(response);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.log('From user controller: ', err.message);
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        err.message
+      );
+      res.status(response.code).send(response);
+    } else {
+      const response = gatewayResponse(
+        HttpStatus.serviceUnavailable,
+        null,
+        'Lỗi từ server'
+      );
+      res.status(response.code).send(response);
+    }
   }
 };

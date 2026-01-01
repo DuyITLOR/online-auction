@@ -4,6 +4,7 @@ import { Gavel, Trophy, Clock, CalendarDays } from 'lucide-react';
 import { getActivitiesOfUser } from '../../../api/historyBid';
 import { getAllProductByBidder } from '../../../api/order';
 import Pagination from '../../../components/pagination';
+import { Link } from 'react-router-dom';
 
 interface ActivityItem {
   id: string;
@@ -45,7 +46,7 @@ const Activities = ({ token }: { token: string }) => {
         ]);
 
         const bids: ActivityItem[] = (bidRes.data || []).map((item: any) => ({
-          id: `bid-${item.id}`,
+          id: item.product?.id,
           type: 'BID',
           title: item.product?.title || 'Unknown Product',
           amount: item.amount,
@@ -53,7 +54,7 @@ const Activities = ({ token }: { token: string }) => {
         }));
 
         const wins: ActivityItem[] = (winRes.data || []).map((item: any) => ({
-          id: `win-${item.id}`,
+          id: item.product?.id,
           type: 'WIN',
           title: item.product?.title || 'Winning Order',
           amount: item.totalPrice || item.totalAmount || 0,
@@ -107,7 +108,8 @@ const Activities = ({ token }: { token: string }) => {
             const isWin = item.type === 'WIN';
 
             return (
-              <div
+              <Link
+                to={`/product/${item.id}`}
                 key={item.id}
                 className='group relative flex items-center justify-between p-4 rounded-lg border transition-all duration-200 
                   
@@ -116,7 +118,6 @@ const Activities = ({ token }: { token: string }) => {
                 <div className='absolute left-0 top-3 bottom-3 w-1 rounded-r-full bg-teal-400'></div>
 
                 <div className='flex items-center gap-4 pl-3'>
-                  {/* Icon Box */}
                   <div
                     className={`w-12 h-12 flex items-center justify-center rounded-full border shadow-sm shrink-0 ${
                       isWin
@@ -164,7 +165,7 @@ const Activities = ({ token }: { token: string }) => {
                     {date}
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

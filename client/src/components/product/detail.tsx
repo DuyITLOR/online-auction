@@ -22,7 +22,7 @@ import {
 import { autoBid } from '../../api/autoBid';
 import { toast } from 'sonner';
 import { ProductContext } from '../../libs/contexts/product.context';
-import { getAllProduct } from '../../api/product';
+import { buyNow, getAllProduct } from '../../api/product';
 import { calculateRating } from '../../libs/utils';
 
 interface ProductProp {
@@ -120,8 +120,14 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
     }
   };
 
-  const handleBuyNow = () => {
-    navigate(`/payment/${product.id}`);
+  const handleBuyNow = async () => {
+    try {
+      await buyNow({ productId: product.id, token });
+      navigate(`/payment/${product.id}`);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   };
 
   useEffect(() => {

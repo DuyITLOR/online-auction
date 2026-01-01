@@ -20,13 +20,12 @@ export default function AuthCallback() {
 
     if (!userId || !token || !name || !email) {
       console.error('Google Oauth failed: Missing params');
-      navigate('/login'); // Nên navigate về login nếu lỗi
+      navigate('/login');
       return;
     }
 
     const verifyToken = async () => {
       try {
-        // Lưu ý: Kiểm tra lại tên biến môi trường (VITE_BACKEND_URL hay BACKEND_URL)
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/verify-token`, {
           method: 'GET',
           headers: {

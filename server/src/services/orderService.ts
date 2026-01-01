@@ -39,7 +39,7 @@ export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
       status: true,
       createdAt: true,
       product: {
-        select: { title: true, seller: { select: { fullname: true } } },
+        select: { id: true, title: true, seller: { select: { fullname: true } } },
       },
       buyer: { select: { fullname: true } },
     };
@@ -50,7 +50,7 @@ export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
       status: true,
       createdAt: true,
       product: {
-        select: { title: true, seller: { select: { fullname: true } } },
+        select: { id: true, title: true, seller: { select: { fullname: true } } },
       },
     };
   } else if (role === 'SELLER') {
@@ -59,7 +59,7 @@ export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
       totalAmount: true,
       status: true,
       product: {
-        select: { title: true },
+        select: { id: true, title: true },
       },
       buyer: { select: { fullname: true } },
     };
@@ -246,9 +246,7 @@ export const uploadBankInfo = async (bankInfo: orderDto.orderBankInfo) => {
   });
 };
 
-export const uploadPayment = async (
-  paymentInfor: orderDto.orderPaymentInfo
-) => {
+export const uploadPayment = async (paymentInfor: orderDto.orderPaymentInfo) => {
   const exit = await prisma.orders.findUnique({
     where: {
       id: paymentInfor.orderId,
@@ -286,9 +284,7 @@ export const uploadPayment = async (
   });
 };
 
-export const uploadShippingInfo = async (
-  shippingInfor: orderDto.orderShippingInfo
-) => {
+export const uploadShippingInfo = async (shippingInfor: orderDto.orderShippingInfo) => {
   const exit = await prisma.orders.findUnique({
     where: {
       id: shippingInfor.orderId,

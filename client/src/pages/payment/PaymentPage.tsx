@@ -5,6 +5,7 @@ import PaymentBuyer from '../../components/payment/PaymentBuyer'
 import PaymentShipping from '../../components/payment/PaymentShipping'
 import PaymentReceive from '../../components/payment/PaymentReceive'
 import PaymentRating from '../../components/payment/PaymentRating'
+import PaymentComplete from '../../components/payment/PaymentComplete'
 import { type Orders } from '../../libs/types/types';
 import { ORDER_STATUS_TO_STEP } from '../../libs/contants/orderStep';
 import { useParams } from 'react-router-dom';
@@ -43,6 +44,12 @@ const paymentSteps = [
     description: "Cả hai đánh giá",
     complete: false,
   },
+  {
+    numberOrder: 6,
+    title: "Hoàn tất",
+    description: "Giao dịch hoàn tất",
+    complete: false,
+  }
 ];
 
 
@@ -89,7 +96,7 @@ const PaymentPage = () => {
   return (
     <div className='gap-2 flex flex-col'>
       <PaymentHeader title={order.product.title} price={Number(order.totalAmount)} seller={order.seller.fullname || "Người bán"} bidder={order.buyer.fullname || "Người mua"} userRole={order.role || "BIDDER"} />
-      <div className="sm:mx-60 sm: mt-3 flex flex-col  gap-2">
+      <div className="sm:mx-50 sm:mt-3 flex flex-col gap-2">
         <PaymentProcess steps={computedSteps} />
         {
           (step === 1) && (<PaymentQR userRole={order.role || "BIDDER"} onComplete={fetchOrder} />)
@@ -105,6 +112,9 @@ const PaymentPage = () => {
         }
         {
           (step === 5) && (<PaymentRating userRole={order.role || "BIDDER"} onComplete={fetchOrder} order={order} />)
+        }
+        {
+          (step === 6) && (<PaymentComplete />) 
         }
       </div>
 

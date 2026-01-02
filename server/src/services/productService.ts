@@ -167,6 +167,10 @@ export const searchProducts = async (query: productQueryDto) => {
     where.status = 'ACTIVE';
   }
 
+  if (query.status) {
+    where.status = query.status;
+  }
+
   let orderBy: Prisma.ProductsOrderByWithRelationInput = {};
 
   switch (query.sort) {

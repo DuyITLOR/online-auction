@@ -43,7 +43,7 @@ const DropdownItem = ({ data, onMouseLeaveParent }: { data: any; onMouseLeavePar
         >
           <div className='flex items-center gap-1.5 z-10 relative'>
             <span
-              className={`text-sm font-semibold transition-colors duration-200 ${
+              className={` font-semibold transition-colors duration-200 ${
                 open ? 'text-sky-700' : 'text-slate-600 group-hover:text-slate-900'
               }`}
             >
@@ -119,8 +119,7 @@ const NavBar = ({ categories }: { categories: Record<string, Category & { childr
   }, [categories]);
 
   return (
-    // Bỏ sticky top-0, dùng relative để nó cuộn theo trang
-    <div className='w-full bg-white border-b border-gray-200 relative z-40'>
+    <div className='w-full bg-white border-gray-200 relative z-40'>
       <div className='flex items-center justify-center h-16 gap-2'>
         {mappedCategories.map((product, index) => (
           <DropdownItem key={index} data={product} onMouseLeaveParent={() => {}} />

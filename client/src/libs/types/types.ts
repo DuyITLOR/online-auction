@@ -45,6 +45,7 @@ export interface Product {
   highRatingRequired: boolean;
   winnerId?: string | null;
   countbids: string;
+  status: 'ACTIVE' | 'SOLD' | 'CANCELLED' | 'EXPIRED';
 
   winner?: User | null;
   bidHistory?: BidHistory[];
@@ -214,15 +215,13 @@ export interface Orders {
   buyer: {
     id: string;
     fullname: string;
-  }
+  };
   seller: {
     id: string;
     fullname: string;
-  }
+  };
   product: {
     id: string;
     title: string;
-  }
+  };
 }
-
-

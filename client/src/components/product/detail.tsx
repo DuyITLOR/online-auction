@@ -315,7 +315,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
           </div>
           <div className='border-spacing-0.5 border-t border-gray-200 mt-2 mb-3 w-full' />
           <div className='flex flex-col'>
-            {!isExpired(product.endAt) && !product.winnerId && (
+            {!isExpired(product.endAt) && product.status === 'ACTIVE' && (
               <>
                 <p className='text-gray-700 font-semibold text-lg mb-2'>Đặt mức giá tối đa cho sản phẩm</p>
 
@@ -349,7 +349,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
               </>
             )}
           </div>
-          {isExpired(product.endAt) || product.winnerId ? (
+          {isExpired(product.endAt) || product.status !== 'ACTIVE' ? (
             <div className='mt-4'>
               <div className='bg-linear-to-br from-gray-50 to-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs'>
                 <div

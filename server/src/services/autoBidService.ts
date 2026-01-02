@@ -158,9 +158,7 @@ export const computerBidder = async (
   );
 };
 
-export const createAutoBid = async (
-  data: autoBidDto
-): Promise<autoBidResult> => {
+export const createAutoBid = async (data: autoBidDto): Promise<autoBidResult> => {
   const product = await getProductById(data.productId);
   if (!product) throw new Error('Không tìm thấy sản phẩm');
 
@@ -309,10 +307,7 @@ export const getMaxBidByUserId = async (productId: string, userId: string) => {
   return autoBid.maxAmount;
 };
 
-export const getBidHistoryByUserId = async (
-  userId: string,
-  query: bidHistoryQueryDto
-) => {
+export const getBidHistoryByUserId = async (userId: string, query: bidHistoryQueryDto) => {
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 10;
   const skip = (page - 1) * limit;

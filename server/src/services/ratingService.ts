@@ -1,10 +1,5 @@
 import { prisma } from './db/prisma';
-import {
-  ratingDto,
-  updateRatingDto,
-  getRatingDto,
-  deleteRatingDto,
-} from '../dto/ratingDto';
+import { ratingDto, updateRatingDto, getRatingDto, deleteRatingDto } from '../dto/ratingDto';
 
 export const getAllRatings = async (data: getRatingDto) => {
   const skip = (data.page - 1) * data.limit;
@@ -32,6 +27,7 @@ export const getAllRatings = async (data: getRatingDto) => {
       include: {
         ratee: true,
         rater: true,
+        product: { select: { title: true } },
       },
     }),
 
@@ -54,6 +50,10 @@ export const getReceivedRatings = async (userId: string) => {
     return await prisma.ratings.findMany({
       where: {
         rateeId: userId,
+      },
+      include: {
+        product: { select: { title: true } },
+        rater: { select: { fullname: true } },
       },
     });
   } catch (err) {
@@ -102,9 +102,9 @@ export const createRating = async (data: ratingDto) => {
       id: data.orderId,
     },
     data: {
-      status : 'COMPLETED',
-    }
-  })
+      status: 'COMPLETED',
+    },
+  });
 
   return await prisma.ratings.create({
     data: {

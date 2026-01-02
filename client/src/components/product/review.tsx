@@ -142,9 +142,6 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
                 <span>
                   Đánh giá: <b className='text-teal-600'>{calculateRating(seller.ratingPos, seller.ratingNeg)}/10.0</b>
                 </span>
-                <span>
-                  Đã bán: <b>1.2k</b>
-                </span>
               </div>
             </div>
           </div>

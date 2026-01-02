@@ -1,4 +1,5 @@
-import { orderQueryDto, ratingDto } from '../dto/orderDto';
+import { orderQueryDto } from '../dto/orderDto';
+import { ratingDto } from '../dto/ratingDto';
 import { prisma } from './db/prisma';
 import { Prisma } from '@prisma/client';
 import * as orderDto from '../dto/orderDto';
@@ -373,7 +374,7 @@ export const cancelOrder = async(cancelInfor: orderDto.orderCancelInfo) => {
     throw new Error('Không tìm thấy đơn hàng');
   }
 
-  const order = await prisma.$transaction(async(tx) =>{
+  return await prisma.$transaction(async(tx) =>{
     const updateOrder = await tx.orders.update({
       where: {
         id: cancelInfor.orderId,

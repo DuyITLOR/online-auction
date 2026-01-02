@@ -69,20 +69,15 @@ const SellerDashboard: React.FC = () => {
     },
     {
       label: "Mức đánh giá",
-      value: `${parseFloat(stats?.ratingValue || "0").toFixed(1)}/5`,
+      value: `${parseFloat(stats?.ratingValue || "0").toFixed(1)}/100`,
       icon: TrendingUp,
       color: "text-orange-600",
       bg: "bg-orange-100",
     },
   ];
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
+  
+  if (loading) return <div className='loader'></div>;
 
   if (error) {
     return (

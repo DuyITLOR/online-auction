@@ -7,5 +7,5 @@ export const ORDER_STATUS_TO_STEP: Record<OrderStatus, number> = {
   WAIT_BUYER_CONFIRM_RECEIVE: 4,     // Buyer nhận hàng
   WAIT_REVIEW: 5,                    // Đánh giá
   COMPLETED: 6,
-  CANCELLED: 0,                      // optional
+  CANCELLED: 7,                      // optional
 };

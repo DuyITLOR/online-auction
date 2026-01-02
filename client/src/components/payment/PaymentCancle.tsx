@@ -11,7 +11,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { AlertTriangle, X } from "lucide-react"
+import { AlertTriangle } from "lucide-react"
 
 import { useState } from "react"
 

@@ -113,7 +113,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
 
   const fetchProducts = async () => {
     try {
-      const products = await getAllProduct({ categoryId: product.categoryId });
+      const products = await getAllProduct({ categoryId: product.categoryId, isBidder: 'true' });
       const filterProducts = products.data.filter((item: Product) => item.id !== product.id);
       setSimilarProducts(filterProducts);
     } catch (err) {
@@ -610,12 +610,14 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
 
       <div className='border-spacing-0.5 border-t border-gray-300 mt-20 mb-5' />
 
-      <div className='flex justify-between'>
-        <p className='text-2xl font-semibold mb-5'>Sản phẩm tương tự</p>
-        <Link to={'/products'} className='underline'>
-          Xem thêm
-        </Link>
-      </div>
+      {similarProducts.length > 0 && (
+        <div className='flex justify-between'>
+          <p className='text-2xl font-semibold mb-5'>Sản phẩm tương tự</p>
+          <Link to={'/products'} className='underline'>
+            Xem thêm
+          </Link>
+        </div>
+      )}
 
       {loading && (
         <div className='flex items-center justify-center py-20 min-w-full'>

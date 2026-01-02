@@ -18,7 +18,7 @@ export const createAutoBid = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        "Token Invalid"
+        "Token không hợp lệ"
       );
       return res.status(response.code).send(response);
     }
@@ -30,7 +30,7 @@ export const createAutoBid = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.forbidden,
         null,
-        "Forbidden: User is not a bidder"
+        "Bị cấm: Người dùng không phải là người ra giá"
       );
       return res.status(response.code).send(response);
     }
@@ -40,7 +40,7 @@ export const createAutoBid = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        "Missing required fields"
+        "Thiếu các trường bắt buộc"
       );
       return res.status(response.code).send(response);
     }
@@ -95,7 +95,7 @@ export const createAutoBid = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.created,
       data,
-      "Auto-bid created successfully"
+      "Tạo lệnh ra giá tự động thành công"
     );
     return res.status(response.code).send(response);
   } catch (error: unknown) {
@@ -116,7 +116,7 @@ export const getHistoryAutoBisByProduct = async (
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        "Missing productId parameter"
+        "Thiếu tham số productId"
       );
       return res.status(response.code).send(response);
     }
@@ -125,7 +125,7 @@ export const getHistoryAutoBisByProduct = async (
     const response = gatewayResponse(
       HttpStatus.ok,
       data,
-      "Auto-bid history retrieved successfully"
+      "Lịch sử ra giá tự động được lấy thành công"
     );
     return res.status(response.code).send(response);
   } catch (error: unknown) {
@@ -143,7 +143,7 @@ export const getBidCountByProduct = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        "Missing productId parameter"
+        "Thiếu tham số productId"
       );
       return res.status(response.code).send(response);
     }
@@ -152,7 +152,7 @@ export const getBidCountByProduct = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       data,
-      "Bid count retrieved successfully"
+      "Số lượng ra giá được lấy thành công"
     );
     return res.status(response.code).send(response);
   } catch (error: unknown) {
@@ -174,7 +174,7 @@ export const getMaxBidByUser = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.forbidden,
         null,
-        "Forbidden: User is not a bidder"
+        "Bị cấm: Người dùng không phải là người ra giá"
       );
       return res.status(response.code).send(response);
     }
@@ -183,7 +183,7 @@ export const getMaxBidByUser = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        "Missing productId or userId parameter"
+        "Thiếu tham số productId hoặc userId"
       );
       return res.status(response.code).send(response);
     }
@@ -192,7 +192,7 @@ export const getMaxBidByUser = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       data,
-      "Get max bid successfully"
+      "Lấy ra giá tối đa thành công"
     );
 
     return res.status(response.code).send(response);

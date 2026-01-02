@@ -1,4 +1,8 @@
-import { addWatchListDto, getWatchListDto, removeWatchListDto } from '../dto/watchListDto';
+import {
+  addWatchListDto,
+  getWatchListDto,
+  removeWatchListDto,
+} from '../dto/watchListDto';
 import { prisma } from './db/prisma';
 
 export const addWatchList = async (userId: string, data: addWatchListDto) => {
@@ -12,7 +16,10 @@ export const addWatchList = async (userId: string, data: addWatchListDto) => {
   return watchList;
 };
 
-export const removeWatchList = async (userId: string, data: removeWatchListDto) => {
+export const removeWatchList = async (
+  userId: string,
+  data: removeWatchListDto
+) => {
   const watchList = await prisma.watchList.deleteMany({
     where: {
       userId: userId,
@@ -65,7 +72,7 @@ export const getWatchList = async (userId: string, query: getWatchListDto) => {
 };
 
 export const getCountWatchListOfUser = async (userId: string) => {
-  if (!userId) throw new Error('User ID is required');
+  if (!userId) throw new Error('Cần ID người dùng');
   const count = await prisma.watchList.count({
     where: {
       userId: userId,

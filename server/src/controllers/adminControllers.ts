@@ -10,7 +10,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      "Need token before requesting"
+      "Cần token trước khi yêu cầu"
     );
     res.status(response.code).send(response);
     return;
@@ -21,7 +21,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
-      "You do not have permission for requesting"
+      "Bạn không có quyền để yêu cầu"
     );
     res.status(response.code).send(response);
     return;
@@ -58,7 +58,7 @@ export const getAllRequest = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      "Need token before requesting"
+      "Cần token trước khi yêu cầu"
     );
     res.status(response.code).send(response);
     return;
@@ -69,7 +69,7 @@ export const getAllRequest = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
-      "You do not have permission for requesting"
+      "Bạn không có quyền để yêu cầu"
     );
     res.status(response.code).send(response);
     return;
@@ -85,7 +85,7 @@ export const getAllRequest = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       { data: record.requests },
-      "Get successfully"
+      "Lấy thành công"
     );
     res.status(response.code).send(response);
   } else {
@@ -104,7 +104,7 @@ export const acceptRequest = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      "Need token before requesting"
+      "Cần token trước khi yêu cầu"
     );
     res.status(response.code).send(response);
     return;
@@ -116,7 +116,7 @@ export const acceptRequest = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
-      "You do not have permission for requesting"
+      "Bạn không có quyền để yêu cầu"
     );
     res.status(response.code).send(response);
     return;
@@ -145,7 +145,7 @@ export const refuseRequest = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      "Need token before requesting"
+      "Cần token trước khi yêu cầu"
     );
     res.status(response.code).send(response);
     return;
@@ -157,7 +157,7 @@ export const refuseRequest = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
-      "You do not have permission for requesting"
+      "Bạn không có quyền để yêu cầu"
     );
     res.status(response.code).send(response);
     return;
@@ -186,7 +186,7 @@ export const getAdminDashboardData = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      "Need token before requesting"
+      "Cần token trước khi yêu cầu"
     );
     res.status(response.code).send(response);
     return;
@@ -197,7 +197,7 @@ export const getAdminDashboardData = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
-      "You do not have permission for requesting"
+      "Bạn không có quyền để yêu cầu"
     );
     res.status(response.code).send(response);
     return;

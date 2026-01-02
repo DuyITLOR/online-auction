@@ -1,10 +1,9 @@
-import { orderQueryDto } from '../dto/orderDto';
-import { ratingDto } from '../dto/ratingDto';
-import { prisma } from './db/prisma';
-import { Prisma } from '@prisma/client';
-import * as orderDto from '../dto/orderDto';
-import * as ratingService from './ratingService'
-
+import { orderQueryDto } from "../dto/orderDto";
+import { ratingDto } from "../dto/ratingDto";
+import { prisma } from "./db/prisma";
+import { Prisma } from "@prisma/client";
+import * as orderDto from "../dto/orderDto";
+import * as ratingService from "./ratingService";
 
 export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
   const page = Number(query.page) || 1;
@@ -13,50 +12,58 @@ export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
 
   const where: Prisma.OrdersWhereInput = {};
 
-  if (query.userId && role === 'BIDDER') {
+  if (query.userId && role === "BIDDER") {
     where.buyerId = query.userId;
-  } else if (query.userId && role === 'SELLER') {
+  } else if (query.userId && role === "SELLER") {
     where.product = { sellerId: query.userId };
-  } else if (query.userId && role === 'ADMIN') {
+  } else if (query.userId && role === "ADMIN") {
   } else {
-    throw new Error('Thiếu role không thể truy cập');
+    throw new Error("Thiếu role không thể truy cập");
   }
 
-  const q = (query.q ?? '').trim();
+  const q = (query.q ?? "").trim();
   if (q) {
     const productWhere: Prisma.ProductsWhereInput = where.product ?? {};
     where.product = {
       ...productWhere,
       title: {
         contains: q,
-        mode: 'insensitive',
+        mode: "insensitive",
       },
     };
   }
 
   let selectByRole: Prisma.OrdersSelect;
-  if (role === 'ADMIN') {
+  if (role === "ADMIN") {
     selectByRole = {
       id: true,
       totalAmount: true,
       status: true,
       createdAt: true,
       product: {
-        select: { id: true, title: true, seller: { select: { fullname: true } } },
+        select: {
+          id: true,
+          title: true,
+          seller: { select: { fullname: true } },
+        },
       },
       buyer: { select: { fullname: true } },
     };
-  } else if (role === 'BIDDER') {
+  } else if (role === "BIDDER") {
     selectByRole = {
       id: true,
       totalAmount: true,
       status: true,
       createdAt: true,
       product: {
-        select: { id: true, title: true, seller: { select: { fullname: true } } },
+        select: {
+          id: true,
+          title: true,
+          seller: { select: { fullname: true } },
+        },
       },
     };
-  } else if (role === 'SELLER') {
+  } else if (role === "SELLER") {
     selectByRole = {
       id: true,
       totalAmount: true,
@@ -67,7 +74,7 @@ export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
       buyer: { select: { fullname: true } },
     };
   } else {
-    throw new Error('Role không hợp lệ');
+    throw new Error("Role không hợp lệ");
   }
 
   const data = await prisma.orders.findMany({
@@ -75,7 +82,7 @@ export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
     skip,
     take: limit,
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
     select: selectByRole,
   });
@@ -96,7 +103,7 @@ export const getCompletedOrder = async (userId: string) => {
     return await prisma.orders.findMany({
       where: {
         sellerId: userId,
-        status: 'WAIT_REVIEW',
+        status: "WAIT_REVIEW",
       },
     });
   } catch (err) {
@@ -134,9 +141,9 @@ export const createOrder = async (productId: string) => {
       return null;
     }
     await tx.products.update({
-      where: { id: productId, status: 'ACTIVE' },
+      where: { id: productId, status: "ACTIVE" },
       data: {
-        status: 'SOLD',
+        status: "SOLD",
         updatedAt: new Date(),
       },
     });
@@ -156,7 +163,7 @@ export const createOrder = async (productId: string) => {
   // Nếu không có người mua
   if (product.winnerId === null) {
     return {
-      type: 'NO_BIDDER',
+      type: "NO_BIDDER",
       product: product,
     };
   }
@@ -176,11 +183,11 @@ export const createOrder = async (productId: string) => {
   });
 
   if (!order) {
-    throw new Error('Tạo đơn hàng thất bại');
+    throw new Error("Tạo đơn hàng thất bại");
   }
 
   return {
-    type: 'HAS_BIDDER',
+    type: "HAS_BIDDER",
     product: product,
     order: order,
   };
@@ -230,7 +237,7 @@ export const uploadBankInfo = async (bankInfo: orderDto.orderBankInfo) => {
     where: {
       id: bankInfo.orderId,
       sellerId: bankInfo.sellerId,
-      status: 'WAIT_SELLER_BANK_INFO',
+      status: "WAIT_SELLER_BANK_INFO",
     },
     select: {
       id: true,
@@ -238,7 +245,7 @@ export const uploadBankInfo = async (bankInfo: orderDto.orderBankInfo) => {
   });
 
   if (!exit) {
-    throw new Error('Không tìm thấy đơn hàng');
+    throw new Error("Không tìm thấy đơn hàng");
   }
 
   return prisma.orders.update({
@@ -249,7 +256,7 @@ export const uploadBankInfo = async (bankInfo: orderDto.orderBankInfo) => {
     data: {
       qrUrl: bankInfo.qrUrl,
       qrInfo: bankInfo.bankInfor,
-      status: 'WAIT_BUYER_PAYMENT',
+      status: "WAIT_BUYER_PAYMENT",
     },
 
     select: {
@@ -261,12 +268,14 @@ export const uploadBankInfo = async (bankInfo: orderDto.orderBankInfo) => {
   });
 };
 
-export const uploadPayment = async (paymentInfor: orderDto.orderPaymentInfo) => {
+export const uploadPayment = async (
+  paymentInfor: orderDto.orderPaymentInfo
+) => {
   const exit = await prisma.orders.findUnique({
     where: {
       id: paymentInfor.orderId,
       buyerId: paymentInfor.buyerId,
-      status: 'WAIT_BUYER_PAYMENT',
+      status: "WAIT_BUYER_PAYMENT",
     },
     select: {
       id: true,
@@ -274,7 +283,7 @@ export const uploadPayment = async (paymentInfor: orderDto.orderPaymentInfo) => 
   });
 
   if (!exit) {
-    throw new Error('Không tìm thấy đơn hàng');
+    throw new Error("Không tìm thấy đơn hàng");
   }
 
   return prisma.orders.update({
@@ -286,7 +295,7 @@ export const uploadPayment = async (paymentInfor: orderDto.orderPaymentInfo) => 
       buyerAddress: paymentInfor.buyerAddress,
       buyerPhone: paymentInfor.buyerPhone,
       billUrl: paymentInfor.billUrl,
-      status: 'WAIT_SELLER_SHIPPING',
+      status: "WAIT_SELLER_SHIPPING",
     },
 
     select: {
@@ -299,12 +308,14 @@ export const uploadPayment = async (paymentInfor: orderDto.orderPaymentInfo) => 
   });
 };
 
-export const uploadShippingInfo = async (shippingInfor: orderDto.orderShippingInfo) => {
+export const uploadShippingInfo = async (
+  shippingInfor: orderDto.orderShippingInfo
+) => {
   const exit = await prisma.orders.findUnique({
     where: {
       id: shippingInfor.orderId,
       sellerId: shippingInfor.sellerId,
-      status: 'WAIT_SELLER_SHIPPING',
+      status: "WAIT_SELLER_SHIPPING",
     },
     select: {
       id: true,
@@ -312,7 +323,7 @@ export const uploadShippingInfo = async (shippingInfor: orderDto.orderShippingIn
   });
 
   if (!exit) {
-    throw new Error('Không tìm thấy đơn hàng');
+    throw new Error("Không tìm thấy đơn hàng");
   }
 
   return prisma.orders.update({
@@ -323,7 +334,7 @@ export const uploadShippingInfo = async (shippingInfor: orderDto.orderShippingIn
     data: {
       shippingCode: shippingInfor.shippingCode,
       shippingUrl: shippingInfor.shippingUrl,
-      status: 'WAIT_BUYER_CONFIRM_RECEIVE',
+      status: "WAIT_BUYER_CONFIRM_RECEIVE",
     },
   });
 };
@@ -333,7 +344,7 @@ export const confirmReceive = async (orderId: string, buyerId: string) => {
     where: {
       id: orderId,
       buyerId: buyerId,
-      status: 'WAIT_BUYER_CONFIRM_RECEIVE',
+      status: "WAIT_BUYER_CONFIRM_RECEIVE",
     },
     select: {
       id: true,
@@ -341,7 +352,7 @@ export const confirmReceive = async (orderId: string, buyerId: string) => {
   });
 
   if (!exit) {
-    throw new Error('Không tìm thấy đơn hàng');
+    throw new Error("Không tìm thấy đơn hàng");
   }
 
   return prisma.orders.update({
@@ -350,15 +361,14 @@ export const confirmReceive = async (orderId: string, buyerId: string) => {
       buyerId: buyerId,
     },
     data: {
-      status: 'WAIT_REVIEW',
+      status: "WAIT_REVIEW",
       isReceived: true,
       receivedAt: new Date(),
     },
   });
 };
 
-
-export const cancelOrder = async(cancelInfor: orderDto.orderCancelInfo) => {
+export const cancelOrder = async (cancelInfor: orderDto.orderCancelInfo) => {
   const exit = await prisma.orders.findUnique({
     where: {
       id: cancelInfor.orderId,
@@ -367,14 +377,14 @@ export const cancelOrder = async(cancelInfor: orderDto.orderCancelInfo) => {
     },
     select: {
       id: true,
-    }
-  })
+    },
+  });
 
   if (!exit) {
-    throw new Error('Không tìm thấy đơn hàng');
+    throw new Error("Không tìm thấy đơn hàng");
   }
 
-  return await prisma.$transaction(async(tx) =>{
+  return await prisma.$transaction(async (tx) => {
     const updateOrder = await tx.orders.update({
       where: {
         id: cancelInfor.orderId,
@@ -382,22 +392,39 @@ export const cancelOrder = async(cancelInfor: orderDto.orderCancelInfo) => {
         sellerId: cancelInfor.sellerId,
       },
       data: {
-        status: 'CANCELLED',
+        status: "CANCELLED",
         cancelReason: cancelInfor.reason,
-      }
-    })
+      },
+    });
 
-    const data: ratingDto = {
-      orderId: cancelInfor.orderId,
-      raterId: cancelInfor.sellerId,
-      rateeId: cancelInfor.buyerId,
-      productId: cancelInfor.productId,
-      value: -1,
-      comment: cancelInfor.reason,
+    const rated = await tx.ratings.findFirst({
+      where: {
+        raterId: cancelInfor.sellerId,
+        rateeId: cancelInfor.buyerId,
+        productId: cancelInfor.productId,
+      },
+      select: { id: true },
+    });
+
+    if (!rated) {
+      await tx.user.update({
+        where: { id: cancelInfor.buyerId },
+        data: {
+          ratingNeg: { increment: 1 },
+        },
+      });
+
+      await tx.ratings.create({
+        data: {
+          raterId: cancelInfor.sellerId,
+          rateeId: cancelInfor.buyerId,
+          productId: cancelInfor.productId,
+          value: -1,
+          comment: cancelInfor.reason,
+        },
+      });
     }
 
-    await ratingService.createRating(data);
-
     return updateOrder;
-  })
-}
+  });
+};

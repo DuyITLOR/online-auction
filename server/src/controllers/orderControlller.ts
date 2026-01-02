@@ -487,6 +487,13 @@ export const cancelOrder = async (req: Request, res: Response) => {
       );
       return res.status(response.code).send(response);
     }
+
+    const response = gatewayResponse(
+      HttpStatus.ok,
+      order,
+      "Hủy đơn hàng thành công"
+    );
+    return res.status(response.code).send(response);
   } catch (error: any) {
     const response = gatewayResponse(
       HttpStatus.badRequest,

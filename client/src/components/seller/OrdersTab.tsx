@@ -1,13 +1,17 @@
 import React from "react";
 import { Eye, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Pagination from "../pagination";
 import { useOrders } from "../../libs/contexts/seller/order.context";
 import { formatCurrency } from "../../utils/format";
-import { get } from "@/api/api";
 
 const OrdersTab: React.FC = () => {
   const { orders, isLoading, page, totalPage, setPage } = useOrders();
+  const navigate = useNavigate();
 
+  const handleDetail = (orderId: string) => { 
+    navigate(`/payment/${orderId}`);
+  };
 const getStatusLabel = (status: string) => {
   switch (status) {
     
@@ -118,7 +122,7 @@ const getStatusLabel = (status: string) => {
                     </span>
                   </td>
                   <td className='px-3 sm:px-6 py-3 sm:py-4 text-right'>
-                    <button className='text-blue-600 hover:bg-blue-50 p-1.5 sm:p-2 rounded-lg transition-colors'>
+                    <button onClick={() => handleDetail(order.id)} className='text-blue-600 hover:bg-blue-50 p-1.5 sm:p-2 rounded-lg transition-colors'>
                       <Eye className='w-4 h-4' />
                     </button>
                   </td>
@@ -183,7 +187,7 @@ const getStatusLabel = (status: string) => {
                 </div>
               </div>
               
-              <button className='w-full py-1.5 px-2 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors'>
+              <button onClick={() => handleDetail(order.id)} className='w-full py-1.5 px-2 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors'>
                 Xem chi tiết
               </button>
             </div>

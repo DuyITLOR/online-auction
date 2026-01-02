@@ -6,6 +6,7 @@ import PaymentShipping from '../../components/payment/PaymentShipping'
 import PaymentReceive from '../../components/payment/PaymentReceive'
 import PaymentRating from '../../components/payment/PaymentRating'
 import PaymentComplete from '../../components/payment/PaymentComplete'
+import PaymentCancle from '../../components/payment/PaymentCancle'
 import { type Orders } from '../../libs/types/types';
 import { ORDER_STATUS_TO_STEP } from '../../libs/contants/orderStep';
 import { useParams } from 'react-router-dom';
@@ -95,7 +96,7 @@ const PaymentPage = () => {
   if (!order) return <div>Không tìm thấy đơn hàng</div>;
   return (
     <div className='gap-2 flex flex-col'>
-      <PaymentHeader title={order.product.title} price={Number(order.totalAmount)} seller={order.seller.fullname || "Người bán"} bidder={order.buyer.fullname || "Người mua"} userRole={order.role || "BIDDER"} />
+      {/* <PaymentHeader title={order.product.title} price={Number(order.totalAmount)} seller={order.seller.fullname || "Người bán"} bidder={order.buyer.fullname || "Người mua"} userRole={order.role || "BIDDER"} /> */}
       <div className="sm:mx-50 sm:mt-3 flex flex-col gap-2">
         <PaymentProcess steps={computedSteps} />
         {
@@ -116,8 +117,9 @@ const PaymentPage = () => {
         {
           (step === 6) && (<PaymentComplete />) 
         }
+        <PaymentCancle />
       </div>
-
+        
     </div>
   )
 }

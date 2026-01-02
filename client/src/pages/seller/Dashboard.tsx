@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Package, ShoppingCart, DollarSign, TrendingUp, Loader2 } from "lucide-react";
+import { Package, ShoppingCart, DollarSign, TrendingUp } from "lucide-react";
 
 import TabBoard from "./TabBoard";
 import { getSellerStats } from "../../api/seller";

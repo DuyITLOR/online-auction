@@ -230,7 +230,10 @@ const Profile = () => {
                         <span className='font-semibold text-gray-700'>Không hài lòng</span>
                         <span className='text-gray-500'>{negativeCount}</span>
                       </div>
-                      <Progress value={(Number(negativeCount) / (Number(positiveCount) + Number(negativeCount))) * 100} className='h-2 bg-gray-100' />
+                      <Progress
+                        value={(Number(negativeCount) / (Number(positiveCount) + Number(negativeCount))) * 100}
+                        className='h-2 bg-gray-100'
+                      />
                     </div>
                   </div>
                 </div>
@@ -256,7 +259,7 @@ const Profile = () => {
                     <div className='grow border-l-0 md:border-l border-gray-100 pl-0 md:pl-4 flex flex-col justify-between'>
                       <div>
                         <div className='flex items-center justify-between mb-2'>
-                          <p className='text-sm font-medium text-gray-500 uppercase'>{item.productId}</p>
+                          <p className='text-sm font-medium text-gray-500 uppercase'>{item.product.title}</p>
                           {item.value === 1 ? (
                             <div className='flex items-center gap-1 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100'>
                               <ThumbsUp className='w-3.5 h-3.5 fill-current' />

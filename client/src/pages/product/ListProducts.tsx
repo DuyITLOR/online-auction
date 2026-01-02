@@ -376,13 +376,15 @@ const ProductList = () => {
                           <p className='text-gray-500 text-xs mb-2 truncate'>{item.category?.name || 'Electronics'}</p>
 
                           <div className='flex flex-col gap-2'>
-                            {Number(item.buyNowPrice) > 0 && (
+                            {Number(item.buyNowPrice) > 0 ? (
                               <div className='flex items-center gap-2'>
                                 <p className='text-[10px] text-gray-400 uppercase font-bold tracking-wider'>Buy Now</p>
                                 <p className='text-sm font-medium text-teal-700 leading-none'>
                                   {Number(item.buyNowPrice).toLocaleString()} VND
                                 </p>
                               </div>
+                            ) : (
+                              <div className='block h-3.5 items-center gap-2'></div>
                             )}
 
                             <p className='text-xl font-bold text-gray-900 leading-none'>
@@ -400,7 +402,7 @@ const ProductList = () => {
                               <User size={12} className='text-teal-500' />
                               <span className='font-medium'>Top Bid:</span>
                               <span className='text-gray-700 font-semibold'>
-                                {maskBidderName(item.bidHistory?.[0]?.bidder.avtUrl ?? null)}
+                                {maskBidderName(item.bidHistory?.[0]?.bidder.fullname ?? null)}
                               </span>
                             </div>
 

@@ -30,7 +30,7 @@ export const getBidder = async (email: string) => {
 
 export const generateToken = async (id: string, email: string) => {
   if (!JWT_SECRET) {
-    throw new Error('Missing JWT_SECRET environment variable');
+    throw new Error('Thiếu biến môi trường JWT_SECRET');
   }
   const token = jwt.sign({ id, email }, process.env.JWT_SECRET!, {
     expiresIn: '30d',
@@ -71,7 +71,7 @@ export const addNewBidder = async (data: verifyDto) => {
     }
     return {
       success: false,
-      message: 'unknown error',
+      message: 'Lỗi không xác định',
     };
   }
 };
@@ -87,7 +87,7 @@ export const addEmailVerification = async (data: emailVerificationDto) => {
     });
     return {
       success: true,
-      message: 'create varification',
+      message: 'Tạo mã xác thực',
     };
   } catch (err) {
     if (err instanceof Error) {
@@ -98,7 +98,7 @@ export const addEmailVerification = async (data: emailVerificationDto) => {
     }
     return {
       success: false,
-      message: 'unknown error',
+      message: 'Lỗi không xác định',
     };
   }
 };
@@ -112,26 +112,26 @@ export const verifyCode = async (code: string, email: string) => {
   if (!infor?.expiresAt) {
     return {
       success: false,
-      message: 'Lost expiration',
+      message: 'Không tìm thấy thời hạn hiệu lực',
     };
   }
   if (now > infor.expiresAt) {
     await updateVerificationFailed(infor.id);
     return {
       success: false,
-      message: 'expired code',
+      message: 'Mã đã hết hạn',
     };
   }
   if (code === infor.code) {
     await updateVerificationSuccess(infor.id);
     return {
       success: true,
-      message: 'Valid code',
+      message: 'Mã hợp lệ',
     };
   }
   return {
     success: false,
-    message: 'Invalid code',
+    message: 'Mã không hợp lệ',
   };
 };
 
@@ -232,7 +232,7 @@ export const updatePassword = async (id: string, password: string) => {
     });
     return {
       success: true,
-      message: 'Update password',
+      message: 'Cập nhật mật khẩu',
     };
   } catch (err) {
     console.error('Error from userService:', err);
@@ -246,7 +246,7 @@ export const updatePassword = async (id: string, password: string) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: 'Lỗi không xác định',
     };
   }
 };

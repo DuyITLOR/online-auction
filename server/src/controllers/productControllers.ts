@@ -20,7 +20,7 @@ export const createProduct = async (req: Request, res: Response) => {
     if (!roles.includes('SELLER')) {
       return res.status(403).json({
         success: false,
-        message: 'Forbidden: User is not a seller',
+        message: 'Bị cấm: Người dùng không phải là người bán',
       });
     }
 
@@ -36,7 +36,7 @@ export const createProduct = async (req: Request, res: Response) => {
 
     res.status(201).json({
       success: true,
-      message: 'Product created successfully',
+      message: 'Sản phẩm được tạo thành công',
       data: result,
     });
   } catch (err: any) {
@@ -55,13 +55,13 @@ export const getProductById = async (req: Request, res: Response) => {
     if (!result) {
       return res.status(404).json({
         success: false,
-        message: 'Product not found',
+        message: 'Không tìm thấy sản phẩm',
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Product retrieved successfully',
+      message: 'Sản phẩm được lấy thành công',
       data: result,
     });
   } catch (err: any) {
@@ -83,7 +83,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     if (!roles.includes('SELLER')) {
       return res.status(403).json({
         success: false,
-        message: 'Forbidden: User is not a seller',
+        message: 'Bị cấm: Người dùng không phải là người bán',
       });
     }
 
@@ -115,7 +115,7 @@ export const updateProduct = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Product updated successfully',
+      message: 'Sản phẩm được cập nhật thành công',
       data: result,
     });
   } catch (err: any) {
@@ -134,7 +134,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
     if (!roles.includes('SELLER') && !roles.includes('ADMIN')) {
       return res.status(403).json({
         success: false,
-        message: 'Forbidden: User is not a seller or admin',
+        message: 'Bị cấm: Người dùng không phải là người bán hoặc quản trị viên',
       });
     }
 
@@ -143,7 +143,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
     await productService.deleteProduct(productId);
     res.status(200).json({
       success: true,
-      message: 'Product deleted successfully',
+      message: 'Sản phẩm được xóa thành công',
     });
   } catch (err: any) {
     res.status(500).json({
@@ -161,13 +161,13 @@ export const getAllProducts = async (req: Request, res: Response) => {
     if (!result) {
       return res.status(404).json({
         success: false,
-        message: 'No products found',
+        message: 'Không tìm thấy sản phẩm nào',
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Products retrieved successfully',
+      message: 'Sản phẩm được lấy thành công',
       data: result,
     });
   } catch (err: any) {

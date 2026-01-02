@@ -13,7 +13,7 @@ export const getOrder = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        'Token không hợp lệ'
       );
       return res.status(response.code).send(response);
     }
@@ -55,7 +55,7 @@ export const getOrder = async (req: Request, res: Response) => {
     return res.status(response.code).send(response);
   } catch (error: unknown) {
     const message =
-      error instanceof Error ? error.message : 'Internal Server Error';
+      error instanceof Error ? error.message : 'Lỗi máy chủ nội bộ';
     const response = gatewayResponse(HttpStatus.badRequest, null, message);
     return res.status(response.code).send(response);
   }
@@ -67,7 +67,7 @@ export const getOrderById = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        'Token không hợp lệ'
       );
       return res.status(response.code).send(response);
     }
@@ -159,7 +159,7 @@ export const getOrderByProductId = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        'Token không hợp lệ'
       );
       return res.status(response.code).send(response);
     }
@@ -196,7 +196,7 @@ export const uploadBankInfo = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        'Token không hợp lệ'
       );
       return res.status(response.code).send(response);
     }
@@ -262,7 +262,7 @@ export const uploadPaymentInfo = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        'Token không hợp lệ'
       );
       return res.status(response.code).send(response);
     }
@@ -331,7 +331,7 @@ export const uploadShippingInfo = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        'Token không hợp lệ'
       );
       return res.status(response.code).send(response);
     }
@@ -399,7 +399,7 @@ export const confirmOrder = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        'Token không hợp lệ'
       );
       return res.status(response.code).send(response);
     }

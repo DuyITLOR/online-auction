@@ -1,12 +1,38 @@
 import React from "react";
 import { Eye, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Pagination from "../pagination";
 import { useOrders } from "../../libs/contexts/seller/order.context";
 import { formatCurrency } from "../../utils/format";
 
 const OrdersTab: React.FC = () => {
   const { orders, isLoading, page, totalPage, setPage } = useOrders();
+  const navigate = useNavigate();
 
+  const handleDetail = (orderId: string) => { 
+    navigate(`/payment/${orderId}`);
+  };
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    
+    case "WAIT_SELLER_BANK_INFO":
+      return "Chờ thông tin ngân hàng người bán";
+    case "WAIT_BUYER_PAYMENT":
+      return "Chờ người mua thanh toán";
+    case "WAIT_SELLER_SHIPPING":
+      return "Chờ người bán vận chuyển";
+    case "WAIT_BUYER_CONFIRM_RECEIVE":
+      return "Chờ người mua xác nhận nhận hàng";
+    case "WAIT_REVIEW":
+      return "Chờ đánh giá";
+    case "COMPLETED":
+      return "Hoàn thành";
+    case "CANCELED":
+      return "Đã hủy";
+    default:
+      return status;
+  }
+};
   const onPageChange = (p: number | string) => {
     if (p === "...") return;
     setPage(Number(p));
@@ -55,6 +81,7 @@ const OrdersTab: React.FC = () => {
               </tr>
             ) : (
               orders.map((order) => (
+                
                 <tr
                   key={order.id}
                   className='hover:bg-gray-50 transition-colors border-b border-gray-100 md:border-b-0'
@@ -73,20 +100,29 @@ const OrdersTab: React.FC = () => {
                     <span
                       className={`px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium inline-block
                     ${
-                      order.status === "COMPLETED"
+                        getStatusLabel(order.status) === "Hoàn thành"
                         ? "bg-green-100 text-green-800"
-                        : order.status === "SHIPPING"
+                        : getStatusLabel(order.status) === "Đang vận chuyển"
                         ? "bg-blue-100 text-blue-800"
-                        : order.status === "CANCELED"
+                        : getStatusLabel(order.status) === "Đã hủy"
                         ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
+                        : getStatusLabel(order.status) === "Chờ đánh giá"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : getStatusLabel(order.status) === "Chờ người mua xác nhận nhận hàng"
+                        ? "bg-purple-100 text-purple-800"
+                        : getStatusLabel(order.status) === "Đang vận chuyển"
+                        ? "bg-indigo-100 text-indigo-800"
+                        : getStatusLabel(order.status) === "Chờ người mua thanh toán"
+                        ? "bg-teal-100 text-teal-800"
+                        : "bg-gray-100 text-gray-800"
+
                     }`}
                     >
-                      {order.status}
+                      {getStatusLabel(order.status)}
                     </span>
                   </td>
                   <td className='px-3 sm:px-6 py-3 sm:py-4 text-right'>
-                    <button className='text-blue-600 hover:bg-blue-50 p-1.5 sm:p-2 rounded-lg transition-colors'>
+                    <button onClick={() => handleDetail(order.id)} className='text-blue-600 hover:bg-blue-50 p-1.5 sm:p-2 rounded-lg transition-colors'>
                       <Eye className='w-4 h-4' />
                     </button>
                   </td>
@@ -119,17 +155,24 @@ const OrdersTab: React.FC = () => {
                 </div>
                 <span
                   className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap
-                ${
-                  order.status === "COMPLETED"
+                ${getStatusLabel(order.status) === "Hoàn thành"
                     ? "bg-green-100 text-green-800"
-                    : order.status === "SHIPPING"
+                    : getStatusLabel(order.status) === "Đang vận chuyển"
                     ? "bg-blue-100 text-blue-800"
-                    : order.status === "CANCELED"
+                    : getStatusLabel(order.status) === "Đã hủy"
                     ? "bg-red-100 text-red-800"
-                    : "bg-yellow-100 text-yellow-800"
+                    : getStatusLabel(order.status) === "Chờ đánh giá"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : getStatusLabel(order.status) === "Chờ người mua xác nhận nhận hàng"
+                    ? "bg-purple-100 text-purple-800"
+                    : getStatusLabel(order.status) === "Đang vận chuyển"
+                    ? "bg-indigo-100 text-indigo-800"
+                    : getStatusLabel(order.status) === "Chờ người mua thanh toán"
+                    ? "bg-teal-100 text-teal-800"
+                    : "bg-gray-100 text-gray-800"
                 }`}
                 >
-                  {order.status}
+                  {getStatusLabel(order.status)}
                 </span>
               </div>
               
@@ -144,7 +187,7 @@ const OrdersTab: React.FC = () => {
                 </div>
               </div>
               
-              <button className='w-full py-1.5 px-2 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors'>
+              <button onClick={() => handleDetail(order.id)} className='w-full py-1.5 px-2 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors'>
                 Xem chi tiết
               </button>
             </div>

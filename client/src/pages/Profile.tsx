@@ -203,7 +203,7 @@ const Profile = () => {
                   <h3 className='text-lg font-bold text-gray-800'>Độ uy tín của Shop</h3>
                   <div className='flex items-baseline gap-2'>
                     <span className='text-5xl font-extrabold text-emerald-600'>
-                      {calculateRating(positiveCount, negativeCount)}%
+                      {Number(calculateRating(positiveCount, negativeCount)) * 10}%
                     </span>
                     <span className='text-gray-500 font-medium'>Đánh giá tích cực</span>
                   </div>
@@ -217,7 +217,10 @@ const Profile = () => {
                         <span className='font-semibold text-gray-700'>Hài lòng</span>
                         <span className='text-gray-500'>{positiveCount}</span>
                       </div>
-                      <Progress value={positiveCount} className='h-2 bg-gray-100' />
+                      <Progress
+                        value={(Number(positiveCount) / (Number(positiveCount) + Number(negativeCount))) * 100}
+                        className='h-2 bg-gray-100'
+                      />
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>
@@ -227,7 +230,7 @@ const Profile = () => {
                         <span className='font-semibold text-gray-700'>Không hài lòng</span>
                         <span className='text-gray-500'>{negativeCount}</span>
                       </div>
-                      <Progress value={negativeCount} className='h-2 bg-gray-100' />
+                      <Progress value={(Number(negativeCount) / (Number(positiveCount) + Number(negativeCount))) * 100} className='h-2 bg-gray-100' />
                     </div>
                   </div>
                 </div>

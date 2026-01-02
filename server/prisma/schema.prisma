@@ -212,7 +212,7 @@ model Orders {
   product      Products    @relation(fields: [productId], references: [id])
   seller       User        @relation("OrdersSeller", fields: [sellerId], references: [id])
 
-  @@index([buyerId])
+  @@index([buyerId, sellerId])
   @@index([sellerId])
   @@index([status])
   @@index([createdAt])

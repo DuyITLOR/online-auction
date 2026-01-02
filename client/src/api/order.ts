@@ -229,3 +229,29 @@ export const ratingOrder = async (
 
   return data.data;
 };
+
+
+export const cancelOrder = async (token: string, orderId: string, buyerId: string, productId: string, reason: string) =>{
+  const res = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/orders/${orderId}/cancel`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      method: "PATCH",
+      body: JSON.stringify({
+        buyerId: buyerId,
+        productId: productId,
+        reason: reason,
+      }),
+    }
+  );
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message || data.error || "Hủy đơn hàng thất bại");
+  }
+  
+  return data.data;
+}

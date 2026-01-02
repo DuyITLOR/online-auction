@@ -387,7 +387,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                     </div>
                     <div className='text-right'>
                       <p className='text-sm text-gray-500 mb-1'>Giá chốt</p>
-                      <p className='text-2xl font-mono font-bold text-teal-700'>
+                      <p className='text-2xl font-mono font-bold text-teal-700 mt-3'>
                         {Number(product.currentPrice).toLocaleString()} ₫
                       </p>
                     </div>

@@ -103,7 +103,7 @@ const PaymentPage = () => {
   if (!order) return <div>Không tìm thấy đơn hàng</div>;
   return (
     <div className='gap-2 flex flex-col'>
-      {/* <PaymentHeader title={order.product.title} price={Number(order.totalAmount)} seller={order.seller.fullname || "Người bán"} bidder={order.buyer.fullname || "Người mua"} userRole={order.role || "BIDDER"} /> */}
+      <PaymentHeader title={order.product.title} price={Number(order.totalAmount)} seller={order.seller.fullname || "Người bán"} bidder={order.buyer.fullname || "Người mua"} userRole={order.role || "BIDDER"} />
       <div className="sm:mx-50 sm:mt-3 flex flex-col gap-2">
         <PaymentProcess steps={computedSteps} />
         {
@@ -129,7 +129,7 @@ const PaymentPage = () => {
         }
 
         {
-          (order.role === "SELLER") && (step < 7) && (step > 0) && (<PaymentCancle />)
+          (order.role === "SELLER") && (step < 5) && (step > 0) && (<PaymentCancle order={order} onComplete={fetchOrder} />)
         }
       </div>
 

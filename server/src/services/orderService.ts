@@ -379,7 +379,7 @@ export const cancelOrder = async (cancelInfor: orderDto.orderCancelInfo) => {
       id: true,
     },
   });
-
+  
   if (!exit) {
     throw new Error("Không tìm thấy đơn hàng");
   }
@@ -405,6 +405,10 @@ export const cancelOrder = async (cancelInfor: orderDto.orderCancelInfo) => {
       },
       select: { id: true },
     });
+
+    if (rated) {
+      throw new Error("Bạn đã đánh giá người này rồi");
+    }
 
     if (!rated) {
       await tx.user.update({

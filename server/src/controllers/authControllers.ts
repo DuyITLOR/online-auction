@@ -42,26 +42,26 @@ export const signIn = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       400,
       null,
-      'Email has not been registered'
+      'Email chưa được đăng ký'
     );
     res.status(response.code).send(response);
     return;
   }
   if (bidder.password == null) {
-    const response = gatewayResponse(200, null, 'update user first');
+    const response = gatewayResponse(200, null, 'Vui lòng cập nhật thông tin người dùng trước');
     res.status(response.code).send(response);
   } else {
     const isMatched = await service.comparePassword(password, bidder.password);
     if (isMatched) {
       const token = await service.generateToken(bidder.id, bidder.email);
       const user = await service.getBidder(email);
-      const response = gatewayResponse(200, { token, user }, 'Welcome back');
+      const response = gatewayResponse(200, { token, user }, 'Chào mừng quay trở lại');
       res.status(response.code).send(response);
     } else {
       const response = gatewayResponse(
         400,
         null,
-        'Email or password is invalid'
+        'Email hoặc mật khẩu không hợp lệ'
       );
       res.status(response.code).send(response);
       return;
@@ -74,7 +74,7 @@ export const signUp = async (req: Request, res: Response) => {
   // Check email has been registered before
   const isExist = await service.checkExistEmail(email);
   if (isExist) {
-    const response = gatewayResponse(401, null, 'Email has been registered');
+    const response = gatewayResponse(401, null, 'Email đã được đăng ký');
     res.status(response.code).send(response);
     return;
   }
@@ -152,12 +152,12 @@ export const verifyToken = async (req: Request, res: Response) => {
   const authHeader = req.headers['authorization'];
 
   if (!authHeader || Array.isArray(authHeader)) {
-    return res.status(404).json({ error: 'Token not provided' });
+    return res.status(404).json({ error: 'Token không được cung cấp' });
   }
 
   const token = authHeader.split(' ')[1];
   if (!token) {
-    return res.status(401).json({ error: 'Invalid token format' });
+    return res.status(401).json({ error: 'Định dạng token không hợp lệ' });
   }
 
   try {
@@ -165,7 +165,7 @@ export const verifyToken = async (req: Request, res: Response) => {
     res.json({ valid: true, user: decoded });
   } catch (err) {
     console.error(err);
-    res.status(401).json({ error: 'Token verification failed' });
+    res.status(401).json({ error: 'Xác minh token thất bại' });
   }
 };
 
@@ -177,7 +177,7 @@ export const forgetPassword = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      'Email has not been registered'
+      'Email chưa được đăng ký'
     );
     res.status(response.code).send(response);
     return;
@@ -235,7 +235,7 @@ export const updatePassword = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      'Token required'
+      'Token là bắt buộc'
     );
     res.status(response.code).send(response);
     return;
@@ -285,7 +285,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      'Token required'
+      'Token là bắt buộc'
     );
     res.status(response.code).send(response);
     return;

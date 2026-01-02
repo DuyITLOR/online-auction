@@ -77,6 +77,13 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
       const total = json.data?.total ?? 0;
       const totalPages = json.data?.totalPages ?? 1;
 
+  //       WAIT_SELLER_BANK_INFO
+  // WAIT_BUYER_PAYMENT
+  // WAIT_SELLER_SHIPPING
+  // WAIT_BUYER_CONFIRM_RECEIVE
+  // WAIT_REVIEW
+  // COMPLETED
+  // CANCELLED
       const list: Order[] = rawList.map((item: any) => ({
         id: item.id,
         customer: item.buyer?.fullname || "Unknown",

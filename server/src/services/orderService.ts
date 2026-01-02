@@ -1,7 +1,9 @@
-import { orderQueryDto } from '../dto/orderDto';
+import { orderQueryDto, ratingDto } from '../dto/orderDto';
 import { prisma } from './db/prisma';
 import { Prisma } from '@prisma/client';
 import * as orderDto from '../dto/orderDto';
+import * as ratingService from './ratingService'
+
 
 export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
   const page = Number(query.page) || 1;
@@ -353,3 +355,48 @@ export const confirmReceive = async (orderId: string, buyerId: string) => {
     },
   });
 };
+
+
+export const cancelOrder = async(cancelInfor: orderDto.orderCancelInfo) => {
+  const exit = await prisma.orders.findUnique({
+    where: {
+      id: cancelInfor.orderId,
+      buyerId: cancelInfor.buyerId,
+      sellerId: cancelInfor.sellerId,
+    },
+    select: {
+      id: true,
+    }
+  })
+
+  if (!exit) {
+    throw new Error('Không tìm thấy đơn hàng');
+  }
+
+  const order = await prisma.$transaction(async(tx) =>{
+    const updateOrder = await tx.orders.update({
+      where: {
+        id: cancelInfor.orderId,
+        buyerId: cancelInfor.buyerId,
+        sellerId: cancelInfor.sellerId,
+      },
+      data: {
+        status: 'CANCELLED',
+        cancelReason: cancelInfor.reason,
+      }
+    })
+
+    const data: ratingDto = {
+      orderId: cancelInfor.orderId,
+      raterId: cancelInfor.sellerId,
+      rateeId: cancelInfor.buyerId,
+      productId: cancelInfor.productId,
+      value: -1,
+      comment: cancelInfor.reason,
+    }
+
+    await ratingService.createRating(data);
+
+    return updateOrder;
+  })
+}

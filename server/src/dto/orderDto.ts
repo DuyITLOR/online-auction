@@ -28,3 +28,11 @@ export interface orderShippingInfo {
     shippingCode: string,
     shippingUrl : string,
 }
+
+export interface orderCancelInfo {
+    orderId: string,
+    productId: string,
+    sellerId: string,
+    buyerId: string,
+    reason: string,
+}

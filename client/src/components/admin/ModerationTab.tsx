@@ -177,8 +177,8 @@ const ModerationTab: FC = () => {
             <tbody className='divide-y divide-gray-100'>
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className='animate-pulse'>
-                    <td className='px-6 py-4'>
+                  <tr key={i} className='animate-pulse h-[72px]'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='flex items-center gap-3'>
                         <div className='w-9 h-9 rounded-full bg-gray-200 shrink-0' />
                         <div className='space-y-2'>
@@ -187,16 +187,16 @@ const ModerationTab: FC = () => {
                         </div>
                       </div>
                     </td>
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='h-4 w-48 bg-gray-200 rounded' />
                     </td>
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='h-6 w-24 bg-gray-200 rounded-full' />
                     </td>
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='h-4 w-32 bg-gray-200 rounded' />
                     </td>
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='flex justify-end gap-2'>
                         <div className='h-8 w-8 bg-gray-200 rounded-lg' />
                         <div className='h-8 w-8 bg-gray-200 rounded-lg' />
@@ -223,9 +223,9 @@ const ModerationTab: FC = () => {
                   ) => (
                     <tr
                       key={item.id}
-                      className='hover:bg-gray-50 transition-colors duration-150'
+                      className='hover:bg-gray-50 transition-colors duration-150 h-[72px]'
                     >
-                      <td className='px-6 py-4'>
+                      <td className='px-6 py-3 align-middle'>
                         <div className='flex items-center gap-3'>
                           <div className='w-9 h-9 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-bold shrink-0'>
                             {item.user?.fullname?.charAt(0) || "U"}{" "}
@@ -245,21 +245,21 @@ const ModerationTab: FC = () => {
                           </div>
                         </div>
                       </td>
-                      <td className='px-6 py-4 max-w-xs'>
+                      <td className='px-6 py-3 max-w-xs align-middle'>
                         <p className='text-gray-600 truncate' title={item.note}>
                           {item.note || "Không có ghi chú"}
                         </p>
                       </td>
-                      <td className='px-6 py-4'>
+                      <td className='px-6 py-3 align-middle'>
                         {renderStatusBadge(item.status)}
                       </td>
-                      <td className='px-6 py-4 whitespace-nowrap text-gray-500'>
+                      <td className='px-6 py-3 whitespace-nowrap text-gray-500 align-middle'>
                         <div className='flex items-center gap-1.5'>
                           <Calendar className='w-3.5 h-3.5' />
                           {formatDate(item.createdAt)}
                         </div>
                       </td>
-                      <td className='px-6 py-4 text-right'>
+                      <td className='px-6 py-3 text-right align-middle'>
                         {item.status === "PENDING" ? (
                           <div className='flex items-center justify-end gap-2'>
                             <button
@@ -301,19 +301,9 @@ const ModerationTab: FC = () => {
         {/* --- PAGINATION SECTION --- */}
         {/* Chỉ hiện khi không loading và có dữ liệu (totalRecords > 0) */}
         {!loading && totalRecords > 0 && (
-          <div className='p-4 border-t border-gray-100 mt-auto'>
-            <div className='flex items-center justify-between'>
-              <div className='text-sm text-gray-500'>
-                Hiển thị trang <span className='font-medium'>{page}</span> /{" "}
-                <span className='font-medium'>{totalPage}</span>
-              </div>
-              <Pagination
-                page={page}
-                onPageChange={onPageChange}
-                totalPage={totalPage}
-              />
-            </div>
-          </div>
+          <div className='pb-8 pr-8 flex justify-end'>
+        <Pagination page={page} totalPage={totalPage} onPageChange={onPageChange} />
+      </div>
         )}
       </div>
 

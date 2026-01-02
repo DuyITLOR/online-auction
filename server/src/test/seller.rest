@@ -1,0 +1,4 @@
+###
+GET http://localhost:4000/sellers/stats
+Content-Type: application/json
+Authorization: Bearer product.context.tsx:72 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluMDEiLCJlbWFpbCI6Im5xdGhhaTIzQGNsYy5maXR1cy5lZHUudm4iLCJpYXQiOjE3NjczNDU0ODAsImV4cCI6MTc2OTkzNzQ4MH0.kjqu2MGgbKcSubxWh0d81FdmplzQZcjOCnMtzPLdkYQ

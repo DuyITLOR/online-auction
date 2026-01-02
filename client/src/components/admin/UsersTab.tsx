@@ -45,26 +45,26 @@ const TabUsers = () => {
             <tbody className='divide-y divide-gray-100'>
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className='animate-pulse'>
-                    <td className='px-6 py-4'>
+                  <tr key={i} className='animate-pulse h-[72px]'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='flex items-center gap-3'>
                         <div className='w-8 h-8 rounded-full bg-gray-200 shrink-0' />
                         <div className='h-4 w-32 bg-gray-200 rounded' />
                       </div>
                     </td>
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='flex items-center gap-2'>
                         <div className='w-3.5 h-3.5 bg-gray-200 rounded-full' />
                         <div className='h-4 w-48 bg-gray-200 rounded' />
                       </div>
                     </td>
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='flex items-center gap-2'>
                         <div className='w-3.5 h-3.5 bg-gray-200 rounded-full' />
                         <div className='h-5 w-16 bg-gray-200 rounded' />
                       </div>
                     </td>
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='flex items-center gap-2'>
                         <div className='w-3.5 h-3.5 bg-gray-200 rounded-full' />
                         <div className='h-4 w-24 bg-gray-200 rounded' />
@@ -88,9 +88,9 @@ const TabUsers = () => {
                 users.map((user) => (
                   <tr
                     key={user.id}
-                    className='hover:bg-gray-50 transition-colors duration-150'
+                    className='hover:bg-gray-50 transition-colors duration-150 h-[72px]'
                   >
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='flex items-center gap-3'>
                         <div className='w-8 h-8 rounded-full  bg-green-200 text-green-400 flex items-center justify-center'>
                           <User className='w-4 h-4' />
@@ -100,13 +100,13 @@ const TabUsers = () => {
                         </span>
                       </div>
                     </td>
-                    <td className='px-6 py-4 text-gray-600'>
+                    <td className='px-6 py-3 text-gray-600 align-middle'>
                       <div className='flex items-center gap-2'>
                         <Mail className='w-3.5 h-3.5 text-gray-400' />
                         {user.email}
                       </div>
                     </td>
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='flex items-center gap-2'>
                         <Shield className='w-3.5 h-3.5 text-gray-400' />
                         <span
@@ -120,7 +120,7 @@ const TabUsers = () => {
                         </span>
                       </div>
                     </td>
-                    <td className='px-6 py-4 text-gray-600'>
+                    <td className='px-6 py-3 text-gray-600 align-middle'>
                       <div className='flex items-center gap-2'>
                         <Calendar className='w-3.5 h-3.5 text-gray-400' />
                         {splitDate(user.createdAt)}
@@ -135,19 +135,9 @@ const TabUsers = () => {
 
         {/* Pagination */}
         {!isLoading && totalUsers > 0 && (
-          <div className='p-4 border-t border-gray-100 mt-auto bg-gray-50/50'>
-            <div className='flex items-center justify-between'>
-              <div className='text-sm text-gray-500'>
-                Hiển thị trang <span className='font-medium'>{page}</span> /{" "}
-                <span className='font-medium'>{totalPages}</span>
-              </div>
-              <Pagination
-                page={page}
-                onPageChange={onPageChange}
-                totalPage={totalPages}
-              />
-            </div>
-          </div>
+           <div className='pb-8 pr-8 flex justify-end'>
+        <Pagination page={page} totalPage={totalPages} onPageChange={onPageChange} />
+      </div>
         )}
       </div>
     </div>

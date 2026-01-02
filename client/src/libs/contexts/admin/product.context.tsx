@@ -67,7 +67,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   const [totalProducts, setTotalProducts] = useState(0);
 
   const limit = 5;
-
+  const prefetchPages = 4; // Số pages prefetch mỗi lần
   // CACHE
   const [cache, setCache] = useState<Record<string, CacheData>>({});
 
@@ -82,7 +82,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  // Fetch Products (Có cache)
+  // Fetch Products (Có cache + Promise.all)
   const fetchProducts = useCallback(async () => {
     const cacheKey = `${filter}-${page}`;
 
@@ -97,41 +97,90 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
 
     try {
       setIsLoading(true);
+      const batchIndex = Math.floor((page - 1) / prefetchPages);
+      const startPage = batchIndex * prefetchPages + 1;
 
-      const query = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
+      // Fetch song song nhiều pages bằng Promise.all
+      const fetchPage = async (pageNum: number) => {
+        try {
+          const query = new URLSearchParams({
+            page: pageNum.toString(),
+            limit: limit.toString(),
+          });
+          if (filter !== "all") query.append("categoryId", filter);
+
+          const res = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/product?${query.toString()}`
+          );
+          if (!res.ok) return { pageNum, data: [], total: 0, totalPages: 1 };
+          const json = await res.json();
+          return {
+            pageNum,
+            data: json.data?.data ?? [],
+            total: json.data?.total ?? 0,
+            totalPages: json.data?.totalPages ?? 1,
+          };
+        } catch {
+          return { pageNum, data: [], total: 0, totalPages: 1 };
+        }
+      };
+
+      // Tính số pages cần fetch: không vượt quá totalPage đã biết
+      const endPage = totalPage > 1
+        ? Math.min(startPage + prefetchPages - 1, totalPage)
+        : startPage + prefetchPages - 1;
+      
+      const pagesToFetch = endPage - startPage + 1;
+
+      // Tạo array các promises cho các pages cần fetch
+      const pageNumbers = Array.from(
+        { length: pagesToFetch },
+        (_, i) => startPage + i
+      );
+
+      const results = await Promise.all(pageNumbers.map(fetchPage));
+
+      // Cache từng page từ kết quả
+      const newCache: Record<string, CacheData> = {};
+      let total = 0;
+      let newTotalPages = 1;
+
+      results.forEach(({ pageNum, data, total: t, totalPages: tp }) => {
+        if (data.length > 0) {
+          newCache[`${filter}-${pageNum}`] = {
+            products: data,
+            totalProducts: t,
+            totalPage: tp,
+          };
+        }
+        if (t > 0) {
+          total = t;
+          newTotalPages = tp;
+        }
       });
 
-      if (filter !== "all") query.append("categoryId", filter);
+      setCache((prev) => ({ ...prev, ...newCache }));
 
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/product?${query.toString()}`
-      );
-      const json = await res.json();
+      // Cập nhật totalPage 1 lần từ response
+      if (newTotalPages !== totalPage) {
+        setTotalPage(newTotalPages);
+      }
+      if (total !== totalProducts) {
+        setTotalProducts(total);
+      }
 
-      const list = json.data?.data ?? [];
-      const total = json.data?.total ?? 0;
-      const totalPages = json.data?.totalPages ?? 1;
-
-      setProducts(list);
-      setTotalProducts(total);
-      setTotalPage(totalPages);
-
-      setCache((prev) => ({
-        ...prev,
-        [cacheKey]: {
-          products: list,
-          totalProducts: total,
-          totalPage: totalPages,
-        },
-      }));
+      const currentPageData = newCache[cacheKey];
+      if (currentPageData) {
+        setProducts(currentPageData.products);
+      } else {
+        setProducts([]);
+      }
     } catch (err) {
       console.error("Fetch products failed:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [filter, page, cache]);
+  }, [filter, page, cache, totalPage, totalProducts]);
 
   // Delete Product (KHÔNG xoá UI trước → tránh mất dialog)
   const deleteProduct = async (productId: string): Promise<DeleteResult> => {
@@ -167,8 +216,16 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
 
   const refreshProducts = () => {
     setCache({});
+    setTotalPage(1); // Reset để fetch lại totalPage mới
     fetchProducts();
   };
+
+  // Kiểm tra và điều chỉnh page khi vượt quá totalPage
+  useEffect(() => {
+    if (page > totalPage && totalPage > 0) {
+      setPage(totalPage);
+    }
+  }, [page, totalPage]);
 
   useEffect(() => {
     fetchCategories();

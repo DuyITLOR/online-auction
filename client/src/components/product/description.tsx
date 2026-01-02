@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import DOMPurify from 'dompurify';
@@ -16,11 +17,27 @@ const ProductDescription = ({
   token: string;
 }) => {
   const isOwner = currentUser && product.sellerId === currentUser.id;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const descriptionRef = useRef<HTMLDivElement>(null);
 
   const [isAdding, setIsAdding] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [fullDescription, setFullDescription] = useState(product.description);
   const [newContent, setNewContent] = useState('');
+
+  // Auto open edit mode and scroll when ?edit=true
+  useEffect(() => {
+    if (searchParams.get('edit') === 'true' && isOwner) {
+      setIsAdding(true);
+      // Remove the edit param from URL
+      searchParams.delete('edit');
+      setSearchParams(searchParams, { replace: true });
+      // Scroll to description section
+      setTimeout(() => {
+        descriptionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+  }, [searchParams, isOwner, setSearchParams]);
 
   const handleSave = async () => {
     setUpdating(true);
@@ -43,7 +60,7 @@ const ProductDescription = ({
   };
 
   return (
-    <div className='border flex flex-col border-gray-200 px-4 py-3 mb-5 rounded-md bg-white shadow-sm'>
+    <div ref={descriptionRef} className='border flex flex-col border-gray-200 px-4 py-3 mb-5 rounded-md bg-white shadow-sm'>
       <div
         className='view-mode ql-editor'
         dangerouslySetInnerHTML={{

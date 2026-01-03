@@ -215,10 +215,12 @@ export interface Orders {
   buyer: {
     id: string;
     fullname: string;
+    avtUrl: string;
   };
   seller: {
     id: string;
     fullname: string;
+    avtUrl: string;
   };
   product: {
     id: string;

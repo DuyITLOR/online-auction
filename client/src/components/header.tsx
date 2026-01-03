@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { clearSession, getSession } from '../libs/session';
 import { Popover } from './ui/popover';
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
-import { LogOut, Plus, Search, UserRound, MessageCircleMore } from 'lucide-react'; // Import thêm Menu nếu cần hamburger sau này
+import { LogOut, Plus, Search, UserRound, MessageCircleMore } from 'lucide-react';
 import { UserContext } from '../libs/contexts/user.context';
 
 const Header = () => {
@@ -78,7 +78,7 @@ const Header = () => {
         {/* Container chính sử dụng flex-wrap để xử lý responsive */}
         <div className='flex flex-wrap items-center justify-between gap-y-3 md:gap-y-0'>
           {/* 1. LOGO */}
-          <Link to='/' className='flex items-center gap-2 text-2xl font-bold flex-shrink-0'>
+          <Link to='/' className='flex items-center gap-2 text-2xl font-bold shrink-0'>
             <img
               src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rockylinux/rockylinux-original.svg'
               className='w-8 h-8 md:w-10 md:h-10'
@@ -89,8 +89,7 @@ const Header = () => {
             </div>
           </Link>
 
-          {/* 2. RIGHT ACTIONS (Auth, Avatar, Add Button) - Đảo vị trí DOM để Search nằm giữa trên desktop */}
-          <div className='flex items-center gap-2 md:gap-4 flex-shrink-0 md:order-3'>
+          <div className='flex items-center gap-2 md:gap-4 shrink-0 md:order-3'>
             {/* Nút Add Product */}
             <Plus
               onClick={handleAddProduct}
@@ -176,10 +175,6 @@ const Header = () => {
             )}
           </div>
 
-          {/* 3. SEARCH BAR */}
-          {/* - Mobile: width full, order last (xuống dòng dưới cùng)
-              - Tablet/Desktop: nằm giữa (md:order-2), flex-1 để chiếm khoảng trống
-          */}
           <div className='w-full order-last md:order-2 md:w-auto md:flex-1 md:mx-6 lg:mx-10'>
             <div className='relative group'>
               <input

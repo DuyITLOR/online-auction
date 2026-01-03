@@ -6,7 +6,6 @@ import { Heart, Gavel, Clock, Users, Sparkles, Calendar, User, ShoppingCart, Arr
 import type { WatchList } from '../libs/types/types';
 import { getSession } from '../libs/session';
 
-// --- Helper Functions (Giữ nguyên) ---
 const checkIsNew = (dateString: string) => {
   if (!dateString) return false;
   const now = new Date().getTime();
@@ -65,8 +64,6 @@ const formatTimeLeft = (date: string) => {
   }
 };
 
-// --- Components ---
-
 const ProductSection = ({
   title,
   products,
@@ -114,10 +111,6 @@ const ProductSection = ({
         </Link>
       </div>
 
-      {/* Scroll Container 
-        - snap-x snap-mandatory: Giúp lướt mượt mà, tự động dừng đúng vị trí thẻ
-        - hide-scrollbar (tùy chọn): Bạn có thể thêm css ẩn scrollbar nếu muốn đẹp hơn
-      */}
       <div className='flex flex-1 items-stretch gap-3 md:gap-4 overflow-x-auto scroll-container pb-4 md:pb-8 px-1 snap-x snap-mandatory'>
         {products.map((item: any) => {
           const productData = item.product || item;
@@ -135,7 +128,7 @@ const ProductSection = ({
               to={`/product/${productId}`}
               key={productId}
               className={`
-                flex flex-col flex-shrink-0 
+                flex flex-col shrink-0 
                 bg-white rounded-xl border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative 
                 snap-start 
                 /* RESPONSIVE WIDTHS */
@@ -191,7 +184,6 @@ const ProductSection = ({
                   />
                 </button>
 
-                {/* Hover Button - Ẩn trên mobile nếu muốn, hoặc giữ nguyên */}
                 <div className='absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out hidden md:block'>
                   <button className='w-full bg-teal-600 text-white py-2 rounded-lg font-semibold shadow-lg flex items-center justify-center gap-2 hover:bg-teal-700'>
                     <Gavel size={16} /> Đặt giá ngay
@@ -199,7 +191,6 @@ const ProductSection = ({
                 </div>
               </div>
 
-              {/* Content Container */}
               <div className='flex flex-col flex-1 p-2 md:p-3 gap-1 md:gap-2'>
                 <p className='font-bold text-gray-800 line-clamp-2 text-sm min-h-10 group-hover:text-teal-600 transition-colors'>
                   {productData?.title}
@@ -284,7 +275,6 @@ const DisplayProduct = () => {
       )}
 
       {!loading && (
-        // Responsive Padding: px-4 trên mobile, tăng dần lên
         <div className='flex flex-col mx-auto max-w-full px-4 md:px-8 lg:px-10 mb-5 gap-6 md:gap-8'>
           <ProductSection
             title='Sản phẩm yêu thích'

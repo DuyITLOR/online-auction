@@ -1,4 +1,4 @@
-import { prisma } from './db/prisma';
+import { prisma } from "./db/prisma";
 import {
   blockUserDto,
   updateUserDto,
@@ -9,12 +9,11 @@ import {
   returnErrorDto,
   getALlCommentsDto,
   responseProfileDto,
-} from '../dto/userDto';
-import { deleteCommentDto } from '../dto/userDto';
-import { getBidCountOfUser } from './autoBidService';
-import { getCountWatchListOfUser } from './watchListService';
-import { getCountOrderByUser } from './orderService';
-
+} from "../dto/userDto";
+import { deleteCommentDto } from "../dto/userDto";
+import { getBidCountOfUser, recomputeAutoBid } from "./autoBidService";
+import { getCountWatchListOfUser } from "./watchListService";
+import { getCountOrderByUser } from "./orderService";
 export const getUserById = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
@@ -27,7 +26,7 @@ export const getUserById = async (id: string) => {
       user: user,
     };
   } catch (err) {
-    console.error('Error from userService:', err);
+    console.error("Error from userService:", err);
 
     if (err instanceof Error) {
       return {
@@ -38,7 +37,7 @@ export const getUserById = async (id: string) => {
 
     return {
       success: false,
-      message: 'Lỗi không xác định',
+      message: "Lỗi không xác định",
     };
   }
 };
@@ -55,7 +54,7 @@ export const getUserInformation = async (id: string) => {
       user: user,
     };
   } catch (err) {
-    console.error('Error from userService:', err);
+    console.error("Error from userService:", err);
 
     if (err instanceof Error) {
       return {
@@ -66,7 +65,7 @@ export const getUserInformation = async (id: string) => {
 
     return {
       success: false,
-      message: 'Lỗi không xác định',
+      message: "Lỗi không xác định",
     };
   }
 };
@@ -76,7 +75,7 @@ export const getActivedProducts = async (sellerId: string) => {
     const products = await prisma.products.findMany({
       where: {
         sellerId,
-        status: 'ACTIVE',
+        status: "ACTIVE",
       },
     });
     return products;
@@ -104,10 +103,10 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
     return {
       success: true,
       data: updated,
-      message: 'Cập nhật thành công',
+      message: "Cập nhật thành công",
     };
   } catch (err) {
-    console.error('Error from userService:', err);
+    console.error("Error from userService:", err);
 
     if (err instanceof Error) {
       return {
@@ -118,7 +117,7 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
 
     return {
       success: false,
-      message: 'Lỗi không xác định',
+      message: "Lỗi không xác định",
     };
   }
 };
@@ -134,10 +133,10 @@ export const upgradeUser = async (id: string, note: string) => {
     return {
       success: true,
       data: record,
-      message: 'Yêu cầu thành công',
+      message: "Yêu cầu thành công",
     };
   } catch (err) {
-    console.error('Error from userService:', err);
+    console.error("Error from userService:", err);
 
     if (err instanceof Error) {
       return {
@@ -148,18 +147,18 @@ export const upgradeUser = async (id: string, note: string) => {
 
     return {
       success: false,
-      message: 'Lỗi không xác định',
+      message: "Lỗi không xác định",
     };
   }
 };
 
 export const checkRating = async (id: string) => {
-  console.log('Checking rating for user:', id);
+  console.log("Checking rating for user:", id);
   const user = await prisma.user.findUnique({
     where: { id },
   });
 
-  if (!user) throw new Error('Không tìm thấy người dùng');
+  if (!user) throw new Error("Không tìm thấy người dùng");
   const total = user.ratingNeg + user.ratingPos;
   // console.log("positive ratings:", user.ratingPos);
   // console.log("negative ratings:", user.ratingNeg);
@@ -182,10 +181,10 @@ export const getAllBlockedUser = async (productId: string) => {
     return {
       success: true,
       data: record,
-      message: 'Lấy thành công',
+      message: "Lấy thành công",
     };
   } catch (err) {
-    console.error('Error from userService:', err);
+    console.error("Error from userService:", err);
 
     if (err instanceof Error) {
       return {
@@ -196,7 +195,7 @@ export const getAllBlockedUser = async (productId: string) => {
 
     return {
       success: false,
-      message: 'Lỗi không xác định',
+      message: "Lỗi không xác định",
     };
   }
 };
@@ -212,7 +211,7 @@ export const getBlockUserByProductId = async (
 
     return record.map((r) => r.userId);
   } catch (err) {
-    console.error('Error from userService:', err);
+    console.error("Error from userService:", err);
     return [];
   }
 };
@@ -231,20 +230,120 @@ export const blockUser = async (data: blockUserDto) => {
       return {
         success: true,
         data: check,
-        message: 'Đã chặn',
+        message: "Đã chặn",
       };
     }
-    const record = await prisma.blockedBidders.create({
-      data: {
-        productId: data.productId,
-        userId: data.userId,
-        reason: data.reason,
-      },
-    });
+    const record = await prisma.$transaction(async (tx) => {
+      const record = await tx.blockedBidders.create({
+        data: {
+          productId: data.productId,
+          userId: data.userId,
+          reason: data.reason,
+        },
+        include: {
+          product: {
+            select: {
+              id: true,
+              winnerId: true,
+            },
+          },
+        },
+      });
+
+      if (record.product.winnerId === data.userId) {
+        const product = await tx.products.findUnique({
+          where: {
+            id: data.productId,
+          },
+          select: {
+            id: true,
+            startPrice: true,
+            currentPrice: true,
+          },
+        });
+
+        if (!product) throw new Error("Không tìm thấy sản phẩm");
+
+        const removedCount = await tx.bidHistory.count({
+          where: {
+            productId: data.productId,
+            bidderId: data.userId,
+          },
+        });
+
+        await tx.autoBids.deleteMany({
+          where: {
+            productId: data.productId,
+            bidderId: data.userId,
+          },
+        });
+
+        await tx.bidHistory.deleteMany({
+          where: {
+            productId: data.productId,
+            bidderId: data.userId,
+          },
+        });
+
+        const topBid = await tx.bidHistory.findFirst({
+          where: {
+            productId: data.productId,
+          },
+          orderBy: {
+            amount: "desc",
+          },
+        });
+
+        // Sau khi xóa xong thì không còn autobid nào
+        if (!topBid) {
+          await tx.products.update({
+            where: {
+              id: data.productId,
+            },
+            data: {
+              winnerId: null,
+              currentPrice: product.startPrice,
+              countbids: {
+                decrement: removedCount,
+              },
+            },
+            select: {
+              id: true,
+              winnerId: true,
+              currentPrice: true,
+            },
+          });
+        } else {
+          await tx.products.update({
+            where: {
+              id: data.productId,
+            },
+            data: {
+              winnerId: topBid.bidderId,
+              currentPrice: topBid.amount,
+              countbids: {
+                decrement: removedCount,
+              },
+            },
+            select: {
+              id: true,
+              winnerId: true,
+              currentPrice: true,
+            },
+          });
+        }
+      }
+
+      return record;
+    },{
+      timeout:20000
+    }
+  );
+
     return {
       success: true,
       data: record,
-      message: 'Chặn thành công',
+      message: "Chặn thành công",
     };
   } catch (err) {
     if (err instanceof Error) {
@@ -256,7 +355,7 @@ export const blockUser = async (data: blockUserDto) => {
 
     return {
       success: false,
-      message: 'Lỗi không xác định',
+      message: "Lỗi không xác định",
     };
   }
 };
@@ -307,7 +406,7 @@ export const askSeller = async (
 
     return {
       success: false,
-      message: 'Lỗi không xác định',
+      message: "Lỗi không xác định",
     };
   }
 };
@@ -341,7 +440,7 @@ export const answerBidder = async (
       },
     });
     if (record.parent === null) {
-      throw new Error('Câu hỏi không tồn tại');
+      throw new Error("Câu hỏi không tồn tại");
     }
     return {
       success: true,
@@ -359,7 +458,7 @@ export const answerBidder = async (
 
     return {
       success: false,
-      message: 'Lỗi không xác định',
+      message: "Lỗi không xác định",
     };
   }
 };
@@ -375,13 +474,13 @@ export const getAllCommentsByProductId = async (data: getALlCommentsDto) => {
       skip,
       take: data.limit,
       orderBy: {
-        sendAt: 'desc',
+        sendAt: "desc",
       },
       include: {
         sender: true,
         replies: {
           orderBy: {
-            sendAt: 'desc',
+            sendAt: "desc",
           },
           include: {
             sender: true,
@@ -392,7 +491,7 @@ export const getAllCommentsByProductId = async (data: getALlCommentsDto) => {
     return {
       success: true,
       data: comments,
-      message: 'Truy cập bình luận thành công',
+      message: "Truy cập bình luận thành công",
     };
   } catch (err) {
     if (err instanceof Error) {
@@ -404,7 +503,7 @@ export const getAllCommentsByProductId = async (data: getALlCommentsDto) => {
 
     return {
       success: false,
-      message: 'Lỗi không xác định',
+      message: "Lỗi không xác định",
     };
   }
 };
@@ -417,7 +516,7 @@ export const deleteComment = async (data: deleteCommentDto) => {
     },
   });
   if (check === null) {
-    throw new Error('Bạn không đủ thẩm quyền để xóa bình luận này');
+    throw new Error("Bạn không đủ thẩm quyền để xóa bình luận này");
   }
   return await prisma.comments.delete({
     where: {
@@ -434,7 +533,7 @@ export const getCountRatingForUser = async (userId: string) => {
       ratingPos: true,
     },
   });
-  if (!user) throw new Error('Không tìm thấy người dùng');
+  if (!user) throw new Error("Không tìm thấy người dùng");
   return user.ratingNeg + user.ratingPos;
 };
 

@@ -118,9 +118,11 @@ export const getOrderById = async (req: Request, res: Response) => {
       totalAmount: order.totalAmount,
       seller: {
         fullname: order.seller.fullname,
+        avtUrl: order.seller.avtUrl,
       },
       buyer: {
         fullname: order.buyer.fullname,
+        avtUrl: order.buyer.avtUrl,
       },
       buyerId: order.buyerId,
       sellerId: order.sellerId,

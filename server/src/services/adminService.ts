@@ -1,5 +1,5 @@
-import { prisma } from "./db/prisma";
-import { getAllUsersServiceDto } from "../dto/adminDto";
+import { prisma } from './db/prisma';
+import { getAllUsersServiceDto } from '../dto/adminDto';
 
 export const getAllUsers = async (data: getAllUsersServiceDto) => {
   try {
@@ -17,7 +17,7 @@ export const getAllUsers = async (data: getAllUsersServiceDto) => {
       });
     } else {
       users = await prisma.user.findMany({
-        orderBy: { createdAt: "asc" },
+        orderBy: { createdAt: 'asc' },
         skip: data.page * data.limit,
         take: data.limit,
         select: {
@@ -41,12 +41,12 @@ export const getAllUsers = async (data: getAllUsersServiceDto) => {
         totalPages: pages,
         totalUsers: totalItems,
       },
-      message: "Get users successfully",
+      message: 'Lấy người dùng thành công',
     };
   } catch (err) {
     return {
       success: false,
-      message: err instanceof Error ? err.message : "Unknown error",
+      message: err instanceof Error ? err.message : 'Lỗi không xác định',
     };
   }
 };
@@ -68,7 +68,7 @@ export const getAllRequest = async (data: getAllUsersServiceDto) => {
       });
     } else {
       requests = await prisma.upgradeRequests.findMany({
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         skip: data.page * data.limit,
         take: data.limit,
         include: {
@@ -93,12 +93,12 @@ export const getAllRequest = async (data: getAllUsersServiceDto) => {
         totalPages: pages,
         totalRequests: totalItems,
       },
-      message: "Get requests successfully",
+      message: 'Lấy yêu cầu thành công',
     };
   } catch (err) {
     return {
       success: false,
-      message: err instanceof Error ? err.message : "Unknown error",
+      message: err instanceof Error ? err.message : 'Lỗi không xác định',
     };
   }
 };
@@ -111,7 +111,7 @@ export const acceptRequest = async (id: string) => {
     const record = await prisma.upgradeRequests.update({
       where: { id },
       data: {
-        status: "VALID",
+        status: 'VALID',
         decidedAt,
         expiredAt,
       },
@@ -128,12 +128,12 @@ export const acceptRequest = async (id: string) => {
     return {
       success: true,
       data: record,
-      message: "Accept request successfully",
+      message: 'Chấp nhận yêu cầu thành công',
     };
   } catch (err) {
     return {
       success: false,
-      message: err instanceof Error ? err.message : "Unknown error",
+      message: err instanceof Error ? err.message : 'Lỗi không xác định',
     };
   }
 };
@@ -143,7 +143,7 @@ export const refuseRequest = async (id: string) => {
     const record = await prisma.upgradeRequests.update({
       where: { id },
       data: {
-        status: "FAILED",
+        status: 'FAILED',
       },
       include: {
         user: {
@@ -158,12 +158,12 @@ export const refuseRequest = async (id: string) => {
     return {
       success: true,
       data: record,
-      message: "Refuse request successfully",
+      message: 'Từ chối yêu cầu thành công',
     };
   } catch (err) {
     return {
       success: false,
-      message: err instanceof Error ? err.message : "Unknown error",
+      message: err instanceof Error ? err.message : 'Lỗi không xác định',
     };
   }
 };
@@ -173,11 +173,11 @@ export const getAdminDashboardData = async () => {
     const totalUsers = await prisma.user.count();
     const totalProducts = await prisma.products.count();
     const completedOrders = await prisma.orders.count({
-      where: { status: "COMPLETED" },
+      where: { status: 'COMPLETED' },
     });
     const revenueAgg = await prisma.orders.aggregate({
       _sum: { totalAmount: true },
-      where: { status: "COMPLETED" },
+      where: { status: 'COMPLETED' },
     });
     const revenue = revenueAgg._sum.totalAmount || 0;
     return {
@@ -188,12 +188,12 @@ export const getAdminDashboardData = async () => {
         completedOrders,
         revenue,
       },
-      message: "Get dashboard data successfully",
+      message: 'Lấy dữ liệu bảng điều khiển thành công',
     };
   } catch (err) {
     return {
       success: false,
-      message: err instanceof Error ? err.message : "Unknown error",
+      message: err instanceof Error ? err.message : 'Lỗi không xác định',
     };
   }
 };

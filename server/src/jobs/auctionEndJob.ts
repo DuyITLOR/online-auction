@@ -1,17 +1,17 @@
-import cron from "node-cron";
-import * as orderService from "../services/orderService";
-import * as productService from "../services/productService";
+import cron from 'node-cron';
+import * as orderService from '../services/orderService';
+import * as productService from '../services/productService';
 import {
   sendEmail,
   loadOrderTemplate,
   loadNoBuyerTemplate,
-} from "../utils/sendEmail";
+} from '../utils/sendEmail';
 
 let isRunning = false;
 
-export const auctionEndJob = cron.schedule("* * * * *", async () => {
+export const auctionEndJob = cron.schedule('* * * * *', async () => {
   if (isRunning) {
-    console.log("Auction end job is still running. Skipping this run.");
+    console.log('Auction end job is still running. Skipping this run.');
     return;
   }
   isRunning = true;
@@ -27,27 +27,27 @@ export const auctionEndJob = cron.schedule("* * * * *", async () => {
           continue;
         }
 
-        if (data.type === "NO_BIDDER") {
+        if (data.type === 'NO_BIDDER') {
           const content = loadNoBuyerTemplate(
-            data.product.seller.fullname ?? "Người bán",
+            data.product.seller.fullname ?? 'Người bán',
             data.product.title
           );
           if (!data.product.seller.email)
-            throw new Error("Không lấy được email người bán");
+            throw new Error('Không lấy được email người bán');
 
-          await sendEmail({
+          sendEmail({
             email: data.product.seller.email,
-            subject: "Đấu giá kết thúc — Không có người mua",
+            subject: 'Đấu giá kết thúc — Không có người mua',
             content: content,
           });
-        } else if (data.type === "HAS_BIDDER") {
+        } else if (data.type === 'HAS_BIDDER') {
           if (
             !data.product.title ||
             !data.product.currentPrice ||
             !data.product.seller.email ||
             !data.order?.buyer.email
           )
-            throw new Error("Thiếu thông tin để gửi email đơn hàng");
+            throw new Error('Thiếu thông tin để gửi email đơn hàng');
 
           const content = loadOrderTemplate(
             data.product.title,
@@ -55,18 +55,20 @@ export const auctionEndJob = cron.schedule("* * * * *", async () => {
             data.product.seller.email,
             data.order?.buyer.email
           );
-          await Promise.all([
+          Promise.all([
             sendEmail({
               email: data.order.buyer.email,
-              subject: "Thông tin đơn hàng đấu giá thành công",
+              subject: 'Thông tin đơn hàng đấu giá thành công',
               content: content,
             }),
             sendEmail({
               email: data.product.seller.email,
-              subject: "Đơn hàng đấu giá sản phẩm của bạn đã có người mua",
+              subject: 'Đơn hàng đấu giá sản phẩm của bạn đã có người mua',
               content: content,
             }),
-          ]);
+          ]).catch((err) => {
+            console.error('Email sending failed:', err);
+          });
         }
       } catch (err: any) {
         console.error(`Cập nhật trạng thái đấu giá thất bại: ${err.message}`);

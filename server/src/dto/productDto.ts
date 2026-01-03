@@ -39,6 +39,7 @@ export interface productQueryDto {
   page?: string; // query params to pagination
   limit?: string;
   sort?: string; // "price_asc", "price_desc", "createdAt_asc", "createdAt_desc"
+  status?: "SOLD" | "ACTIVE";
   sellerId?: string;
   minPrice?: string;
   maxPrice?: string;

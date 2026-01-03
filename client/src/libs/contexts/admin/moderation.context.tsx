@@ -67,7 +67,6 @@ export const ModerationProvider: React.FC<{ children: ReactNode }> = ({
   // Pagination State
   const [page, setPage] = useState<number>(1);
   const limit = 5; // Số lượng item mỗi trang
-
   // --- Helper: Load từ LocalStorage ---
   useEffect(() => {
     const cached = localStorage.getItem(STORAGE_KEY);
@@ -114,6 +113,20 @@ export const ModerationProvider: React.FC<{ children: ReactNode }> = ({
       const result = await response.json();
       const dataWrapper = result.data?.data || {};
       const dataList: ReportItem[] = dataWrapper.requests || [];
+      
+      // Sắp xếp theo thứ tự ưu tiên status
+      const statusOrder: Record<string, number> = { 
+        "PENDING": 1, 
+        "APPROVED": 2, 
+        "REFUSED": 3, 
+        "EXPIRED": 4 
+      };
+
+      dataList.sort((a, b) => {
+        const orderA = statusOrder[a.status] ?? 99;
+        const orderB = statusOrder[b.status] ?? 99;
+        return orderA - orderB;
+      });
 
       // Cập nhật State gốc
       setAllData(dataList);
@@ -173,6 +186,13 @@ export const ModerationProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     setPage(1);
   }, [filterStatus, searchTerm]);
+
+  // Kiểm tra và điều chỉnh page khi vượt quá totalPage
+  useEffect(() => {
+    if (page > totalPage && totalPage > 0) {
+      setPage(totalPage);
+    }
+  }, [page, totalPage]);
 
   // Fetch dữ liệu lần đầu (chỉ chạy 1 lần khi mount hoặc khi token đổi)
   useEffect(() => {

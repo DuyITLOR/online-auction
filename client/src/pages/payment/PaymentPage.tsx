@@ -6,6 +6,8 @@ import PaymentShipping from '../../components/payment/PaymentShipping'
 import PaymentReceive from '../../components/payment/PaymentReceive'
 import PaymentRating from '../../components/payment/PaymentRating'
 import PaymentComplete from '../../components/payment/PaymentComplete'
+import PaymentCancle from '../../components/payment/PaymentCancle'
+import PaymnentFinalCancle from '../../components/payment/PaymnentFinalCancle'
 import { type Orders } from '../../libs/types/types';
 import { ORDER_STATUS_TO_STEP } from '../../libs/contants/orderStep';
 import { useParams } from 'react-router-dom';
@@ -48,6 +50,12 @@ const paymentSteps = [
     numberOrder: 6,
     title: "Hoàn tất",
     description: "Giao dịch hoàn tất",
+    complete: false,
+  },
+  {
+    numberOrder: 7,
+    title: "Hủy giao dịch",
+    description: "Giao dịch bị hủy",
     complete: false,
   }
 ];
@@ -105,7 +113,7 @@ const PaymentPage = () => {
           (step === 2) && (<PaymentBuyer userRole={order.role || "BIDDER"} onComplete={fetchOrder} order={order} />)
         }
         {
-          (step === 3) && (<PaymentShipping userRole={order.role || "BIDDER"} onComplete={fetchOrder} order={order}/>)
+          (step === 3) && (<PaymentShipping userRole={order.role || "BIDDER"} onComplete={fetchOrder} order={order} />)
         }
         {
           (step === 4) && (<PaymentReceive userRole={order.role || "BIDDER"} onComplete={fetchOrder} order={order} />)
@@ -114,7 +122,14 @@ const PaymentPage = () => {
           (step === 5) && (<PaymentRating userRole={order.role || "BIDDER"} onComplete={fetchOrder} order={order} />)
         }
         {
-          (step === 6) && (<PaymentComplete />) 
+          (step === 6) && (<PaymentComplete />)
+        }
+        {
+          (step === 7) && (<PaymnentFinalCancle reason={order.cancelReason || "Không có lý do"} />)
+        }
+
+        {
+          (order.role === "SELLER") && (step < 5) && (step > 0) && (<PaymentCancle order={order} onComplete={fetchOrder} />)
         }
       </div>
 

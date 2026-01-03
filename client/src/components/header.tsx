@@ -42,11 +42,16 @@ const Header = () => {
 
   useEffect(() => {
     const getToken = async () => {
-      const sessionValue = await getSession();
-      if (sessionValue != null) {
-        setSession(sessionValue);
-      } else {
-        setSession(null);
+      try {
+        const sessionValue = await getSession();
+        if (sessionValue != null) {
+          setSession(sessionValue);
+        } else {
+          setSession(null);
+        }
+      } catch (err) {
+        console.error(err);
+        throw err;
       }
     };
 
@@ -72,10 +77,7 @@ const Header = () => {
     <header className='sticky top-0 z-50 border-b border-b-gray-200 bg-white'>
       <div className='flex flex-1 items-center justify-between mx-3 py-4 lg:px-8'>
         <div className='flex items-center gap-10 justify-between'>
-          <Link
-            to='/'
-            className='flex items-center gap-2 text-2xl font-bold mr-10'
-          >
+          <Link to='/' className='flex items-center gap-2 text-2xl font-bold mr-10'>
             <img
               src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rockylinux/rockylinux-original.svg'
               className='w-10 h-10'
@@ -125,21 +127,13 @@ const Header = () => {
           </div>
         ) : (
           <div className='flex gap-2 items-center ml-3 text-sm'>
-            <span className='font-semibold hidden xl:flex'>
-              Xin chào, {user?.fullname}
-            </span>
+            <span className='font-semibold hidden xl:flex'>Xin chào, {user?.fullname}</span>
 
             <Popover>
               <PopoverTrigger>
                 <Avatar className='cursor-pointer hover:opacity-80 transition-opacity'>
-                  <AvatarImage
-                    src={user?.avtUrl}
-                    alt='User Avatar'
-                    className='border border-gray-400 rounded-full'
-                  />
-                  <AvatarFallback>
-                    {user?.fullname?.charAt(0)?.toUpperCase() || '?'}
-                  </AvatarFallback>
+                  <AvatarImage src={user?.avtUrl} alt='User Avatar' className='border border-gray-400 rounded-full' />
+                  <AvatarFallback>{user?.fullname?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
                 </Avatar>
               </PopoverTrigger>
 
@@ -152,17 +146,11 @@ const Header = () => {
                         alt='User Avatar'
                         className='border border-gray-200 rounded-full'
                       />
-                      <AvatarFallback>
-                        {user?.fullname?.charAt(0)?.toUpperCase() || '?'}
-                      </AvatarFallback>
+                      <AvatarFallback>{user?.fullname?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
                     </Avatar>
                     <div className='flex flex-col overflow-hidden'>
-                      <span className='font-bold text-gray-800 truncate'>
-                        {user?.fullname}
-                      </span>
-                      <span className='text-xs text-gray-500 truncate'>
-                        {user?.email}
-                      </span>
+                      <span className='font-bold text-gray-800 truncate'>{user?.fullname}</span>
+                      <span className='text-xs text-gray-500 truncate'>{user?.email}</span>
                     </div>
                   </div>
 

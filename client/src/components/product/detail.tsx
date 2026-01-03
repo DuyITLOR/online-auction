@@ -113,7 +113,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
 
   const fetchProducts = async () => {
     try {
-      const products = await getAllProduct({ categoryId: product.categoryId });
+      const products = await getAllProduct({ categoryId: product.categoryId, isBidder: 'true' });
       const filterProducts = products.data.filter((item: Product) => item.id !== product.id);
       setSimilarProducts(filterProducts);
     } catch (err) {
@@ -315,7 +315,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
           </div>
           <div className='border-spacing-0.5 border-t border-gray-200 mt-2 mb-3 w-full' />
           <div className='flex flex-col'>
-            {!isExpired(product.endAt) && !product.winnerId && (
+            {!isExpired(product.endAt) && product.status === 'ACTIVE' && (
               <>
                 <p className='text-gray-700 font-semibold text-lg mb-2'>Đặt mức giá tối đa cho sản phẩm</p>
 
@@ -349,7 +349,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
               </>
             )}
           </div>
-          {isExpired(product.endAt) || product.winnerId ? (
+          {isExpired(product.endAt) || product.status !== 'ACTIVE' ? (
             <div className='mt-4'>
               <div className='bg-linear-to-br from-gray-50 to-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs'>
                 <div
@@ -387,7 +387,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                     </div>
                     <div className='text-right'>
                       <p className='text-sm text-gray-500 mb-1'>Giá chốt</p>
-                      <p className='text-2xl font-mono font-bold text-teal-700'>
+                      <p className='text-2xl font-mono font-bold text-teal-700 mt-3'>
                         {Number(product.currentPrice).toLocaleString()} ₫
                       </p>
                     </div>
@@ -610,12 +610,14 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
 
       <div className='border-spacing-0.5 border-t border-gray-300 mt-20 mb-5' />
 
-      <div className='flex justify-between'>
-        <p className='text-2xl font-semibold mb-5'>Sản phẩm tương tự</p>
-        <Link to={'/products'} className='underline'>
-          Xem thêm
-        </Link>
-      </div>
+      {similarProducts.length > 0 && (
+        <div className='flex justify-between'>
+          <p className='text-2xl font-semibold mb-5'>Sản phẩm tương tự</p>
+          <Link to={'/products'} className='underline'>
+            Xem thêm
+          </Link>
+        </div>
+      )}
 
       {loading && (
         <div className='flex items-center justify-center py-20 min-w-full'>

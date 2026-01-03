@@ -21,7 +21,7 @@ export const computerBidder = async (
         include: { autoBids: true },
       });
 
-      if (!product) throw new Error("Product not found");
+      if (!product) throw new Error("Không tìm thấy sản phẩm");
 
       const stepPrice = Number(product.stepPrice);
       const startPrice = Number(product.startPrice);
@@ -49,13 +49,29 @@ export const computerBidder = async (
         });
 
         // Update product
+        const now = new Date();
+        const fiveMinute = 5 * 60 * 1000;
+        let isExtend = false;
+        if (product.endAt.getTime() - now.getTime() <= fiveMinute) {
+          isExtend = true;
+        }
+
+        const baseData = {
+          currentPrice: new Prisma.Decimal(startPrice),
+          winnerId: data.newBidderId,
+          countbids: { increment: 1 },
+        };
+
+        const updatedData = {
+          ...baseData,
+          ...(isExtend && product.autoExtendEnabled && {
+            endAt: new Date(product.endAt.getTime() + fiveMinute),
+          }),
+        };
+
         const temp = await tx.products.update({
           where: { id: data.productId },
-          data: {
-            currentPrice: new Prisma.Decimal(startPrice),
-            winnerId: data.newBidderId,
-            countbids: { increment: 1 },
-          },
+          data: updatedData,
           include: { winner: true },
         });
 
@@ -129,16 +145,34 @@ export const computerBidder = async (
         }
       }
 
+      const now = new Date();
+      const fiveMinute = 5 * 60 * 1000;
+      let isExtend = false;
+      if (product.endAt.getTime() - now.getTime() <= fiveMinute) {
+        isExtend = true;
+      }
+
+
+      const baseData = {
+        currentPrice: new Prisma.Decimal(newPrice),
+        winnerId: winnerId,
+        ...(isCreateHistory && {
+          countbids: { increment: 1 },
+        }),
+      };
+
+      const updatedData = {
+        ...baseData,
+        ...(isExtend && product.autoExtendEnabled && {
+          endAt: new Date(product.endAt.getTime() + fiveMinute),
+        }),
+      }
+
+
       // Update product
       const infor = await tx.products.update({
         where: { id: data.productId },
-        data: {
-          currentPrice: new Prisma.Decimal(newPrice),
-          winnerId: winnerId,
-          ...(isCreateHistory && {
-            countbids: { increment: 1 },
-          }),
-        },
+        data: updatedData,
         include: { winner: true },
       });
 
@@ -162,14 +196,14 @@ export const createAutoBid = async (
   data: autoBidDto
 ): Promise<autoBidResult> => {
   const product = await getProductById(data.productId);
-  if (!product) throw new Error("Product not found");
+  if (!product) throw new Error("Không tìm thấy sản phẩm");
 
   // if (product?.winnerId === data.bidderId) {
   //   throw new Error("You are already the highest bidder");
   // }
 
   const checkValid = await validationAutoBid(data);
-  if (!checkValid) throw new Error("Auto bid validation failed");
+  if (!checkValid) throw new Error("Xác thực tự động ra giá thất bại");
 
   const lastWinner = await prisma.bidHistory.findFirst({
     where: { productId: data.productId },
@@ -210,11 +244,13 @@ export const createAutoBid = async (
       email: infor.email,
     },
     lastWinner: {
-      name: (lastWinner ? lastWinner.bidder.fullname : "No previous bidder") as string,
+      name: (lastWinner
+        ? lastWinner.bidder.fullname
+        : "Không có người ra giá trước") as string,
       email: lastWinner ? lastWinner.bidder.email : "N/A",
     },
     seller: {
-      name: product.seller.fullname  as string,
+      name: product.seller.fullname as string,
       email: product.seller.email,
     },
   };
@@ -227,7 +263,7 @@ export const getBidHistory = async (productId: string) => {
     where: { id: productId },
   });
 
-  if (!product) throw new Error("Product not found");
+  if (!product) throw new Error("Không tìm thấy sản phẩm");
 
   return prisma.bidHistory.findMany({
     where: { productId: productId },
@@ -239,41 +275,41 @@ export const getBidHistory = async (productId: string) => {
 export const validationAutoBid = async (data: autoBidDto) => {
   const product = await getProductById(data.productId);
   // Check product exists
-  if (!product) throw new Error("Product not found");
+  if (!product) throw new Error("Không tìm thấy sản phẩm");
 
   // Check user exists
-  if (!data.bidderId) throw new Error("Bidder not found");
+  if (!data.bidderId) throw new Error("Không tìm thấy người ra giá");
 
   // Check blocked user
   const blockUsers = await getBlockUserByProductId(data.productId);
 
   if (blockUsers.includes(data.bidderId)) {
-    throw new Error("You are blocked from bidding on this product");
+    throw new Error("Bạn bị chặn khỏi việc ra giá sản phẩm này");
   }
 
   // Check product is active
   const now = new Date();
   if (product.startedAt > now || product.endAt <= now) {
-    throw new Error("Product is not active for bidding");
+    throw new Error("Sản phẩm không hoạt động để ra giá");
   }
 
   // Check owner
   if (product.sellerId === data.bidderId) {
-    throw new Error("Owner cannot bid on their own product");
+    throw new Error("Người bán không thể ra giá sản phẩm của mình");
   }
 
   // Check hightRating
   if (product.highRatingRequired) {
     const check = await checkRating(data.bidderId);
     // console.log("check rating in auto bid:", check);
-    if (!check) throw new Error("Cannot bid because you have low rating");
+    if (!check) throw new Error("Không thể ra giá vì điểm đánh giá thấp");
   }
 
   const stepPrice = Number(product.stepPrice);
   const currentPrice = Number(product.currentPrice ?? product.startPrice);
 
   if (data.maxAutoBidAmount < currentPrice + stepPrice) {
-    throw new Error("The amount was not enough to bid");
+    throw new Error("Số tiền không đủ để ra giá");
   }
 
   return true;
@@ -284,7 +320,7 @@ export const getBidCountByProductId = async (productId: string) => {
     where: { id: productId },
   });
 
-  if (!product) throw new Error("Product not found");
+  if (!product) throw new Error("Không tìm thấy sản phẩm");
 
   const count = await prisma.bidHistory.count({
     where: { productId },
@@ -302,7 +338,7 @@ export const getMaxBidByUserId = async (productId: string, userId: string) => {
     },
   });
 
-  if (!autoBid) throw new Error("Auto bid not found");
+  if (!autoBid) throw new Error("Không tìm thấy lệnh tự động ra giá");
 
   return autoBid.maxAmount;
 };
@@ -362,13 +398,12 @@ export const getBidHistoryByUserId = async (
   };
 };
 
-
 export const getBidCountOfUser = async (userId: string) => {
   if (!userId) throw new Error("User ID is required");
 
   const count = await prisma.bidHistory.count({
     where: { bidderId: userId },
-  })
+  });
 
-  return count
-}
+  return count;
+};

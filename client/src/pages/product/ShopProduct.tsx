@@ -9,7 +9,6 @@ import {
   Store,
   UserCheck,
   Star,
-  MessageCircle,
   MapPin,
   SearchX,
 } from 'lucide-react';
@@ -20,10 +19,8 @@ import { getAllProduct } from '../../api/product';
 import { getCategories } from '../../api/category';
 import type { Category, Product, User } from '../../libs/types/types';
 import Pagination from '../../components/pagination';
-// Giả sử bạn có UI components, nếu không có thể dùng thẻ div thường
 import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
 import SortBar from '../../components/product/sortBar';
-import { Button } from '@/components/ui/button';
 import { calculateRating, isoToYYYYMMDD } from '@/libs/utils';
 import { getUser } from '@/api/user';
 
@@ -260,11 +257,6 @@ const ProductList = () => {
               </div>
 
               <div className='flex flex-col gap-3 w-full md:w-auto'>
-                <div className='flex gap-2'>
-                  <Button className='flex-1 bg-teal-600 hover:bg-teal-700 text-white gap-2'>
-                    <MessageCircle size={18} /> Chat ngay
-                  </Button>
-                </div>
                 <div className='text-xs text-gray-500 flex items-center justify-end gap-1'>
                   <MapPin size={14} /> {seller?.address} • Tham gia: {isoToYYYYMMDD(seller?.createdAt)}
                 </div>

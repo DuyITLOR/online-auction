@@ -14,10 +14,7 @@ import {
 } from "../ui/dialog";
 
 const formatCurrency = (v: number) =>
-  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-    v
-  );
-
+  new Intl.NumberFormat("vi-VN").format(v) + " VND";
 const ProductsTab: FC = () => {
   const {
     products,
@@ -144,9 +141,24 @@ const ProductsTab: FC = () => {
             {isLoading ? (
               // Loading Skeleton theo từng hàng
               Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} className='animate-pulse'>
-                  <td colSpan={5} className='px-3 sm:px-6 py-3 sm:py-4'>
-                    <div className='h-4 bg-gray-200 rounded w-full'></div>
+                <tr key={i} className='animate-pulse h-[72px]'>
+                  <td className='px-3 sm:px-6 py-3 align-middle'>
+                    <div className='h-4 w-32 bg-gray-200 rounded'></div>
+                  </td>
+                  <td className='px-3 sm:px-6 py-3 align-middle'>
+                    <div className='h-4 w-20 bg-gray-200 rounded'></div>
+                  </td>
+                  <td className='px-3 sm:px-6 py-3 align-middle'>
+                    <div className='h-4 w-12 bg-gray-200 rounded'></div>
+                  </td>
+                  <td className='px-3 sm:px-6 py-3 align-middle'>
+                    <div className='h-5 w-24 bg-gray-200 rounded-full'></div>
+                  </td>
+                  <td className='px-3 sm:px-6 py-3 align-middle'>
+                    <div className='flex justify-center gap-2'>
+                      <div className='h-8 w-8 bg-gray-200 rounded-lg'></div>
+                      <div className='h-8 w-8 bg-gray-200 rounded-lg'></div>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -170,15 +182,17 @@ const ProductsTab: FC = () => {
               </tr>
             ) : (
               filteredProducts.map((p) => (
-                <tr key={p.id} className='hover:bg-gray-50 transition-colors border-b border-gray-100 md:border-b-0'>
-                  <td className='px-3 sm:px-6 py-3 sm:py-4 font-medium text-xs sm:text-sm text-gray-900'>
-                    <div className='truncate'>{p.title}</div>
+                <tr key={p.id} className='hover:bg-gray-50 transition-colors border-b border-gray-100 md:border-b-0 h-[72px]'>
+                  <td className='px-3 sm:px-6 py-3 font-medium text-xs sm:text-sm text-gray-900 align-middle'>
+                    <div className='min-h-[40px] flex items-center'>
+                      <span className='line-clamp-2'>{p.title}</span>
+                    </div>
                   </td>
-                  <td className='px-3 sm:px-6 py-3 sm:py-4 text-blue-600 font-semibold text-xs sm:text-sm'>
+                  <td className='px-3 sm:px-6 py-3 text-blue-600 font-semibold text-xs sm:text-sm align-middle'>
                     {formatCurrency(p.currentPrice)}
                   </td>
-                  <td className='px-3 sm:px-6 py-3 sm:py-4 text-gray-600 text-xs sm:text-sm'>{p.countbids}</td>
-                  <td className='px-3 sm:px-6 py-3 sm:py-4'>
+                  <td className='px-3 sm:px-6 py-3 text-gray-600 text-xs sm:text-sm align-middle'>{p.countbids}</td>
+                  <td className='px-3 sm:px-6 py-3 align-middle'>
                     {(() => {
                       const isExpired = new Date(p.endAt) <= new Date();
                       const isCompleted = p.status === "SOLD" || (p.status === "ACTIVE" && isExpired);
@@ -225,16 +239,13 @@ const ProductsTab: FC = () => {
                         
                         return (
                           <>
-                            <button
-                              onClick={() => {
-                                setEditProduct(p);
-                                setNewDesc(p.description || "");
-                              }}
+                            <Link
+                              to={`/product/${p.id}?edit=true`}
                               className='p-1.5 sm:p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors border border-transparent hover:border-yellow-200'
                               title='Chỉnh sửa mô tả'
                             >
                               <Pencil className='w-3 sm:w-4 h-3 sm:h-4' />
-                            </button>
+                            </Link>
                             <button
                               onClick={() => setDeleteId(p.id)}
                               className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200'
@@ -332,15 +343,12 @@ const ProductsTab: FC = () => {
                   
                   return (
                     <>
-                      <button
-                        onClick={() => {
-                          setEditProduct(p);
-                          setNewDesc(p.description || "");
-                        }}
-                        className='flex-1 py-1.5 px-2 text-xs font-medium text-yellow-600 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors'
+                      <Link
+                        to={`/product/${p.id}?edit=true`}
+                        className='flex-1 py-1.5 px-2 text-xs font-medium text-yellow-600 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors text-center'
                       >
                         Sửa
-                      </button>
+                      </Link>
                       <button
                         onClick={() => setDeleteId(p.id)}
                         className='flex-1 py-1.5 px-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors'
@@ -358,18 +366,9 @@ const ProductsTab: FC = () => {
 
       {/* Pagination Footer */}
       {!isLoading && totalProducts > 0 && (
-        <div className='p-3 sm:p-4 border-t border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0'>
-          <div className='text-xs sm:text-sm text-gray-500'>
-            <span className='font-medium text-gray-900'>{totalPage}</span>
-          </div>
-          <div className='overflow-x-auto w-full sm:w-auto'>
-            <Pagination
-              page={page}
-              onPageChange={onPageChange}
-              totalPage={totalPage}
-            />
-          </div>
-        </div>
+         <div className='pb-8 pr-8 flex justify-end'>
+        <Pagination page={page} totalPage={totalPage} onPageChange={onPageChange} />
+      </div>
       )}
 
       {/* Dialog Chỉnh sửa mô tả */}

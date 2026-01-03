@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
-import { gatewayResponse } from '../utils/response';
-import { HttpStatus } from '../utils/permission';
-import { checkRole } from '../utils/checkRole';
-import { orderQueryDto } from '../dto/orderDto';
-import { uploadSingleFile } from '../utils/uploadImage';
-import * as orderDto from '../dto/orderDto';
-import * as orderService from '../services/orderService';
+import { Request, Response } from "express";
+import { gatewayResponse } from "../utils/response";
+import { HttpStatus } from "../utils/permission";
+import { checkRole } from "../utils/checkRole";
+import { orderQueryDto } from "../dto/orderDto";
+import { uploadSingleFile } from "../utils/uploadImage";
+import * as orderDto from "../dto/orderDto";
+import * as orderService from "../services/orderService";
 
 export const getOrder = async (req: Request, res: Response) => {
   try {
@@ -13,7 +13,7 @@ export const getOrder = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        "Token không hợp lệ"
       );
       return res.status(response.code).send(response);
     }
@@ -22,13 +22,13 @@ export const getOrder = async (req: Request, res: Response) => {
     let roles = await checkRole(userId);
     const query = req.query as orderQueryDto;
 
-    const view = String(query.view ?? '').toUpperCase();
+    const view = String(query.view ?? "").toUpperCase();
 
     if (view && !roles.includes(view)) {
       const response = gatewayResponse(
         HttpStatus.forbidden,
         null,
-        'Tài khoản không có quyền truy cập'
+        "Tài khoản không có quyền truy cập"
       );
       return res.status(response.code).send(response);
     }
@@ -42,7 +42,7 @@ export const getOrder = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.notFound,
         null,
-        'Không tìm thấy đơn hàng'
+        "Không tìm thấy đơn hàng"
       );
       return res.status(response.code).send(response);
     }
@@ -50,12 +50,12 @@ export const getOrder = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       orders,
-      'Lấy danh sách đơn hàng thành công'
+      "Lấy danh sách đơn hàng thành công"
     );
     return res.status(response.code).send(response);
   } catch (error: unknown) {
     const message =
-      error instanceof Error ? error.message : 'Internal Server Error';
+      error instanceof Error ? error.message : "Lỗi máy chủ nội bộ";
     const response = gatewayResponse(HttpStatus.badRequest, null, message);
     return res.status(response.code).send(response);
   }
@@ -67,7 +67,7 @@ export const getOrderById = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        "Token không hợp lệ"
       );
       return res.status(response.code).send(response);
     }
@@ -81,33 +81,33 @@ export const getOrderById = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.notFound,
         null,
-        'Không tìm thấy đơn hàng'
+        "Không tìm thấy đơn hàng"
       );
       return res.status(response.code).send(response);
     }
 
-    let role: 'SELLER' | 'BIDDER' | null = null;
-    if (order.sellerId === userId && roles.includes('SELLER')) {
-      role = 'SELLER';
-    } else if (order.buyerId === userId && roles.includes('BIDDER')) {
-      role = 'BIDDER';
+    let role: "SELLER" | "BIDDER" | null = null;
+    if (order.sellerId === userId && roles.includes("SELLER")) {
+      role = "SELLER";
+    } else if (order.buyerId === userId && roles.includes("BIDDER")) {
+      role = "BIDDER";
     }
 
     if (!role) {
       const response = gatewayResponse(
         HttpStatus.forbidden,
         null,
-        'Tài khoản không có quyền truy cập'
+        "Tài khoản không có quyền truy cập"
       );
       return res.status(response.code).send(response);
     }
 
     let canCancel = false;
-    if (role === 'SELLER') {
+    if (role === "SELLER") {
       canCancel = true;
     }
 
-    if (role === 'BIDDER' && order.status === 'WAIT_SELLER_BANK_INFO') {
+    if (role === "BIDDER" && order.status === "WAIT_SELLER_BANK_INFO") {
       canCancel = true;
     }
 
@@ -140,14 +140,14 @@ export const getOrderById = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       data,
-      'Lấy thông tin đơn hàng thành công'
+      "Lấy thông tin đơn hàng thành công"
     );
     return res.status(response.code).send(response);
   } catch (error: any) {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      error.message || 'Lấy thông tin đơn hàng thất bại'
+      error.message || "Lấy thông tin đơn hàng thất bại"
     );
     return res.status(response.code).send(response);
   }
@@ -159,7 +159,7 @@ export const getOrderByProductId = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        "Token không hợp lệ"
       );
       return res.status(response.code).send(response);
     }
@@ -171,7 +171,7 @@ export const getOrderByProductId = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.notFound,
         null,
-        'Không tìm thấy đơn hàng'
+        "Không tìm thấy đơn hàng"
       );
       return res.status(response.code).send(response);
     }
@@ -179,12 +179,12 @@ export const getOrderByProductId = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       order,
-      'Lấy thông tin đơn hàng thành công'
+      "Lấy thông tin đơn hàng thành công"
     );
     return res.status(response.code).send(response);
   } catch (err) {
     const msg =
-      err instanceof Error ? err.message : 'Lấy thông tin đơn hàng thất bại';
+      err instanceof Error ? err.message : "Lấy thông tin đơn hàng thất bại";
     const response = gatewayResponse(HttpStatus.badRequest, null, msg);
     return res.status(response.code).send(response);
   }
@@ -196,7 +196,7 @@ export const uploadBankInfo = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        "Token không hợp lệ"
       );
       return res.status(response.code).send(response);
     }
@@ -204,16 +204,16 @@ export const uploadBankInfo = async (req: Request, res: Response) => {
     const userId = req.user.id;
     let roles = await checkRole(userId);
 
-    if (!roles.includes('SELLER')) {
+    if (!roles.includes("SELLER")) {
       const response = gatewayResponse(
         HttpStatus.forbidden,
         null,
-        'Tài khoản của bạn không phải là người bán'
+        "Tài khoản của bạn không phải là người bán"
       );
       return res.status(response.code).send(response);
     }
 
-    const uploadFile = await uploadSingleFile(req, 'qrUrl');
+    const uploadFile = await uploadSingleFile(req, "qrUrl");
 
     if (!uploadFile.success) {
       const response = gatewayResponse(
@@ -235,7 +235,7 @@ export const uploadBankInfo = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        'Cập nhật thông tin ngân hàng thất bại'
+        "Cập nhật thông tin ngân hàng thất bại"
       );
       return res.status(response.code).send(response);
     }
@@ -243,14 +243,14 @@ export const uploadBankInfo = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       order,
-      'Cập nhật thông tin ngân hàng thành công'
+      "Cập nhật thông tin ngân hàng thành công"
     );
     return res.status(response.code).send(response);
   } catch (error: any) {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      error.message || 'Cập nhật thông tin ngân hàng thất bại'
+      error.message || "Cập nhật thông tin ngân hàng thất bại"
     );
     return res.status(response.code).send(response);
   }
@@ -262,7 +262,7 @@ export const uploadPaymentInfo = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        "Token không hợp lệ"
       );
       return res.status(response.code).send(response);
     }
@@ -270,16 +270,16 @@ export const uploadPaymentInfo = async (req: Request, res: Response) => {
     const userId = req.user.id;
     let roles = await checkRole(userId);
 
-    if (!roles.includes('BIDDER')) {
+    if (!roles.includes("BIDDER")) {
       const response = gatewayResponse(
         HttpStatus.forbidden,
         null,
-        'Tài khoản của bạn không phải là người mua'
+        "Tài khoản của bạn không phải là người mua"
       );
       return res.status(response.code).send(response);
     }
 
-    const uploadFile = await uploadSingleFile(req, 'billUrl');
+    const uploadFile = await uploadSingleFile(req, "billUrl");
 
     if (!uploadFile.success) {
       const response = gatewayResponse(
@@ -304,7 +304,7 @@ export const uploadPaymentInfo = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        'Cập nhật thông tin thanh toán thất bại'
+        "Cập nhật thông tin thanh toán thất bại"
       );
       return res.status(response.code).send(response);
     }
@@ -312,14 +312,14 @@ export const uploadPaymentInfo = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       order,
-      'Cập nhật thông tin thanh toán thành công'
+      "Cập nhật thông tin thanh toán thành công"
     );
     return res.status(response.code).send(response);
   } catch (error: any) {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      error.message || 'Cập nhật thông tin thanh toán thất bại'
+      error.message || "Cập nhật thông tin thanh toán thất bại"
     );
     return res.status(response.code).send(response);
   }
@@ -331,7 +331,7 @@ export const uploadShippingInfo = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        "Token không hợp lệ"
       );
       return res.status(response.code).send(response);
     }
@@ -339,16 +339,16 @@ export const uploadShippingInfo = async (req: Request, res: Response) => {
     const userId = req.user.id;
     let roles = await checkRole(userId);
 
-    if (!roles.includes('SELLER')) {
+    if (!roles.includes("SELLER")) {
       const response = gatewayResponse(
         HttpStatus.forbidden,
         null,
-        'Tài khoản của bạn không phải là người bán'
+        "Tài khoản của bạn không phải là người bán"
       );
       return res.status(response.code).send(response);
     }
 
-    const uploadFile = await uploadSingleFile(req, 'shippingUrl');
+    const uploadFile = await uploadSingleFile(req, "shippingUrl");
 
     if (!uploadFile.success) {
       const response = gatewayResponse(
@@ -372,7 +372,7 @@ export const uploadShippingInfo = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        'Cập nhật thông tin vận chuyển thất bại'
+        "Cập nhật thông tin vận chuyển thất bại"
       );
       return res.status(response.code).send(response);
     }
@@ -380,14 +380,14 @@ export const uploadShippingInfo = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       order,
-      'Cập nhật thông tin vận chuyển thành công'
+      "Cập nhật thông tin vận chuyển thành công"
     );
     return res.status(response.code).send(response);
   } catch (error: any) {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      error.message || 'Cập nhật thông tin vận chuyển thất bại'
+      error.message || "Cập nhật thông tin vận chuyển thất bại"
     );
     return res.status(response.code).send(response);
   }
@@ -399,7 +399,7 @@ export const confirmOrder = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        'Token Invalid'
+        "Token không hợp lệ"
       );
       return res.status(response.code).send(response);
     }
@@ -407,11 +407,11 @@ export const confirmOrder = async (req: Request, res: Response) => {
     const userId = req.user.id;
     let roles = await checkRole(userId);
 
-    if (!roles.includes('BIDDER')) {
+    if (!roles.includes("BIDDER")) {
       const response = gatewayResponse(
         HttpStatus.forbidden,
         null,
-        'Tài khoản của bạn không phải là người mua'
+        "Tài khoản của bạn không phải là người mua"
       );
       return res.status(response.code).send(response);
     }
@@ -423,7 +423,7 @@ export const confirmOrder = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        'Xác nhận đơn hàng thất bại'
+        "Xác nhận đơn hàng thất bại"
       );
       return res.status(response.code).send(response);
     }
@@ -431,14 +431,74 @@ export const confirmOrder = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       order,
-      'Xác nhận đơn hàng thành công'
+      "Xác nhận đơn hàng thành công"
     );
     return res.status(response.code).send(response);
   } catch (error: any) {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      error.message || 'Xác nhận đơn hàng thất bại'
+      error.message || "Xác nhận đơn hàng thất bại"
+    );
+    return res.status(response.code).send(response);
+  }
+};
+
+export const cancelOrder = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      const response = gatewayResponse(
+        HttpStatus.unauthorized,
+        null,
+        "Token không hợp lệ"
+      );
+      return res.status(response.code).send(response);
+    }
+
+    const userId = req.user.id;
+    let roles = await checkRole(userId);
+
+    if (!roles.includes("SELLER")) {
+      const response = gatewayResponse(
+        HttpStatus.forbidden,
+        null,
+        "Tài khoản của bạn không phải là người bán"
+      );
+      return res.status(response.code).send(response);
+    }
+
+    const orderId = req.params.id;
+
+    const data: orderDto.orderCancelInfo = {
+      orderId: orderId,
+      productId: req.body.productId,
+      sellerId: userId,
+      buyerId: req.body.buyerId,
+      reason: req.body.reason,
+    };
+
+    const order = await orderService.cancelOrder(data);
+
+    if (!order) {
+      const response = gatewayResponse(
+        HttpStatus.badRequest,
+        null,
+        "Hủy đơn hàng thất bại"
+      );
+      return res.status(response.code).send(response);
+    }
+
+    const response = gatewayResponse(
+      HttpStatus.ok,
+      order,
+      "Hủy đơn hàng thành công"
+    );
+    return res.status(response.code).send(response);
+  } catch (error: any) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      error.message || "Hủy đơn hàng thất bại"
     );
     return res.status(response.code).send(response);
   }

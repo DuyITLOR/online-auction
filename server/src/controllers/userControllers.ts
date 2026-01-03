@@ -19,7 +19,7 @@ import { getReceivedRatings } from '../services/ratingService';
 
 export const getUserById = async (req: Request, res: Response) => {
   if (!req.user) {
-    const response = gatewayResponse(400, null, 'Token Invalid');
+    const response = gatewayResponse(400, null, 'Token không hợp lệ');
     res.status(response.code).send(response);
     return;
   }
@@ -36,11 +36,11 @@ export const getUserById = async (req: Request, res: Response) => {
       {
         user: newUser,
       },
-      'Get user'
+      'Lấy thông tin người dùng'
     );
     res.status(response.code).send(response);
   } else {
-    const response = gatewayResponse(400, null, 'Bad request');
+    const response = gatewayResponse(400, null, 'Yêu cầu không hợp lệ');
     res.status(response.code).send(response);
   }
 };
@@ -52,14 +52,14 @@ export const getUser = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       user.user,
-      'Get user information successfully'
+      'Lấy thông tin người dùng thành công'
     );
     res.status(response.code).send(response);
   } else {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      'Bad request'
+      'Yêu cầu không hợp lệ'
     );
     res.status(response.code).send(response);
   }
@@ -71,7 +71,7 @@ export const getSellerStats = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        'Need token before requesting'
+        'Cần token trước khi yêu cầu'
       );
       res.status(response.code).send(response);
       return;
@@ -124,7 +124,7 @@ export const updateUser = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({
       success: false,
-      message: 'Token invalid',
+      message: 'Token không hợp lệ',
     });
   }
 
@@ -142,10 +142,14 @@ export const updateUser = async (req: Request, res: Response) => {
 
   const record = await service.updateUser(req.user.id, data);
   if (record.success) {
-    const response = gatewayResponse(200, null, 'update user');
+    const response = gatewayResponse(
+      200,
+      null,
+      'Cập nhật người dùng thành công'
+    );
     res.status(response.code).send(response);
   } else {
-    const response = gatewayResponse(400, null, 'Bad request');
+    const response = gatewayResponse(400, null, 'Yêu cầu không hợp lệ');
     res.status(response.code).send(response);
   }
 };
@@ -304,7 +308,7 @@ export const askSeller = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
-      'You do not have permission for requesting'
+      'Bạn không có quyền để thực hiện yêu cầu này'
     );
     res.status(response.code).send(response);
     return;
@@ -326,7 +330,6 @@ export const askSeller = async (req: Request, res: Response) => {
     question: question,
   };
   const record = await service.askSeller(data);
-  console.log('Record from controller:', record);
   if (record.success) {
     const emailContent = loadAskTemplate(
       record.askerEmail,

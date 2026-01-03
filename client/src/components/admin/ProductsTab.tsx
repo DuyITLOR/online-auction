@@ -15,10 +15,7 @@ import {
 } from "../ui/dialog";
 
 const formatCurrency = (v: number) =>
-  new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(v);
+  new Intl.NumberFormat("vi-VN").format(v) + " VND";
 
 const ProductsTab: FC = () => {
   const {
@@ -62,7 +59,6 @@ const ProductsTab: FC = () => {
       setDeletingId(null);
     }
   };
-
   return (
     <div className='flex-1 space-y-6'>
       {/* --- TOOLBAR & FILTERS --- */}
@@ -100,15 +96,15 @@ const ProductsTab: FC = () => {
       {/* --- DATA TABLE --- */}
       <div className='bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden'>
         <div className='overflow-x-auto'>
-          <table className='w-full text-sm text-left'>
+          <table className='w-full text-sm text-left table-fixed'>
             <thead className='bg-gray-50 text-gray-500 uppercase font-medium text-xs border-b border-gray-200'>
               <tr>
-                <th className='px-6 py-4 font-semibold'>Sản phẩm</th>
-                <th className='px-6 py-4 font-semibold'>Người bán</th>
-                <th className='px-6 py-4 font-semibold'>Danh mục</th>
-                <th className='px-6 py-4 font-semibold'>Giá hiện tại</th>
-                <th className='px-6 py-4 font-semibold'>Trạng thái</th>
-                <th className='px-6 py-4 font-semibold text-right'>
+                <th className='px-6 py-4 font-semibold w-[30%]'>Sản phẩm</th>
+                <th className='px-6 py-4 font-semibold w-[15%]'>Người bán</th>
+                <th className='px-6 py-4 font-semibold w-[12%]'>Danh mục</th>
+                <th className='px-6 py-4 font-semibold w-[15%]'>Giá hiện tại</th>
+                <th className='px-6 py-4 font-semibold w-[15%]'>Trạng thái</th>
+                <th className='px-6 py-4 font-semibold text-right w-[13%]'>
                   Hành động
                 </th>
               </tr>
@@ -117,23 +113,23 @@ const ProductsTab: FC = () => {
             <tbody className='divide-y divide-gray-100'>
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className='animate-pulse'>
-                    <td className='px-6 py-4'>
+                  <tr key={i} className='animate-pulse h-[72px]'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='h-5 w-48 bg-gray-200 rounded' />
                     </td>
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='h-4 w-32 bg-gray-200 rounded' />
                     </td>
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='h-5 w-24 bg-gray-200 rounded-full' />
                     </td>
-                    <td className='px-6 py-4'>
-                      <div className='h-5 w-24 bg-gray-200 rounded' />
+                    <td className='px-6 py-3 align-middle'>
+                      <div className='h-5 w-28 bg-gray-200 rounded' />
                     </td>
-                    <td className='px-6 py-4'>
-                      <div className='h-5 w-24 bg-gray-200 rounded-full' />
+                    <td className='px-6 py-3 align-middle'>
+                      <div className='h-5 w-28 bg-gray-200 rounded-full' />
                     </td>
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-3 align-middle'>
                       <div className='flex justify-end gap-2'>
                         <div className='h-8 w-8 bg-gray-200 rounded-lg' />
                         <div className='h-8 w-8 bg-gray-200 rounded-lg' />
@@ -159,38 +155,38 @@ const ProductsTab: FC = () => {
                   return (
                     <tr
                       key={p.id}
-                      className='hover:bg-gray-50 transition-colors duration-150'
+                      className='hover:bg-gray-50 transition-colors duration-150 h-[72px]'
                     >
-                      <td className='px-6 py-4'>
-                        <div className='font-medium text-gray-900'>
-                          {p.title}
+                      <td className='px-6 py-3'>
+                        <div className='font-medium text-gray-900 line-clamp-2 min-h-[40px] flex items-center'>
+                          <span className='line-clamp-2'>{p.title}</span>
                         </div>
                       </td>
-                      <td className='px-6 py-4 text-gray-600'>
+                      <td className='px-6 py-3 text-gray-600 align-middle'>
                         {p.seller?.fullname || "Ẩn danh"}
                       </td>
-                      <td className='px-6 py-4 text-gray-600'>
+                      <td className='px-6 py-3 text-gray-600 align-middle'>
                         <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800'>
                           {p.category?.name || "Khác"}
                         </span>
                       </td>
-                      <td className='px-6 py-4 font-medium text-blue-600'>
-                        {formatCurrency(p.currentPrice)}
+                      <td className='px-6 py-3 font-medium text-green-600 whitespace-nowrap align-middle'>
+                        { formatCurrency(p.currentPrice) }
                       </td>
-                      <td className='px-6 py-4'>
+                      <td className='px-6 py-3 align-middle'>
                         {isEnded ? (
-                          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800'>
+                          <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 whitespace-nowrap'>
                             <span className='w-1.5 h-1.5 bg-red-500 rounded-full mr-1.5'></span>
                             Kết thúc
                           </span>
                         ) : (
-                          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+                          <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap'>
                             <span className='w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5'></span>
                             Đang diễn ra
                           </span>
                         )}
                       </td>
-                      <td className='px-6 py-4 text-right'>
+                      <td className='px-6 py-5 text-right'>
                         <div className='flex items-center justify-end gap-2'>
                           <Link
                             to={`/product/${p.id}`}
@@ -218,19 +214,9 @@ const ProductsTab: FC = () => {
 
         {/* --- PAGINATION --- */}
         {!isLoading && totalProducts > 0 && (
-          <div className='p-4 border-t border-gray-100 mt-auto bg-gray-50/50'>
-            <div className='flex items-center justify-between'>
-              <div className='text-sm text-gray-500'>
-                Hiển thị trang <span className='font-medium'>{page}</span> /{" "}
-                <span className='font-medium'>{totalPage}</span>
-              </div>
-              <Pagination
-                page={page}
-                onPageChange={onPageChange}
-                totalPage={totalPage}
-              />
-            </div>
-          </div>
+           <div className='pb-8 pr-8 flex justify-end'>
+        <Pagination page={page} totalPage={totalPage} onPageChange={onPageChange} />
+      </div>
         )}
       </div>
 

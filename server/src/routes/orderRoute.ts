@@ -50,4 +50,10 @@ router.patch(
   authMiddleware,
   orderController.confirmOrder
 );
+
+router.patch(
+  API_ORDER_ROUTES.cancelOrder.path,
+  authMiddleware,
+  orderController.cancelOrder
+);
 export default router;

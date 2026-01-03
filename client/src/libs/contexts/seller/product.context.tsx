@@ -55,12 +55,15 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   const [cache, setCache] = useState<Record<string, any>>({});
 
   const limit = 5;
+  const prefetchPages = 4; // Số pages prefetch mỗi lần
 
   const fetchProducts = useCallback(async () => {
     if (!user?.id) return;
     const userId = user.id;
 
     const cacheKey = `${userId}-${page}`;
+    
+    // Nếu đã có trong cache → dùng luôn
     if (cache[cacheKey]) {
       const c = cache[cacheKey];
       setProducts(c.products);
@@ -72,33 +75,89 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
 
     try {
       setIsLoading(true);
-      const res = await fetch(
-        `${
-          import.meta.env.VITE_BACKEND_URL
-        }/product?sellerId=${userId}&page=${page}&limit=${limit}`
-      );
-      const json = await res.json();
-      const list = json.data?.data ?? [];
-      const total = json.data?.total ?? 0;
-      const totalPages = json.data?.totalPages ?? 1;
+      
+      // Tính startPage: làm tròn xuống theo batch (1-4, 5-8, 9-12...)
+      const batchIndex = Math.floor((page - 1) / prefetchPages);
+      const startPage = batchIndex * prefetchPages + 1;
+      
+      // Fetch song song nhiều pages bằng Promise.all
+      const fetchPage = async (pageNum: number) => {
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/product?sellerId=${userId}&page=${pageNum}&limit=${limit}`
+          );
+          if (!res.ok) return { pageNum, data: [], total: 0, totalPages: 1 };
+          const json = await res.json();
+          return {
+            pageNum,
+            data: json.data?.data ?? [],
+            total: json.data?.total ?? 0,
+            totalPages: json.data?.totalPages ?? 1,
+          };
+        } catch {
+          return { pageNum, data: [], total: 0, totalPages: 1 };
+        }
+      };
 
-      setProducts(list);
-      setTotalProducts(total);
-      setTotalPage(totalPages);
-      setCache((prev) => ({
-        ...prev,
-        [cacheKey]: {
-          products: list,
-          totalProducts: total,
-          totalPage: totalPages,
-        },
-      }));
+      // Tính số pages cần fetch: không vượt quá totalPage đã biết
+      const endPage = totalPage > 1
+        ? Math.min(startPage + prefetchPages - 1, totalPage)
+        : startPage + prefetchPages - 1;
+      
+      const pagesToFetch = endPage - startPage + 1;
+
+      // Tạo array các promises cho các pages cần fetch
+      const pageNumbers = Array.from(
+        { length: pagesToFetch },
+        (_, i) => startPage + i
+      );
+      
+      const results = await Promise.all(pageNumbers.map(fetchPage));
+
+      // Cache từng page từ kết quả
+      const newCache: Record<string, any> = {};
+      let total = 0;
+      let newTotalPages = 1;
+
+      results.forEach(({ pageNum, data, total: t, totalPages: tp }) => {
+        if (data.length > 0) {
+          newCache[`${userId}-${pageNum}`] = {
+            products: data,
+            totalProducts: t,
+            totalPage: tp,
+          };
+        }
+        // Lấy total và totalPages từ bất kỳ response nào có data
+        if (t > 0) {
+          total = t;
+          newTotalPages = tp;
+        }
+      });
+
+      // Cập nhật cache
+      setCache((prev) => ({ ...prev, ...newCache }));
+
+      // Cập nhật totalPage 1 lần từ response
+      if (newTotalPages !== totalPage) {
+        setTotalPage(newTotalPages);
+      }
+      if (total !== totalProducts) {
+        setTotalProducts(total);
+      }
+
+      // Hiển thị data của page hiện tại
+      const currentPageData = newCache[cacheKey];
+      if (currentPageData) {
+        setProducts(currentPageData.products);
+      } else {
+        setProducts([]);
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setIsLoading(false);
     }
-  }, [page, cache, user]);
+  }, [page, cache, user, totalPage, totalProducts]);
 
   const deleteProduct = async (id: string): Promise<ActionResult> => {
     try {
@@ -151,8 +210,16 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
 
   const refreshProducts = () => {
     setCache({});
+    setTotalPage(1); // Reset để fetch lại totalPage mới
     fetchProducts();
   };
+
+  // Kiểm tra và điều chỉnh page khi vượt quá totalPage
+  useEffect(() => {
+    if (page > totalPage && totalPage > 0) {
+      setPage(totalPage);
+    }
+  }, [page, totalPage]);
 
   useEffect(() => {
     fetchProducts();

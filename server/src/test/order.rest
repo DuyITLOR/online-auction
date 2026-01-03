@@ -72,3 +72,15 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3L
 ### Xác nhận đã nhận hàng (BIDDER)
 PATCH http://localhost:4000/orders/2628edb3-fa92-4822-b54b-ba1903eda38d/confirm
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA3NTI3MWFlLTIzZmUtNDg2Yy04MDE4LTI5ZTI2NjBjZDY3NyIsImVtYWlsIjoibGVuaHV0ZHV5MTUxMTA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NzAyODA5NSwiZXhwIjoxNzY5NjIwMDk1fQ.42VT-Q74n17s8-kzkmYQ9TLZvZSbOleOdAEJwCR0TbA
+
+
+### HỦY ĐƠN HÀNG (SELLER)
+PATCH http://localhost:4000/orders/2628edb3-fa92-4822-b54b-ba1903eda38d/cancel
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NzAyNzk5MCwiZXhwIjoxNzY5NjE5OTkwfQ.csH9ZXmRGDUuVupV9RJvmgw1W_dXJlFnd1i2F2Jndxo
+Content-Type: application/json
+
+{
+    "reason": "Mày thanh toán quá chậm",
+    "buyerId": "075271ae-23fe-486c-8018-29e2660cd677",
+    "productId": "6f32e6ee-aff4-4fb5-9e5a-262d12684439"
+}

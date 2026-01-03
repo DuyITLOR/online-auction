@@ -504,4 +504,9 @@ export const API_ORDER_ROUTES = {
     method: 'PATCH',
     role: [Role.BIDDER],
   },
+  cancelOrder: {
+    path: '/orders/:id/cancel',
+    method: 'PATCH',
+    role: [Role.SELLER],
+  }
 };

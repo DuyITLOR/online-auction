@@ -38,7 +38,7 @@ export const getUserById = async (id: string) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: 'Lỗi không xác định',
     };
   }
 };
@@ -66,7 +66,7 @@ export const getUserInformation = async (id: string) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: 'Lỗi không xác định',
     };
   }
 };
@@ -104,7 +104,7 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
     return {
       success: true,
       data: updated,
-      message: 'Update successful',
+      message: 'Cập nhật thành công',
     };
   } catch (err) {
     console.error('Error from userService:', err);
@@ -118,7 +118,7 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: 'Lỗi không xác định',
     };
   }
 };
@@ -134,7 +134,7 @@ export const upgradeUser = async (id: string, note: string) => {
     return {
       success: true,
       data: record,
-      message: 'Request successfully',
+      message: 'Yêu cầu thành công',
     };
   } catch (err) {
     console.error('Error from userService:', err);
@@ -148,7 +148,7 @@ export const upgradeUser = async (id: string, note: string) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: 'Lỗi không xác định',
     };
   }
 };
@@ -159,7 +159,7 @@ export const checkRating = async (id: string) => {
     where: { id },
   });
 
-  if (!user) throw new Error('User not found');
+  if (!user) throw new Error('Không tìm thấy người dùng');
   const total = user.ratingNeg + user.ratingPos;
   // console.log("positive ratings:", user.ratingPos);
   // console.log("negative ratings:", user.ratingNeg);
@@ -182,7 +182,7 @@ export const getAllBlockedUser = async (productId: string) => {
     return {
       success: true,
       data: record,
-      message: 'Get successfully',
+      message: 'Lấy thành công',
     };
   } catch (err) {
     console.error('Error from userService:', err);
@@ -196,7 +196,7 @@ export const getAllBlockedUser = async (productId: string) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: 'Lỗi không xác định',
     };
   }
 };
@@ -231,7 +231,7 @@ export const blockUser = async (data: blockUserDto) => {
       return {
         success: true,
         data: check,
-        message: 'Already blocked',
+        message: 'Đã chặn',
       };
     }
     const record = await prisma.blockedBidders.create({
@@ -244,7 +244,7 @@ export const blockUser = async (data: blockUserDto) => {
     return {
       success: true,
       data: record,
-      message: 'Blocked successfully',
+      message: 'Chặn thành công',
     };
   } catch (err) {
     if (err instanceof Error) {
@@ -256,7 +256,7 @@ export const blockUser = async (data: blockUserDto) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: 'Lỗi không xác định',
     };
   }
 };
@@ -307,7 +307,7 @@ export const askSeller = async (
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: 'Lỗi không xác định',
     };
   }
 };
@@ -359,7 +359,7 @@ export const answerBidder = async (
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: 'Lỗi không xác định',
     };
   }
 };
@@ -404,7 +404,7 @@ export const getAllCommentsByProductId = async (data: getALlCommentsDto) => {
 
     return {
       success: false,
-      message: 'Unknown error',
+      message: 'Lỗi không xác định',
     };
   }
 };
@@ -434,7 +434,7 @@ export const getCountRatingForUser = async (userId: string) => {
       ratingPos: true,
     },
   });
-  if (!user) throw new Error('User not found');
+  if (!user) throw new Error('Không tìm thấy người dùng');
   return user.ratingNeg + user.ratingPos;
 };
 

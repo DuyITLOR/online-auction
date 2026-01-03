@@ -36,6 +36,7 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 const limit = 5;
+const prefetchPages = 4; // Số pages prefetch mỗi lần
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { token } = useAdmin();
@@ -50,10 +51,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   // Cache: key dạng "pageNumber"
   const [cache, setCache] = useState<Record<string, CacheItem>>({});
 
-  // ---- FETCH USERS Với cache ----
+  // ---- FETCH USERS Với cache + Promise.all ----
   const fetchUsers = useCallback(async () => {
     if (!token) return;
-    const cacheKey = `page-${page}`;
+    
+    // UI page bắt đầu từ 1, API page bắt đầu từ 0
+    const apiPage = page - 1;
+    const cacheKey = `page-${apiPage}`;
 
     // A. Lấy dữ liệu từ cache nếu có
     if (cache[cacheKey]) {
@@ -62,62 +66,113 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       setTotalUsers(data.totalUsers);
       setTotalPages(data.totalPages);
       setIsLoading(false);
-      console.log(`User loaded from cache: ${cacheKey}`);
       return;
     }
 
-    // B. Gọi API nếu cache không có
+    // B. Gọi API song song bằng Promise.all
     try {
       setIsLoading(true);
+      const batchIndex = Math.floor(apiPage / prefetchPages);
+      const startPage = batchIndex * prefetchPages; // API page bắt đầu từ 0
 
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/admin/users?limit=${limit}&page=${
-          page - 1
-        }`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      // Fetch song song nhiều pages
+      const fetchPage = async (pageNum: number) => {
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/admin/users?limit=${limit}&page=${pageNum}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          if (!res.ok) return { pageNum, data: [], totalUsers: 0, totalPages: 1 };
+          const json = await res.json();
+          return {
+            pageNum,
+            data: json?.data?.data?.users || [],
+            totalUsers: json?.data?.data?.totalUsers || 0,
+            totalPages: Math.ceil((json?.data?.data?.totalUsers || 0) / limit),
+          };
+        } catch {
+          return { pageNum, data: [], totalUsers: 0, totalPages: 1 };
         }
+      };
+
+      // Tính số pages cần fetch: không vượt quá totalPages đã biết
+      // totalPages ở đây là số trang thực tế (API trả về)
+      const maxApiPage = totalPages - 1; // API page cuối cùng
+      const endPage = totalPages > 0 
+        ? Math.min(startPage + prefetchPages - 1, maxApiPage)
+        : startPage + prefetchPages - 1;
+      
+      const pagesToFetch = endPage - startPage + 1;
+
+      // Tạo array các promises cho các pages cần fetch (chỉ fetch đủ số page cần thiết)
+      const pageNumbers = Array.from(
+        { length: pagesToFetch },
+        (_, i) => startPage + i
       );
 
-      if (!res.ok) {
-        throw new Error(`Error: ${res.status}`);
+      const results = await Promise.all(pageNumbers.map(fetchPage));
+
+      // Cache từng page từ kết quả
+      const newCache: Record<string, CacheItem> = {};
+      let newTotalUsers = 0;
+      let newTotalPages = 1;
+
+      results.forEach(({ pageNum, data, totalUsers: tu, totalPages: tp }) => {
+        if (data.length > 0) {
+          newCache[`page-${pageNum}`] = {
+            users: data,
+            totalUsers: tu,
+            totalPages: tp,
+          };
+        }
+        if (tu > 0) {
+          newTotalUsers = tu;
+          newTotalPages = tp;
+        }
+      });
+
+      setCache((prev) => ({ ...prev, ...newCache }));
+
+      // Cập nhật totalPages 1 lần từ response (nếu chưa có hoặc thay đổi)
+      if (newTotalPages !== totalPages) {
+        setTotalPages(newTotalPages);
+      }
+      if (newTotalUsers !== totalUsers) {
+        setTotalUsers(newTotalUsers);
       }
 
-      const json = await res.json();
-
-      const newUsers = json?.data?.data?.users || [];
-      const newTotalUsers = json?.data?.data?.totalUsers || 0;
-      const newTotalPages = json?.data?.data?.totalPages || 1;
-
-      setUsers(newUsers);
-      setTotalUsers(newTotalUsers);
-      setTotalPages(newTotalPages);
-
-      // C. Lưu vào cache
-      setCache((prev) => ({
-        ...prev,
-        [cacheKey]: {
-          users: newUsers,
-          totalUsers: newTotalUsers,
-          totalPages: newTotalPages,
-        },
-      }));
+      const currentPageData = newCache[cacheKey];
+      if (currentPageData) {
+        setUsers(currentPageData.users);
+      } else {
+        setUsers([]);
+      }
     } catch (err) {
       console.error("Error fetching users:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [token, page, cache]);
+  }, [token, page, cache, totalPages, totalUsers]);
 
   // Refresh thủ công hoặc sau xóa user
   const refreshUsers = () => {
     setCache({});
+    setTotalPages(1); // Reset để fetch lại totalPages mới
     fetchUsers();
   };
+
+  // Kiểm tra và điều chỉnh page khi vượt quá totalPages
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   // ---- Delete User ----
   const deleteUser = async (userId: string) => {

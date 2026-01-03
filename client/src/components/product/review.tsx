@@ -1,6 +1,6 @@
 import { Avatar } from '@radix-ui/react-avatar';
 import { AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Calendar, ChevronLeft, ChevronRight, Loader2, Send, Store, X } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Loader2, Send, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { type Comments, type User } from '../../libs/types/types';
 import { getCommentsByProduct, postAnswer, postQuestion } from '../../api/comment';
@@ -142,9 +142,6 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
                 <span>
                   Đánh giá: <b className='text-teal-600'>{calculateRating(seller.ratingPos, seller.ratingNeg)}/10.0</b>
                 </span>
-                <span>
-                  Đã bán: <b>1.2k</b>
-                </span>
               </div>
             </div>
           </div>
@@ -153,10 +150,6 @@ const ProductQA = ({ seller, productId, user, token }: UserProps) => {
             <div className='flex items-center gap-2'>
               <Calendar className='w-4 h-4 text-teal-500' />
               <span>Tham gia: {formatDate(seller.createdAt)}</span>
-            </div>
-            <div className='flex items-center gap-2'>
-              <Store className='w-4 h-4 text-teal-500' />
-              <span>Sản phẩm: 156</span>
             </div>
           </div>
 

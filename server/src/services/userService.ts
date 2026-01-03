@@ -11,7 +11,7 @@ import {
   responseProfileDto,
 } from "../dto/userDto";
 import { deleteCommentDto } from "../dto/userDto";
-import { getBidCountOfUser, recomputeAutoBid } from "./autoBidService";
+import { getBidCountOfUser } from "./autoBidService";
 import { getCountWatchListOfUser } from "./watchListService";
 import { getCountOrderByUser } from "./orderService";
 export const getUserById = async (id: string) => {

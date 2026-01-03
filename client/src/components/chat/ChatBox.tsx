@@ -131,19 +131,17 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: Cha
   }, [chatInfor]);
 
   return (
-    <div className='flex-1 flex flex-col overflow-hidden rounded-2xl bg-slate-100'>
+    <div className='flex-1 flex flex-col overflow-hidden h-full rounded-2xl bg-slate-100'>
       {/* Header */}
       {chatInfor && (
         <div
-          className='flex shrink-0 items-center gap-2.5 p-7 border-b-2 border-gray-200
+          className='flex shrink-0 h-16 items-center gap-2.5 p-7 border-b-2 border-gray-200
         '
         >
           {!hideBack && (
             <div
               onClick={() => updateChatIdx(-1)}
-              className='w-8 h-8 flex items-center justify-center
-   rounded-full cursor-pointer
-   hover:bg-gray-200 active:bg-gray-300'
+              className='w-8 h-8 flex items-center justify-center rounded-full cursor-pointer hover:bg-gray-200 active:bg-gray-300'
             >
               &lt;
             </div>
@@ -162,7 +160,7 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: Cha
       {/* Body */}
       {isLoading && <Spinner />}
       {chatInfor && (
-        <div className='flex-1 flex flex-col min-h-0 overflow-y-auto p-3 pt-4 px-5'>
+        <div className='flex-1 flex flex-col min-h-0 overflow-y-auto min-h-0 p-3 pt-4 px-5'>
           {timeline.map((item, index) => {
             if (index === 0)
               return (
@@ -190,8 +188,7 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: Cha
       )}
       {/* Input */}
       {chatInfor && (
-        <div className='border-t shrink-0 border-slate-200 bg-white px-4 py-3 pb-9'>
-          <div className='flex items-center gap-3'>
+        <div className='border-t shrink-0 border-slate-200 bg-white px-4 md:h-16 h-10  gap-2 flex items-center'>
             {/* Input */}
             <input
               type='text'
@@ -216,6 +213,7 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: Cha
         focus:border-teal-500
         focus:ring-2
         focus:ring-teal-500/20
+        ml-2
       '
             />
 
@@ -236,7 +234,6 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: Cha
             >
               Send
             </button>
-          </div>
         </div>
       )}
     </div>

@@ -5,7 +5,6 @@ import {
   bidHistoryQueryDto,
   autoBidResult,
   computeBid,
-  recomputeDto,
 } from "../dto/autoBidDto";
 import { prisma } from "./db/prisma";
 import { getProductById } from "./productService";

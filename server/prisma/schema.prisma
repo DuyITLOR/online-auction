@@ -33,6 +33,7 @@ model User {
   ratingsGiven    Ratings[]         @relation("RatingsGiven")
   upgradeRequests UpgradeRequests[]
   watchList       WatchList[]
+  settings        settings[]
 }
 
 model Products {
@@ -216,6 +217,16 @@ model Orders {
   @@index([sellerId])
   @@index([status])
   @@index([createdAt])
+}
+
+model settings {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime
+  updatedBy String?
+
+  user User? @relation(fields: [updatedBy], references: [id], onDelete: Cascade)
 }
 
 enum Role {

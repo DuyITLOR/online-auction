@@ -5,14 +5,6 @@ import { Heart } from 'lucide-react';
 import Pagination from '../../pagination';
 import { usePaginationFetch } from '../../../libs/hooks/pagination';
 
-const convertDay = (date: string) => {
-  const now = new Date();
-  const endDate = new Date(date);
-  const diffTime = Math.abs(endDate.getTime() - now.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
-};
-
 const WatchProducts = ({ token }: { token: string }) => {
   const { data, loading, page, totalPages, setPage } = usePaginationFetch(getAllWatchList, token);
 
@@ -64,10 +56,6 @@ const WatchProducts = ({ token }: { token: string }) => {
                 item.productId ? 'stroke-0 fill-red-600' : 'stroke-2'
               } absolute right-1 top-1  bg-white hover:bg-gray-100 p-2 rounded-full`}
             />
-
-            <div className='w-20 h-7 text-sm bg-gray-800 text-white absolute left-1 top-1 px-2 py-1 rounded-md'>
-              {convertDay(item.product.endAt)} Ngày
-            </div>
           </Link>
         ))}
       </div>

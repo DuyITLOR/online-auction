@@ -142,7 +142,11 @@ export const updateUser = async (req: Request, res: Response) => {
 
   const record = await service.updateUser(req.user.id, data);
   if (record.success) {
-    const response = gatewayResponse(200, null, 'Cập nhật người dùng thành công');
+    const response = gatewayResponse(
+      200,
+      null,
+      'Cập nhật người dùng thành công'
+    );
     res.status(response.code).send(response);
   } else {
     const response = gatewayResponse(400, null, 'Yêu cầu không hợp lệ');
@@ -304,7 +308,7 @@ export const askSeller = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
-      'You do not have permission for requesting'
+      'Bạn không có quyền để thực hiện yêu cầu này'
     );
     res.status(response.code).send(response);
     return;
@@ -326,7 +330,6 @@ export const askSeller = async (req: Request, res: Response) => {
     question: question,
   };
   const record = await service.askSeller(data);
-  console.log('Record from controller:', record);
   if (record.success) {
     const emailContent = loadAskTemplate(
       record.askerEmail,

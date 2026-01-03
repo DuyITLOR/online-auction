@@ -54,8 +54,8 @@ Content-Type: application/json
 
 
 ### Lấy danh sách thông tin lịch sử đấu giá
-GET http://localhost:4000/autoBid/9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb03/history
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJpZGRlci00IiwiZW1haWwiOiJiaWRkZXI0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0NDk0MTgwLCJleHAiOjE3NjcwODYxODB9.zTd-GJMCMInyvIB5sMFZ7nEP3KXDvnt7xmYMrcWGrTg
+GET http://localhost:4000/autoBid/7bb8d733-8e47-4cbe-8e57-a9951807bbcc/history
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NzQ1NTIzMywiZXhwIjoxNzcwMDQ3MjMzfQ.e3ic1130PnptInvhUuoZVcff8ufrKhCeORxJWQfU0qU
 Content-Type: application/json
 
 

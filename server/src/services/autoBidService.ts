@@ -5,6 +5,7 @@ import {
   bidHistoryQueryDto,
   autoBidResult,
   computeBid,
+  recomputeDto,
 } from "../dto/autoBidDto";
 import { prisma } from "./db/prisma";
 import { getProductById } from "./productService";
@@ -64,9 +65,10 @@ export const computerBidder = async (
 
         const updatedData = {
           ...baseData,
-          ...(isExtend && product.autoExtendEnabled && {
-            endAt: new Date(product.endAt.getTime() + fiveMinute),
-          }),
+          ...(isExtend &&
+            product.autoExtendEnabled && {
+              endAt: new Date(product.endAt.getTime() + fiveMinute),
+            }),
         };
 
         const temp = await tx.products.update({
@@ -152,7 +154,6 @@ export const computerBidder = async (
         isExtend = true;
       }
 
-
       const baseData = {
         currentPrice: new Prisma.Decimal(newPrice),
         winnerId: winnerId,
@@ -163,11 +164,11 @@ export const computerBidder = async (
 
       const updatedData = {
         ...baseData,
-        ...(isExtend && product.autoExtendEnabled && {
-          endAt: new Date(product.endAt.getTime() + fiveMinute),
-        }),
-      }
-
+        ...(isExtend &&
+          product.autoExtendEnabled && {
+            endAt: new Date(product.endAt.getTime() + fiveMinute),
+          }),
+      };
 
       // Update product
       const infor = await tx.products.update({
@@ -406,4 +407,120 @@ export const getBidCountOfUser = async (userId: string) => {
   });
 
   return count;
+};
+
+export const recomputeAutoBid = async (
+  tx: Prisma.TransactionClient,
+  data: recomputeDto
+) => {
+  const product = await tx.products.findUnique({
+    where: {
+      id: data.productId,
+    },
+    select: {
+      id: true,
+      startPrice: true,
+      currentPrice: true,
+    },
+  });
+
+  if (!product) throw new Error("Không tìm thấy sản phẩm");
+
+  const removedCount = await tx.bidHistory.count({
+    where: {
+      productId: data.productId,
+      bidderId: data.bidderId,
+    },
+  });
+
+  await tx.autoBids.deleteMany({
+    where: {
+      productId: data.productId,
+      bidderId: data.bidderId,
+    },
+  });
+
+  await tx.bidHistory.deleteMany({
+    where: {
+      productId: data.productId,
+      bidderId: data.bidderId,
+    },
+  });
+
+  const autoBid = await tx.autoBids.findMany({
+    where: {
+      productId: data.productId,
+    },
+    orderBy: [{ maxAmount: "desc" }, { createdAt: "asc" }],
+    select: {
+      id: true,
+      bidderId: true,
+      maxAmount: true,
+    },
+  });
+
+  // Sau khi xóa xong thì không còn autobid nào
+  if (autoBid.length === 0) {
+    const newProduct = await tx.products.update({
+      where: {
+        id: data.productId,
+      },
+      data: {
+        winnerId: null,
+        currentPrice: product.startPrice,
+        countbids: {
+          decrement: removedCount,
+        },
+      },
+      select: {
+        id: true,
+        winnerId: true,
+        currentPrice: true,
+      },
+    });
+
+    return newProduct;
+  }
+
+  if (autoBid.length === 1) {
+    const newProduct = await tx.products.update({
+      where: {
+        id: data.productId,
+      },
+      data: {
+        winnerId: autoBid[0].bidderId,
+        currentPrice: product.startPrice,
+        countbids: {
+          decrement: removedCount,
+        },
+      },
+      select: {
+        id: true,
+        winnerId: true,
+        currentPrice: true,
+      },
+    });
+
+    return newProduct;
+  }
+
+  if (autoBid.length >= 2) {
+    const newProduct = await tx.products.update({
+      where: {
+        id: data.productId,
+      },
+      data: {
+        winnerId: autoBid[0].bidderId,
+        currentPrice: autoBid[1].maxAmount,
+        countbids: removedCount - 1,
+      },
+      select: {
+        id: true,
+        winnerId: true,
+        currentPrice: true,
+      },
+    });
+
+    return newProduct;
+  }
 };

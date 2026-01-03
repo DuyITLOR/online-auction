@@ -132,6 +132,7 @@ model AutoBids {
   product   Products @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, bidderId])
+  @@index([productId, bidderId])
 }
 
 model BidHistory {

@@ -11,10 +11,10 @@ import {
   responseProfileDto,
 } from '../dto/userDto';
 import { deleteCommentDto } from '../dto/userDto';
-import { getBidCountOfUser } from './autoBidService';
+import { getBidCountOfUser, recomputeAutoBid } from './autoBidService';
 import { getCountWatchListOfUser } from './watchListService';
 import { getCountOrderByUser } from './orderService';
-
+import { recomputeDto } from '../dto/autoBidDto';
 export const getUserById = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
@@ -234,13 +234,36 @@ export const blockUser = async (data: blockUserDto) => {
         message: 'Đã chặn',
       };
     }
-    const record = await prisma.blockedBidders.create({
+    const record = await prisma.$transaction(async (tx) => {
+      const record = await tx.blockedBidders.create({
       data: {
         productId: data.productId,
         userId: data.userId,
         reason: data.reason,
       },
+      include: {
+        product: {
+          select: {
+            id: true,
+            winnerId: true,
+          }
+        }
+      }
     });
+
+    const updateddata: recomputeDto = {
+      productId: data.productId,
+      bidderId: data.userId,
+    }
+
+    if (record.product.winnerId === data.userId) {
+      await recomputeAutoBid(tx, updateddata);
+    }
+
+    return record;
+    })
+
+    
     return {
       success: true,
       data: record,

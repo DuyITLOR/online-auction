@@ -5,6 +5,7 @@ import {
   bidHistoryQueryDto,
   autoBidResult,
   computeBid,
+  recomputeDto,
 } from "../dto/autoBidDto";
 import { prisma } from "./db/prisma";
 import { getProductById } from "./productService";
@@ -64,9 +65,10 @@ export const computerBidder = async (
 
         const updatedData = {
           ...baseData,
-          ...(isExtend && product.autoExtendEnabled && {
-            endAt: new Date(product.endAt.getTime() + fiveMinute),
-          }),
+          ...(isExtend &&
+            product.autoExtendEnabled && {
+              endAt: new Date(product.endAt.getTime() + fiveMinute),
+            }),
         };
 
         const temp = await tx.products.update({
@@ -152,7 +154,6 @@ export const computerBidder = async (
         isExtend = true;
       }
 
-
       const baseData = {
         currentPrice: new Prisma.Decimal(newPrice),
         winnerId: winnerId,
@@ -163,11 +164,11 @@ export const computerBidder = async (
 
       const updatedData = {
         ...baseData,
-        ...(isExtend && product.autoExtendEnabled && {
-          endAt: new Date(product.endAt.getTime() + fiveMinute),
-        }),
-      }
-
+        ...(isExtend &&
+          product.autoExtendEnabled && {
+            endAt: new Date(product.endAt.getTime() + fiveMinute),
+          }),
+      };
 
       // Update product
       const infor = await tx.products.update({

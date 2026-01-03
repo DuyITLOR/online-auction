@@ -42,3 +42,8 @@ export interface computeBid{
     email: string,
     price: number
 }
+
+export interface recomputeDto {
+    productId: string,
+    bidderId: string,
+}

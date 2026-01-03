@@ -78,6 +78,7 @@ const ProductSection = ({
   isWatchMore: boolean;
 }) => {
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
     const map: Record<string, boolean> = {};
     watchList.forEach((item) => {
@@ -89,26 +90,28 @@ const ProductSection = ({
   if (!products || products.length === 0) return null;
 
   return (
-    <div className='flex flex-col gap-5 py-2'>
-      <div className='flex items-center justify-between mb-6'>
-        {' '}
-        {/* Thêm mb-6 để tạo khoảng cách dưới */}
-        <div className='flex items-center gap-3'>
-          <div className='w-1 h-8 bg-teal-500 rounded-full'></div>
-          <p className='font-bold text-3xl text-gray-800'>{title}</p>
+    <div className='flex flex-col gap-4 md:gap-5 py-2'>
+      {/* Header Section */}
+      <div className='flex items-center justify-between mb-2 md:mb-6 px-1'>
+        <div className='flex items-center gap-2 md:gap-3'>
+          <div className='w-1 h-6 md:h-8 bg-teal-500 rounded-full'></div>
+          {/* Responsive Font Size */}
+          <p className='font-bold text-xl md:text-2xl lg:text-3xl text-gray-800 truncate max-w-[200px] md:max-w-none'>
+            {title}
+          </p>
         </div>
         <Link
           to={'/products'}
-          className={`group flex items-center gap-2 text-sm font-semibold text-teal-600 hover:text-teal-800 transition-colors duration-300 ${
+          className={`group flex items-center gap-1 md:gap-2 text-sm font-semibold text-teal-600 hover:text-teal-800 transition-colors duration-300 ${
             !isWatchMore ? 'hidden' : ''
           }`}
         >
-          <span className='text-base underline'>Xem thêm</span>
-          <ArrowRight className='w-4 h-4 transition-transform duration-300 group-hover:translate-x-1' />
+          <span className='text-xs md:text-base underline whitespace-nowrap'>Xem thêm</span>
+          <ArrowRight className='w-3 h-3 md:w-4 md:h-4 transition-transform duration-300 group-hover:translate-x-1' />
         </Link>
       </div>
 
-      <div className='flex flex-1 items-stretch gap-4 overflow-x-auto scroll-container pb-8 px-1'>
+      <div className='flex flex-1 items-stretch gap-3 md:gap-4 overflow-x-auto scroll-container pb-4 md:pb-8 px-1 snap-x snap-mandatory'>
         {products.map((item: any) => {
           const productData = item.product || item;
           const productId = item.productId || item.id;
@@ -119,14 +122,25 @@ const ProductSection = ({
 
           const highestBidderName =
             productData?.highestBidder?.fullName || productData?.bidHistory?.[0]?.bidder?.fullname || null;
+
           return (
             <Link
               to={`/product/${productId}`}
               key={productId}
-              className={`flex flex-col min-w-[calc(20%-12.8px)] max-w-[calc(20%-12.8px)] bg-white rounded-xl border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative ${
-                isNew ? 'border-purple-300 ring-4 ring-purple-100' : 'border-gray-100'
-              }`}
+              className={`
+                flex flex-col shrink-0 
+                bg-white rounded-xl border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative 
+                snap-start 
+                /* RESPONSIVE WIDTHS */
+                min-w-[260px] max-w-[260px]      /* Mobile: Card to, chiếm gần hết màn hình hoặc 80% */
+                sm:min-w-[300px] sm:max-w-[300px] 
+                md:min-w-[calc(33.33%-11px)] md:max-w-[calc(33.33%-11px)]  /* Tablet: 3 items */
+                lg:min-w-[calc(25%-12px)] lg:max-w-[calc(25%-12px)]      /* Laptop: 4 items */
+                xl:min-w-[calc(20%-12.8px)] xl:max-w-[calc(20%-12.8px)]  /* Desktop: 5 items */
+                ${isNew ? 'border-purple-300 ring-2 md:ring-4 ring-purple-100' : 'border-gray-100'}
+              `}
             >
+              {/* Image Container */}
               <div className='relative w-full aspect-square overflow-hidden'>
                 <img
                   src={productData?.images?.[0]?.url}
@@ -135,9 +149,10 @@ const ProductSection = ({
                 />
 
                 <div className='absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300'></div>
+
                 {isNew && (
-                  <div className='absolute top-9 left-2 z-10 animate-bounce-slow'>
-                    <div className='bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 border border-white/50'>
+                  <div className='absolute top-3 left-2 md:top-9 z-10 animate-bounce-slow'>
+                    <div className='bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 text-white text-[10px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full shadow-lg flex items-center gap-1 border border-white/50'>
                       <Sparkles size={10} className='fill-yellow-200 text-yellow-200 animate-pulse' />
                       <span>NEW</span>
                     </div>
@@ -145,7 +160,7 @@ const ProductSection = ({
                 )}
 
                 <div
-                  className={`absolute top-2 left-2 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm ${timeStyle}`}
+                  className={`absolute top-2 left-2 px-2 py-0.5 md:px-2.5 md:py-1 rounded-lg text-[10px] md:text-xs font-bold flex items-center gap-1 shadow-sm ${timeStyle}`}
                 >
                   <Clock size={12} />
                   {formatTimeLeft(productData?.endAt)}
@@ -154,40 +169,40 @@ const ProductSection = ({
                 <button
                   onClick={(e) => {
                     e.preventDefault();
-
                     setLikedMap((prev) => ({
                       ...prev,
                       [productId]: !prev[productId],
                     }));
-
                     toggleWatchList(productId);
                   }}
-                  className='absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-red-500 transition-colors shadow-sm backdrop-blur-sm'
+                  className='absolute top-2 right-2 p-1.5 md:p-2 rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-red-500 transition-colors shadow-sm backdrop-blur-sm z-20'
                 >
                   <Heart
-                    className={`w-5 h-5 transition-colors ${likedMap[productId] ? 'fill-red-500 text-red-500' : ''}`}
+                    className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${
+                      likedMap[productId] ? 'fill-red-500 text-red-500' : ''
+                    }`}
                   />
                 </button>
 
-                <div className='absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out'>
+                <div className='absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out hidden md:block'>
                   <button className='w-full bg-teal-600 text-white py-2 rounded-lg font-semibold shadow-lg flex items-center justify-center gap-2 hover:bg-teal-700'>
                     <Gavel size={16} /> Đặt giá ngay
                   </button>
                 </div>
               </div>
 
-              <div className='flex flex-col flex-1 p-3 gap-2'>
+              <div className='flex flex-col flex-1 p-2 md:p-3 gap-1 md:gap-2'>
                 <p className='font-bold text-gray-800 line-clamp-2 text-sm min-h-10 group-hover:text-teal-600 transition-colors'>
                   {productData?.title}
                 </p>
 
-                <div className='flex flex-col gap-1.5 mt-1 border-b border-dashed border-gray-100 pb-2 mb-1'>
-                  <div className='flex items-center gap-1.5 text-[11px] text-gray-400'>
+                <div className='flex flex-col gap-1 md:gap-1.5 mt-1 border-b border-dashed border-gray-100 pb-2 mb-1'>
+                  <div className='flex items-center gap-1.5 text-[10px] md:text-[11px] text-gray-400'>
                     <Calendar size={12} />
                     <span>Đăng: {formatDate(productData?.startedAt || productData?.createdAt)}</span>
                   </div>
 
-                  <div className='flex items-center gap-1.5 text-[11px] text-gray-500 bg-gray-50 px-2 py-1 rounded-md w-fit'>
+                  <div className='flex items-center gap-1.5 text-[10px] md:text-[11px] text-gray-500 bg-gray-50 px-2 py-1 rounded-md w-fit'>
                     <User size={12} className='text-teal-500' />
                     <span className='font-medium'>Top Bid:</span>
                     <span className='text-gray-700 font-semibold'>{maskBidderName(highestBidderName)}</span>
@@ -196,27 +211,28 @@ const ProductSection = ({
 
                 <div className='mt-auto flex flex-col gap-1'>
                   {productData?.buyNowPrice > 0 && (
-                    <div className='flex justify-between items-center text-[11px] mb-1'>
+                    <div className='flex justify-between items-center text-[10px] md:text-[11px] mb-1'>
                       <span className='text-gray-400 flex items-center gap-1'>
                         <ShoppingCart size={10} /> Mua ngay:
                       </span>
                       <span className='font-bold text-orange-500'>
-                        {Number(productData.buyNowPrice).toLocaleString()} VND
+                        {Number(productData.buyNowPrice).toLocaleString()}
                       </span>
                     </div>
                   )}
 
                   <div className='flex items-end justify-between'>
                     <div className='flex flex-col'>
-                      <span className='text-[10px] uppercase font-bold text-gray-400'>Giá hiện tại</span>
-                      <span className='font-bold text-lg text-teal-600 leading-none'>
-                        {Number(productData?.currentPrice).toLocaleString()} VND
+                      <span className='text-[9px] md:text-[10px] uppercase font-bold text-gray-400'>Giá hiện tại</span>
+                      <span className='font-bold text-base md:text-lg text-teal-600 leading-none'>
+                        {Number(productData?.currentPrice).toLocaleString()}{' '}
+                        <span className='text-xs font-normal text-gray-500'>đ</span>
                       </span>
                     </div>
 
                     <div className='flex flex-col items-end'>
-                      <span className='text-[10px] uppercase font-bold text-gray-400'>Lượt đấu</span>
-                      <div className='flex items-center gap-1 text-gray-600 bg-gray-100 px-2 py-0.5 rounded'>
+                      <span className='text-[9px] md:text-[10px] uppercase font-bold text-gray-400'>Lượt đấu</span>
+                      <div className='flex items-center gap-1 text-gray-600 bg-gray-100 px-1.5 py-0.5 md:px-2 md:py-0.5 rounded'>
                         <Users size={12} />
                         <span className='font-bold text-xs'>{bidCount > 0 ? bidCount : '-'}</span>
                       </div>
@@ -254,12 +270,12 @@ const DisplayProduct = () => {
     <>
       {loading && (
         <div className='flex items-center justify-center py-20 min-w-full'>
-          <div className='animate-spin rounded-full h-12 w-12 border-4 border-teal-500 border-t-transparent'></div>
+          <div className='animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-4 border-teal-500 border-t-transparent'></div>
         </div>
       )}
 
       {!loading && (
-        <div className='flex flex-col mx-auto max-w-full px-10 mb-5 gap-8'>
+        <div className='flex flex-col mx-auto max-w-full px-4 md:px-8 lg:px-10 mb-5 gap-6 md:gap-8'>
           <ProductSection
             title='Sản phẩm yêu thích'
             products={watchList}

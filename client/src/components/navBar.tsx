@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useMemo } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { Link } from 'react-router-dom';
-import { ChevronDown, ArrowRight } from 'lucide-react';
+import { ChevronDown, ArrowRight, Menu } from 'lucide-react';
 import type { Category } from '../libs/types/types';
 
 const ListItem = ({ to, title }: { to: string; title: string }) => {
@@ -103,6 +105,53 @@ const DropdownItem = ({ data, onMouseLeaveParent }: { data: any; onMouseLeavePar
   );
 };
 
+const MobileNav = ({ categories }: { categories: any[] }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <button className='p-2 -ml-2 text-slate-600 hover:text-slate-900 lg:hidden'>
+          <Menu className='h-6 w-6' />
+          <span className='sr-only'>Open menu</span>
+        </button>
+      </SheetTrigger>
+      <SheetContent side='left' className='w-[300px] sm:w-[350px] pr-0'>
+        <SheetHeader className='px-1 text-left'>
+          <SheetTitle className='text-lg font-bold text-slate-900'>Danh mục</SheetTitle>
+        </SheetHeader>
+        <div className='h-full overflow-y-auto pb-10 pr-6 mt-6'>
+          <Accordion type='single' collapsible className='w-full'>
+            {categories.map((cat, index) => (
+              <AccordionItem key={index} value={`item-${index}`} className='border-b-slate-100'>
+                <AccordionTrigger className='ml-5 text-slate-700 hover:text-sky-700 hover:no-underline py-4 font-semibold'>
+                  {cat.name}
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className='flex flex-col space-y-1 pb-2 pl-2'>
+                    {cat.items.map((item: { value: string; display: string }) => (
+                      <Link
+                        key={item.value}
+                        to={`/products?categoryId=${item.value}`}
+                        onClick={() => setOpen(false)} // Đóng menu khi click
+                        className='block ml-3 rounded-md px-3 py-2 text-sm text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-colors'
+                      >
+                        {item.display}
+                      </Link>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
+// --- MAIN NAVBAR ---
+
 const NavBar = ({ categories }: { categories: Record<string, Category & { children: Category[] }> }) => {
   const mappedCategories = useMemo(() => {
     return Object.values(categories)
@@ -119,11 +168,24 @@ const NavBar = ({ categories }: { categories: Record<string, Category & { childr
   }, [categories]);
 
   return (
-    <div className='w-full bg-white border-gray-200 relative z-40'>
-      <div className='flex items-center justify-center h-16 gap-2'>
-        {mappedCategories.map((product, index) => (
-          <DropdownItem key={index} data={product} onMouseLeaveParent={() => {}} />
-        ))}
+    <div className='w-full bg-white border-b lg:border-none border-gray-200 relative z-40'>
+      <div className='flex items-center h-16 px-4 lg:px-0 lg:justify-center gap-2'>
+        {/* MOBILE VIEW: Hiển thị nút menu khi màn hình nhỏ */}
+        <div className='lg:hidden mr-auto'>
+          <MobileNav categories={mappedCategories} />
+        </div>
+
+        {/* LOGO hoặc BRAND NAME (Optional cho Mobile) */}
+        <div className='lg:hidden absolute left-1/2 -translate-x-1/2 font-bold text-slate-800'>
+          {/* Thêm Logo mobile ở đây nếu cần */}
+        </div>
+
+        {/* DESKTOP VIEW: Ẩn khi màn hình nhỏ (< 1024px) */}
+        <div className='hidden lg:flex items-center gap-2'>
+          {mappedCategories.map((product, index) => (
+            <DropdownItem key={index} data={product} onMouseLeaveParent={() => {}} />
+          ))}
+        </div>
       </div>
     </div>
   );

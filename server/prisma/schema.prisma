@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -33,6 +34,7 @@ model User {
   ratingsGiven    Ratings[]         @relation("RatingsGiven")
   upgradeRequests UpgradeRequests[]
   watchList       WatchList[]
+  settings        settings[]
 }
 
 model Products {
@@ -131,6 +133,7 @@ model AutoBids {
   product   Products @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, bidderId])
+  @@index([productId, bidderId])
 }
 
 model BidHistory {
@@ -216,6 +219,16 @@ model Orders {
   @@index([sellerId])
   @@index([status])
   @@index([createdAt])
+}
+
+model settings {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime
+  updatedBy String?
+
+  user User? @relation(fields: [updatedBy], references: [id], onDelete: Cascade)
 }
 
 enum Role {

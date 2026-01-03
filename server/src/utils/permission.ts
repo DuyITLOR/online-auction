@@ -275,6 +275,30 @@ export const API_ROUTES = {
     role: [Role.ALL],
     method: 'GET',
   },
+
+  // system configuration
+  getAllSettings: {
+    path: '/settings',
+    role: [Role.ADMIN],
+    method: 'GET',
+  },
+  createSetting: {
+    path: '/settings',
+    role: [Role.ADMIN],
+    method: 'POST',
+    request: {
+      key: 'string',
+      value: 'string',
+    },
+  },
+  updateSetting: {
+    path: '/settings/:settingId',
+    role: [Role.ADMIN],
+    method: 'PATCH',
+    request: {
+      value: 'string',
+    },
+  },
 };
 
 export const API_RATING_ROUTES = {
@@ -508,5 +532,5 @@ export const API_ORDER_ROUTES = {
     path: '/orders/:id/cancel',
     method: 'PATCH',
     role: [Role.SELLER],
-  }
+  },
 };

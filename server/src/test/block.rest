@@ -1,0 +1,9 @@
+### -  Chăn bidder
+POST http://localhost:4000/users/075271ae-23fe-486c-8018-29e2660cd677/blocked
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NzQ1NTcyMCwiZXhwIjoxNzcwMDQ3NzIwfQ.NgrYIla3OULlR0TYla1DXJkfFm_Zif5ufxe7YIgs_Fw
+Content-Type: application/json
+
+{
+	"productId": "7bb8d733-8e47-4cbe-8e57-a9951807bbcc",
+	"reason": "Tao ghét Bến Tre"
+}

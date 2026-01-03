@@ -8,7 +8,6 @@ interface PaymentHeaderProps {
     bidder: string;
     userRole: "ADMIN" | "SELLER" | "BIDDER";
 }
-
 const PaymentHeader = ({
     title,
     price,

@@ -38,10 +38,11 @@ interface ReceivedMessageDto {
 
 interface ChatBoxProps {
   chatInfor: dataDto;
-  updateChatIdx: (value: number) => void;
+  updateChatIdx?: (value: number) => void;
+  hideBack?: boolean;
 }
 
-const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
+const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: ChatBoxProps) => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -134,17 +135,19 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
       {/* Header */}
       {chatInfor && (
         <div
-          onClick={() => updateChatIdx(-1)}
           className='flex shrink-0 items-center gap-2.5 p-7 border-b-2 border-gray-200
         '
         >
-          <div
-            className='w-8 h-8 flex items-center justify-center
+          {!hideBack && (
+            <div
+              onClick={() => updateChatIdx(-1)}
+              className='w-8 h-8 flex items-center justify-center
    rounded-full cursor-pointer
    hover:bg-gray-200 active:bg-gray-300'
-          >
-            &lt;
-          </div>
+            >
+              &lt;
+            </div>
+          )}
 
           <img className='w-10 h-10 rounded-full' src={chatInfor.avtUrl} />
           <div className='font-medium text-heading'>

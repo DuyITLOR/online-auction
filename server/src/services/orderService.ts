@@ -221,11 +221,13 @@ export const getOrderById = async (orderId: string, userId: string) => {
       buyer: {
         select: {
           fullname: true,
+          avtUrl: true,
         },
       },
       seller: {
         select: {
           fullname: true,
+          avtUrl: true,
         },
       },
     },

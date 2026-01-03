@@ -1,0 +1,21 @@
+GET http://localhost:4000/settings
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY3NDIzNzcxLCJleHAiOjE3NzAwMTU3NzF9.3rdGBVuHcXKZiQVwwNi7EsfAdTuZ9UIkRlODh2RGZFs
+
+###
+POST http://localhost:4000/settings
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY3NDIzNzcxLCJleHAiOjE3NzAwMTU3NzF9.3rdGBVuHcXKZiQVwwNi7EsfAdTuZ9UIkRlODh2RGZFs
+
+{
+  "key": "extendMinute",
+  "value": "10"
+}
+
+###
+PUT http://localhost:4000/settings/2b68fc79-6406-4539-965a-263fba33fa8d
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY3NDIzNzcxLCJleHAiOjE3NzAwMTU3NzF9.3rdGBVuHcXKZiQVwwNi7EsfAdTuZ9UIkRlODh2RGZFs
+
+{
+  "value": "15"
+}

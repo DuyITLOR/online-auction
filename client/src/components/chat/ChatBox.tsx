@@ -67,7 +67,6 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
   };
 
   const handleReceiveMessage = (data: ReceivedMessageDto) => {
-    console.log('Received message:', data);
     const name = data.senderId === user?.id ? 'me' : data.sender.fullname;
     const msg: Message = {
       id: data.id,
@@ -125,11 +124,10 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => {} }: ChatBoxProps) => {
     fetchMessages();
     socket.on(`chat/${chatInfor.productId}`, handleReceiveMessage);
     return () => {
+      controller.abort();
       socket.off(`chat/${chatInfor.productId}`, handleReceiveMessage);
     };
   }, [chatInfor]);
-
-  console.log(timeline);
 
   return (
     <div className='flex-1 flex flex-col overflow-hidden rounded-2xl bg-slate-100'>

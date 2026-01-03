@@ -227,7 +227,7 @@ export const buyNowProduct = async (req: Request, res: Response) => {
         subject: 'Thông tin đơn hàng mua ngay',
         content: content,
       };
-      await sendEmail(dataEmail);
+      sendEmail(dataEmail);
 
       dataEmail = {
         email: response?.product.seller.email || '',
@@ -235,7 +235,7 @@ export const buyNowProduct = async (req: Request, res: Response) => {
         content: content,
       };
 
-      await sendEmail(dataEmail);
+      sendEmail(dataEmail);
     } catch (err) {
       console.error('Lỗi gửi email:', err);
     }

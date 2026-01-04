@@ -214,7 +214,6 @@ export const getOrderById = async (orderId: string, userId: string) => {
       billUrl: true,
       shippingCode: true,
       shippingUrl: true,
-      createAt: true,
       product: {
         select: {
           title: true,

@@ -67,6 +67,7 @@ export const getOrdersByQuery = async (role: string, query: orderQueryDto) => {
     selectByRole = {
       id: true,
       totalAmount: true,
+      createdAt: true,
       status: true,
       product: {
         select: { id: true, title: true },
@@ -213,6 +214,7 @@ export const getOrderById = async (orderId: string, userId: string) => {
       billUrl: true,
       shippingCode: true,
       shippingUrl: true,
+      createAt: true,
       product: {
         select: {
           title: true,

@@ -3,11 +3,13 @@ import UsersTab from "../../components/admin/UsersTab";
 import ProductsTab from "../../components/admin/ProductsTab";
 import CategoriesTab from "../../components/admin/Categories";
 import ModerationTab from "../../components/admin/ModerationTab";
+import ConfigTab from "../../components/admin/Config";
 
 import { ProductProvider } from "../../libs/contexts/admin/product.context";
 import { CategoryProvider } from "../../libs/contexts/admin/cate.context";
 import { UserProvider } from "../../libs/contexts/admin/user.context";
 import { ModerationProvider } from "../../libs/contexts/admin/moderation.context";
+import { SettingsProvider } from "../../libs/contexts/admin/settings.context";
 
 import { AdminProvider } from "../../libs/contexts/admin/admin.context";
 const TAB_LIST = [
@@ -16,6 +18,7 @@ const TAB_LIST = [
   { key: "sanpham", label: "Sản phẩm" },
   { key: "danhmuc", label: "Danh mục" },
   { key: "kiemduyet", label: "Kiểm duyệt" },
+  { key: "cauhinh", label: "Cấu hình" },
 ];
 
 export default function DashboardTabs() {
@@ -95,6 +98,19 @@ export default function DashboardTabs() {
             Kiểm duyệt
           </button>
         </li>
+
+        <li className='me-2 hover:cursor-pointer hover:bg-gray-200 rounded'>
+          <button
+            onClick={() => setActiveTab("cauhinh")}
+            className={`inline-block p-4 ${
+              activeTab === "cauhinh"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-black-500"
+            }`}
+          >
+            Cấu hình
+          </button>
+        </li>
       </ul>
 
       {/* Nội dung tuỳ tab */}
@@ -120,6 +136,11 @@ export default function DashboardTabs() {
             <ModerationProvider>
               <ModerationTab />
             </ModerationProvider>
+          )}
+          {activeTab === "cauhinh" && (
+            <SettingsProvider>
+              <ConfigTab />
+            </SettingsProvider>
           )}
         </AdminProvider>
       </div>

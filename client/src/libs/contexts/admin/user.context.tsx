@@ -48,8 +48,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Cache: key dạng "pageNumber"
-  const [cache, setCache] = useState<Record<string, CacheItem>>({});
+  // Cache: key dạng "pageNumber" - Khởi tạo từ localStorage
+  const [cache, setCache] = useState<Record<string, CacheItem>>(() => {
+    try {
+      const saved = localStorage.getItem("admin_users_cache");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+          return parsed.data || {};
+        }
+      }
+    } catch (e) {
+      console.error("Error loading cache from localStorage:", e);
+    }
+    return {};
+  });
 
   // ---- FETCH USERS Với cache + Promise.all ----
   const fetchUsers = useCallback(async () => {
@@ -101,57 +114,92 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         }
       };
 
-      // Tính số pages cần fetch: không vượt quá totalPages đã biết
-      // totalPages ở đây là số trang thực tế (API trả về)
-      const maxApiPage = totalPages - 1; // API page cuối cùng
-      const endPage = totalPages > 0 
-        ? Math.min(startPage + prefetchPages - 1, maxApiPage)
-        : startPage + prefetchPages - 1;
-      
-      const pagesToFetch = endPage - startPage + 1;
+      // Bước 1: Fetch trang đầu tiên để lấy totalPages và hiển thị ngay
+      const firstResult = await fetchPage(startPage);
+      let newTotalPages = firstResult.totalPages;
+      let newTotalUsers = firstResult.totalUsers;
 
-      // Tạo array các promises cho các pages cần fetch (chỉ fetch đủ số page cần thiết)
-      const pageNumbers = Array.from(
-        { length: pagesToFetch },
-        (_, i) => startPage + i
-      );
-
-      const results = await Promise.all(pageNumbers.map(fetchPage));
-
-      // Cache từng page từ kết quả
+      // Lưu trang đầu vào cache ngay
       const newCache: Record<string, CacheItem> = {};
-      let newTotalUsers = 0;
-      let newTotalPages = 1;
+      newCache[`page-${startPage}`] = {
+        users: firstResult.data,
+        totalUsers: newTotalUsers,
+        totalPages: newTotalPages,
+      };
 
-      results.forEach(({ pageNum, data, totalUsers: tu, totalPages: tp }) => {
-        if (data.length > 0) {
-          newCache[`page-${pageNum}`] = {
+      // Cập nhật state ngay lập tức nếu đang ở trang đầu
+      if (apiPage === startPage) {
+        setUsers(firstResult.data);
+        setTotalUsers(newTotalUsers);
+        setTotalPages(newTotalPages);
+        setIsLoading(false);
+      }
+
+      // Lưu cache vào localStorage ngay
+      setCache((prev) => {
+        const updated = { ...prev, ...newCache };
+        try {
+          localStorage.setItem("admin_users_cache", JSON.stringify({
+            data: updated,
+            timestamp: Date.now()
+          }));
+        } catch (e) {
+          console.error("Error saving cache to localStorage:", e);
+        }
+        return updated;
+      });
+
+      // Bước 2: Prefetch các trang còn lại (nếu có)
+      const maxApiPage = newTotalPages - 1; // API page cuối cùng (0-indexed)
+      const endPage = Math.min(startPage + prefetchPages - 1, maxApiPage);
+      
+      if (endPage > startPage) {
+        const remainingPages = Array.from(
+          { length: endPage - startPage },
+          (_, i) => startPage + i + 1
+        );
+
+        // Fetch các trang còn lại song song
+        const remainingResults = await Promise.all(remainingPages.map(fetchPage));
+
+        // Cache các trang còn lại
+        const moreCache: Record<string, CacheItem> = {};
+        remainingResults.forEach(({ pageNum, data, totalUsers: tu, totalPages: tp }) => {
+          moreCache[`page-${pageNum}`] = {
             users: data,
             totalUsers: tu,
             totalPages: tp,
           };
+        });
+
+        // Cập nhật cache và localStorage
+        setCache((prev) => {
+          const updated = { ...prev, ...moreCache };
+          try {
+            localStorage.setItem("admin_users_cache", JSON.stringify({
+              data: updated,
+              timestamp: Date.now()
+            }));
+          } catch (e) {
+            console.error("Error saving cache to localStorage:", e);
+          }
+          return updated;
+        });
+
+        // Nếu trang hiện tại nằm trong các trang vừa prefetch, cập nhật UI
+        if (apiPage > startPage && apiPage <= endPage) {
+          const currentPageData = moreCache[cacheKey];
+          if (currentPageData) {
+            setUsers(currentPageData.users);
+            setTotalUsers(currentPageData.totalUsers);
+            setTotalPages(currentPageData.totalPages);
+          }
         }
-        if (tu > 0) {
-          newTotalUsers = tu;
-          newTotalPages = tp;
-        }
-      });
-
-      setCache((prev) => ({ ...prev, ...newCache }));
-
-      // Cập nhật totalPages 1 lần từ response (nếu chưa có hoặc thay đổi)
-      if (newTotalPages !== totalPages) {
-        setTotalPages(newTotalPages);
-      }
-      if (newTotalUsers !== totalUsers) {
-        setTotalUsers(newTotalUsers);
       }
 
-      const currentPageData = newCache[cacheKey];
-      if (currentPageData) {
-        setUsers(currentPageData.users);
-      } else {
-        setUsers([]);
+      // Nếu trang hiện tại không nằm trong batch này, set loading false
+      if (apiPage !== startPage) {
+        setIsLoading(false);
       }
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -163,6 +211,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   // Refresh thủ công hoặc sau xóa user
   const refreshUsers = () => {
     setCache({});
+    localStorage.removeItem("admin_users_cache");
     setTotalPages(1); // Reset để fetch lại totalPages mới
     fetchUsers();
   };
@@ -192,6 +241,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       // Xóa cache để dữ liệu cập nhật mới
       setCache({});
+      localStorage.removeItem("admin_users_cache");
     } catch (error) {
       console.error("Delete user failed:", error);
       setUsers(prevUsers);

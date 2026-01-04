@@ -68,8 +68,21 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
 
   const limit = 5;
   const prefetchPages = 4; // Số pages prefetch mỗi lần
-  // CACHE
-  const [cache, setCache] = useState<Record<string, CacheData>>({});
+  // CACHE - Khởi tạo từ localStorage
+  const [cache, setCache] = useState<Record<string, CacheData>>(() => {
+    try {
+      const saved = localStorage.getItem("admin_products_cache");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+          return parsed.data || {};
+        }
+      }
+    } catch (e) {
+      console.error("Error loading cache from localStorage:", e);
+    }
+    return {};
+  });
 
   // Fetch Categories
   const fetchCategories = async () => {
@@ -125,55 +138,90 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
         }
       };
 
-      // Tính số pages cần fetch: không vượt quá totalPage đã biết
-      const endPage = totalPage > 1
-        ? Math.min(startPage + prefetchPages - 1, totalPage)
-        : startPage + prefetchPages - 1;
-      
-      const pagesToFetch = endPage - startPage + 1;
+      // Bước 1: Fetch trang đầu tiên để lấy totalPages và hiển thị ngay
+      const firstResult = await fetchPage(startPage);
+      let newTotalPages = firstResult.totalPages;
+      let total = firstResult.total;
 
-      // Tạo array các promises cho các pages cần fetch
-      const pageNumbers = Array.from(
-        { length: pagesToFetch },
-        (_, i) => startPage + i
-      );
-
-      const results = await Promise.all(pageNumbers.map(fetchPage));
-
-      // Cache từng page từ kết quả
+      // Lưu trang đầu vào cache ngay
       const newCache: Record<string, CacheData> = {};
-      let total = 0;
-      let newTotalPages = 1;
+      newCache[`${filter}-${startPage}`] = {
+        products: firstResult.data,
+        totalProducts: total,
+        totalPage: newTotalPages,
+      };
 
-      results.forEach(({ pageNum, data, total: t, totalPages: tp }) => {
-        if (data.length > 0) {
-          newCache[`${filter}-${pageNum}`] = {
+      // Cập nhật state ngay lập tức nếu đang ở trang đầu
+      if (page === startPage) {
+        setProducts(firstResult.data);
+        setTotalProducts(total);
+        setTotalPage(newTotalPages);
+        setIsLoading(false);
+      }
+
+      // Lưu cache vào localStorage ngay
+      setCache((prev) => {
+        const updated = { ...prev, ...newCache };
+        try {
+          localStorage.setItem("admin_products_cache", JSON.stringify({
+            data: updated,
+            timestamp: Date.now()
+          }));
+        } catch (e) {
+          console.error("Error saving cache to localStorage:", e);
+        }
+        return updated;
+      });
+
+      // Bước 2: Prefetch các trang còn lại (nếu có)
+      const endPage = Math.min(startPage + prefetchPages - 1, newTotalPages);
+      if (endPage > startPage) {
+        const remainingPages = Array.from(
+          { length: endPage - startPage },
+          (_, i) => startPage + i + 1
+        );
+
+        // Fetch các trang còn lại song song
+        const remainingResults = await Promise.all(remainingPages.map(fetchPage));
+
+        // Cache các trang còn lại
+        const moreCache: Record<string, CacheData> = {};
+        remainingResults.forEach(({ pageNum, data, total: t, totalPages: tp }) => {
+          moreCache[`${filter}-${pageNum}`] = {
             products: data,
             totalProducts: t,
             totalPage: tp,
           };
+        });
+
+        // Cập nhật cache và localStorage
+        setCache((prev) => {
+          const updated = { ...prev, ...moreCache };
+          try {
+            localStorage.setItem("admin_products_cache", JSON.stringify({
+              data: updated,
+              timestamp: Date.now()
+            }));
+          } catch (e) {
+            console.error("Error saving cache to localStorage:", e);
+          }
+          return updated;
+        });
+
+        // Nếu trang hiện tại nằm trong các trang vừa prefetch, cập nhật UI
+        if (page > startPage && page <= endPage) {
+          const currentPageData = moreCache[cacheKey];
+          if (currentPageData) {
+            setProducts(currentPageData.products);
+            setTotalProducts(currentPageData.totalProducts);
+            setTotalPage(currentPageData.totalPage);
+          }
         }
-        if (t > 0) {
-          total = t;
-          newTotalPages = tp;
-        }
-      });
-
-      setCache((prev) => ({ ...prev, ...newCache }));
-
-      // Cập nhật totalPage 1 lần từ response
-      if (newTotalPages !== totalPage) {
-        setTotalPage(newTotalPages);
-      }
-      if (total !== totalProducts) {
-        setTotalProducts(total);
       }
 
-      const currentPageData = newCache[cacheKey];
-      if (currentPageData) {
-        setProducts(currentPageData.products);
-      } else {
-        setProducts([]);
+      // Nếu trang hiện tại không nằm trong batch này, set loading false
+      if (page !== startPage) {
+        setIsLoading(false);
       }
     } catch (err) {
       console.error("Fetch products failed:", err);
@@ -205,6 +253,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
 
       // Clear cache để lần fetch kế tiếp lấy data mới
       setCache({});
+      localStorage.removeItem("admin_products_cache");
 
       // Không fetch ngay → tránh dialog biến mất (Tab sẽ fetch sau)
       return { success: true, message: data.message || "Đã xoá thành công" };
@@ -216,6 +265,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
 
   const refreshProducts = () => {
     setCache({});
+    localStorage.removeItem("admin_products_cache");
     setTotalPage(1); // Reset để fetch lại totalPage mới
     fetchProducts();
   };

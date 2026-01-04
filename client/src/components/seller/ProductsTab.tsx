@@ -22,6 +22,8 @@ const ProductsTab: FC = () => {
     page,
     totalPage,
     totalProducts,
+    activeTab,
+    setActiveTab,
     setPage,
     deleteProduct,
     updateProductDescription,
@@ -33,21 +35,10 @@ const ProductsTab: FC = () => {
   const [editProduct, setEditProduct] = useState<any>(null);
   const [newDesc, setNewDesc] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"all" | "active" | "completed">("all");
-
   const productToDelete = products.find((p) => p.id === deleteId);
 
-  // Filter products based on active tab
-  const filteredProducts = products.filter((p) => {
-    if (activeTab === "all") return true;
-    if (activeTab === "active") {
-      return p.status === "ACTIVE" && new Date(p.endAt) > new Date();
-    }
-    if (activeTab === "completed") {
-      return p.status === "SOLD" || (p.status === "ACTIVE" && new Date(p.endAt) <= new Date());
-    }
-    return true;
-  });
+  // Không cần filter ở client nữa vì đã filter từ server
+  const filteredProducts = products;
 
   const onPageChange = (p: number | string) => {
     if (p === "...") return;
@@ -94,9 +85,9 @@ const ProductsTab: FC = () => {
       {/* Tabs */}
       <div className='flex border-b border-gray-200 bg-white overflow-x-auto'>
         <button
-          onClick={() => setActiveTab("all")}
+          onClick={() => setActiveTab("ALL")}
           className={`px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === "all"
+            activeTab === "ALL"
               ? "border-teal-600 text-teal-600"
               : "border-transparent text-gray-500 hover:text-gray-700"
           }`}
@@ -104,9 +95,9 @@ const ProductsTab: FC = () => {
           Tất cả
         </button>
         <button
-          onClick={() => setActiveTab("active")}
+          onClick={() => setActiveTab("ACTIVE")}
           className={`px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === "active"
+            activeTab === "ACTIVE"
               ? "border-teal-600 text-teal-600"
               : "border-transparent text-gray-500 hover:text-gray-700"
           }`}
@@ -114,9 +105,9 @@ const ProductsTab: FC = () => {
           Đang hoạt động
         </button>
         <button
-          onClick={() => setActiveTab("completed")}
+          onClick={() => setActiveTab("COMPLETED")}
           className={`px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === "completed"
+            activeTab === "COMPLETED"
               ? "border-teal-600 text-teal-600"
               : "border-transparent text-gray-500 hover:text-gray-700"
           }`}
@@ -171,9 +162,9 @@ const ProductsTab: FC = () => {
                   <div className='flex flex-col items-center gap-2'>
                     <Search className='w-6 sm:w-8 h-6 sm:h-8 text-gray-300' />
                     <span className='text-xs sm:text-sm'>
-                      {activeTab === "all"
+                      {activeTab === "ALL"
                         ? "Bạn chưa có sản phẩm nào."
-                        : activeTab === "active"
+                        : activeTab === "ACTIVE"
                         ? "Không có sản phẩm đang hoạt động."
                         : "Không có sản phẩm đã hoàn thành."}
                     </span>
@@ -225,18 +216,7 @@ const ProductsTab: FC = () => {
                         const isExpired = new Date(p.endAt) <= new Date();
                         const isCompleted = p.status === "SOLD" || (p.status === "ACTIVE" && isExpired);
                         
-                        if (isCompleted && p.countbids > 0) {
-                          return (
-                            <Link
-                              to={`/product/${p.id}?tab=rating`}
-                              className='px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors'
-                              title='Đánh giá người mua'
-                            >
-                              Đánh giá
-                            </Link>
-                          );
-                        }
-                        
+                        if ( ! (isCompleted && p.countbids > 0)) {
                         return (
                           <>
                             <Link
@@ -255,7 +235,8 @@ const ProductsTab: FC = () => {
                             </button>
                           </>
                         );
-                      })()}
+                      }
+                    })()}
                     </div>
                   </td>
                 </tr>
@@ -276,9 +257,9 @@ const ProductsTab: FC = () => {
           <div className='flex flex-col items-center justify-center py-8 text-gray-500'>
             <Search className='w-8 h-8 text-gray-300 mb-2' />
             <span className='text-sm'>
-              {activeTab === "all"
+              {activeTab === "ALL"
                 ? "Bạn chưa có sản phẩm nào."
-                : activeTab === "active"
+                : activeTab === "ACTIVE"
                 ? "Không có sản phẩm đang hoạt động."
                 : "Không có sản phẩm đã hoàn thành."}
             </span>

@@ -101,11 +101,9 @@ const ChatPage = () => {
 
         socket.emit('subscribe', productList);
       } catch (err) {
-        if (err instanceof Error) {
-          toast.error(err.message);
-        } else {
-          toast.error('Đã xảy ra lỗi');
-        }
+        if ((err as Error).name === 'AbortError') return;
+        const msg = (err as Error).message || 'Lỗi khi tải danh sách chat';
+        toast.error(msg);
       } finally {
         if (!controller.signal.aborted) {
           setIsLoading(false);

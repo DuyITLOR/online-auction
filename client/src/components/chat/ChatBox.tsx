@@ -42,7 +42,11 @@ interface ChatBoxProps {
   hideBack?: boolean;
 }
 
-const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: ChatBoxProps) => {
+const ChatBox = ({
+  chatInfor,
+  updateChatIdx = () => {},
+  hideBack = false,
+}: ChatBoxProps) => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -91,7 +95,6 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: Cha
 
   useEffect(() => {
     const controller = new AbortController();
-
     const fetchMessages = async () => {
       try {
         const session = await getSession();
@@ -123,6 +126,8 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: Cha
     };
 
     fetchMessages();
+    socket.emit('subscribe', [chatInfor.productId]);
+    socket.off(`chat/${chatInfor.productId}`);
     socket.on(`chat/${chatInfor.productId}`, handleReceiveMessage);
     return () => {
       controller.abort();
@@ -148,9 +153,9 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: Cha
           )}
 
           <img className='w-10 h-10 rounded-full' src={chatInfor.avtUrl} />
-          <div className='font-medium text-heading'>
+          <div className='font-medium text-heading truncate max-w-[260px]'>
             <div>{chatInfor.productName}</div>
-            <div className='text-sm font-normal text-body'>
+            <div className='text-sm font-normal text-body truncate max-w-[260px]'>
               {chatInfor.name}
             </div>
           </div>
@@ -189,18 +194,18 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: Cha
       {/* Input */}
       {chatInfor && (
         <div className='border-t shrink-0 border-slate-200 bg-white px-4 md:h-16 h-10  gap-2 flex items-center'>
-            {/* Input */}
-            <input
-              type='text'
-              value={message}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleSendMessage(message);
-                }
-              }}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder='Type a message...'
-              className='
+          {/* Input */}
+          <input
+            type='text'
+            value={message}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSendMessage(message);
+              }
+            }}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder='Type a message...'
+            className='
         flex-1
         rounded-xl
         border border-slate-300
@@ -215,12 +220,12 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: Cha
         focus:ring-teal-500/20
         ml-2
       '
-            />
+          />
 
-            {/* Send button */}
-            <button
-              onClick={() => handleSendMessage(message)}
-              className='
+          {/* Send button */}
+          <button
+            onClick={() => handleSendMessage(message)}
+            className='
         rounded-xl
         bg-teal-500
         px-4 py-2
@@ -231,9 +236,9 @@ const ChatBox = ({ chatInfor, updateChatIdx = () => { }, hideBack = false }: Cha
         active:bg-teal-700
         transition
       '
-            >
-              Send
-            </button>
+          >
+            Send
+          </button>
         </div>
       )}
     </div>

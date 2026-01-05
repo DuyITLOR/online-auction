@@ -51,7 +51,7 @@ export const createAutoBid = async (req: Request, res: Response) => {
       maxAutoBidAmount: Number(maxAutoBidAmount),
     });
 
-    const emailPromises: Promise<any>[] = [];
+    const emailJobs: (() => Promise<any>)[] = [];
     // Gửi cho người thắng
     let content = loadBidSuccessTemplateForBidder(
       data.winner.name,
@@ -59,7 +59,7 @@ export const createAutoBid = async (req: Request, res: Response) => {
       data.product.price.toString()
     );
 
-    emailPromises.push(
+    emailJobs.push(() =>
       sendEmail({
         email: data.winner.email,
         subject: "Thông báo ra giá thành công",
@@ -74,8 +74,8 @@ export const createAutoBid = async (req: Request, res: Response) => {
       data.product.price.toString()
     );
 
-    emailPromises.push(
-      sendEmail({
+    emailJobs.push(() =>
+       sendEmail({
         email: data.seller.email,
         subject: "Thông báo người đấu giá ra giá thành công sản phẩm của bạn",
         content,
@@ -90,7 +90,7 @@ export const createAutoBid = async (req: Request, res: Response) => {
         data.product.name,
         `Sản phẩm của bạn đã có người ra giá cao hơn và giá hiện tại là ${data.product.price} `
       );
-      emailPromises.push(
+      emailJobs.push(() =>
         sendEmail({
           email: data.lastWinner.email,
           subject: "Bạn đã bị vượt qua trong cuộc đấu giá",
@@ -99,7 +99,16 @@ export const createAutoBid = async (req: Request, res: Response) => {
       );
     }
 
-    await Promise.all(emailPromises);
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    for (const job of emailJobs) {
+      try {
+        await job();
+        await sleep(400); // 300–500ms
+      } catch (err) {
+        console.error("Send email failed:", err);
+      }
+    }
 
     const response = gatewayResponse(
       HttpStatus.created,

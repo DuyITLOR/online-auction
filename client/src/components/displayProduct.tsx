@@ -210,7 +210,7 @@ const ProductSection = ({
                 </div>
 
                 <div className='mt-auto flex flex-col gap-1'>
-                  {productData?.buyNowPrice > 0 && (
+                  {productData?.buyNowPrice && (
                     <div className='flex justify-between items-center text-[10px] md:text-[11px] mb-1'>
                       <span className='text-gray-400 flex items-center gap-1'>
                         <ShoppingCart size={10} /> Mua ngay:

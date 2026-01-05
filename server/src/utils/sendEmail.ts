@@ -1,5 +1,5 @@
-// import nodemailer from "nodemailer";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
+// import { Resend } from "resend";
 import { sendEmailDto, sendEmailResultDto } from "../dto/sendEmailDto";
 
 
@@ -259,6 +259,60 @@ export const loadAnswerTemplate = (
   `;
 };
 
+
+export const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_APP_PASSWORD, 
+  },
+
+  pool: true,
+  maxConnections: 1,   
+  maxMessages: 5,
+
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
+// verify khi app start
+transporter.verify((err) => {
+  if (err) {
+    console.error("SMTP verify failed:", err);
+  } else {
+    console.log("SMTP ready");
+  }
+});
+
+export const sendEmail = async (
+  data: sendEmailDto
+): Promise<sendEmailResultDto> => {
+  try {
+    await transporter.sendMail({
+      from: '"SnapBid" <group2hcmus@gmail.com>',
+      to: data.email,
+      subject: data.subject ?? "Verification code",
+      html: data.content,
+    });
+
+    console.log("📧 Sent email to:", data.email);
+
+    return {
+      success: true,
+      message: "Send email",
+    };
+  } catch (err) {
+    console.error("Send email failed:", err);
+
+    if (err instanceof Error) {
+      return { success: false, message: err.message };
+    }
+
+    return { success: false, message: "unknown error" };
+  }
+};
+
 // export const sendEmail = async (
 //   data: sendEmailDto
 // ): Promise<sendEmailResultDto> => {
@@ -301,22 +355,23 @@ export const loadAnswerTemplate = (
 //     };
 //   }
 // };
-const resend = new Resend(process.env.RESEND_API_KEY!);
 
 
-export const sendEmail = async (data: sendEmailDto) => {
-  try {
-    await resend.emails.send({
-      from: "SnapBid <onboarding@resend.dev>", // test OK ngay
-      to: data.email,
-      subject: data.subject ?? "Verification code",
-      html: data.content,
-    });
+// const resend = new Resend(process.env.RESEND_API_KEY!);
 
-    console.log("Dữ liệu email đã được gửi thành công: ", data.email);
 
-    return { success: true, message: "Send email" };
-  } catch (err: any) {
-    return { success: false, message: err.message };
-  }
-};
+// export const sendEmail = async (data: sendEmailDto) => {
+//   try {
+//     await resend.emails.send({
+//       from: "SnapBid <onboarding@resend.dev>", // test OK ngay
+//       to: data.email,
+//       subject: data.subject ?? "Verification code",
+//       html: data.content,
+//     });
+//     console.log("Dữ liệu email đã được gửi thành công: ", data.email);
+
+//     return { success: true, message: "Send email" };
+//   } catch (err: any) {
+//     return { success: false, message: err.message };
+//   }
+// };

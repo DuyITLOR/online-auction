@@ -181,6 +181,9 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
       toast.error('Có lỗi trong quá trình mua ngay. Vui lòng thử lại');
       console.error(err);
       setIsBuying(false);
+    } finally {
+      setOpen(false);
+      setConfirm(false);
     }
   };
 
@@ -203,6 +206,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
 
     if (product.buyNowPrice && price >= Number(product.buyNowPrice)) {
       setOpen(true);
+      setConfirm(false);
       return;
     }
 
@@ -662,11 +666,18 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                         </Button>
                       </DialogClose>
                       <Button
-                        onClick={() => setOpen(false)}
+                        onClick={handleBuyNow}
                         className='bg-teal-500 hover:bg-teal-600 text-white flex-1 sm:flex-none px-5'
                         type='submit'
                       >
-                        Xác nhận
+                        {isBuying ? (
+                          <>
+                            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                            Đang xử lý
+                          </>
+                        ) : (
+                          'Xác nhận'
+                        )}
                       </Button>
                     </div>
                   </DialogFooter>

@@ -21,6 +21,7 @@ model User {
   avtUrl          String
   dateOfBirth     DateTime?
   address         String?
+  isActive        Boolean?          @default(true)
   autoBids        AutoBids[]
   bidHistory      BidHistory[]
   blockedOn       BlockedBidders[]  @relation("BlockedUsers")

@@ -37,6 +37,7 @@
     "nodemailer": "^7.0.10",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "postmark": "^4.0.5",
     "resend": "^6.4.2",
     "slugify": "^1.6.6",
     "socket.io": "^4.8.3"

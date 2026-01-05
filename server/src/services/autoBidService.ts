@@ -113,10 +113,7 @@ export const computerBidder = async (
             newPrice = Math.max(currentPrice, target);
             winnerId = firstBidder.bidderId;
           } else {
-            if (maxNew > currentPrice) {
-              newPrice = maxNew;
-            } else newPrice = currentPrice;
-
+            newPrice = Math.max(currentPrice, maxNew);
             winnerId = firstBidder.bidderId;
           }
         }
@@ -205,11 +202,13 @@ export const createAutoBid = async (
   const checkValid = await validationAutoBid(data);
   if (!checkValid) throw new Error("Xác thực tự động ra giá thất bại");
 
-  const lastWinner = await prisma.bidHistory.findFirst({
-    where: { productId: data.productId },
-    orderBy: { amount: "desc" },
-    include: { bidder: true },
-  });
+  const prevWinnerId = product.winnerId;
+  const prevWinner = prevWinnerId
+    ? await prisma.user.findUnique({
+        where: { id: prevWinnerId },
+        select: { fullname: true, email: true },
+      })
+    : null;
 
   await prisma.autoBids.upsert({
     where: {
@@ -228,11 +227,40 @@ export const createAutoBid = async (
     },
   });
 
+  if (product.winnerId === data.bidderId) {
+    return {
+      product: {
+        name: product.title,
+        price: Number(product.currentPrice),
+      },
+      winner: {
+        name: data.bidderId, 
+        email: "N/A", 
+      },
+      lastWinner: {
+        name: "Bạn đang giữ giá",
+        email: "N/A",
+      },
+      seller: {
+        name: product.seller.fullname as string,
+        email: "N/A",
+      },
+    };
+  }
+
+
   const infor: computeBid = await computerBidder({
     productId: data.productId,
     newBidderId: data.bidderId,
     newMax: data.maxAutoBidAmount,
   });
+
+  const loser =
+    prevWinnerId &&
+    prevWinnerId !== data.bidderId &&
+    infor.email !== prevWinner?.email
+      ? prevWinner
+      : null;
 
   const result: autoBidResult = {
     product: {
@@ -244,10 +272,8 @@ export const createAutoBid = async (
       email: infor.email,
     },
     lastWinner: {
-      name: (lastWinner
-        ? lastWinner.bidder.fullname
-        : "Không có người ra giá trước") as string,
-      email: lastWinner ? lastWinner.bidder.email : "N/A",
+      name: loser?.fullname || "",
+      email: loser?.email || "N/A",
     },
     seller: {
       name: product.seller.fullname as string,

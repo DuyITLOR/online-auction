@@ -51,62 +51,51 @@ export const createAutoBid = async (req: Request, res: Response) => {
       maxAutoBidAmount: Number(maxAutoBidAmount),
     });
 
-    const emailJobs: (() => Promise<any>)[] = [];
     // Gửi cho người thắng
-    let content = loadBidSuccessTemplateForBidder(
+    let content = "";
+    
+    if (data.winner.email !== "N/A") {
+      let content = loadBidSuccessTemplateForBidder(
       data.winner.name,
       data.product.name,
       data.product.price.toString()
     );
 
-    emailJobs.push(() =>
-      sendEmail({
-        email: data.winner.email,
-        subject: "Thông báo ra giá thành công",
-        content,
-      })
-    );
+    sendEmail({
+      email: data.winner.email,
+      subject: "Thông báo ra giá thành công",
+      content,
+    });
+    }
 
     // Gửi thông báo cho người bán
-    content = loadBidSuccessTemplateForSeller(
-      data.seller.name,
-      data.product.name,
-      data.product.price.toString()
-    );
+    if (data.seller.email !== "N/A") {
+      content = loadBidSuccessTemplateForSeller(
+        data.seller.name,
+        data.product.name,
+        data.product.price.toString()
+      );
 
-    emailJobs.push(() =>
-       sendEmail({
+      sendEmail({
         email: data.seller.email,
         subject: "Thông báo người đấu giá ra giá thành công sản phẩm của bạn",
         content,
-      })
-    );
+      });
+    }
 
     // Gửi thông báo cho người thua cuộc (nếu có)
-
     if (data.lastWinner.email !== "N/A") {
       content = loadBidFailedTemplate(
         data.lastWinner.name,
         data.product.name,
         `Sản phẩm của bạn đã có người ra giá cao hơn và giá hiện tại là ${data.product.price} `
       );
-      emailJobs.push(() =>
-        sendEmail({
-          email: data.lastWinner.email,
-          subject: "Bạn đã bị vượt qua trong cuộc đấu giá",
-          content,
-        })
-      );
-    }
 
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-    for (const job of emailJobs) {
-      try {
-        job();
-      } catch (err) {
-        console.error("Send email failed:", err);
-      }
+      sendEmail({
+        email: data.lastWinner.email,
+        subject: "Bạn đã bị vượt qua trong cuộc đấu giá",
+        content,
+      });
     }
 
     const response = gatewayResponse(

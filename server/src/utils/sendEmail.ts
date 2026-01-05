@@ -260,19 +260,80 @@ export const loadAnswerTemplate = (
 };
 
 
+// export const transporter = nodemailer.createTransport({
+//   host: "smtp.ethereal.email",
+//   port: 465,
+//   secure: true, // true nếu port 465
+//   auth: {
+//     user: process.env.MAIL_USER,        // ví dụ: maddison53@ethereal.email
+//     pass: process.env.MAIL_APP_PASSWORD // ví dụ: jn7jnAPss4f63QBp6D
+//   },
+// });
+
+// export const transporter = nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 465,
+//   secure: true, 
+//   auth: {
+//     type: "OAuth2",
+//     user: process.env.MAIL_USER,
+//     clientId: process.env.GMAIL_CLIENT_ID,
+//     clientSecret: process.env.GMAIL_CLIENT_SECRET,
+//     refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+//     accessToken: process.env.GMAIL_ACCESS_TOKEN,
+//   },
+// });
+
+// /**
+//  * Verify khi app start (OK với Ethereal)
+//  */
+// transporter.verify((err, success) => {
+//   if (err) {
+//     console.error("SMTP verify failed:", err);
+//   } else {
+//     console.log("SMTP ready (Ethereal)");
+//   }
+// });
+
+// /**
+//  * Hàm gửi email
+//  */
+// export const sendEmail = async (data: {
+//   email: string;
+//   subject?: string;
+//   content: string;
+// }) => {
+//   try {
+//     const info = await transporter.sendMail({
+//       from: '"SnapBid" <no-reply@snapbid.test>',
+//       to: data.email,
+//       subject: data.subject ?? "Verification code",
+//       html: data.content,
+//     });
+
+//     console.log("📧 Message ID:", info.messageId);
+//     console.log("🔗 Preview URL:", nodemailer.getTestMessageUrl(info));
+
+//     return {
+//       success: true,
+//       message: "Send email success",
+//       previewUrl: nodemailer.getTestMessageUrl(info),
+//     };
+//   } catch (err: any) {
+//     console.error("Send email failed:", err);
+//     return {
+//       success: false,
+//       message: err?.message ?? "unknown error",
+//     };
+//   }
+// };
+
+
 export const transporter = nodemailer.createTransport({
-  service: "gmail",
+  service: "Gmail", // 👈 ĐÚNG Y HÌNH (case-insensitive)
   auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_APP_PASSWORD, 
-  },
-
-  pool: true,
-  maxConnections: 1,   
-  maxMessages: 5,
-
-  tls: {
-    rejectUnauthorized: false,
+    user: process.env.MAIL_USER!,         // vd: group2hcmus@gmail.com
+    pass: process.env.MAIL_APP_PASSWORD!, // Gmail App Password
   },
 });
 
@@ -281,35 +342,35 @@ transporter.verify((err) => {
   if (err) {
     console.error("SMTP verify failed:", err);
   } else {
-    console.log("SMTP ready");
+    console.log("SMTP ready (Gmail service)");
   }
 });
 
-export const sendEmail = async (
-  data: sendEmailDto
-): Promise<sendEmailResultDto> => {
+export const sendEmail = async (data: {
+  email: string;
+  subject?: string;
+  content: string;
+}) => {
   try {
-    await transporter.sendMail({
-      from: '"SnapBid" <group2hcmus@gmail.com>',
+    const info = await transporter.sendMail({
+      from: `"SnapBid" <${process.env.MAIL_USER}>`,
       to: data.email,
       subject: data.subject ?? "Verification code",
       html: data.content,
     });
 
-    console.log("📧 Sent email to:", data.email);
+    console.log("📧 Message ID:", info.messageId);
 
     return {
       success: true,
-      message: "Send email",
+      message: "Send email success",
     };
-  } catch (err) {
+  } catch (err: any) {
     console.error("Send email failed:", err);
-
-    if (err instanceof Error) {
-      return { success: false, message: err.message };
-    }
-
-    return { success: false, message: "unknown error" };
+    return {
+      success: false,
+      message: err?.message ?? "unknown error",
+    };
   }
 };
 

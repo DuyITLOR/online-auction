@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearchPostgres"]
 }
 
@@ -97,7 +97,7 @@ model Categories {
   id       String       @id @default(uuid())
   name     String
   parentId String?
-  parent   Categories?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  parent   Categories?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
   children Categories[] @relation("CategoryHierarchy")
   products Products[]
 }
@@ -211,9 +211,9 @@ model Orders {
   sellerId     String
   shippingUrl  String?
   shippingCode String?
-  buyer        User        @relation("OrdersBuyer", fields: [buyerId], references: [id])
-  product      Products    @relation(fields: [productId], references: [id])
-  seller       User        @relation("OrdersSeller", fields: [sellerId], references: [id])
+  buyer        User        @relation("OrdersBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  product      Products    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  seller       User        @relation("OrdersSeller", fields: [sellerId], references: [id], onDelete: Cascade)
 
   @@index([buyerId, sellerId])
   @@index([sellerId])

@@ -282,6 +282,8 @@ export const sendEmail = async (
       html: data.content, // HTML body
     });
 
+    console.log("Dữ liệu email đã được gửi thành công: ", data.email);
+
     return {
       success: true,
       message: "Send email",

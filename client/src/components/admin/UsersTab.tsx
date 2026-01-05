@@ -1,11 +1,34 @@
+import React, { useState } from "react";
+import { toast } from "sonner";
 import { useUsers } from "../../libs/contexts/admin/user.context";
-import { Mail, User, Shield, Calendar, Search } from "lucide-react";
+import {
+  Mail,
+  User,
+  Shield,
+  Calendar,
+  Search,
+  Eye,
+  Trash2,
+} from "lucide-react";
 import Pagination from "../pagination";
+import { Link } from "react-router-dom";
+import { de } from "zod/v4/locales";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 
 const TabUsers = () => {
+  const [openId, setOpenId] = useState<string | null>(null);
   const { users, page, setPage, totalUsers, totalPages, isLoading } =
     useUsers();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const userToDelete = users.find((user) => user.id === deletingId);
   function splitDate(dateStr: string) {
     if (!dateStr) return "";
     return new Date(dateStr).toLocaleDateString("vi-VN");
@@ -15,6 +38,21 @@ const TabUsers = () => {
     if (newPage !== "...") setPage(Number(newPage));
   }
 
+  const handleDelete = async () => {
+    if (!openId) return;
+    try {
+      setDeletingId(openId);
+      await deleteUser(openId);
+      toast.success("Xoá sản phẩm thành công");
+      setOpenId(null);
+      refreshProducts(); // reload list
+    } catch (error) {
+      console.error(error);
+      toast.error("Xoá thất bại, vui lòng thử lại");
+    } finally {
+      setDeletingId(null);
+    }
+  };
   return (
     <div className='flex-1 space-y-6'>
       {/* Header / Toolbar (Có thể thêm Search user ở đây sau này) */}
@@ -39,6 +77,9 @@ const TabUsers = () => {
                 <th className='px-6 py-4 font-semibold'>Email</th>
                 <th className='px-6 py-4 font-semibold'>Vai trò</th>
                 <th className='px-6 py-4 font-semibold'>Ngày tham gia</th>
+                <th className='px-6 py-4 font-semibold text-right w-[13%]'>
+                  Hành động
+                </th>
               </tr>
             </thead>
 
@@ -126,6 +167,24 @@ const TabUsers = () => {
                         {splitDate(user.createdAt)}
                       </div>
                     </td>
+                    <td className='px-6 py-5 text-right'>
+                      <div className='flex items-center justify-end gap-2'>
+                        <Link
+                          to={`/profile/${user.id}`}
+                          className='p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-200'
+                          title='Xem chi tiết'
+                        >
+                          <Eye className='w-4 h-4' />
+                        </Link>
+                        <button
+                          onClick={() => setOpenId(user.id)}
+                          className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200'
+                          title='Xóa người dùng'
+                        >
+                          <Trash2 className='w-4 h-4' />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}
@@ -135,10 +194,64 @@ const TabUsers = () => {
 
         {/* Pagination */}
         {!isLoading && totalUsers > 0 && (
-           <div className='pb-8 pr-8 flex justify-end'>
-        <Pagination page={page} totalPage={totalPages} onPageChange={onPageChange} />
-      </div>
+          <div className='pb-8 pr-8 flex justify-end'>
+            <Pagination
+              page={page}
+              totalPage={totalPages}
+              onPageChange={onPageChange}
+            />
+          </div>
         )}
+
+        <Dialog open={!!openId} onOpenChange={(val) => !val && setOpenId(null)}>
+          <DialogContent className='sm:max-w-md'>
+            <DialogHeader>
+              <DialogTitle>Xác nhận xoá sản phẩm</DialogTitle>
+              <DialogDescription className='text-red-600'>
+                Hành động này không thể hoàn tác.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className='py-4'>
+              {userToDelete ? (
+                <p className='text-sm text-gray-600'>
+                  Bạn có chắc chắn muốn xoá sản phẩm: <br />
+                  <span className='font-bold text-gray-900 text-base'>
+                    {userToDelete.fullname + " "}
+                  </span>
+                  ?
+                </p>
+              ) : (
+                <p className='text-gray-500'>Đang tải thông tin sản phẩm...</p>
+              )}
+            </div>
+
+            <DialogFooter className='gap-2 sm:gap-0'>
+              <button
+                onClick={() => setOpenId(null)}
+                disabled={!!deletingId}
+                className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 '
+              >
+                Hủy bỏ
+              </button>
+
+              <button
+                onClick={handleDelete}
+                disabled={!!deletingId}
+                className='ml-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center gap-2 disabled:opacity-50'
+              >
+                {deletingId ? (
+                  <>
+                    <Loader2 className='w-4 h-4 animate-spin' />
+                    Đang xoá...
+                  </>
+                ) : (
+                  "Xác nhận xoá"
+                )}
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

@@ -23,9 +23,10 @@ import { type Ratings } from '../libs/types/types';
 import { toast } from 'sonner';
 import { getAllRatees, getAllRaters, updateRating } from '../api/rating';
 import { calculateRating } from '../libs/utils';
-import Activities from '../components/profile/tabs/activities';
 import WatchProducts from '../components/profile/tabs/watchList';
 import { ProfileHeader } from '@/components/profile/header';
+import WonList from '../components/profile/tabs/wonList';
+import BiddingList from '@/components/profile/tabs/biddingList';
 
 interface statisic {
   BidCount: number;
@@ -160,13 +161,19 @@ const Profile = () => {
           </div>
         </div>
 
-        <Tabs className='w-full' defaultValue='activity'>
-          <TabsList className='grid w-full grid-cols-4'>
+        <Tabs className='w-full' defaultValue='bidding-list'>
+          <TabsList className='grid w-full grid-cols-5'>
             <TabsTrigger
               className='data-[state=active]:bg-teal-500 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
-              value='activity'
+              value='bidding-list'
             >
-              Hoạt động
+              Hoạt động đấu giá
+            </TabsTrigger>
+            <TabsTrigger
+              className='data-[state=active]:bg-teal-500 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
+              value='won-list'
+            >
+              Thắng đấu giá
             </TabsTrigger>
             <TabsTrigger
               className='data-[state=active]:bg-teal-500 data-[state=active]:py-1 data-[state=active]:rounded-md '
@@ -188,8 +195,12 @@ const Profile = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value='activity'>
-            <Activities token={session?.token} />
+          <TabsContent value='bidding-list'>
+            <BiddingList token={session?.token} />
+          </TabsContent>
+
+          <TabsContent value='won-list'>
+            <WonList token={session?.token} />
           </TabsContent>
 
           <TabsContent value='wishlist'>

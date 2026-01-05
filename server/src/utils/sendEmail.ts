@@ -362,7 +362,7 @@ export const sendEmail = async (data: {
       html: data.content,
     });
 
-    console.log(`📧 Sent: ${data.email} - Message ID: ${info.messageId}`);
+    console.log("📧 Message ID:", info.messageId);
 
     return {
       success: true,
@@ -376,7 +376,6 @@ export const sendEmail = async (data: {
     };
   }
 };
-
 
 // export const sendEmail = async (
 //   data: sendEmailDto

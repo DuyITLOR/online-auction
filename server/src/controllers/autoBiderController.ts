@@ -104,7 +104,6 @@ export const createAutoBid = async (req: Request, res: Response) => {
     for (const job of emailJobs) {
       try {
         await job();
-        await sleep(400); // 300–500ms
       } catch (err) {
         console.error("Send email failed:", err);
       }

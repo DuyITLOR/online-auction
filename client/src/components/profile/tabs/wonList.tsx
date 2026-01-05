@@ -51,7 +51,7 @@ const WonList = ({ token }: { token: string }) => {
         const sortedWins = wins.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
         setActivities(sortedWins);
-        setTotalPages(winRes.totalPage || 1);
+        setTotalPages(winRes.totalPages || 1);
       } catch (error) {
         console.error('Failed to fetch activities:', error);
       } finally {

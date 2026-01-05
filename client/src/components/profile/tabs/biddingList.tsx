@@ -52,7 +52,7 @@ const BidHistory = ({ token }: { token: string }) => {
         }));
 
         setActivities(bids);
-        setTotalPages(res.totalPage || 1);
+        setTotalPages(res.totalPages || 1);
       } catch (error) {
         console.error('Failed to fetch activities:', error);
       } finally {

@@ -11,6 +11,7 @@ import { getMaxBidByUser } from '../controllers/autoBiderController';
 import path from 'path';
 import { getAllCommentsByProductId } from '../controllers/userControllers';
 import { getOrderById, uploadBankInfo } from '../services/orderService';
+import { activateUser } from '../services/adminService';
 
 enum Role {
   ADMIN = 'ADMIN',
@@ -270,10 +271,25 @@ export const API_ROUTES = {
     role: [Role.ADMIN],
     method: 'GET',
   },
+  getAllDeactivatedUsers: {
+    path: '/users/deactivated',
+    role: [Role.ADMIN],
+    method: 'GET',
+  },
   profileSummary: {
     path: '/bidder/statistic',
     role: [Role.ALL],
     method: 'GET',
+  },
+  deactivateUser: {
+    path: '/users/:userId/deactivate',
+    role: [Role.ADMIN],
+    method: 'PATCH',
+  },
+  activateUser: {
+    path: '/users/:userId/activate',
+    role: [Role.ADMIN],
+    method: 'PATCH',
   },
 
   // system configuration

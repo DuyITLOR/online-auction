@@ -103,6 +103,17 @@ export const getAllRequest = async (data: getAllUsersServiceDto) => {
   }
 };
 
+export const getAllDeactivatedUsers = async () => {
+  try {
+    const users = await prisma.user.findMany({
+      where: { isActive: false },
+    });
+    return users;
+  } catch (err) {
+    throw err;
+  }
+};
+
 export const acceptRequest = async (id: string) => {
   try {
     const decidedAt = new Date();
@@ -135,6 +146,32 @@ export const acceptRequest = async (id: string) => {
       success: false,
       message: err instanceof Error ? err.message : 'Lỗi không xác định',
     };
+  }
+};
+
+export const deactivateUser = async (userId: string) => {
+  try {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: {
+        isActive: false,
+      },
+    });
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const activateUser = async (userId: string) => {
+  try {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: {
+        isActive: true,
+      },
+    });
+  } catch (err) {
+    throw err;
   }
 };
 

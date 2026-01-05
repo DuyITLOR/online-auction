@@ -69,6 +69,16 @@ model Products {
   winner             User?            @relation("ProductWinner", fields: [winnerId], references: [id], onDelete: Cascade)
   ratings            Ratings[]
   watchlistedBy      WatchList[]
+
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([endAt])
+  @@index([status, endAt])
+  @@index([sellerId, status])
+  @@index([categoryId, status, endAt])
+  @@index([currentPrice])
+  @@index([title])
 }
 
 model EmailVerification {
@@ -114,6 +124,10 @@ model Comments {
   replies   Comments[] @relation("CommentThread")
   product   Products   @relation(fields: [productId], references: [id], onDelete: Cascade)
   sender    User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([senderId])
+  @@index([productId, sendAt])
 }
 
 model ProductImages {
@@ -135,6 +149,7 @@ model AutoBids {
 
   @@unique([productId, bidderId])
   @@index([productId, bidderId])
+  @@index([productId, maxAmount])
 }
 
 model BidHistory {
@@ -147,6 +162,11 @@ model BidHistory {
   product   Products @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, amount])
+  @@index([productId])
+  @@index([productId, createdAt])
+  @@index([productId, amount])
+  @@index([bidderId])
+  @@index([bidderId, createdAt])
 }
 
 model WatchList {
@@ -157,6 +177,8 @@ model WatchList {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, productId])
+  @@index([userId])
+  @@index([productId])
 }
 
 model Chat {
@@ -167,6 +189,10 @@ model Chat {
   sendAt    DateTime @default(now())
   product   Products @relation(fields: [productId], references: [id], onDelete: Cascade)
   sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([senderId])
+  @@index([productId, sendAt])
 }
 
 model BlockedBidders {
@@ -178,6 +204,8 @@ model BlockedBidders {
   user      User     @relation("BlockedUsers", fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([productId, userId])
+  @@index([productId])
+  @@index([userId])
 }
 
 model Ratings {
@@ -220,6 +248,7 @@ model Orders {
   @@index([sellerId])
   @@index([status])
   @@index([createdAt])
+  @@index([productId])
 }
 
 model settings {

@@ -11,7 +11,7 @@ Content-Type: application/json
 
 ### Lấy thông tin của đơn hàng thông qua id của sản phẩm
 GET http://localhost:4000/orders/products/90e5ddff-0cc7-4677-8692-56c9ae568d29
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NjIyODg0MywiZXhwIjoxNzY4ODIwODQzfQ.X5nKBibERIkfjUciJpp8DusPUTu7sOedT-Z9mRAx8Bk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsIpnR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NjIyODg0MywiZXhwIjoxNzY4ODIwODQzfQ.X5nKBibERIkfjUciJpp8DusPUTu7sOedT-Z9mRAx8Bk
 Content-Type: application/json
 
 ### SELLER - lấy đơn theo sản phẩm mình bán (search theo tên sản phẩm)

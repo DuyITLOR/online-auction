@@ -330,10 +330,13 @@ export const loadAnswerTemplate = (
 
 
 export const transporter = nodemailer.createTransport({
-  service: "Gmail", // 👈 ĐÚNG Y HÌNH (case-insensitive)
+  service: "gmail", // 👈 đúng shortcut Gmail
   auth: {
-    user: process.env.MAIL_USER!,         // vd: group2hcmus@gmail.com
-    pass: process.env.MAIL_APP_PASSWORD!, // Gmail App Password
+    type: "OAuth2",
+    user: process.env.MAIL_USER,                 // group2hcmus@gmail.com
+    clientId: process.env.GMAIL_CLIENT_ID,
+    clientSecret: process.env.GMAIL_CLIENT_SECRET,
+    refreshToken: process.env.GMAIL_REFRESH_TOKEN,
   },
 });
 
@@ -359,7 +362,7 @@ export const sendEmail = async (data: {
       html: data.content,
     });
 
-    console.log("📧 Message ID:", info.messageId);
+    console.log(`📧 Sent: ${data.email} - Message ID: ${info.messageId}`);
 
     return {
       success: true,
@@ -373,6 +376,7 @@ export const sendEmail = async (data: {
     };
   }
 };
+
 
 // export const sendEmail = async (
 //   data: sendEmailDto

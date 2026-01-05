@@ -263,13 +263,12 @@ export const loadAnswerTemplate = (
 export const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.MAIL_USER!,
-    pass: process.env.MAIL_APP_PASSWORD!, // Gmail App Password
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_APP_PASSWORD, 
   },
 
-  // 🔥 CỰC KỲ QUAN TRỌNG CHO CLOUD
   pool: true,
-  maxConnections: 1,   // Gmail ghét nhiều connection
+  maxConnections: 1,   
   maxMessages: 5,
 
   tls: {
@@ -280,9 +279,9 @@ export const transporter = nodemailer.createTransport({
 // verify khi app start
 transporter.verify((err) => {
   if (err) {
-    console.error("❌ SMTP verify failed:", err);
+    console.error("SMTP verify failed:", err);
   } else {
-    console.log("✅ SMTP ready");
+    console.log("SMTP ready");
   }
 });
 
@@ -304,7 +303,7 @@ export const sendEmail = async (
       message: "Send email",
     };
   } catch (err) {
-    console.error("❌ Send email failed:", err);
+    console.error("Send email failed:", err);
 
     if (err instanceof Error) {
       return { success: false, message: err.message };

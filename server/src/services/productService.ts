@@ -133,7 +133,6 @@ export const searchProducts = async (query: productQueryDto) => {
   const searchQuery = query.q?.trim();
 
   if (searchQuery) {
-
     const formattedQuery = searchQuery.split(/\s+/).join(' & ');
 
     where.title = {
@@ -264,6 +263,7 @@ export const buyNowProuct = async (data: buyNowProuctDto) => {
       updatedAt: new Date(),
     },
     select: {
+      id: true,
       product: {
         select: {
           buyNowPrice: true,

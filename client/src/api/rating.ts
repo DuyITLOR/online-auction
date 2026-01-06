@@ -1,6 +1,19 @@
-export const getAllRaters = async ({ token }: { token: string }) => {
+export const getAllRaters = async ({
+  page = 1,
+  limit = 5,
+  token,
+}: {
+  page?: number;
+  limit?: number;
+  token: string;
+}) => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/ratings?type=received`, {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/ratings?type=received&${params}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -83,7 +96,7 @@ export const getAllRatingsByUserId = async ({
   id,
   token,
   page = 1,
-  limit = 2,
+  limit = 5,
 }: {
   id: string;
   token: string;

@@ -12,6 +12,8 @@ import {
   Loader2,
   Ban,
   UserMinus,
+  AlertCircle,
+  Users,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarImage } from '../ui/avatar';
@@ -122,11 +124,14 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
   const [confirm, setConfirm] = useState(false);
 
   const [kickDialog, setKickDialog] = useState(false);
+  const [manageBiddersOpen, setManageBiddersOpen] = useState(false);
   const [selectedBidder, setSelectedBidder] = useState<{ id: string; name: string } | null>(null);
   const [isKicking, setIsKicking] = useState(false);
   const [reason, setReason] = useState('');
 
   const navigate = useNavigate();
+
+  const isSeller = user?.id === product?.sellerId;
 
   const { watchList, toggleWatchList } = useContext(ProductContext);
   const isLike = (id: string) => {
@@ -332,10 +337,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
               <div>
                 <p className='text-sm font-semibold'> {product?.seller?.fullname} </p>
                 <div className='flex items-center gap-3'>
-                  <Link
-                    to={`/rating/${product.sellerId}`}
-                    className='text-xs md:text-sm text-teal-600 font-semibold underline'
-                  >
+                  <Link to={'/'} className='text-xs md:text-sm text-teal-600 font-semibold underline'>
                     Đánh giá: {calculateRating(product.seller.ratingPos, product.seller.ratingNeg)}
                   </Link>
                   <Link
@@ -349,66 +351,61 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
               <ChevronRight className='text-end w-8 h-8 md:w-10 md:h-10 rounded-full p-2 hover:bg-gray-200 cursor-pointer' />
             </div>
           </div>
-          {product.sellerId !== user?.id && (
-            <>
-              <div className='border-spacing-0.5 border-t border-gray-200 mt-4 mb-2 w-full' />
-              <div className='flex flex-col gap-2'>
-                <div className='flex items-end gap-5'>
-                  <p className='font-semibold text-gray-700 text-sm md:text-base'>Giá hiện tại: </p>
-                  <span className='text-xl md:text-2xl font-bold text-teal-700'>
-                    {Number(product?.currentPrice).toLocaleString()} VND
-                  </span>
+          <div className='border-spacing-0.5 border-t border-gray-200 mt-4 mb-2 w-full' />
+          <div className='flex flex-col gap-2'>
+            <div className='flex items-end gap-5'>
+              <p className='font-semibold text-gray-700 text-sm md:text-base'>Giá hiện tại: </p>
+              <span className='text-xl md:text-2xl font-bold text-teal-700'>
+                {Number(product?.currentPrice).toLocaleString()} VND
+              </span>
+            </div>
+
+            <p className='text-gray-700 text-sm md:text-base'>Lượt ra giá: {product?.countbids}</p>
+
+            <p className='text-gray-700 text-sm md:text-base font-medium'> {formatTimeLeft(product?.endAt)} </p>
+          </div>
+          <div className='border-spacing-0.5 border-t border-gray-200 mt-2 mb-3 w-full' />
+
+          <div className='flex flex-col'>
+            {!isExpired(product.endAt) && product.status === 'ACTIVE' && !isSeller && (
+              <>
+                <p className='text-gray-700 font-semibold text-base md:text-lg mb-2'>Đặt mức giá tối đa cho sản phẩm</p>
+
+                <div className='flex flex-wrap gap-2 md:gap-3 items-center'>
+                  <div className='flex items-center gap-2 w-full sm:w-auto'>
+                    <Plus
+                      onClick={plusPriceHandle}
+                      className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full cursor-pointer hover:bg-slate-400 transition-colors'
+                    />
+                    <div className='relative flex-1 sm:flex-none'>
+                      <input
+                        type='text'
+                        value={price.toLocaleString('vi-VN')}
+                        onChange={handleChange}
+                        className='h-10 p-2 border text-lg border-gray-200 rounded-md focus-visible:outline-0.5 focus-visible:outline-gray-600 w-full sm:w-[200px] md:w-[260px] pl-2'
+                      />
+                    </div>
+                    <div className='bg-gray-400 p-2 font-semibold rounded-md w-15 h-10 flex items-center justify-center text-sm'>
+                      VND
+                    </div>
+                  </div>
+
+                  {price > Number(product.currentPrice) + Number(product.stepPrice) && (
+                    <Minus
+                      onClick={minusPriceHandle}
+                      className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full cursor-pointer hover:bg-slate-400 transition-colors'
+                    />
+                  )}
                 </div>
 
-                <p className='text-gray-700 text-sm md:text-base'>Lượt ra giá: {product?.countbids}</p>
-
-                <p className='text-gray-700 text-sm md:text-base font-medium'> {formatTimeLeft(product?.endAt)} </p>
-              </div>
-              <div className='border-spacing-0.5 border-t border-gray-200 mt-2 mb-3 w-full' />
-              <div className='flex flex-col'>
-                {!isExpired(product.endAt) && product.status === 'ACTIVE' && (
-                  <>
-                    <p className='text-gray-700 font-semibold text-base md:text-lg mb-2'>
-                      Đặt mức giá tối đa cho sản phẩm
-                    </p>
-
-                    <div className='flex flex-wrap gap-2 md:gap-3 items-center'>
-                      <div className='flex items-center gap-2 w-full sm:w-auto'>
-                        <Plus
-                          onClick={plusPriceHandle}
-                          className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full cursor-pointer hover:bg-slate-400 transition-colors'
-                        />
-                        <div className='relative flex-1 sm:flex-none'>
-                          <input
-                            type='text'
-                            value={price.toLocaleString('vi-VN')}
-                            onChange={handleChange}
-                            className='h-10 p-2 border text-lg border-gray-200 rounded-md focus-visible:outline-0.5 focus-visible:outline-gray-600 w-full sm:w-[200px] md:w-[260px] pl-2'
-                          />
-                        </div>
-                        <div className='bg-gray-400 p-2 font-semibold rounded-md w-15 h-10 flex items-center justify-center text-sm'>
-                          VND
-                        </div>
-                      </div>
-
-                      {price > Number(product.currentPrice) + Number(product.stepPrice) && (
-                        <Minus
-                          onClick={minusPriceHandle}
-                          className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full cursor-pointer hover:bg-slate-400 transition-colors'
-                        />
-                      )}
-                    </div>
-
-                    <p className='text-gray-600 text-xs mt-3 '>
-                      Mức giá tối thiểu có thể đặt là:{' '}
-                      {(Number(product?.currentPrice) + Number(product?.stepPrice)).toLocaleString()} VND (Bước giá:{' '}
-                      {Number(product.stepPrice).toLocaleString()} VND)
-                    </p>
-                  </>
-                )}
-              </div>
-            </>
-          )}
+                <p className='text-gray-600 text-xs mt-3 '>
+                  Mức giá tối thiểu có thể đặt là:{' '}
+                  {(Number(product?.currentPrice) + Number(product?.stepPrice)).toLocaleString()} VND (Bước giá:{' '}
+                  {Number(product.stepPrice).toLocaleString()} VND)
+                </p>
+              </>
+            )}
+          </div>
 
           {isExpired(product.endAt) || product.status !== 'ACTIVE' ? (
             <div className='mt-4'>
@@ -530,170 +527,192 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
             </div>
           ) : (
             <>
-              <Button
-                variant={'outline'}
-                className='bg-black text-white transition delay-150 duration-200 ease-in-out hover:scale-102 mt-5 hover:cursor-pointer h-12 w-full'
-                onClick={() => setConfirm(true)}
-                disabled={isBidding}
-              >
-                {isBidding ? 'Đang xử lý...' : 'Đặt giá ngay'}
-              </Button>
-              {product.buyNowPrice && (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant={'outline'}
-                      className='bg-teal-500 transition delay-150 duration-200 ease-in-out hover:scale-102 mt-3 md:mt-5 text-gray-100 hover:cursor-pointer h-12 w-full'
-                    >
-                      <div className='flex flex-col items-center leading-tight'>
-                        <p className='text-sm md:text-base'>Mua ngay</p>
-                        <p className='text-xs md:text-sm'>{Number(product?.buyNowPrice).toLocaleString()} VND</p>
-                      </div>
-                    </Button>
-                  </DialogTrigger>
-
-                  <DialogContent className='max-w-[90vw] sm:max-w-[480px] rounded-xl'>
-                    <DialogHeader>
-                      <DialogTitle className='text-xl font-semibold text-gray-800'>Xác nhận mua ngay</DialogTitle>
-
-                      <div className='mt-3 space-y-3 text-gray-700 leading-relaxed text-sm md:text-base'>
-                        <p>
-                          Bạn đang chọn <span className='font-medium text-teal-600'>Mua ngay</span> với mức giá:
-                        </p>
-
-                        <p className='text-center text-xl md:text-2xl font-bold text-teal-600'>
-                          [{Number(product.buyNowPrice).toLocaleString()}] VND
-                        </p>
-
-                        <p>Sau khi xác nhận, phiên đấu giá sẽ kết thúc và sản phẩm sẽ thuộc về bạn với mức giá này.</p>
-
-                        <p>Bạn có chắc chắn muốn tiếp tục không?</p>
-                      </div>
-                    </DialogHeader>
-
-                    <DialogFooter className='mt-4 flex-col gap-2 sm:flex-row'>
-                      <div className='flex items-center justify-end gap-2 w-full'>
-                        <DialogClose asChild>
-                          <Button variant='outline' className='flex-1 sm:flex-none'>
-                            Hủy
-                          </Button>
-                        </DialogClose>
+              {!isSeller ? (
+                <>
+                  <Button
+                    variant={'outline'}
+                    className='bg-black text-white transition delay-150 duration-200 ease-in-out hover:scale-102 mt-5 hover:cursor-pointer h-12 w-full'
+                    onClick={() => setConfirm(true)}
+                    disabled={isBidding}
+                  >
+                    {isBidding ? 'Đang xử lý...' : 'Đặt giá ngay'}
+                  </Button>
+                  {product.buyNowPrice && (
+                    <Dialog>
+                      <DialogTrigger asChild>
                         <Button
-                          onClick={handleBuyNow}
-                          className='bg-teal-600 hover:bg-teal-700 flex-1 sm:flex-none sm:min-w-[100px]'
-                          disabled={isBuying}
+                          variant={'outline'}
+                          className='bg-teal-500 transition delay-150 duration-200 ease-in-out hover:scale-102 mt-3 md:mt-5 text-gray-100 hover:cursor-pointer h-12 w-full'
                         >
-                          {isBuying ? (
-                            <>
-                              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                              Đang xử lý
-                            </>
-                          ) : (
-                            'Xác nhận'
-                          )}
+                          <div className='flex flex-col items-center leading-tight'>
+                            <p className='text-sm md:text-base'>Mua ngay</p>
+                            <p className='text-xs md:text-sm'>{Number(product?.buyNowPrice).toLocaleString()} VND</p>
+                          </div>
                         </Button>
-                      </div>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                      </DialogTrigger>
+
+                      <DialogContent className='max-w-[90vw] sm:max-w-[480px] rounded-xl'>
+                        <DialogHeader>
+                          <DialogTitle className='text-xl font-semibold text-gray-800'>Xác nhận mua ngay</DialogTitle>
+
+                          <div className='mt-3 space-y-3 text-gray-700 leading-relaxed text-sm md:text-base'>
+                            <p>
+                              Bạn đang chọn <span className='font-medium text-teal-600'>Mua ngay</span> với mức giá:
+                            </p>
+
+                            <p className='text-center text-xl md:text-2xl font-bold text-teal-600'>
+                              [{Number(product.buyNowPrice).toLocaleString()}] VND
+                            </p>
+
+                            <p>
+                              Sau khi xác nhận, phiên đấu giá sẽ kết thúc và sản phẩm sẽ thuộc về bạn với mức giá này.
+                            </p>
+
+                            <p>Bạn có chắc chắn muốn tiếp tục không?</p>
+                          </div>
+                        </DialogHeader>
+
+                        <DialogFooter className='mt-4 flex-col gap-2 sm:flex-row'>
+                          <div className='flex items-center justify-end gap-2 w-full'>
+                            <DialogClose asChild>
+                              <Button variant='outline' className='flex-1 sm:flex-none'>
+                                Hủy
+                              </Button>
+                            </DialogClose>
+                            <Button
+                              onClick={handleBuyNow}
+                              className='bg-teal-600 hover:bg-teal-700 flex-1 sm:flex-none sm:min-w-[100px]'
+                              disabled={isBuying}
+                            >
+                              {isBuying ? (
+                                <>
+                                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                                  Đang xử lý
+                                </>
+                              ) : (
+                                'Xác nhận'
+                              )}
+                            </Button>
+                          </div>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                  <Dialog open={confirm} onOpenChange={setConfirm}>
+                    <DialogContent className='max-w-[90vw] sm:max-w-[480px] rounded-xl'>
+                      <DialogHeader>
+                        <DialogTitle className='text-lg md:text-xl font-bold text-gray-800 text-center'>
+                          Xác nhận đấu giá
+                        </DialogTitle>
+
+                        <div className='mt-4 space-y-4 text-gray-700 leading-relaxed text-sm md:text-base text-center'>
+                          <p>Bạn đang thực hiện yêu cầu đấu giá cho sản phẩm này.</p>
+
+                          <div className='bg-teal-50 py-3 px-4 rounded-lg border border-teal-100'>
+                            <span className='block text-gray-600 text-xs uppercase font-semibold mb-1'>
+                              Tổng thanh toán
+                            </span>
+                            <span className='font-bold text-2xl text-teal-600 block'>{formatCurrency(price)} VND</span>
+                          </div>
+
+                          <p>Bạn có chắc chắn muốn hoàn tất giao dịch này không?</p>
+                        </div>
+                      </DialogHeader>
+
+                      <DialogFooter className='mt-5 flex-col gap-3 sm:flex-row sm:justify-center'>
+                        <div className='flex items-center gap-3 w-full'>
+                          <DialogClose asChild onClick={() => setConfirm(false)}>
+                            <Button variant='outline' className='flex-1 border-gray-300 hover:bg-gray-100'>
+                              Đóng
+                            </Button>
+                          </DialogClose>
+
+                          <Button
+                            disabled={isBidding}
+                            onClick={() => handleAutoBid({ productId: product.id, maxAutoBidAmount: price, token })}
+                            className='bg-teal-500 hover:bg-teal-600 text-white flex-1 font-medium'
+                            type='submit'
+                          >
+                            {isBidding ? (
+                              <>
+                                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                                Đang xử lý
+                              </>
+                            ) : (
+                              'Xác nhận'
+                            )}
+                          </Button>
+                        </div>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                  <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogContent className='max-w-[90vw] sm:max-w-[480px] rounded-xl'>
+                      <DialogHeader>
+                        <DialogTitle className='text-lg md:text-xl font-semibold text-gray-800'>
+                          Giá bạn đặt cao hơn giá Mua ngay
+                        </DialogTitle>
+
+                        <div className='mt-3 space-y-3 text-gray-700 leading-relaxed text-sm md:text-base'>
+                          <p>
+                            Giá bạn vừa đặt đang <span className='font-medium text-red-600'>cao hơn</span> mức{' '}
+                            <span className='font-medium text-teal-600'>Mua ngay</span> của sản phẩm.
+                          </p>
+
+                          <p className='text-center text-xl md:text-2xl font-bold text-teal-600'>
+                            Giá Mua ngay: [{Number(product.buyNowPrice).toLocaleString()}] VND
+                          </p>
+
+                          <p>
+                            Bạn có muốn <span className='font-medium text-teal-600'>mua ngay</span> sản phẩm với mức giá
+                            này để kết thúc phiên đấu giá không?
+                          </p>
+                        </div>
+                      </DialogHeader>
+
+                      <DialogFooter className='mt-4 flex-col gap-2 sm:flex-row'>
+                        <div className='flex items-center justify-end gap-2 w-full'>
+                          <DialogClose asChild onClick={() => setOpen(false)}>
+                            <Button variant='outline' className='flex-1 sm:flex-none'>
+                              Hủy
+                            </Button>
+                          </DialogClose>
+                          <Button
+                            onClick={handleBuyNow}
+                            className='bg-teal-500 hover:bg-teal-600 text-white flex-1 sm:flex-none px-5'
+                            type='submit'
+                          >
+                            {isBuying ? (
+                              <>
+                                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                                Đang xử lý
+                              </>
+                            ) : (
+                              'Xác nhận'
+                            )}
+                          </Button>
+                        </div>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </>
+              ) : (
+                <div className='flex flex-col gap-3 mt-5'>
+                  <div className='flex items-center gap-3 p-4 bg-teal-50 text-teal-800 rounded-xl border border-teal-200'>
+                    <AlertCircle className='w-5 h-5 shrink-0' />
+                    <div>
+                      <p className='font-semibold'>Đây là sản phẩm của bạn</p>
+                      <p className='text-sm text-teal-700'>Bạn có thể quản lý người đấu giá ở danh sách bên dưới.</p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => setManageBiddersOpen(true)}
+                    className='w-full bg-teal-600 hover:bg-teal-700 text-white h-12 mt-5'
+                  >
+                    <Users className='w-4 h-4 mr-2' /> Quản lý người đấu giá
+                  </Button>
+                </div>
               )}
-              <Dialog open={confirm} onOpenChange={setConfirm}>
-                <DialogContent className='max-w-[90vw] sm:max-w-[480px] rounded-xl'>
-                  <DialogHeader>
-                    <DialogTitle className='text-lg md:text-xl font-bold text-gray-800 text-center'>
-                      Xác nhận đấu giá
-                    </DialogTitle>
-
-                    <div className='mt-4 space-y-4 text-gray-700 leading-relaxed text-sm md:text-base text-center'>
-                      <p>Bạn đang thực hiện yêu cầu đấu giá cho sản phẩm này.</p>
-
-                      <div className='bg-teal-50 py-3 px-4 rounded-lg border border-teal-100'>
-                        <span className='block text-gray-600 text-xs uppercase font-semibold mb-1'>
-                          Tổng thanh toán
-                        </span>
-                        <span className='font-bold text-2xl text-teal-600 block'>{formatCurrency(price)} VND</span>
-                      </div>
-
-                      <p>Bạn có chắc chắn muốn hoàn tất giao dịch này không?</p>
-                    </div>
-                  </DialogHeader>
-
-                  <DialogFooter className='mt-5 flex-col gap-3 sm:flex-row sm:justify-center'>
-                    <div className='flex items-center gap-3 w-full'>
-                      <DialogClose asChild onClick={() => setConfirm(false)}>
-                        <Button variant='outline' className='flex-1 border-gray-300 hover:bg-gray-100'>
-                          Đóng
-                        </Button>
-                      </DialogClose>
-
-                      <Button
-                        disabled={isBidding}
-                        onClick={() => handleAutoBid({ productId: product.id, maxAutoBidAmount: price, token })}
-                        className='bg-teal-500 hover:bg-teal-600 text-white flex-1 font-medium'
-                        type='submit'
-                      >
-                        {isBidding ? (
-                          <>
-                            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                            Đang xử lý
-                          </>
-                        ) : (
-                          'Xác nhận'
-                        )}
-                      </Button>
-                    </div>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-              <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className='max-w-[90vw] sm:max-w-[480px] rounded-xl'>
-                  <DialogHeader>
-                    <DialogTitle className='text-lg md:text-xl font-semibold text-gray-800'>
-                      Giá bạn đặt cao hơn giá Mua ngay
-                    </DialogTitle>
-
-                    <div className='mt-3 space-y-3 text-gray-700 leading-relaxed text-sm md:text-base'>
-                      <p>
-                        Giá bạn vừa đặt đang <span className='font-medium text-red-600'>cao hơn</span> mức{' '}
-                        <span className='font-medium text-teal-600'>Mua ngay</span> của sản phẩm.
-                      </p>
-
-                      <p className='text-center text-xl md:text-2xl font-bold text-teal-600'>
-                        Giá Mua ngay: [{Number(product.buyNowPrice).toLocaleString()}] VND
-                      </p>
-
-                      <p>
-                        Bạn có muốn <span className='font-medium text-teal-600'>mua ngay</span> sản phẩm với mức giá này
-                        để kết thúc phiên đấu giá không?
-                      </p>
-                    </div>
-                  </DialogHeader>
-
-                  <DialogFooter className='mt-4 flex-col gap-2 sm:flex-row'>
-                    <div className='flex items-center justify-end gap-2 w-full'>
-                      <DialogClose asChild onClick={() => setOpen(false)}>
-                        <Button variant='outline' className='flex-1 sm:flex-none'>
-                          Hủy
-                        </Button>
-                      </DialogClose>
-                      <Button
-                        onClick={handleBuyNow}
-                        className='bg-teal-500 hover:bg-teal-600 text-white flex-1 sm:flex-none px-5'
-                        type='submit'
-                      >
-                        {isBuying ? (
-                          <>
-                            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                            Đang xử lý
-                          </>
-                        ) : (
-                          'Xác nhận'
-                        )}
-                      </Button>
-                    </div>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
             </>
           )}
         </div>
@@ -780,6 +799,65 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
           )}
         </div>
       </div>
+
+      <Dialog open={manageBiddersOpen} onOpenChange={setManageBiddersOpen}>
+        <DialogContent className='max-w-lg rounded-xl'>
+          <DialogHeader>
+            <DialogTitle className='text-xl font-bold flex items-center gap-2'>
+              <Users className='w-5 h-5' /> Quản lý người đấu giá
+            </DialogTitle>
+          </DialogHeader>
+          <div className='flex flex-col gap-3 max-h-[60vh] overflow-y-auto mt-2 pr-1'>
+            {historyBid.length === 0 ? (
+              <p className='text-center text-gray-500 py-4'>Chưa có người tham gia đấu giá.</p>
+            ) : (
+              historyBid.map((item: BidHistory, index: number) => (
+                <div
+                  key={item.id}
+                  className='flex items-center justify-between border px-3 py-3 rounded-lg hover:bg-gray-50'
+                >
+                  <div className='flex items-center gap-3'>
+                    <Avatar className='w-10 h-10 border border-gray-200'>
+                      <AvatarImage src={item.bidder.avtUrl} />
+                    </Avatar>
+                    <div className='flex flex-col'>
+                      <span className='font-medium text-sm text-gray-900'>
+                        {maskName(item?.bidder?.fullname!)}
+                        {index === 0 && <span className='ml-2 text-xs text-teal-600 font-bold'>(Dẫn đầu)</span>}
+                      </span>
+                      <span className='text-xs text-gray-500'>{formatDate(item.createdAt, { time: true })}</span>
+                      <span className='text-sm font-bold text-teal-700 block sm:hidden'>
+                        {Number(item.amount).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-3'>
+                    <span className='text-sm font-bold text-teal-700 hidden sm:block'>
+                      {Number(item.amount).toLocaleString()} VND
+                    </span>
+                    <Button
+                      variant='destructive'
+                      size='sm'
+                      className='h-8 px-2'
+                      onClick={() => {
+                        setSelectedBidder({ id: item.bidder.id, name: item.bidder.fullname || 'Ẩn danh' });
+                        setKickDialog(true);
+                      }}
+                    >
+                      <UserMinus className='w-4 h-4' />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant='outline'>Đóng</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={kickDialog} onOpenChange={setKickDialog}>
         <DialogContent className='max-w-md rounded-xl'>
@@ -882,7 +960,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
         </TabsContent>
       </Tabs>
 
-      <Review seller={product?.seller} productId={product.id} user={user} token={token} />
+      {!isSeller && <Review seller={product?.seller} productId={product.id} user={user} token={token} />}
     </div>
   );
 };

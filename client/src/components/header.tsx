@@ -75,9 +75,7 @@ const Header = () => {
   return (
     <header className='sticky top-0 z-50 border-b border-b-gray-200 bg-white shadow-sm'>
       <div className='container mx-auto px-4 py-3 lg:px-8'>
-        {/* Container chính sử dụng flex-wrap để xử lý responsive */}
         <div className='flex flex-wrap items-center justify-between gap-y-3 md:gap-y-0'>
-          {/* 1. LOGO */}
           <Link to='/' className='flex items-center gap-2 text-2xl font-bold shrink-0'>
             <img
               src='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rockylinux/rockylinux-original.svg'
@@ -90,7 +88,6 @@ const Header = () => {
           </Link>
 
           <div className='flex items-center gap-2 md:gap-4 shrink-0 md:order-3'>
-            {/* Nút Add Product */}
             <Plus
               onClick={handleAddProduct}
               className={`w-8 h-8 md:w-9 md:h-9 stroke-2 text-white p-1.5 rounded-full bg-teal-500 cursor-pointer hover:bg-teal-600 transition-colors ${

@@ -836,9 +836,9 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                       {Number(item.amount).toLocaleString()} VND
                     </span>
                     <Button
-                      variant='destructive'
+                      variant='outline'
                       size='sm'
-                      className='h-8 px-2'
+                      className='h-10 px-2 bg-black/20 text-white'
                       onClick={() => {
                         setSelectedBidder({ id: item.bidder.id, name: item.bidder.fullname || 'Ẩn danh' });
                         setKickDialog(true);

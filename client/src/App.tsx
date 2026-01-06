@@ -20,6 +20,7 @@ import ShopPage from './pages/product/ShopProduct';
 import ChatPage from './pages/chat/ChatPage';
 import RatingPage from './pages/RatingPage';
 import { ProfileSummaryRoute } from './pages/profileSumary';
+import BannedAccount from './pages/BannedAccount';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -28,6 +29,7 @@ const router = createBrowserRouter(
       <Route path='auth/verify' element={<Verify />} />
       <Route path='auth/forget-password' element={<ForgetPassword />} />
       <Route path='auth/reset-password' element={<ResetPassword />} />
+      <Route path='banned' element={<BannedAccount />} />
       <Route path='/' element={<MainLayout />} errorElement={<NotFoundPage />}>
         <Route index element={<Dashboard />} />
         <Route path='products' element={<ProductList />} />

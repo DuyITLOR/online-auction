@@ -78,3 +78,41 @@ export const updateRating = async ({
     throw err;
   }
 };
+
+export const getAllRatingsByUserId = async ({
+  id,
+  token,
+  page = 1,
+  limit = 2,
+}: {
+  id: string;
+  token: string;
+  page?: number;
+  limit?: number;
+}) => {
+  try {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/ratings/users/${id}?${params}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      const message = data.message || data.error || 'Failed to fetch api in get all rating';
+      throw new Error(message);
+    }
+
+    return data.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};

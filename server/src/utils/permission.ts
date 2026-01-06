@@ -331,6 +331,12 @@ export const API_RATING_ROUTES = {
     },
   },
 
+  getRatingByUserId: {
+    path: "/ratings/users/:userId",
+    role: [Role.BIDDER, Role.SELLER],
+    method: "GET",
+  },
+
   rateUser: {
     path: "/ratings/users/:rateeId",
     role: [Role.BIDDER, Role.SELLER],

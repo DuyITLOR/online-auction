@@ -332,7 +332,10 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
               <div>
                 <p className='text-sm font-semibold'> {product?.seller?.fullname} </p>
                 <div className='flex items-center gap-3'>
-                  <Link to={'/'} className='text-xs md:text-sm text-teal-600 font-semibold underline'>
+                  <Link
+                    to={`/rating/${product.sellerId}`}
+                    className='text-xs md:text-sm text-teal-600 font-semibold underline'
+                  >
                     Đánh giá: {calculateRating(product.seller.ratingPos, product.seller.ratingNeg)}
                   </Link>
                   <Link
@@ -346,60 +349,67 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
               <ChevronRight className='text-end w-8 h-8 md:w-10 md:h-10 rounded-full p-2 hover:bg-gray-200 cursor-pointer' />
             </div>
           </div>
-          <div className='border-spacing-0.5 border-t border-gray-200 mt-4 mb-2 w-full' />
-          <div className='flex flex-col gap-2'>
-            <div className='flex items-end gap-5'>
-              <p className='font-semibold text-gray-700 text-sm md:text-base'>Giá hiện tại: </p>
-              <span className='text-xl md:text-2xl font-bold text-teal-700'>
-                {Number(product?.currentPrice).toLocaleString()} VND
-              </span>
-            </div>
-
-            <p className='text-gray-700 text-sm md:text-base'>Lượt ra giá: {product?.countbids}</p>
-
-            <p className='text-gray-700 text-sm md:text-base font-medium'> {formatTimeLeft(product?.endAt)} </p>
-          </div>
-          <div className='border-spacing-0.5 border-t border-gray-200 mt-2 mb-3 w-full' />
-          <div className='flex flex-col'>
-            {!isExpired(product.endAt) && product.status === 'ACTIVE' && (
-              <>
-                <p className='text-gray-700 font-semibold text-base md:text-lg mb-2'>Đặt mức giá tối đa cho sản phẩm</p>
-
-                <div className='flex flex-wrap gap-2 md:gap-3 items-center'>
-                  <div className='flex items-center gap-2 w-full sm:w-auto'>
-                    <Plus
-                      onClick={plusPriceHandle}
-                      className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full cursor-pointer hover:bg-slate-400 transition-colors'
-                    />
-                    <div className='relative flex-1 sm:flex-none'>
-                      <input
-                        type='text'
-                        value={price.toLocaleString('vi-VN')}
-                        onChange={handleChange}
-                        className='h-10 p-2 border text-lg border-gray-200 rounded-md focus-visible:outline-0.5 focus-visible:outline-gray-600 w-full sm:w-[200px] md:w-[260px] pl-2'
-                      />
-                    </div>
-                    <div className='bg-gray-400 p-2 font-semibold rounded-md w-15 h-10 flex items-center justify-center text-sm'>
-                      VND
-                    </div>
-                  </div>
-
-                  {price > Number(product.currentPrice) + Number(product.stepPrice) && (
-                    <Minus
-                      onClick={minusPriceHandle}
-                      className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full cursor-pointer hover:bg-slate-400 transition-colors'
-                    />
-                  )}
+          {product.sellerId !== user?.id && (
+            <>
+              <div className='border-spacing-0.5 border-t border-gray-200 mt-4 mb-2 w-full' />
+              <div className='flex flex-col gap-2'>
+                <div className='flex items-end gap-5'>
+                  <p className='font-semibold text-gray-700 text-sm md:text-base'>Giá hiện tại: </p>
+                  <span className='text-xl md:text-2xl font-bold text-teal-700'>
+                    {Number(product?.currentPrice).toLocaleString()} VND
+                  </span>
                 </div>
 
-                <p className='text-gray-600 text-xs mt-3 '>
-                  Mức giá tối thiểu có thể đặt là:{' '}
-                  {(Number(product?.currentPrice) + Number(product?.stepPrice)).toLocaleString()} VND (Bước giá:{' '}
-                  {Number(product.stepPrice).toLocaleString()} VND)
-                </p>
-              </>
-            )}
-          </div>
+                <p className='text-gray-700 text-sm md:text-base'>Lượt ra giá: {product?.countbids}</p>
+
+                <p className='text-gray-700 text-sm md:text-base font-medium'> {formatTimeLeft(product?.endAt)} </p>
+              </div>
+              <div className='border-spacing-0.5 border-t border-gray-200 mt-2 mb-3 w-full' />
+              <div className='flex flex-col'>
+                {!isExpired(product.endAt) && product.status === 'ACTIVE' && (
+                  <>
+                    <p className='text-gray-700 font-semibold text-base md:text-lg mb-2'>
+                      Đặt mức giá tối đa cho sản phẩm
+                    </p>
+
+                    <div className='flex flex-wrap gap-2 md:gap-3 items-center'>
+                      <div className='flex items-center gap-2 w-full sm:w-auto'>
+                        <Plus
+                          onClick={plusPriceHandle}
+                          className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full cursor-pointer hover:bg-slate-400 transition-colors'
+                        />
+                        <div className='relative flex-1 sm:flex-none'>
+                          <input
+                            type='text'
+                            value={price.toLocaleString('vi-VN')}
+                            onChange={handleChange}
+                            className='h-10 p-2 border text-lg border-gray-200 rounded-md focus-visible:outline-0.5 focus-visible:outline-gray-600 w-full sm:w-[200px] md:w-[260px] pl-2'
+                          />
+                        </div>
+                        <div className='bg-gray-400 p-2 font-semibold rounded-md w-15 h-10 flex items-center justify-center text-sm'>
+                          VND
+                        </div>
+                      </div>
+
+                      {price > Number(product.currentPrice) + Number(product.stepPrice) && (
+                        <Minus
+                          onClick={minusPriceHandle}
+                          className='h-8 w-8 p-1 border border-gray-200 stroke-2 bg-slate-300 rounded-full cursor-pointer hover:bg-slate-400 transition-colors'
+                        />
+                      )}
+                    </div>
+
+                    <p className='text-gray-600 text-xs mt-3 '>
+                      Mức giá tối thiểu có thể đặt là:{' '}
+                      {(Number(product?.currentPrice) + Number(product?.stepPrice)).toLocaleString()} VND (Bước giá:{' '}
+                      {Number(product.stepPrice).toLocaleString()} VND)
+                    </p>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+
           {isExpired(product.endAt) || product.status !== 'ACTIVE' ? (
             <div className='mt-4'>
               <div className='bg-linear-to-br from-gray-50 to-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs'>
@@ -617,6 +627,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                       </DialogClose>
 
                       <Button
+                        disabled={isBidding}
                         onClick={() => handleAutoBid({ productId: product.id, maxAutoBidAmount: price, token })}
                         className='bg-teal-500 hover:bg-teal-600 text-white flex-1 font-medium'
                         type='submit'

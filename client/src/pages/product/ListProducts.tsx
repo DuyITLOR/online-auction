@@ -25,18 +25,6 @@ const maskBidderName = (name: string | null) => {
   return stars + name.slice(-5);
 };
 
-const convertTime = (date: string) => {
-  const now = new Date();
-  const endDate = new Date(date);
-  const diffTime = endDate.getTime() - now.getTime();
-  const diffHours = diffTime / (1000 * 60 * 60);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffTime < 0) return { text: 'Ended', type: 'ended' };
-  if (diffHours < 24) return { text: `${Math.ceil(diffHours)}h left`, type: 'urgent' };
-  return { text: `${diffDays} days`, type: 'normal' };
-};
-
 const getTimeStatusStyle = (date: string) => {
   const now = new Date();
   const end = new Date(date);
@@ -330,8 +318,6 @@ const ProductList = () => {
               <>
                 <div className='grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'>
                   {products.map((item) => {
-                    const timeStatus = convertTime(item.endAt);
-
                     return (
                       <Link
                         to={`/product/${item.id}`}
@@ -406,17 +392,10 @@ const ProductList = () => {
                               </span>
                             </div>
 
-                            {timeStatus.type === 'urgent' ? (
-                              <div className='flex items-center gap-1.5 bg-red-50 text-red-600 px-2 py-1 rounded text-[11px] font-bold'>
-                                <Clock size={12} />
-                                <span>{timeStatus.text}</span>
-                              </div>
-                            ) : (
-                              <div className='flex items-center gap-1.5 text-gray-500 text-xs font-medium'>
-                                <Gavel size={14} />
-                                <span>{item.countbids || 0} Bids</span>
-                              </div>
-                            )}
+                            <div className='flex items-center gap-1.5 text-gray-500 text-xs font-medium'>
+                              <Gavel size={14} />
+                              <span>{item.countbids || 0} Bids</span>
+                            </div>
                           </div>
                         </div>
                       </Link>

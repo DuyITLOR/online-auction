@@ -16,7 +16,7 @@ export const getAllRatings = async (data: getRatingDto) => {
     };
   }
 
-  const [ratings, totalItem] = await Promise.all([
+  const [ratings, totalItem, positiveCount, negativeCount] = await Promise.all([
     prisma.ratings.findMany({
       where: whereCondition,
       orderBy: {
@@ -34,6 +34,18 @@ export const getAllRatings = async (data: getRatingDto) => {
     prisma.ratings.count({
       where: whereCondition,
     }),
+
+    prisma.ratings.count({
+      where: {
+        AND: [whereCondition, { value: 1 }],
+      },
+    }),
+
+    prisma.ratings.count({
+      where: {
+        AND: [whereCondition, { value: -1 }],
+      },
+    }),
   ]);
 
   return {
@@ -41,6 +53,8 @@ export const getAllRatings = async (data: getRatingDto) => {
     limit: data.limit,
     totalItem,
     totalPage: Math.ceil(totalItem / data.limit),
+    positiveCount,
+    negativeCount,
     ratings,
   };
 };

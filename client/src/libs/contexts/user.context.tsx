@@ -61,6 +61,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       await fetchUserInfor(curToken);
     } catch (err) {
+      window.location.reload();
       console.error(err);
     }
   };

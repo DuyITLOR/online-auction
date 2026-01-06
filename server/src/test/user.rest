@@ -72,6 +72,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2L
 
 
 ### Lấy profile của một user
-GET http://localhost:4000/bidder/statistic/c1971d57-98bc-448b-a2d8-b139c1c03ba5
+GET http://localhost:4000/bidder/statistic/c1971d57-98bc-448b-a2d8-b139c1c03ba5 
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMxOTcxZDU3LTk4YmMtNDQ4Yi1hMmQ4LWIxMzljMWMwM2JhNSIsImVtYWlsIjoibG5kdXkyMzJAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NzI3MDAxNywiZXhwIjoxNzY5ODYyMDE3fQ.iVrfOwLFkDy4InAsUlYNzBcv1agCaAvzogw1tx9IZoE

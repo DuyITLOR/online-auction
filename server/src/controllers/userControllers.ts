@@ -86,8 +86,10 @@ export const getSellerStats = async (req: Request, res: Response) => {
     );
 
     const posRatings = ratings.filter((rating) => rating.value === 1).length;
-    const ratingValue = (posRatings / (ratings.length || 1)) * 100;
-
+    let ratingValue = (posRatings / (ratings.length || 1)) * 100;
+    if (ratings.length === 0) {
+      ratingValue = 100;
+    }
     const data = {
       products: products,
       orders: orders,
@@ -241,55 +243,55 @@ export const getAllBlockedUser = async (req: Request, res: Response) => {
   }
 };
 
-  export const blockBidder = async (req: Request, res: Response) => {
-    if (!req.user) {
-      const response = gatewayResponse(
-        HttpStatus.badRequest,
-        null,
-        'Need token before requesting'
-      );
-      res.status(response.code).send(response);
-      return;
-    }
-    const id = req.user.id;
-    // Check role
-    const roles = await checkRole(id);
-    if (!roles.includes('SELLER')) {
-      const response = gatewayResponse(
-        HttpStatus.forbidden,
-        null,
-        'You do not have permission for requesting'
-      );
-      res.status(response.code).send(response);
-      return;
-    }
-    const blockedUserId = req.params.userId;
-    const productId = req.body.productId;
-    const reason = req.body.reason;
-    const data = {
-      productId: productId,
-      userId: blockedUserId,
-      reason: reason,
-    };
-    const record = await service.blockUser(data);
-    if (record.success) {
-      const response = gatewayResponse(
-        HttpStatus.accepted,
-        {
-          record: record.data,
-        },
-        record.message
-      );
-      res.status(response.code).send(response);
-    } else {
-      const response = gatewayResponse(
-        HttpStatus.badRequest,
-        null,
-        record.message
-      );
-      res.status(response.code).send(response);
-    }
+export const blockBidder = async (req: Request, res: Response) => {
+  if (!req.user) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      'Need token before requesting'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+  const id = req.user.id;
+  // Check role
+  const roles = await checkRole(id);
+  if (!roles.includes('SELLER')) {
+    const response = gatewayResponse(
+      HttpStatus.forbidden,
+      null,
+      'You do not have permission for requesting'
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+  const blockedUserId = req.params.userId;
+  const productId = req.body.productId;
+  const reason = req.body.reason;
+  const data = {
+    productId: productId,
+    userId: blockedUserId,
+    reason: reason,
   };
+  const record = await service.blockUser(data);
+  if (record.success) {
+    const response = gatewayResponse(
+      HttpStatus.accepted,
+      {
+        record: record.data,
+      },
+      record.message
+    );
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      record.message
+    );
+    res.status(response.code).send(response);
+  }
+};
 
 export const askSeller = async (req: Request, res: Response) => {
   if (!req.user) {

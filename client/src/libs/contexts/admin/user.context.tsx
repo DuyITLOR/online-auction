@@ -57,7 +57,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [deactivatedUsers, setDeactivatedUsers] = useState<User[]>([]);
 
   // Cache: key dạng "pageNumber" - Khởi tạo từ localStorage
-  const [cache, setCache] = useState<Record<string, CacheItem>>(() => {
+  const [, setCache] = useState<Record<string, CacheItem>>(() => {
     try {
       const saved = localStorage.getItem('admin_users_cache');
       if (saved) {

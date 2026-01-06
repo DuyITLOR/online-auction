@@ -69,7 +69,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   const limit = 5;
   const prefetchPages = 4; // Số pages prefetch mỗi lần
   // CACHE - Khởi tạo từ localStorage
-  const [cache, setCache] = useState<Record<string, CacheData>>(() => {
+  const [, setCache] = useState<Record<string, CacheData>>(() => {
     try {
       const saved = localStorage.getItem('admin_products_cache');
       if (saved) {

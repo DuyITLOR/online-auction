@@ -16,8 +16,6 @@ const PostProduct = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [allowedExtend, setAllowedExtend] = useState(false);
-  const [extendMinutes, setExtendMinutes] = useState(5);
   const [highRatingRequire, setHighRatingRequire] = useState(false);
 
   const [parentCategoryId, setParentCategoryId] = useState('');
@@ -97,7 +95,6 @@ const PostProduct = () => {
       endTime: '',
     });
 
-    setAllowedExtend(false);
     setHighRatingRequire(false);
     setImages([]);
     setPreviewUrls([]);
@@ -170,8 +167,6 @@ const PostProduct = () => {
         buyNowPrice: formData.buyNowPrice ? Number(formData.buyNowPrice) : '',
         startedAt: formData.startTime,
         endAt: formData.endTime,
-        allowedExtend: allowedExtend,
-        extendMinutes: extendMinutes,
         highRatingRequired: highRatingRequire,
         images: images,
       };
@@ -397,28 +392,6 @@ const PostProduct = () => {
                   </div>
                 </div>
 
-                <label className='flex items-center gap-2'>
-                  <input
-                    onClick={() => setAllowedExtend(!allowedExtend)}
-                    checked={allowedExtend}
-                    type='checkbox'
-                    className='w-4 h-4 accent-teal-600'
-                  />
-                  <span className='text-sm'>Cho phép tự động gia hạn</span>
-                </label>
-
-                {allowedExtend && (
-                  <label className='flex items-center gap-2'>
-                    <span className='text-sm'>Số phút gia hạn là </span>
-                    <input
-                      onChange={(e) => setExtendMinutes(Number(e.target.value))}
-                      defaultValue={5}
-                      type='number'
-                      className='number w-12 px-2 border text-sm py-1 border-gray-300 rounded-md hover:border-gray-500'
-                    />
-                    <span className='text-sm'>phút</span>
-                  </label>
-                )}
 
                 <label className='flex items-center gap-2'>
                   <input

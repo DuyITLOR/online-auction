@@ -5,15 +5,18 @@ import {
   bidHistoryQueryDto,
   autoBidResult,
   computeBid,
-} from '../dto/autoBidDto';
-import { prisma } from './db/prisma';
-import { getProductById } from './productService';
-import { checkRating } from './userService';
-import { getBlockUserByProductId } from './userService';
+} from "../dto/autoBidDto";
+import { prisma } from "./db/prisma";
+import { getProductById } from "./productService";
+import { checkRating } from "./userService";
+import { getBlockUserByProductId } from "./userService";
+import * as settingService from "./settingService";
 
 export const computerBidder = async (
   data: computeBidDto
 ): Promise<computeBid> => {
+  const limitMinute = await settingService.getSettingByKey("triggerMinute")
+  const extentTime = await settingService.getSettingByKey("extendMinute")
   return await prisma.$transaction(
     async (tx) => {
       const product = await tx.products.findUnique({
@@ -83,6 +86,7 @@ export const computerBidder = async (
         return {
           winner: temp.winner.fullname,
           email: temp.winner.email,
+          winnerId: data.newBidderId,
           price: Number(startPrice),
         };
       }
@@ -113,10 +117,7 @@ export const computerBidder = async (
             newPrice = Math.max(currentPrice, target);
             winnerId = firstBidder.bidderId;
           } else {
-            if (maxNew > currentPrice) {
-              newPrice = maxNew;
-            } else newPrice = currentPrice;
-
+            newPrice = Math.max(currentPrice, maxNew);
             winnerId = firstBidder.bidderId;
           }
         }
@@ -147,9 +148,8 @@ export const computerBidder = async (
       }
 
       const now = new Date();
-      const fiveMinute = 5 * 60 * 1000;
       let isExtend = false;
-      if (product.endAt.getTime() - now.getTime() <= fiveMinute) {
+      if (product.endAt.getTime() - now.getTime() <= Number(limitMinute) * 60 * 1000) {
         isExtend = true;
       }
 
@@ -165,7 +165,7 @@ export const computerBidder = async (
         ...baseData,
         ...(isExtend &&
           product.autoExtendEnabled && {
-            endAt: new Date(product.endAt.getTime() + fiveMinute),
+            endAt: new Date(product.endAt.getTime() + Number(extentTime) * 60 * 1000),
           }),
       };
 
@@ -183,6 +183,7 @@ export const computerBidder = async (
       return {
         winner: infor.winner.fullname,
         email: infor.winner.email,
+        winnerId: winnerId,
         price: Number(newPrice),
       };
     },
@@ -205,11 +206,13 @@ export const createAutoBid = async (
   const checkValid = await validationAutoBid(data);
   if (!checkValid) throw new Error('Xác thực tự động ra giá thất bại');
 
-  const lastWinner = await prisma.bidHistory.findFirst({
-    where: { productId: data.productId },
-    orderBy: { amount: 'desc' },
-    include: { bidder: true },
-  });
+  const prevWinnerId = product.winnerId;
+  const prevWinner = prevWinnerId
+    ? await prisma.user.findUnique({
+        where: { id: prevWinnerId },
+        select: { fullname: true, email: true },
+      })
+    : null;
 
   await prisma.autoBids.upsert({
     where: {
@@ -228,11 +231,72 @@ export const createAutoBid = async (
     },
   });
 
+  if (product.winnerId === data.bidderId) {
+    return {
+      product: {
+        name: product.title,
+        price: Number(product.currentPrice),
+      },
+      winner: {
+        name: data.bidderId, 
+        email: "N/A", 
+      },
+      lastWinner: {
+        name: "Bạn đang giữ giá",
+        email: "N/A",
+        type: "",
+      },
+      seller: {
+        name: product.seller.fullname as string,
+        email: "N/A",
+      },
+    };
+  }
+
+
   const infor: computeBid = await computerBidder({
     productId: data.productId,
     newBidderId: data.bidderId,
     newMax: data.maxAutoBidAmount,
   });
+  let sucess = null;
+  let loser = null;
+  let losetype: "OVER" | "FAIL" | null = null;
+
+  const newBidderWon = infor.winnerId === data.bidderId;
+  if (newBidderWon){
+    sucess = {
+      fullname: infor.winner,
+      email: infor.email,
+    }
+
+    if(prevWinner && prevWinnerId){
+      loser = {
+        fullname: prevWinner.fullname,
+        email: prevWinner.email,
+      }
+      losetype = "OVER"
+    }
+  } else {
+    sucess = { 
+      fullname: infor.winner,
+      email: infor.email,
+    }
+
+    const newBidder = await prisma.user.findUnique({
+      where: { id: data.bidderId },
+      select: { fullname: true, email: true },
+    })
+
+    if (newBidder) {
+      loser = {
+        fullname: newBidder.fullname,
+        email: newBidder.email,
+      }
+      losetype = "FAIL"
+      }
+    }
+  
 
   const result: autoBidResult = {
     product: {
@@ -241,14 +305,13 @@ export const createAutoBid = async (
       price: infor.price,
     },
     winner: {
-      name: infor.winner,
-      email: infor.email,
+      name: sucess.fullname || "N/A",
+      email: sucess.email || "N/A",
     },
     lastWinner: {
-      name: (lastWinner
-        ? lastWinner.bidder.fullname
-        : 'Không có người ra giá trước') as string,
-      email: lastWinner ? lastWinner.bidder.email : 'N/A',
+      name: loser?.fullname|| "",
+      email: loser?.email || "N/A",
+      type: losetype || "",
     },
     seller: {
       name: product.seller.fullname as string,

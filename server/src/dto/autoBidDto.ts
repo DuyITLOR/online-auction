@@ -17,30 +17,31 @@ export interface bidHistoryQueryDto {
   sort?: string;
 }
 
-export interface autoBidResult {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-  };
-  winner: {
-    name: string;
-    email: string;
-  };
-  lastWinner: {
-    name: string;
-    email: string;
-  };
-  seller: {
-    name: string;
-    email: string;
-  };
+export interface autoBidResult{
+    product: {
+        name: string;
+        price: number;
+    }, 
+    winner: {
+        name: string;
+        email: string;
+    },
+    lastWinner: {
+        name: string;
+        email: string;
+        type: string;
+    }, 
+    seller: {
+        name: string;
+        email: string;
+    }
 }
 
-export interface computeBid {
-  winner: string;
-  email: string;
-  price: number;
+export interface computeBid{
+    winner: string,
+    winnerId: string,
+    email: string,
+    price: number
 }
 
 export interface recomputeDto {

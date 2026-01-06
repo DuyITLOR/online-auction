@@ -52,63 +52,68 @@ export const createAutoBid = async (req: Request, res: Response) => {
       maxAutoBidAmount: Number(maxAutoBidAmount),
     });
 
-    const emailJobs: (() => Promise<any>)[] = [];
-    // Gửi cho người thắng
-    const winnerContent = loadBidSuccessTemplateForBidder(
-      data.winner.name,
-      data.product.name,
-      data.product.price.toString()
-    );
+    console.log("Auto bid created:", data);
 
-    emailJobs.push(() =>
+    // Gửi cho người thắng
+    let content = "";
+
+    if (data.winner.email !== "N/A") {
+      let content = loadBidSuccessTemplateForBidder(
+        data.winner.name,
+        data.product.name,
+        data.product.price.toString()
+      );
+
       sendEmail({
         email: data.winner.email,
-        subject: 'Thông báo ra giá thành công',
-        content: winnerContent,
-      })
-    );
-
-    // Gửi thông báo cho người bán
-    const sellerContent = loadBidSuccessTemplateForSeller(
-      data.seller.name,
-      data.product.name,
-      data.product.price.toString()
-    );
-
-    emailJobs.push(() =>
-      sendEmail({
-        email: data.seller.email,
-        subject: 'Thông báo người đấu giá ra giá thành công sản phẩm của bạn',
-        content: sellerContent,
-      })
-    );
-
-    // Gửi thông báo cho người thua cuộc (nếu có)
-
-    if (data.lastWinner.email !== 'N/A') {
-      const productLink = `${process.env.FRONTEND_URL}/product/${data.product.id}`;
-      const outbidContent = loadOutbidTemplate(
-        data.lastWinner.name,
-        data.product.name,
-        data.product.price.toString(),
-        productLink
-      );
-      emailJobs.push(() =>
-        sendEmail({
-          email: data.lastWinner.email,
-          subject: 'Bạn đã bị vượt qua trong cuộc đấu giá',
-          content: outbidContent,
-        })
-      );
+        subject: "Thông báo ra giá thành công",
+        content,
+      });
     }
 
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    // Gửi thông báo cho người bán
+    if (data.seller.email !== "N/A") {
+      content = loadBidSuccessTemplateForSeller(
+        data.seller.name,
+        data.product.name,
+        data.product.price.toString()
+      );
 
-    for (const job of emailJobs) {
-      try {
-        job();
-      } catch (err) {
-        console.error('Send email failed:', err);
+      sendEmail({
+        email: data.seller.email,
+        subject: "Thông báo người đấu giá ra giá thành công sản phẩm của bạn",
+        content,
+      });
+    }
+
+    // Gửi thông báo cho người thua cuộc (nếu có)
+    if (data.lastWinner.email !== "N/A") {
+      if (data.lastWinner.type === "OVER") {
+        content = loadBidFailedTemplate(
+          data.lastWinner.name,
+          data.product.name,
+          "Thông báo bạn đã bị vượt qua trong cuộc đấu giá",
+          `Sản phẩm của bạn đã có người ra giá cao hơn và giá hiện tại là ${data.product.price} `
+        );
+
+        sendEmail({
+          email: data.lastWinner.email,
+          subject: "Bạn đã bị vượt qua trong cuộc đấu giá",
+          content,
+        });
+      } else {
+          content = loadBidFailedTemplate(
+          data.lastWinner.name,
+          data.product.name,
+          "Thông báo bạn đã ra giá thất bại",
+          `Sản phẩm của bạn đã có người ra giá cao hơn và giá hiện tại là ${data.product.price} `
+        );
+
+        sendEmail({
+          email: data.lastWinner.email,
+          subject: "Thông báo ra giá thất bại",
+          content,
+        });
       }
     }
 

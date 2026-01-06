@@ -154,11 +154,12 @@ export const loadOutbidTemplate = (
 export const loadBidFailedTemplate = (
   userName: string,
   productName: string,
+  title: string,
   reason: string
 ) => {
   return `
     <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;">
-      <h3 style="margin-top:0;color:#0ea5a4;">Kết quả đấu giá</h3>
+      <h3 style="margin-top:0;color:#0ea5a4;">${title}</h3>
 
       <p>Xin chào <strong>${userName}</strong>,</p>
 
@@ -456,7 +457,7 @@ export const sendEmail = async (data: {
       html: data.content,
     });
 
-    console.log('📧 Message ID:', info.messageId);
+    console.log(`Time: ${new Date().toISOString()} - Email: ${data.email} - subject: ${data.subject}` );
 
     return {
       success: true,
@@ -470,64 +471,3 @@ export const sendEmail = async (data: {
     };
   }
 };
-
-// export const sendEmail = async (
-//   data: sendEmailDto
-// ): Promise<sendEmailResultDto> => {
-//   const transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     host: 'smtp.gmail.com',
-//     port: 587,
-//     secure: false, // true for 465, false for other ports
-//     auth: {
-//       user: process.env.MAIL_USER || 'group2hcmus@gmail.com',
-//       pass: process.env.MAIL_APP_PASSWORD || 'tgbpcgszidtfecmr',
-//     },
-//   });
-
-//   try {
-//     const info = await transporter.sendMail({
-//       from: '"SnapBid" <group2hcmus@gmail.com>',
-//       to: data.email,
-//       subject: data.subject ?? "Verification code",
-//       text: "Message from SnapBid", // plain‑text body
-//       html: data.content, // HTML body
-//     });
-
-//     console.log("Dữ liệu email đã được gửi thành công: ", data.email);
-
-//     return {
-//       success: true,
-//       message: "Send email",
-//     };
-//   } catch (err) {
-//     if (err instanceof Error) {
-//       return {
-//         success: false,
-//         message: err.message,
-//       };
-//     }
-//     return {
-//       success: false,
-//       message: "unknown error",
-//     };
-//   }
-// };
-
-// const resend = new Resend(process.env.RESEND_API_KEY!);
-
-// export const sendEmail = async (data: sendEmailDto) => {
-//   try {
-//     await resend.emails.send({
-//       from: "SnapBid <onboarding@resend.dev>", // test OK ngay
-//       to: data.email,
-//       subject: data.subject ?? "Verification code",
-//       html: data.content,
-//     });
-//     console.log("Dữ liệu email đã được gửi thành công: ", data.email);
-
-//     return { success: true, message: "Send email" };
-//   } catch (err: any) {
-//     return { success: false, message: err.message };
-//   }
-// };

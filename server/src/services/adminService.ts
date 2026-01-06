@@ -205,6 +205,22 @@ export const refuseRequest = async (id: string) => {
   }
 };
 
+export const resetUserPassword = async (
+  userId: string,
+  hashNewPassword: string
+) => {
+  try {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: {
+        password: hashNewPassword,
+      },
+    });
+  } catch (err) {
+    throw err;
+  }
+};
+
 export const getAdminDashboardData = async () => {
   try {
     const totalUsers = await prisma.user.count();

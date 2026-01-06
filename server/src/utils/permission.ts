@@ -1,5 +1,5 @@
 import { verify } from 'crypto';
-import { googleCallback } from '../controllers/authControllers';
+import { googleCallback, resetPassword } from '../controllers/authControllers';
 import { updateCate } from '../services/cateService';
 import { updateCategory } from '../controllers/categoryControllers';
 import { get, request } from 'http';
@@ -296,6 +296,11 @@ export const API_ROUTES = {
     role: [Role.ADMIN],
     method: 'PATCH',
   },
+  resetPasswordByAdmin: {
+    path: '/users/:userId/reset-password',
+    role: [Role.ADMIN],
+    method: 'PATCH',
+  },
 
   // system configuration
   getAllSettings: {
@@ -337,9 +342,9 @@ export const API_RATING_ROUTES = {
   },
 
   getRatingByUserId: {
-    path: "/ratings/users/:userId",
+    path: '/ratings/users/:userId',
     role: [Role.BIDDER, Role.SELLER],
-    method: "GET",
+    method: 'GET',
   },
 
   rateUser: {

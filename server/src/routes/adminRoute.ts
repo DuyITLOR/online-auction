@@ -46,5 +46,10 @@ router.patch(
   authMiddleware,
   controllers.refuseRequest
 );
+router.patch(
+  API_ROUTES.resetPasswordByAdmin.path,
+  authMiddleware,
+  controllers.resetPasswordByAdmin
+);
 
 export default router;

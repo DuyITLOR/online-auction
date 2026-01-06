@@ -1,7 +1,7 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 // import { Resend } from "resend";
 
-import { sendEmailDto, sendEmailResultDto } from "../dto/sendEmailDto";
+import { sendEmailDto, sendEmailResultDto } from '../dto/sendEmailDto';
 
 export const loadCodeTemplate = (code: string) => {
   return `
@@ -388,6 +388,49 @@ export const loadProductDescriptionChangedTemplate = (
   `;
 };
 
+export const loadPasswordResetSuccessTemplate = (
+  userName: string,
+  email: string,
+  newPassword: string
+) => {
+  return `
+    <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;background:#fff;">
+      <h3 style="margin-top:0;color:#0ea5a4;">Đặt lại mật khẩu thành công</h3>
+
+      <p>
+        Xin chào <strong>${userName}</strong>,
+      </p>
+
+      <p>
+        Chúng tôi đã xử lý thành công yêu cầu đặt lại mật khẩu cho tài khoản:
+        <strong>${email}</strong>
+      </p>
+
+      <p style="margin-top:12px;">
+        Mật khẩu mới của bạn là:
+      </p>
+
+      <div style="margin:16px 0;padding:12px;background:#fafafa;border:1px dashed #0ea5a4;border-radius:6px;text-align:center;font-size:16px;font-weight:bold;">
+        ${newPassword}
+      </div>
+
+      <p style="margin-top:12px;">
+        Vui lòng đăng nhập bằng mật khẩu này và thay đổi lại mật khẩu của bạn ngay để đảm bảo an toàn cho tài khoản.
+      </p>
+
+      <p>
+        Nếu bạn <strong>không phải</strong> là người yêu cầu đặt lại mật khẩu, vui lòng liên hệ ngay với bộ phận hỗ trợ của chúng tôi.
+      </p>
+
+      <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
+
+      <p style="font-size:12px;color:#666;">
+        Đây là email tự động — vui lòng không phản hồi lại email này.
+      </p>
+    </div>
+  `;
+};
+
 export const loadBlockedBidderTemplate = (
   userName: string,
   productName: string,
@@ -444,7 +487,7 @@ export const loadBlockedBidderTemplate = (
       ">
         <p style="margin:0 0 8px 0;color:#666;font-size:13px;"><strong>Lý do:</strong></p>
         <p style="margin:0;color:#374151;">${
-          reason || "Không được cung cấp"
+          reason || 'Không được cung cấp'
         }</p>
       </div>
 
@@ -478,9 +521,9 @@ export const loadBlockedBidderTemplate = (
 };
 
 export const transporter = nodemailer.createTransport({
-  service: "gmail",
+  service: 'gmail',
   auth: {
-    type: "OAuth2",
+    type: 'OAuth2',
     user: process.env.MAIL_USER, // group2hcmus@gmail.com
     clientId: process.env.GMAIL_CLIENT_ID,
     clientSecret: process.env.GMAIL_CLIENT_SECRET,
@@ -491,9 +534,9 @@ export const transporter = nodemailer.createTransport({
 // verify khi app start
 transporter.verify((err) => {
   if (err) {
-    console.error("SMTP verify failed:", err);
+    console.error('SMTP verify failed:', err);
   } else {
-    console.log("SMTP ready (Gmail service)");
+    console.log('SMTP ready (Gmail service)');
   }
 });
 
@@ -506,7 +549,7 @@ export const sendEmail = async (data: {
     const info = await transporter.sendMail({
       from: `"SnapBid" <${process.env.MAIL_USER}>`,
       to: data.email,
-      subject: data.subject ?? "Verification code",
+      subject: data.subject ?? 'Verification code',
       html: data.content,
     });
 
@@ -518,13 +561,13 @@ export const sendEmail = async (data: {
 
     return {
       success: true,
-      message: "Send email success",
+      message: 'Send email success',
     };
   } catch (err: any) {
-    console.error("Send email failed:", err);
+    console.error('Send email failed:', err);
     return {
       success: false,
-      message: err?.message ?? "unknown error",
+      message: err?.message ?? 'unknown error',
     };
   }
 };

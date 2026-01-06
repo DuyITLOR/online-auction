@@ -6,11 +6,12 @@ import { get, request } from "http";
 import {
   createAutoBid,
   getBidHistoryByUserId,
-} from "../services/autoBidService";
-import { getMaxBidByUser } from "../controllers/autoBiderController";
-import path from "path";
-import { getAllCommentsByProductId } from "../controllers/userControllers";
-import { getOrderById, uploadBankInfo } from "../services/orderService";
+} from '../services/autoBidService';
+import { getMaxBidByUser } from '../controllers/autoBiderController';
+import path from 'path';
+import { getAllCommentsByProductId } from '../controllers/userControllers';
+import { getOrderById, uploadBankInfo } from '../services/orderService';
+import { activateUser } from '../services/adminService';
 
 enum Role {
   ADMIN = "ADMIN",
@@ -266,14 +267,29 @@ export const API_ROUTES = {
     method: "PATCH",
   },
   getAdminDashboardData: {
-    path: "/admin/data",
+    path: '/admin/data',
     role: [Role.ADMIN],
-    method: "GET",
+    method: 'GET',
+  },
+  getAllDeactivatedUsers: {
+    path: '/users/deactivated',
+    role: [Role.ADMIN],
+    method: 'GET',
   },
   profileSummary: {
     path: "/bidder/statistic/:userId",
     role: [Role.ALL],
-    method: "GET",
+    method: 'GET',
+  },
+  deactivateUser: {
+    path: '/users/:userId/deactivate',
+    role: [Role.ADMIN],
+    method: 'PATCH',
+  },
+  activateUser: {
+    path: '/users/:userId/activate',
+    role: [Role.ADMIN],
+    method: 'PATCH',
   },
 
   // system configuration

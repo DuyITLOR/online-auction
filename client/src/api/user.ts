@@ -178,6 +178,24 @@ export const getUserStatistic = async ({ id }: { id: string }) => {
         data.message || data.error || "Failed to fetch user statistic";
       throw new Error(message);
     }
+export const blockUserFromBidding = async (userId: string, productId: string, reason: string, token: string) => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/${userId}/blocked`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ productId, reason }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message = data.message || data.error || 'Failed to block user from bidding';
+      throw new Error(message);
+    }
+
     return data.data;
   } catch (err) {
     console.error(err);

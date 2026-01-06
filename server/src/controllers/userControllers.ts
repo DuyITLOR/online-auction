@@ -86,8 +86,10 @@ export const getSellerStats = async (req: Request, res: Response) => {
     );
 
     const posRatings = ratings.filter((rating) => rating.value === 1).length;
-    const ratingValue = (posRatings / (ratings.length || 1)) * 100;
-
+    let ratingValue = (posRatings / (ratings.length || 1)) * 100;
+    if (ratings.length === 0) {
+      ratingValue = 100;
+    }
     const data = {
       products: products,
       orders: orders,
@@ -246,7 +248,7 @@ export const blockBidder = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      "Need token before requesting"
+      'Need token before requesting'
     );
     res.status(response.code).send(response);
     return;
@@ -254,11 +256,11 @@ export const blockBidder = async (req: Request, res: Response) => {
   const id = req.user.id;
   // Check role
   const roles = await checkRole(id);
-  if (!roles.includes("SELLER")) {
+  if (!roles.includes('SELLER')) {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
-      "You do not have permission for requesting"
+      'You do not have permission for requesting'
     );
     res.status(response.code).send(response);
     return;

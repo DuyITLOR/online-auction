@@ -5,7 +5,6 @@ import { getRole } from '../../api/user';
 import { getSession } from '../session';
 import { io, type Socket } from 'socket.io-client';
 
-// Connect to socket
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5050';
 export const socket: Socket = io(backendUrl, {
   autoConnect: false,

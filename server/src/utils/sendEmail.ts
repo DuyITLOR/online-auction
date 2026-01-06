@@ -1,5 +1,6 @@
-import nodemailer from "nodemailer";
-import { sendEmailDto, sendEmailResultDto } from "../dto/sendEmailDto";
+import nodemailer from 'nodemailer';
+// import { Resend } from "resend";
+import { sendEmailDto, sendEmailResultDto } from '../dto/sendEmailDto';
 
 export const loadCodeTemplate = (code: string) => {
   return `
@@ -97,6 +98,55 @@ export const loadBidSuccessTemplateForSeller = (
       <p style="font-size:12px;color:#666;">
         Nếu bạn không yêu cầu thông báo này, vui lòng bỏ qua email này.
       </p>
+    </div>
+  `;
+};
+
+export const loadOutbidTemplate = (
+  userName: string,
+  productName: string,
+  currentPrice: string | number,
+  productLink: string
+) => {
+  return `
+    <div style="max-width:520px;margin:auto;font-family:Arial,sans-serif;padding:24px;border-radius:10px;border:1px solid #eee;background:#ffffff;">
+      
+      <h2 style="margin-top:0;color:#0ea5a4;">
+        Bạn vừa bị vượt giá
+      </h2>
+
+      <p style="font-size:15px;line-height:1.6;">
+        Chào <strong>${userName}</strong>,<br/>
+        Giá đấu của bạn cho sản phẩm <strong>${productName}</strong> đã bị người khác vượt qua.
+      </p>
+
+      <div style="margin:20px 0;padding:16px;border-radius:8px;background:#f9fafb;border:1px solid #eee;">
+        <p style="margin:0;font-size:14px;color:#555;">Giá hiện tại</p>
+        <p style="margin:6px 0 0;font-size:22px;font-weight:bold;color:#0ea5a4;">
+          ${currentPrice}
+        </p>
+      </div>
+
+      <p style="font-size:14px;line-height:1.6;">
+        Hiện tại bạn <strong>không còn là người dẫn đầu</strong> trong phiên đấu giá này.
+        Nếu bạn vẫn quan tâm đến sản phẩm, hãy quay lại SnapBid để đặt giá mới và giành lại vị trí dẫn đầu.
+      </p>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Đặt giá ngay
+        </a>
+      </div>
+
+      <hr style="margin:24px 0;border:none;border-top:1px solid #eee;" />
+
+      <p style="font-size:12px;color:#777;text-align:center;">
+        Đây là email tự động từ SnapBid — vui lòng không phản hồi lại email này.
+      </p>
+
     </div>
   `;
 };
@@ -257,43 +307,227 @@ export const loadAnswerTemplate = (
   `;
 };
 
-export const sendEmail = async (
-  data: sendEmailDto
-): Promise<sendEmailResultDto> => {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: process.env.MAIL_USER || 'group2hcmus@gmail.com',
-      pass: process.env.MAIL_APP_PASSWORD || 'tgbpcgszidtfecmr',
-    },
-  });
+export const loadProductDescriptionChangedTemplate = (
+  productName: string,
+  productLink: string
+) => {
+  return `
+    <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;background:#fff;">
+      <h3 style="margin-top:0;color:#0ea5a4;">Thông báo cập nhật sản phẩm</h3>
 
+      <p>
+        Mô tả của sản phẩm 
+        <strong>${productName}</strong> đã được người bán cập nhật.
+      </p>
+
+      <p style="margin-top:12px;">
+        Để đảm bảo bạn không bỏ lỡ bất kỳ thông tin quan trọng nào trước khi tham gia hoặc tiếp tục đấu giá,
+        vui lòng xem lại nội dung mô tả mới nhất của sản phẩm.
+      </p>
+
+      <div style="margin:20px 0;text-align:center;">
+        <a 
+          href="${productLink}" 
+          style="
+            display:inline-block;
+            padding:10px 16px;
+            background:#0ea5a4;
+            color:#fff;
+            text-decoration:none;
+            border-radius:6px;
+            font-weight:bold;
+          "
+        >
+          Xem sản phẩm
+        </a>
+      </div>
+
+      <p style="margin-top:12px;">
+        Nếu bạn đang theo dõi hoặc đã đặt giá cho sản phẩm này, hãy kiểm tra lại để đảm bảo thông tin mới phù hợp với quyết định của bạn.
+      </p>
+
+      <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
+
+      <p style="font-size:12px;color:#666;">
+        Đây là email tự động — vui lòng không phản hồi lại email này.
+      </p>
+    </div>
+  `;
+};
+
+// export const transporter = nodemailer.createTransport({
+//   host: "smtp.ethereal.email",
+//   port: 465,
+//   secure: true, // true nếu port 465
+//   auth: {
+//     user: process.env.MAIL_USER,        // ví dụ: maddison53@ethereal.email
+//     pass: process.env.MAIL_APP_PASSWORD // ví dụ: jn7jnAPss4f63QBp6D
+//   },
+// });
+
+// export const transporter = nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 465,
+//   secure: true,
+//   auth: {
+//     type: "OAuth2",
+//     user: process.env.MAIL_USER,
+//     clientId: process.env.GMAIL_CLIENT_ID,
+//     clientSecret: process.env.GMAIL_CLIENT_SECRET,
+//     refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+//     accessToken: process.env.GMAIL_ACCESS_TOKEN,
+//   },
+// });
+
+// /**
+//  * Verify khi app start (OK với Ethereal)
+//  */
+// transporter.verify((err, success) => {
+//   if (err) {
+//     console.error("SMTP verify failed:", err);
+//   } else {
+//     console.log("SMTP ready (Ethereal)");
+//   }
+// });
+
+// /**
+//  * Hàm gửi email
+//  */
+// export const sendEmail = async (data: {
+//   email: string;
+//   subject?: string;
+//   content: string;
+// }) => {
+//   try {
+//     const info = await transporter.sendMail({
+//       from: '"SnapBid" <no-reply@snapbid.test>',
+//       to: data.email,
+//       subject: data.subject ?? "Verification code",
+//       html: data.content,
+//     });
+
+//     console.log("📧 Message ID:", info.messageId);
+//     console.log("🔗 Preview URL:", nodemailer.getTestMessageUrl(info));
+
+//     return {
+//       success: true,
+//       message: "Send email success",
+//       previewUrl: nodemailer.getTestMessageUrl(info),
+//     };
+//   } catch (err: any) {
+//     console.error("Send email failed:", err);
+//     return {
+//       success: false,
+//       message: err?.message ?? "unknown error",
+//     };
+//   }
+// };
+
+export const transporter = nodemailer.createTransport({
+  service: 'gmail', // 👈 đúng shortcut Gmail
+  auth: {
+    type: 'OAuth2',
+    user: process.env.MAIL_USER, // group2hcmus@gmail.com
+    clientId: process.env.GMAIL_CLIENT_ID,
+    clientSecret: process.env.GMAIL_CLIENT_SECRET,
+    refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+  },
+});
+
+// verify khi app start
+transporter.verify((err) => {
+  if (err) {
+    console.error('SMTP verify failed:', err);
+  } else {
+    console.log('SMTP ready (Gmail service)');
+  }
+});
+
+export const sendEmail = async (data: {
+  email: string;
+  subject?: string;
+  content: string;
+}) => {
   try {
     const info = await transporter.sendMail({
-      from: '"SnapBid" <group2hcmus@gmail.com>',
+      from: `"SnapBid" <${process.env.MAIL_USER}>`,
       to: data.email,
-      subject: data.subject ?? "Verification code",
-      text: "Message from SnapBid", // plain‑text body
-      html: data.content, // HTML body
+      subject: data.subject ?? 'Verification code',
+      html: data.content,
     });
+
+    console.log('📧 Message ID:', info.messageId);
 
     return {
       success: true,
-      message: "Send email",
+      message: 'Send email success',
     };
-  } catch (err) {
-    if (err instanceof Error) {
-      return {
-        success: false,
-        message: err.message,
-      };
-    }
+  } catch (err: any) {
+    console.error('Send email failed:', err);
     return {
       success: false,
-      message: "unknown error",
+      message: err?.message ?? 'unknown error',
     };
   }
 };
+
+// export const sendEmail = async (
+//   data: sendEmailDto
+// ): Promise<sendEmailResultDto> => {
+//   const transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     host: 'smtp.gmail.com',
+//     port: 587,
+//     secure: false, // true for 465, false for other ports
+//     auth: {
+//       user: process.env.MAIL_USER || 'group2hcmus@gmail.com',
+//       pass: process.env.MAIL_APP_PASSWORD || 'tgbpcgszidtfecmr',
+//     },
+//   });
+
+//   try {
+//     const info = await transporter.sendMail({
+//       from: '"SnapBid" <group2hcmus@gmail.com>',
+//       to: data.email,
+//       subject: data.subject ?? "Verification code",
+//       text: "Message from SnapBid", // plain‑text body
+//       html: data.content, // HTML body
+//     });
+
+//     console.log("Dữ liệu email đã được gửi thành công: ", data.email);
+
+//     return {
+//       success: true,
+//       message: "Send email",
+//     };
+//   } catch (err) {
+//     if (err instanceof Error) {
+//       return {
+//         success: false,
+//         message: err.message,
+//       };
+//     }
+//     return {
+//       success: false,
+//       message: "unknown error",
+//     };
+//   }
+// };
+
+// const resend = new Resend(process.env.RESEND_API_KEY!);
+
+// export const sendEmail = async (data: sendEmailDto) => {
+//   try {
+//     await resend.emails.send({
+//       from: "SnapBid <onboarding@resend.dev>", // test OK ngay
+//       to: data.email,
+//       subject: data.subject ?? "Verification code",
+//       html: data.content,
+//     });
+//     console.log("Dữ liệu email đã được gửi thành công: ", data.email);
+
+//     return { success: true, message: "Send email" };
+//   } catch (err: any) {
+//     return { success: false, message: err.message };
+//   }
+// };

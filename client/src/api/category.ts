@@ -3,7 +3,6 @@ export const getCategories = async () => {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/categories`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
-      cache: "no-cache",
     });
     const jsonData = await res.json();
     const data = jsonData.data;

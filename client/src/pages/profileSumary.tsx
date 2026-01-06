@@ -14,6 +14,7 @@ export interface UserProfile {
   phone?: string;
   avatarUrl?: string;
   address?: string;
+  dateOfBirth?: string;
   status?: "active" | "banned" | "pending";
   roles?: Role[];
   verified?: boolean;

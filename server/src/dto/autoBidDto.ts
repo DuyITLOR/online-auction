@@ -1,21 +1,20 @@
-export interface autoBidDto{
-    productId: string,
-    bidderId: string,
-    maxAutoBidAmount: number
+export interface autoBidDto {
+  productId: string;
+  bidderId: string;
+  maxAutoBidAmount: number;
 }
 
-
-export interface computeBidDto{
-    productId: string,
-    newBidderId: string,
-    newMax : number 
+export interface computeBidDto {
+  productId: string;
+  newBidderId: string;
+  newMax: number;
 }
 
-export interface bidHistoryQueryDto{
-    page?: string;
-    limit?: string;
-    // price_desc, endAt_asc
-    sort?: string;
+export interface bidHistoryQueryDto {
+  page?: string;
+  limit?: string;
+  // price_desc, endAt_asc
+  sort?: string;
 }
 
 export interface autoBidResult{
@@ -46,6 +45,6 @@ export interface computeBid{
 }
 
 export interface recomputeDto {
-    productId: string,
-    bidderId: string,
+  productId: string;
+  bidderId: string;
 }

@@ -1,7 +1,6 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 // import { Resend } from "resend";
-import { sendEmailDto, sendEmailResultDto } from "../dto/sendEmailDto";
-
+import { sendEmailDto, sendEmailResultDto } from '../dto/sendEmailDto';
 
 export const loadCodeTemplate = (code: string) => {
   return `
@@ -99,6 +98,55 @@ export const loadBidSuccessTemplateForSeller = (
       <p style="font-size:12px;color:#666;">
         Nếu bạn không yêu cầu thông báo này, vui lòng bỏ qua email này.
       </p>
+    </div>
+  `;
+};
+
+export const loadOutbidTemplate = (
+  userName: string,
+  productName: string,
+  currentPrice: string | number,
+  productLink: string
+) => {
+  return `
+    <div style="max-width:520px;margin:auto;font-family:Arial,sans-serif;padding:24px;border-radius:10px;border:1px solid #eee;background:#ffffff;">
+      
+      <h2 style="margin-top:0;color:#0ea5a4;">
+        Bạn vừa bị vượt giá
+      </h2>
+
+      <p style="font-size:15px;line-height:1.6;">
+        Chào <strong>${userName}</strong>,<br/>
+        Giá đấu của bạn cho sản phẩm <strong>${productName}</strong> đã bị người khác vượt qua.
+      </p>
+
+      <div style="margin:20px 0;padding:16px;border-radius:8px;background:#f9fafb;border:1px solid #eee;">
+        <p style="margin:0;font-size:14px;color:#555;">Giá hiện tại</p>
+        <p style="margin:6px 0 0;font-size:22px;font-weight:bold;color:#0ea5a4;">
+          ${currentPrice}
+        </p>
+      </div>
+
+      <p style="font-size:14px;line-height:1.6;">
+        Hiện tại bạn <strong>không còn là người dẫn đầu</strong> trong phiên đấu giá này.
+        Nếu bạn vẫn quan tâm đến sản phẩm, hãy quay lại SnapBid để đặt giá mới và giành lại vị trí dẫn đầu.
+      </p>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Đặt giá ngay
+        </a>
+      </div>
+
+      <hr style="margin:24px 0;border:none;border-top:1px solid #eee;" />
+
+      <p style="font-size:12px;color:#777;text-align:center;">
+        Đây là email tự động từ SnapBid — vui lòng không phản hồi lại email này.
+      </p>
+
     </div>
   `;
 };
@@ -260,6 +308,53 @@ export const loadAnswerTemplate = (
   `;
 };
 
+export const loadProductDescriptionChangedTemplate = (
+  productName: string,
+  productLink: string
+) => {
+  return `
+    <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;background:#fff;">
+      <h3 style="margin-top:0;color:#0ea5a4;">Thông báo cập nhật sản phẩm</h3>
+
+      <p>
+        Mô tả của sản phẩm 
+        <strong>${productName}</strong> đã được người bán cập nhật.
+      </p>
+
+      <p style="margin-top:12px;">
+        Để đảm bảo bạn không bỏ lỡ bất kỳ thông tin quan trọng nào trước khi tham gia hoặc tiếp tục đấu giá,
+        vui lòng xem lại nội dung mô tả mới nhất của sản phẩm.
+      </p>
+
+      <div style="margin:20px 0;text-align:center;">
+        <a 
+          href="${productLink}" 
+          style="
+            display:inline-block;
+            padding:10px 16px;
+            background:#0ea5a4;
+            color:#fff;
+            text-decoration:none;
+            border-radius:6px;
+            font-weight:bold;
+          "
+        >
+          Xem sản phẩm
+        </a>
+      </div>
+
+      <p style="margin-top:12px;">
+        Nếu bạn đang theo dõi hoặc đã đặt giá cho sản phẩm này, hãy kiểm tra lại để đảm bảo thông tin mới phù hợp với quyết định của bạn.
+      </p>
+
+      <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
+
+      <p style="font-size:12px;color:#666;">
+        Đây là email tự động — vui lòng không phản hồi lại email này.
+      </p>
+    </div>
+  `;
+};
 
 // export const transporter = nodemailer.createTransport({
 //   host: "smtp.ethereal.email",
@@ -274,7 +369,7 @@ export const loadAnswerTemplate = (
 // export const transporter = nodemailer.createTransport({
 //   host: "smtp.gmail.com",
 //   port: 465,
-//   secure: true, 
+//   secure: true,
 //   auth: {
 //     type: "OAuth2",
 //     user: process.env.MAIL_USER,
@@ -329,12 +424,11 @@ export const loadAnswerTemplate = (
 //   }
 // };
 
-
 export const transporter = nodemailer.createTransport({
-  service: "gmail", // 👈 đúng shortcut Gmail
+  service: 'gmail', // 👈 đúng shortcut Gmail
   auth: {
-    type: "OAuth2",
-    user: process.env.MAIL_USER,                 // group2hcmus@gmail.com
+    type: 'OAuth2',
+    user: process.env.MAIL_USER, // group2hcmus@gmail.com
     clientId: process.env.GMAIL_CLIENT_ID,
     clientSecret: process.env.GMAIL_CLIENT_SECRET,
     refreshToken: process.env.GMAIL_REFRESH_TOKEN,
@@ -344,9 +438,9 @@ export const transporter = nodemailer.createTransport({
 // verify khi app start
 transporter.verify((err) => {
   if (err) {
-    console.error("SMTP verify failed:", err);
+    console.error('SMTP verify failed:', err);
   } else {
-    console.log("SMTP ready (Gmail service)");
+    console.log('SMTP ready (Gmail service)');
   }
 });
 
@@ -359,7 +453,7 @@ export const sendEmail = async (data: {
     const info = await transporter.sendMail({
       from: `"SnapBid" <${process.env.MAIL_USER}>`,
       to: data.email,
-      subject: data.subject ?? "Verification code",
+      subject: data.subject ?? 'Verification code',
       html: data.content,
     });
 
@@ -367,13 +461,13 @@ export const sendEmail = async (data: {
 
     return {
       success: true,
-      message: "Send email success",
+      message: 'Send email success',
     };
   } catch (err: any) {
-    console.error("Send email failed:", err);
+    console.error('Send email failed:', err);
     return {
       success: false,
-      message: err?.message ?? "unknown error",
+      message: err?.message ?? 'unknown error',
     };
   }
 };

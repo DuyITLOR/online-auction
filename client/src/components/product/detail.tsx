@@ -13,7 +13,6 @@ import {
   Ban,
   UserMinus,
   AlertCircle,
-  Users,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarImage } from '../ui/avatar';
@@ -124,7 +123,6 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
   const [confirm, setConfirm] = useState(false);
 
   const [kickDialog, setKickDialog] = useState(false);
-  const [manageBiddersOpen, setManageBiddersOpen] = useState(false);
   const [selectedBidder, setSelectedBidder] = useState<{ id: string; name: string } | null>(null);
   const [isKicking, setIsKicking] = useState(false);
   const [reason, setReason] = useState('');
@@ -337,7 +335,10 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
               <div>
                 <p className='text-sm font-semibold'> {product?.seller?.fullname} </p>
                 <div className='flex items-center gap-3'>
-                  <Link to={'/'} className='text-xs md:text-sm text-teal-600 font-semibold underline'>
+                  <Link
+                    to={`/rating/${product.sellerId}`}
+                    className='text-xs md:text-sm text-teal-600 font-semibold underline'
+                  >
                     Đánh giá: {calculateRating(product.seller.ratingPos, product.seller.ratingNeg)}
                   </Link>
                   <Link
@@ -702,15 +703,8 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                     <AlertCircle className='w-5 h-5 shrink-0' />
                     <div>
                       <p className='font-semibold'>Đây là sản phẩm của bạn</p>
-                      <p className='text-sm text-teal-700'>Bạn có thể quản lý người đấu giá ở danh sách bên dưới.</p>
                     </div>
                   </div>
-                  <Button
-                    onClick={() => setManageBiddersOpen(true)}
-                    className='w-full bg-teal-600 hover:bg-teal-700 text-white h-12 mt-5'
-                  >
-                    <Users className='w-4 h-4 mr-2' /> Quản lý người đấu giá
-                  </Button>
                 </div>
               )}
             </>
@@ -729,7 +723,8 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
             </div>
           ) : (
             historyBid.map((item: BidHistory, index: number) => (
-              <div
+              <Link
+                to={`/rating/${item.bidderId}`}
                 key={item.id}
                 className={`
                   flex items-center justify-between border px-3 py-3 md:px-6 md:py-4 rounded-xl transition-all
@@ -794,75 +789,16 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                     </Button>
                   )}
                 </div>
-              </div>
+              </Link>
             ))
           )}
         </div>
       </div>
 
-      <Dialog open={manageBiddersOpen} onOpenChange={setManageBiddersOpen}>
-        <DialogContent className='max-w-lg rounded-xl'>
-          <DialogHeader>
-            <DialogTitle className='text-xl font-bold flex items-center gap-2'>
-              <Users className='w-5 h-5' /> Quản lý người đấu giá
-            </DialogTitle>
-          </DialogHeader>
-          <div className='flex flex-col gap-3 max-h-[60vh] overflow-y-auto mt-2 pr-1'>
-            {historyBid.length === 0 ? (
-              <p className='text-center text-gray-500 py-4'>Chưa có người tham gia đấu giá.</p>
-            ) : (
-              historyBid.map((item: BidHistory, index: number) => (
-                <div
-                  key={item.id}
-                  className='flex items-center justify-between border px-3 py-3 rounded-lg hover:bg-gray-50'
-                >
-                  <div className='flex items-center gap-3'>
-                    <Avatar className='w-10 h-10 border border-gray-200'>
-                      <AvatarImage src={item.bidder.avtUrl} />
-                    </Avatar>
-                    <div className='flex flex-col'>
-                      <span className='font-medium text-sm text-gray-900'>
-                        {maskName(item?.bidder?.fullname!)}
-                        {index === 0 && <span className='ml-2 text-xs text-teal-600 font-bold'>(Dẫn đầu)</span>}
-                      </span>
-                      <span className='text-xs text-gray-500'>{formatDate(item.createdAt, { time: true })}</span>
-                      <span className='text-sm font-bold text-teal-700 block sm:hidden'>
-                        {Number(item.amount).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                  <div className='flex items-center gap-3'>
-                    <span className='text-sm font-bold text-teal-700 hidden sm:block'>
-                      {Number(item.amount).toLocaleString()} VND
-                    </span>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      className='h-10 px-2 bg-black/20 text-white'
-                      onClick={() => {
-                        setSelectedBidder({ id: item.bidder.id, name: item.bidder.fullname || 'Ẩn danh' });
-                        setKickDialog(true);
-                      }}
-                    >
-                      <UserMinus className='w-4 h-4' />
-                    </Button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant='outline'>Đóng</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={kickDialog} onOpenChange={setKickDialog}>
         <DialogContent className='max-w-md rounded-xl'>
           <DialogHeader>
-            <DialogTitle className='text-red-600 flex items-center gap-2'>
+            <DialogTitle className='text-teal-600 flex items-center gap-2'>
               <Ban className='w-5 h-5' /> Xác nhận loại người dùng
             </DialogTitle>
             <div className='mt-4 text-gray-600'>
@@ -872,7 +808,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                 không?
               </p>
               <textarea
-                className='w-full mt-4 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-200 text-sm'
+                className='w-full mt-4 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-200 text-sm'
                 placeholder='Nhập lý do loại người dùng...'
                 rows={3}
                 value={reason}
@@ -887,7 +823,12 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
             <Button variant='outline' onClick={() => setKickDialog(false)} disabled={isKicking}>
               Hủy
             </Button>
-            <Button variant='destructive' onClick={handleKickBidder} disabled={isKicking}>
+            <Button
+              variant='outline'
+              className='bg-teal-600 text-white'
+              onClick={handleKickBidder}
+              disabled={isKicking}
+            >
               {isKicking ? <Loader2 className='w-4 h-4 animate-spin mr-2' /> : 'Xác nhận loại'}
             </Button>
           </DialogFooter>

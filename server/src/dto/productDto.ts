@@ -44,6 +44,8 @@ export interface productQueryDto {
   minPrice?: string;
   maxPrice?: string;
   isBidder?: string;
+  notExpired?: string; // Filter products that have not expired yet
+  statusCompleted?: string; // Filter completed products (SOLD or ACTIVE but expired)
 }
 
 export interface buyNowProuctDto {

@@ -102,7 +102,9 @@ const ProductsTab: FC = () => {
                 <th className='px-6 py-4 font-semibold w-[30%]'>Sản phẩm</th>
                 <th className='px-6 py-4 font-semibold w-[15%]'>Người bán</th>
                 <th className='px-6 py-4 font-semibold w-[12%]'>Danh mục</th>
-                <th className='px-6 py-4 font-semibold w-[15%]'>Giá hiện tại</th>
+                <th className='px-6 py-4 font-semibold w-[15%]'>
+                  Giá hiện tại
+                </th>
                 <th className='px-6 py-4 font-semibold w-[15%]'>Trạng thái</th>
                 <th className='px-6 py-4 font-semibold text-right w-[13%]'>
                   Hành động
@@ -158,7 +160,7 @@ const ProductsTab: FC = () => {
                       className='hover:bg-gray-50 transition-colors duration-150 h-[72px]'
                     >
                       <td className='px-6 py-3'>
-                        <div className='font-medium text-gray-900 line-clamp-2 min-h-[40px] flex items-center'>
+                        <div className='font-medium text-gray-900 line-clamp-2 min-h-10 flex items-center'>
                           <span className='line-clamp-2'>{p.title}</span>
                         </div>
                       </td>
@@ -171,7 +173,7 @@ const ProductsTab: FC = () => {
                         </span>
                       </td>
                       <td className='px-6 py-3 font-medium text-green-600 whitespace-nowrap align-middle'>
-                        { formatCurrency(p.currentPrice) }
+                        {formatCurrency(p.currentPrice)}
                       </td>
                       <td className='px-6 py-3 align-middle'>
                         {isEnded ? (
@@ -214,9 +216,13 @@ const ProductsTab: FC = () => {
 
         {/* --- PAGINATION --- */}
         {!isLoading && totalProducts > 0 && (
-           <div className='pb-8 pr-8 flex justify-end'>
-        <Pagination page={page} totalPage={totalPage} onPageChange={onPageChange} />
-      </div>
+          <div className='pb-8 pr-8 flex justify-end'>
+            <Pagination
+              page={page}
+              totalPage={totalPage}
+              onPageChange={onPageChange}
+            />
+          </div>
         )}
       </div>
 

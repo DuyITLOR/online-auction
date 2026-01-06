@@ -218,3 +218,30 @@ export const blockUserFromBidding = async (
     throw err;
   }
 };
+
+export const resetPasswordByAdmin = async (
+  userId: string,
+  newPassword: string
+) => {
+  const session = await getSession();
+
+  const res = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/users/${userId}/reset-password`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session?.token}`,
+      },
+      body: JSON.stringify({
+        newPassword,
+      }),
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || 'Reset mật khẩu thất bại');
+  }
+};

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useUsers } from '../../libs/contexts/admin/user.context';
+import { resetPasswordByAdmin } from '@/api/user';
 import {
   Mail,
   User,
@@ -11,6 +12,7 @@ import {
   Trash2,
   Loader2,
   RotateCcw,
+  KeySquare,
 } from 'lucide-react';
 import Pagination from '../pagination';
 import { Link } from 'react-router-dom';
@@ -25,6 +27,10 @@ import {
 
 const TabUsers = () => {
   const [openId, setOpenId] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [resetId, setResetId] = useState<string | null>(null);
+  const [isSubmiting, setIsSubmiting] = useState(false);
+
   const {
     users,
     page,
@@ -87,6 +93,28 @@ const TabUsers = () => {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!resetId || !newPassword.trim()) {
+      toast.error('Vui lòng nhập mật khẩu mới');
+      return;
+    }
+
+    try {
+      setIsSubmiting(true);
+      await resetPasswordByAdmin(resetId, newPassword.trim());
+
+      console.log('resettingId', resetId);
+      toast.success('Đã reset mật khẩu và gửi email cho người dùng');
+      setResetId(null);
+      setNewPassword('');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Reset mật khẩu thất bại';
+      toast.error(msg);
+    } finally {
+      setIsSubmiting(false);
+    }
+  };
+
   useEffect(() => {
     if (tab === 'DEACTIVATED') {
       fetchDeactivatedUsers();
@@ -100,7 +128,8 @@ const TabUsers = () => {
         role === 'ADMIN'
           ? 'bg-purple-100 text-purple-800'
           : 'bg-gray-100 text-gray-800'
-      }`}>
+      }`}
+    >
       {role}
     </span>
   );
@@ -120,7 +149,8 @@ const TabUsers = () => {
                 tab === 'ACTIVE'
                   ? 'bg-white shadow text-gray-900'
                   : 'text-gray-600'
-              }`}>
+              }`}
+            >
               Đang hoạt động
             </button>
             <button
@@ -129,7 +159,8 @@ const TabUsers = () => {
                 tab === 'DEACTIVATED'
                   ? 'bg-white shadow text-gray-900'
                   : 'text-gray-600'
-              }`}>
+              }`}
+            >
               Đã xoá
             </button>
           </div>
@@ -217,7 +248,8 @@ const TabUsers = () => {
                   <tr>
                     <td
                       colSpan={5}
-                      className='px-6 py-12 text-center text-gray-500 italic'>
+                      className='px-6 py-12 text-center text-gray-500 italic'
+                    >
                       <div className='flex flex-col items-center gap-2'>
                         <Search className='w-8 h-8 text-gray-300' />
                         <span>Không tìm thấy người dùng nào.</span>
@@ -228,7 +260,8 @@ const TabUsers = () => {
                   users.map((user) => (
                     <tr
                       key={user.id}
-                      className='hover:bg-gray-50 transition-colors duration-150 h-[72px]'>
+                      className='hover:bg-gray-50 transition-colors duration-150 h-[72px]'
+                    >
                       <td className='px-6 py-3 align-middle'>
                         <div className='flex items-center gap-3'>
                           <div className='w-8 h-8 rounded-full bg-green-200 text-green-700 flex items-center justify-center'>
@@ -258,18 +291,27 @@ const TabUsers = () => {
                         </div>
                       </td>
                       <td className='px-6 py-5 text-right align-middle'>
-                        <div className='flex items-center justify-end gap-2'>
+                        <div className='flex items-center justify-end gap-[0.5]'>
                           <Link
                             to={`/profile/${user.id}`}
                             className='p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-200'
-                            title='Xem chi tiết'>
+                            title='Xem chi tiết'
+                          >
                             <Eye className='w-4 h-4' />
                           </Link>
                           <button
                             onClick={() => setOpenId(user.id)}
                             className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200'
-                            title='Vô hiệu hoá người dùng'>
+                            title='Vô hiệu hoá người dùng'
+                          >
                             <Trash2 className='w-4 h-4' />
+                          </button>
+                          <button
+                            onClick={() => setResetId(user.id)}
+                            className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200'
+                            title='Đổi mật khẩu'
+                          >
+                            <KeySquare className='w-4 h-4' />
                           </button>
                         </div>
                       </td>
@@ -310,7 +352,8 @@ const TabUsers = () => {
                 <tr>
                   <td
                     colSpan={5}
-                    className='px-6 py-12 text-center text-gray-500 italic'>
+                    className='px-6 py-12 text-center text-gray-500 italic'
+                  >
                     <div className='flex flex-col items-center gap-2'>
                       <Search className='w-8 h-8 text-gray-300' />
                       <span>Không có tài khoản đã xoá.</span>
@@ -321,7 +364,8 @@ const TabUsers = () => {
                 deactivatedUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className='hover:bg-gray-50 transition-colors duration-150 h-[72px]'>
+                    className='hover:bg-gray-50 transition-colors duration-150 h-[72px]'
+                  >
                     <td className='px-6 py-3 align-middle'>
                       <div className='flex items-center gap-3'>
                         {/* Dùng chung class màu sắc (green) hoặc đổi sang gray tùy bạn, nhưng giữ nguyên size */}
@@ -359,7 +403,8 @@ const TabUsers = () => {
                           onClick={() => handleActivate(user.id)}
                           disabled={activatingId === user.id}
                           className='p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors border border-transparent hover:border-green-200 flex items-center justify-center disabled:opacity-50'
-                          title='Kích hoạt lại người dùng'>
+                          title='Kích hoạt lại người dùng'
+                        >
                           {activatingId === user.id ? (
                             <Loader2 className='w-4 h-4 animate-spin' />
                           ) : (
@@ -415,14 +460,16 @@ const TabUsers = () => {
               <button
                 onClick={() => setOpenId(null)}
                 disabled={!!deletingId}
-                className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 '>
+                className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 '
+              >
                 Hủy bỏ
               </button>
 
               <button
                 onClick={handleDelete}
                 disabled={!!deletingId}
-                className='ml-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center gap-2 disabled:opacity-50'>
+                className='ml-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center gap-2 disabled:opacity-50'
+              >
                 {deletingId ? (
                   <>
                     <Loader2 className='w-4 h-4 animate-spin' />
@@ -430,6 +477,63 @@ const TabUsers = () => {
                   </>
                 ) : (
                   'Xác nhận'
+                )}
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={!!resetId}
+          onOpenChange={(val) => !val && setResetId(null)}
+        >
+          <DialogContent className='sm:max-w-md'>
+            <DialogHeader>
+              <DialogTitle>Đổi mật khẩu người dùng</DialogTitle>
+            </DialogHeader>
+
+            <div className='py-4 space-y-4'>
+              <div className='space-y-1'>
+                <label className='text-sm font-medium text-gray-700'>
+                  Mật khẩu mới
+                </label>
+                <input
+                  type='text'
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder='Nhập mật khẩu mới...'
+                  className='w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-orange-500 focus:outline-none'
+                />
+              </div>
+
+              <p className='text-xs text-gray-500'>
+                Mật khẩu này sẽ được gửi trực tiếp đến email của người dùng.
+              </p>
+            </div>
+
+            <DialogFooter className='gap-2 sm:gap-0'>
+              <button
+                onClick={() => {
+                  setResetId(null);
+                  setNewPassword('');
+                }}
+                className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50'
+              >
+                Huỷ
+              </button>
+
+              <button
+                onClick={handleResetPassword}
+                disabled={isSubmiting}
+                className='ml-2 px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 flex items-center gap-2 disabled:opacity-50'
+              >
+                {isSubmiting ? (
+                  <>
+                    <Loader2 className='w-4 h-4 animate-spin' />
+                    Đang reset...
+                  </>
+                ) : (
+                  'Reset mật khẩu'
                 )}
               </button>
             </DialogFooter>

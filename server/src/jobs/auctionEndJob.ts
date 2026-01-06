@@ -48,12 +48,13 @@ export const auctionEndJob = cron.schedule('* * * * *', async () => {
             !data.order?.buyer.email
           )
             throw new Error('Thiếu thông tin để gửi email đơn hàng');
-
+          const orderLink = `${process.env.FRONTEND_URL}/payment/${data.order.id}`;
           const content = loadOrderTemplate(
             data.product.title,
             data.product.currentPrice.toString(),
             data.product.seller.email,
-            data.order?.buyer.email
+            data.order?.buyer.email,
+            orderLink
           );
           Promise.all([
             sendEmail({

@@ -232,12 +232,13 @@ export const buyNowProduct = async (req: Request, res: Response) => {
     };
 
     const response = await productService.buyNowProuct(data);
-
+    const orderLink = `${process.env.FRONTEND_URL}/payment/${response?.id}`;
     const content = loadOrderTemplate(
       response?.product.title || '',
       response?.product.buyNowPrice?.toString() || '',
       response?.product.seller.email || '',
-      response?.buyer.email || ''
+      response?.buyer.email || '',
+      orderLink
     );
 
     try {

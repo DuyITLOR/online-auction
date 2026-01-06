@@ -103,7 +103,8 @@ router.post(
       productName,
       winningPrice,
       sellerEmail,
-      winnerEmail
+      winnerEmail,
+      ""
     );
     const data = {
       email: 'truongthanhdat6879@gmail.com',

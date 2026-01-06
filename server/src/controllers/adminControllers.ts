@@ -4,6 +4,11 @@ import * as service from '../services/adminService';
 import { HttpStatus } from '../utils/permission';
 import { checkRole } from '../utils/checkRole';
 import { getAllUsersServiceDto } from '../dto/adminDto';
+import { hashPassword } from '../services/authService';
+import {
+  loadPasswordResetSuccessTemplate,
+  sendEmail,
+} from '../utils/sendEmail';
 
 export const getAllUsers = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -286,6 +291,82 @@ export const activateUser = async (req: Request, res: Response) => {
       HttpStatus.ok,
       null,
       `Người dùng ${record.fullname} đã được kích hoạt thành công`
+    );
+    res.status(response.code).send(response);
+    return;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Lỗi không xác định';
+    const response = gatewayResponse(HttpStatus.serviceUnavailable, null, msg);
+    res.status(response.code).send(response);
+    return;
+  }
+};
+
+export const resetPasswordByAdmin = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      const response = gatewayResponse(
+        HttpStatus.badRequest,
+        null,
+        'Cần token trước khi yêu cầu'
+      );
+      res.status(response.code).send(response);
+      return;
+    }
+
+    const roles = await checkRole(req.user.id);
+    if (!roles.includes('ADMIN')) {
+      const response = gatewayResponse(
+        HttpStatus.forbidden,
+        null,
+        'Bạn không có quyền để yêu cầu'
+      );
+      res.status(response.code).send(response);
+      return;
+    }
+
+    const userId = req.params.userId;
+    const newPassword = req.body.newPassword;
+    const hashedPassword = await hashPassword(newPassword);
+    const record = await service.resetUserPassword(userId, hashedPassword);
+
+    if (!newPassword) {
+      const response = gatewayResponse(
+        HttpStatus.badRequest,
+        null,
+        'Mật khẩu mới không được để trống'
+      );
+      res.status(response.code).send(response);
+      return;
+    }
+
+    if (!record) {
+      const response = gatewayResponse(
+        HttpStatus.notFound,
+        null,
+        'Người dùng không tồn tại'
+      );
+      res.status(response.code).send(response);
+      return;
+    }
+
+    // Send email notification to user about password reset
+    const content = loadPasswordResetSuccessTemplate(
+      record.fullname || '',
+      record.email,
+      newPassword
+    );
+
+    sendEmail({
+      email: record.email,
+      subject: 'Đặt lại mật khẩu thành công',
+      content: content,
+    });
+
+    const response = gatewayResponse(
+      HttpStatus.ok,
+      null,
+      `Mật khẩu của người dùng ${record.fullname} đã được đặt lại thành công`
     );
     res.status(response.code).send(response);
     return;

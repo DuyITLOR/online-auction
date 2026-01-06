@@ -19,6 +19,14 @@ PATCH http://localhost:4000/users/bidder-1/activate
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImE5MTcyNWE5LTM4Y2QtNDkyZi1hMWY1LTMyMzU3ZDEyM2EzMSIsImVtYWlsIjoidHRkYXQyM0BjbGMuZml0dXMuZWR1LnZuIiwiaWF0IjoxNzY3NjE5NzY1LCJleHAiOjE3NzAyMTE3NjV9.nCXbT9tCorKXP0Lr4ThfzKINOYkRGcO74zzDUgtjoRM
 ###
 
+PATCH http://localhost:4000/users/86398f6a-c17a-423b-871b-38047421e915/reset-password
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY3NzEyMTU3LCJleHAiOjE3NzAzMDQxNTd9.GgKJqdp00hhyjBLTGQofAxjkBI643gfI9S4_IDbSPcc
+Content-Type: application/json
+
+{
+  "newPassword": "abc123"
+}
+###
 PATCH http://localhost:4000/users/upgrade/bb43988a-e8e4-4f91-b220-1a06c4c7b165/accept
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0MzE2Nzc4LCJleHAiOjE3NjQzMjAzNzh9.zClPkV-oFf_JMtj-0p0xzxDZPOibNDWZihbis61Z3HE
 Content-Type: application/json

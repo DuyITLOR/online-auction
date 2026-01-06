@@ -1,18 +1,18 @@
-import { getSession } from "../libs/session";
+import { getSession } from '../libs/session';
 
 export const getRole = async ({ token }: { token: string }) => {
   try {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     });
 
     const data = await res.json();
     if (!res.ok) {
-      const message = data.message || data.error || "Failed in check role api";
+      const message = data.message || data.error || 'Failed in check role api';
       throw new Error(message);
     }
 
@@ -34,9 +34,9 @@ export const requestToUpgrade = async ({
     const res = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/users/upgrade`,
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ note }),
@@ -47,7 +47,7 @@ export const requestToUpgrade = async ({
 
     if (!res.ok) {
       const message =
-        data.message || data.error || "Failed to fetch api upgrade role";
+        data.message || data.error || 'Failed to fetch api upgrade role';
       throw new Error(message);
     }
 
@@ -76,16 +76,16 @@ export const updateUser = async ({
   try {
     const formData = new FormData();
 
-    formData.append("fullname", user.fullname);
-    formData.append("email", user.email);
-    formData.append("avatar", user.avatar);
-    formData.append("dateOfBirth", user.dateOfBirth);
-    formData.append("address", user.address);
+    formData.append('fullname', user.fullname);
+    formData.append('email', user.email);
+    formData.append('avatar', user.avatar);
+    formData.append('dateOfBirth', user.dateOfBirth);
+    formData.append('address', user.address);
 
     const res = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/users/update`,
       {
-        method: "PATCH",
+        method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -97,7 +97,7 @@ export const updateUser = async ({
 
     if (!res.ok) {
       const message =
-        data.message || data.error || "Failed to fetch update user api";
+        data.message || data.error || 'Failed to fetch update user api';
 
       throw new Error(message);
     }
@@ -112,9 +112,9 @@ export const getStatisticProfile = async ({ token }: { token: string }) => {
     const res = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/bidder/statistic`,
       {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
       }
@@ -123,7 +123,7 @@ export const getStatisticProfile = async ({ token }: { token: string }) => {
     const data = await res.json();
     if (!res.ok) {
       const message =
-        data.message || data.error || "Failed to get information profile api";
+        data.message || data.error || 'Failed to get information profile api';
       throw new Error(message);
     }
 
@@ -137,16 +137,16 @@ export const getStatisticProfile = async ({ token }: { token: string }) => {
 export const getUser = async ({ id }: { id: string }) => {
   try {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/${id}`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      const message = data.message || data.error || "Failed to fetch user";
+      const message = data.message || data.error || 'Failed to fetch user';
       throw new Error(message);
     }
 
@@ -161,13 +161,13 @@ export const getUserStatistic = async ({ id }: { id: string }) => {
   try {
     const session = await getSession();
     //
-    const token = session?.token || "";
+    const token = session?.token || '';
     const res = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/bidder/statistic/${id}`,
       {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
       }
@@ -175,24 +175,40 @@ export const getUserStatistic = async ({ id }: { id: string }) => {
     const data = await res.json();
     if (!res.ok) {
       const message =
-        data.message || data.error || "Failed to fetch user statistic";
+        data.message || data.error || 'Failed to fetch user statistic';
       throw new Error(message);
     }
-export const blockUserFromBidding = async (userId: string, productId: string, reason: string, token: string) => {
+    return data.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+export const blockUserFromBidding = async (
+  userId: string,
+  productId: string,
+  reason: string,
+  token: string
+) => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/${userId}/blocked`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ productId, reason }),
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/users/${userId}/blocked`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId, reason }),
+      }
+    );
 
     const data = await res.json();
 
     if (!res.ok) {
-      const message = data.message || data.error || 'Failed to block user from bidding';
+      const message =
+        data.message || data.error || 'Failed to block user from bidding';
       throw new Error(message);
     }
 

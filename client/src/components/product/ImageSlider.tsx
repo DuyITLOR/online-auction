@@ -46,8 +46,8 @@ const ImageSlider = ({ images, className = '', currentIndex, onChange, autoplay 
     return () => clearInterval(id);
   }, [autoplay, interval, total, current]);
 
-  const goPrev = () => setCurrent((idx) => (idx - 1 + total) % total);
-  const goNext = () => setCurrent((idx) => (idx + 1) % total);
+  const goPrev = () => setCurrent((current - 1 + total) % total);
+  const goNext = () => setCurrent((current + 1) % total);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'ArrowLeft') goPrev();

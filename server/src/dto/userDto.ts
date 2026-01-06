@@ -1,3 +1,4 @@
+import { Decimal } from "@prisma/client/runtime/library";
 export interface requestUpgradeDto {
   id: string;
   note: string;
@@ -59,6 +60,23 @@ export interface returnErrorDto {
   message: string;
 }
 
+
+export interface blockBidderDto {
+  success: boolean;
+  data?: {
+    product: {
+      id: string;
+      winnerId: string | null;
+      startPrice: Decimal;
+      title: string;
+    };
+    user: {
+      fullname: string | null;
+      email: string;
+    }
+  };
+  message: string
+}
 
 export interface responseProfileDto {
   BidCount: number;

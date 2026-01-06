@@ -9,6 +9,7 @@ import {
   returnErrorDto,
   getALlCommentsDto,
   responseProfileDto,
+  blockBidderDto,
 } from "../dto/userDto";
 import { deleteCommentDto } from "../dto/userDto";
 import { getBidCountOfUser } from "./autoBidService";
@@ -216,7 +217,9 @@ export const getBlockUserByProductId = async (
   }
 };
 
-export const blockUser = async (data: blockUserDto) => {
+export const blockUser = async (
+  data: blockUserDto
+): Promise<blockBidderDto> => {
   try {
     const check = await prisma.blockedBidders.findUnique({
       where: {
@@ -229,40 +232,34 @@ export const blockUser = async (data: blockUserDto) => {
     if (check) {
       return {
         success: true,
-        data: check,
         message: "Đã chặn",
       };
     }
-    const record = await prisma.$transaction(async (tx) => {
-      const record = await tx.blockedBidders.create({
-        data: {
-          productId: data.productId,
-          userId: data.userId,
-          reason: data.reason,
-        },
-        include: {
-          product: {
-            select: {
-              id: true,
-              winnerId: true,
+    const record = await prisma.$transaction(
+      async (tx) => {
+        const record = await tx.blockedBidders.create({
+          data: {
+            productId: data.productId,
+            userId: data.userId,
+            reason: data.reason,
+          },
+          include: {
+            product: {
+              select: {
+                id: true,
+                winnerId: true,
+                startPrice: true,
+                title: true,
+              },
+            },
+            user: {
+              select: {
+                fullname: true,
+                email: true,
+              },
             },
           },
-        },
-      });
-
-      if (record.product.winnerId === data.userId) {
-        const product = await tx.products.findUnique({
-          where: {
-            id: data.productId,
-          },
-          select: {
-            id: true,
-            startPrice: true,
-            currentPrice: true,
-          },
         });
-
-        if (!product) throw new Error("Không tìm thấy sản phẩm");
 
         const removedCount = await tx.bidHistory.count({
           where: {
@@ -302,7 +299,7 @@ export const blockUser = async (data: blockUserDto) => {
             },
             data: {
               winnerId: null,
-              currentPrice: product.startPrice,
+              currentPrice: record.product.startPrice,
               countbids: {
                 decrement: removedCount,
               },
@@ -332,13 +329,13 @@ export const blockUser = async (data: blockUserDto) => {
             },
           });
         }
-      }
 
-      return record;
-    },{
-      timeout:20000
-    }
-  );
+        return record;
+      },
+      {
+        timeout: 20000,
+      }
+    );
 
     return {
       success: true,

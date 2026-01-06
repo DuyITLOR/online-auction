@@ -167,7 +167,7 @@ const Profile = () => {
               className='data-[state=active]:bg-teal-500 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '
               value='bidding-list'
             >
-              Hoạt động đấu giá
+              Đang đấu giá
             </TabsTrigger>
             <TabsTrigger
               className='data-[state=active]:bg-teal-500 font-semibold data-[state=active]:py-1 data-[state=active]:rounded-md '

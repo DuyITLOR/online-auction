@@ -513,15 +513,21 @@ export const API_AUTO_BID_ROUTES = {
     role: [Role.ALL],
   },
   getMaxBidByUser: {
-    path: '/autoBid/:productId',
+    path: '/autoBid/max/:productId',
     method: 'GET',
     role: [Role.BIDDER],
   },
   getBidHistoryByUserId: {
+    path: '/autoBid/history',
+    method: 'GET',
+    role: [Role.BIDDER],
+  },
+  getAutoBidByUserId: {
     path: '/autoBid',
     method: 'GET',
     role: [Role.BIDDER],
   },
+
 };
 
 export const API_ORDER_ROUTES = {

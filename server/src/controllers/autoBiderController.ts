@@ -3,7 +3,7 @@ import * as autoBidService from '../services/autoBidService';
 import { gatewayResponse } from '../utils/response';
 import { HttpStatus } from '../utils/permission';
 import { checkRole } from '../utils/checkRole';
-import { bidHistoryQueryDto } from '../dto/autoBidDto';
+import { bidHistoryQueryDto, autoBidQueryDto } from '../dto/autoBidDto';
 import {
   loadBidSuccessTemplateForSeller,
   loadBidSuccessTemplateForBidder,
@@ -278,3 +278,42 @@ export const getBidHistoryByUserId = async (req: Request, res: Response) => {
     return res.status(response.code).send(response);
   }
 };
+
+
+export const getAutoBidsByUserId = async (req: Request, res: Response) => {
+    try {
+      if(!req.user){
+        const response = gatewayResponse(
+          HttpStatus.unauthorized,
+          null,
+          'Token không hợp lệ'
+        );
+        return res.status(response.code).send(response);
+      }
+
+      const query = req.query as autoBidQueryDto;
+      const userId = req.user.id;
+      const data = await autoBidService.getAutoBidsByUserId(userId, query);
+      console.log("Data: ", data);
+      if (!data) {
+        const response = gatewayResponse(
+          HttpStatus.notFound,
+          null,
+          'Không tìm thấy sản phẩm đấu giá hợp lệ'
+        );
+        return res.status(response.code).send(response);
+      }
+
+      const response = gatewayResponse(
+        HttpStatus.ok,
+        data,
+        'Lấy sản phẩm đấu giá thành công'
+      );
+      return res.status(response.code).send(response);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Lấy sản phẩm đấu giá thất bại';
+      const response = gatewayResponse(HttpStatus.badRequest, null, message);
+      return res.status(response.code).send(response);
+    }
+}

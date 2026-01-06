@@ -61,6 +61,14 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
 
     const role = data.data.user.role as string;
 
+    if (data.data.user.isActive === false) {
+      window.location.href = '/banned';
+      return {
+        success: false,
+        messages: 'Tài khoản chưa được kích hoạt. Vui lòng xác minh email.',
+      };
+    }
+
     return {
       success: true,
       role: role,

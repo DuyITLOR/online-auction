@@ -4,6 +4,7 @@ import { Trophy, Clock, CalendarDays } from 'lucide-react';
 import { getAllProductByBidder } from '../../../api/order';
 import Pagination from '../../pagination';
 import { Link } from 'react-router-dom';
+import { formatCurrency } from '@/utils/format';
 
 interface ActivityItem {
   id: string;
@@ -112,7 +113,7 @@ const WonList = ({ token }: { token: string }) => {
                         Thắng thầu
                       </span>
 
-                      <span className='text-sm font-semibold text-amber-600'>{item.amount.toLocaleString()} đ</span>
+                      <span className='text-sm font-semibold text-amber-600'>{formatCurrency(item.amount)} VND</span>
                     </div>
                   </div>
                 </div>

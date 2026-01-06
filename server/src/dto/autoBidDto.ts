@@ -49,3 +49,10 @@ export interface recomputeDto {
   productId: string;
   bidderId: string;
 }
+
+export interface autoBidQueryDto {
+  page?: string;
+  limit?: string;
+  // createAt_desc, createAt_asc
+  sort?: string;
+}

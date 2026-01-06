@@ -1,12 +1,14 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@prisma/client";
 import {
   autoBidDto,
   computeBidDto,
   bidHistoryQueryDto,
   autoBidResult,
   computeBid,
+  autoBidQueryDto,
 } from "../dto/autoBidDto";
 import { prisma } from "./db/prisma";
+import { ProductStatus } from "@prisma/client";
 import { getProductById } from "./productService";
 import { checkRating } from "./userService";
 import { getBlockUserByProductId } from "./userService";
@@ -15,8 +17,8 @@ import * as settingService from "./settingService";
 export const computerBidder = async (
   data: computeBidDto
 ): Promise<computeBid> => {
-  const limitMinute = await settingService.getSettingByKey("triggerMinute")
-  const extentTime = await settingService.getSettingByKey("extendMinute")
+  const limitMinute = await settingService.getSettingByKey("triggerMinute");
+  const extentTime = await settingService.getSettingByKey("extendMinute");
   return await prisma.$transaction(
     async (tx) => {
       const product = await tx.products.findUnique({
@@ -24,7 +26,7 @@ export const computerBidder = async (
         include: { autoBids: true },
       });
 
-      if (!product) throw new Error('Không tìm thấy sản phẩm');
+      if (!product) throw new Error("Không tìm thấy sản phẩm");
 
       const stepPrice = Number(product.stepPrice);
       const startPrice = Number(product.startPrice);
@@ -37,7 +39,7 @@ export const computerBidder = async (
       });
       const lastHistory = await tx.bidHistory.findFirst({
         where: { productId: data.productId },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       });
 
       if (!lastHistory) {
@@ -79,9 +81,9 @@ export const computerBidder = async (
           include: { winner: true },
         });
 
-        if (!temp.winner?.fullname) throw new Error('Thiếu full name');
+        if (!temp.winner?.fullname) throw new Error("Thiếu full name");
 
-        if (!temp.winner?.email) throw new Error('Thiếu email');
+        if (!temp.winner?.email) throw new Error("Thiếu email");
 
         return {
           winner: temp.winner.fullname,
@@ -124,7 +126,7 @@ export const computerBidder = async (
       }
       const last = await tx.bidHistory.findFirst({
         where: { productId: data.productId },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       });
 
       let isCreateHistory = false;
@@ -142,14 +144,17 @@ export const computerBidder = async (
 
           isCreateHistory = true;
         } catch (error) {
-          console.error('Error creating bid history:', error);
+          console.error("Error creating bid history:", error);
           // throw new Error("Failed to create bid history");
         }
       }
 
       const now = new Date();
       let isExtend = false;
-      if (product.endAt.getTime() - now.getTime() <= Number(limitMinute) * 60 * 1000) {
+      if (
+        product.endAt.getTime() - now.getTime() <=
+        Number(limitMinute) * 60 * 1000
+      ) {
         isExtend = true;
       }
 
@@ -165,7 +170,9 @@ export const computerBidder = async (
         ...baseData,
         ...(isExtend &&
           product.autoExtendEnabled && {
-            endAt: new Date(product.endAt.getTime() + Number(extentTime) * 60 * 1000),
+            endAt: new Date(
+              product.endAt.getTime() + Number(extentTime) * 60 * 1000
+            ),
           }),
       };
 
@@ -176,9 +183,9 @@ export const computerBidder = async (
         include: { winner: true },
       });
 
-      if (!infor.winner?.fullname) throw new Error('Thiếu full name');
+      if (!infor.winner?.fullname) throw new Error("Thiếu full name");
 
-      if (!infor.winner?.email) throw new Error('Thiếu email');
+      if (!infor.winner?.email) throw new Error("Thiếu email");
 
       return {
         winner: infor.winner.fullname,
@@ -197,14 +204,14 @@ export const createAutoBid = async (
   data: autoBidDto
 ): Promise<autoBidResult> => {
   const product = await getProductById(data.productId);
-  if (!product) throw new Error('Không tìm thấy sản phẩm');
+  if (!product) throw new Error("Không tìm thấy sản phẩm");
 
   // if (product?.winnerId === data.bidderId) {
   //   throw new Error("You are already the highest bidder");
   // }
 
   const checkValid = await validationAutoBid(data);
-  if (!checkValid) throw new Error('Xác thực tự động ra giá thất bại');
+  if (!checkValid) throw new Error("Xác thực tự động ra giá thất bại");
 
   const prevWinnerId = product.winnerId;
   const prevWinner = prevWinnerId
@@ -239,8 +246,8 @@ export const createAutoBid = async (
         price: Number(product.currentPrice),
       },
       winner: {
-        name: data.bidderId, 
-        email: "N/A", 
+        name: data.bidderId,
+        email: "N/A",
       },
       lastWinner: {
         name: "Bạn đang giữ giá",
@@ -254,7 +261,6 @@ export const createAutoBid = async (
     };
   }
 
-
   const infor: computeBid = await computerBidder({
     productId: data.productId,
     newBidderId: data.bidderId,
@@ -265,39 +271,38 @@ export const createAutoBid = async (
   let losetype: "OVER" | "FAIL" | null = null;
 
   const newBidderWon = infor.winnerId === data.bidderId;
-  if (newBidderWon){
+  if (newBidderWon) {
     sucess = {
       fullname: infor.winner,
       email: infor.email,
-    }
+    };
 
-    if(prevWinner && prevWinnerId){
+    if (prevWinner && prevWinnerId) {
       loser = {
         fullname: prevWinner.fullname,
         email: prevWinner.email,
-      }
-      losetype = "OVER"
+      };
+      losetype = "OVER";
     }
   } else {
-    sucess = { 
+    sucess = {
       fullname: infor.winner,
       email: infor.email,
-    }
+    };
 
     const newBidder = await prisma.user.findUnique({
       where: { id: data.bidderId },
       select: { fullname: true, email: true },
-    })
+    });
 
     if (newBidder) {
       loser = {
         fullname: newBidder.fullname,
         email: newBidder.email,
-      }
-      losetype = "FAIL"
-      }
+      };
+      losetype = "FAIL";
     }
-  
+  }
 
   const result: autoBidResult = {
     product: {
@@ -310,7 +315,7 @@ export const createAutoBid = async (
       email: sucess.email || "N/A",
     },
     lastWinner: {
-      name: loser?.fullname|| "",
+      name: loser?.fullname || "",
       email: loser?.email || "N/A",
       type: losetype || "",
     },
@@ -328,11 +333,11 @@ export const getBidHistory = async (productId: string) => {
     where: { id: productId },
   });
 
-  if (!product) throw new Error('Không tìm thấy sản phẩm');
+  if (!product) throw new Error("Không tìm thấy sản phẩm");
 
   return prisma.bidHistory.findMany({
     where: { productId: productId },
-    orderBy: { amount: 'desc' },
+    orderBy: { amount: "desc" },
     include: { bidder: true },
   });
 };
@@ -340,41 +345,41 @@ export const getBidHistory = async (productId: string) => {
 export const validationAutoBid = async (data: autoBidDto) => {
   const product = await getProductById(data.productId);
   // Check product exists
-  if (!product) throw new Error('Không tìm thấy sản phẩm');
+  if (!product) throw new Error("Không tìm thấy sản phẩm");
 
   // Check user exists
-  if (!data.bidderId) throw new Error('Không tìm thấy người ra giá');
+  if (!data.bidderId) throw new Error("Không tìm thấy người ra giá");
 
   // Check blocked user
   const blockUsers = await getBlockUserByProductId(data.productId);
 
   if (blockUsers.includes(data.bidderId)) {
-    throw new Error('Bạn bị chặn khỏi việc ra giá sản phẩm này');
+    throw new Error("Bạn bị chặn khỏi việc ra giá sản phẩm này");
   }
 
   // Check product is active
   const now = new Date();
   if (product.startedAt > now || product.endAt <= now) {
-    throw new Error('Sản phẩm không hoạt động để ra giá');
+    throw new Error("Sản phẩm không hoạt động để ra giá");
   }
 
   // Check owner
   if (product.sellerId === data.bidderId) {
-    throw new Error('Người bán không thể ra giá sản phẩm của mình');
+    throw new Error("Người bán không thể ra giá sản phẩm của mình");
   }
 
   // Check hightRating
   if (product.highRatingRequired) {
     const check = await checkRating(data.bidderId);
     // console.log("check rating in auto bid:", check);
-    if (!check) throw new Error('Không thể ra giá vì điểm đánh giá thấp');
+    if (!check) throw new Error("Không thể ra giá vì điểm đánh giá thấp");
   }
 
   const stepPrice = Number(product.stepPrice);
   const currentPrice = Number(product.currentPrice ?? product.startPrice);
 
   if (data.maxAutoBidAmount < currentPrice + stepPrice) {
-    throw new Error('Số tiền không đủ để ra giá');
+    throw new Error("Số tiền không đủ để ra giá");
   }
 
   return true;
@@ -385,7 +390,7 @@ export const getBidCountByProductId = async (productId: string) => {
     where: { id: productId },
   });
 
-  if (!product) throw new Error('Không tìm thấy sản phẩm');
+  if (!product) throw new Error("Không tìm thấy sản phẩm");
 
   const count = await prisma.bidHistory.count({
     where: { productId },
@@ -403,7 +408,7 @@ export const getMaxBidByUserId = async (productId: string, userId: string) => {
     },
   });
 
-  if (!autoBid) throw new Error('Không tìm thấy lệnh tự động ra giá');
+  if (!autoBid) throw new Error("Không tìm thấy lệnh tự động ra giá");
 
   return autoBid.maxAmount;
 };
@@ -423,20 +428,20 @@ export const getBidHistoryByUserId = async (
   let orderBy: Prisma.BidHistoryOrderByWithRelationInput = {};
 
   switch (query.sort) {
-    case 'price_desc':
-      orderBy = { amount: 'desc' };
+    case "price_desc":
+      orderBy = { amount: "desc" };
       break;
-    case 'price_asc':
-      orderBy = { amount: 'asc' };
+    case "price_asc":
+      orderBy = { amount: "asc" };
       break;
-    case 'createdAt_asc':
-      orderBy = { createdAt: 'asc' };
+    case "createdAt_asc":
+      orderBy = { createdAt: "asc" };
       break;
-    case 'createdAt_desc':
-      orderBy = { createdAt: 'desc' };
+    case "createdAt_desc":
+      orderBy = { createdAt: "desc" };
       break;
     default:
-      orderBy = { createdAt: 'desc' };
+      orderBy = { createdAt: "desc" };
       break;
   }
 
@@ -452,7 +457,7 @@ export const getBidHistoryByUserId = async (
 
   const total = await prisma.bidHistory.count({ where });
 
-  if (!autoBids) throw new Error('No bid history found');
+  if (!autoBids) throw new Error("No bid history found");
 
   return {
     page,
@@ -464,11 +469,67 @@ export const getBidHistoryByUserId = async (
 };
 
 export const getBidCountOfUser = async (userId: string) => {
-  if (!userId) throw new Error('User ID is required');
+  if (!userId) throw new Error("User ID is required");
 
   const count = await prisma.bidHistory.count({
     where: { bidderId: userId },
   });
 
   return count;
+};
+
+export const getAutoBidsByUserId = async (
+  userId: string,
+  query: autoBidQueryDto
+) => {
+  if (!userId) throw new Error("User ID is required");
+  
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  let orderBy: Prisma.AutoBidsOrderByWithRelationInput = {};
+
+  switch (query.sort) {
+    case "createAt_desc":
+      orderBy = { createdAt: "desc" };
+      break;
+    case "createAt_asc":
+      orderBy = { createdAt: "asc" };
+      break;
+    default:
+      orderBy = { createdAt: "desc" };
+      break;
+  }
+
+  const now = new Date();
+  const autoBids = await prisma.autoBids.findMany({
+    where: {
+      bidderId: userId,
+      product: {
+        status: ProductStatus.ACTIVE,
+      },
+    },
+    skip,
+    take: limit,
+    orderBy,
+    include: {
+      product: {
+        select: {
+          title: true,
+          currentPrice: true,
+          startedAt: true,
+          updatedAt: true,
+          winnerId: true,
+        },
+      },
+      bidder: {
+        select: {
+          fullname: true,
+          avtUrl: true,
+        },
+      },
+    },
+  });
+  return autoBids;
 };

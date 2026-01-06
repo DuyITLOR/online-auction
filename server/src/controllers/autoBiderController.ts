@@ -53,7 +53,7 @@ export const createAutoBid = async (req: Request, res: Response) => {
       maxAutoBidAmount: Number(maxAutoBidAmount),
     });
 
-    console.log("Auto bid created:", data);
+    // console.log("Auto bid created:", data);
 
     // Gửi cho người thắng
     let content = "";

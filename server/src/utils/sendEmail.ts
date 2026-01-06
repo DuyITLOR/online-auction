@@ -1,7 +1,7 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 // import { Resend } from "resend";
 
-import { sendEmailDto, sendEmailResultDto } from '../dto/sendEmailDto';
+import { sendEmailDto, sendEmailResultDto } from "../dto/sendEmailDto";
 
 export const loadCodeTemplate = (code: string) => {
   return `
@@ -37,7 +37,7 @@ export const loadBidSuccessTemplateForBidder = (
   userName: string,
   productName: string,
   price: string,
-  productLink: string,
+  productLink: string
 ) => {
   return `
     <div style="
@@ -54,7 +54,7 @@ export const loadBidSuccessTemplateForBidder = (
       <p>Xin chào <strong>${userName}</strong>,</p>
 
       <p>
-        Sản phẩm <strong>${productName}</strong> đang tham giá đấu giá, hiện tại đang có giá 
+        Sản phẩm <strong>${productName}</strong>, bạn đang tham giá đấu giá, hiện tại đang có giá 
         <strong style="color:#0ea5a4;">${price} VND</strong>.
       </p>
 
@@ -82,7 +82,7 @@ export const loadBidSuccessTemplateForSeller = (
   userName: string,
   productName: string,
   price: string,
-  productLink: string,
+  productLink: string
 ) => {
   return `
     <div style="
@@ -388,10 +388,99 @@ export const loadProductDescriptionChangedTemplate = (
   `;
 };
 
+export const loadBlockedBidderTemplate = (
+  userName: string,
+  productName: string,
+  reason: string
+) => {
+  return `
+    <div style="
+      max-width:500px;
+      margin:auto;
+      font-family:Arial,sans-serif;
+      padding:20px;
+      border-radius:8px;
+      border:2px solid #dc2626;
+      background:#fef2f2;
+    ">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="
+          display:inline-block;
+          width:60px;
+          height:60px;
+          background:#dc2626;
+          border-radius:50%;
+          line-height:60px;
+          font-size:32px;
+          color:#fff;
+        ">⚠</div>
+      </div>
+
+      <h3 style="
+        margin-top:0;
+        color:#dc2626;
+        text-align:center;
+        font-size:20px;
+      ">Thông báo bị chặn khỏi cuộc đấu giá</h3>
+
+      <p>Xin chào <strong>${userName}</strong>,</p>
+
+      <p style="
+        background:#fff;
+        padding:15px;
+        border-left:4px solid #dc2626;
+        border-radius:4px;
+        margin:20px 0;
+      ">
+        Bạn đã bị <strong style="color:#dc2626;">chặn</strong> khỏi việc tham gia đấu giá sản phẩm 
+        <strong>${productName}</strong>.
+      </p>
+
+      <div style="
+        background:#fff;
+        padding:15px;
+        border-radius:6px;
+        margin:20px 0;
+      ">
+        <p style="margin:0 0 8px 0;color:#666;font-size:13px;"><strong>Lý do:</strong></p>
+        <p style="margin:0;color:#374151;">${
+          reason || "Không được cung cấp"
+        }</p>
+      </div>
+
+      <div style="
+        background:#fef3c7;
+        border:1px solid #fbbf24;
+        padding:12px;
+        border-radius:6px;
+        margin:20px 0;
+        font-size:14px;
+      ">
+        <strong>📌 Thông tin quan trọng:</strong>
+        <ul style="margin:8px 0 0 0;padding-left:20px;">
+          <li>Tất cả lệnh đấu giá tự động của bạn đã bị hủy</li>
+          <li>Lịch sử ra giá của bạn đã bị xóa khỏi sản phẩm này</li>
+          <li>Bạn không thể tham gia đấu giá sản phẩm này nữa</li>
+        </ul>
+      </div>
+
+      <p style="margin-top:20px;font-size:14px;color:#666;">
+        Nếu bạn cho rằng đây là nhầm lẫn, vui lòng liên hệ với người bán hoặc bộ phận hỗ trợ.
+      </p>
+
+      <hr style="margin:20px 0;border:none;border-top:1px solid #e5e7eb;" />
+
+      <p style="font-size:12px;color:#9ca3af;text-align:center;margin:0;">
+        Đây là email tự động — vui lòng không phản hồi lại email này.
+      </p>
+    </div>
+  `;
+};
+
 export const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
-    type: 'OAuth2',
+    type: "OAuth2",
     user: process.env.MAIL_USER, // group2hcmus@gmail.com
     clientId: process.env.GMAIL_CLIENT_ID,
     clientSecret: process.env.GMAIL_CLIENT_SECRET,
@@ -402,9 +491,9 @@ export const transporter = nodemailer.createTransport({
 // verify khi app start
 transporter.verify((err) => {
   if (err) {
-    console.error('SMTP verify failed:', err);
+    console.error("SMTP verify failed:", err);
   } else {
-    console.log('SMTP ready (Gmail service)');
+    console.log("SMTP ready (Gmail service)");
   }
 });
 
@@ -417,21 +506,25 @@ export const sendEmail = async (data: {
     const info = await transporter.sendMail({
       from: `"SnapBid" <${process.env.MAIL_USER}>`,
       to: data.email,
-      subject: data.subject ?? 'Verification code',
+      subject: data.subject ?? "Verification code",
       html: data.content,
     });
 
-    console.log(`Time: ${new Date().toISOString()} - Email: ${data.email} - subject: ${data.subject}` );
+    console.log(
+      `Time: ${new Date().toISOString()} - Email: ${data.email} - subject: ${
+        data.subject
+      }`
+    );
 
     return {
       success: true,
-      message: 'Send email success',
+      message: "Send email success",
     };
   } catch (err: any) {
-    console.error('Send email failed:', err);
+    console.error("Send email failed:", err);
     return {
       success: false,
-      message: err?.message ?? 'unknown error',
+      message: err?.message ?? "unknown error",
     };
   }
 };

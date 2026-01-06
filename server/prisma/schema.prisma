@@ -257,8 +257,7 @@ model settings {
   value     String
   updatedAt DateTime
   updatedBy String?
-
-  user User? @relation(fields: [updatedBy], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [updatedBy], references: [id], onDelete: Cascade)
 }
 
 enum Role {

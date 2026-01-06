@@ -7,9 +7,11 @@ import { checkRole } from "../utils/checkRole";
 import {
   loadAskTemplate,
   loadAnswerTemplate,
+  loadBlockedBidderTemplate,
   sendEmail,
 } from "../utils/sendEmail";
 import {
+  blockBidderDto,
   deleteCommentDto,
   getALlCommentsDto,
   updateUserDto,
@@ -248,7 +250,7 @@ export const blockBidder = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.badRequest,
       null,
-      'Need token before requesting'
+      "Need token before requesting"
     );
     res.status(response.code).send(response);
     return;
@@ -256,11 +258,11 @@ export const blockBidder = async (req: Request, res: Response) => {
   const id = req.user.id;
   // Check role
   const roles = await checkRole(id);
-  if (!roles.includes('SELLER')) {
+  if (!roles.includes("SELLER")) {
     const response = gatewayResponse(
       HttpStatus.forbidden,
       null,
-      'You do not have permission for requesting'
+      "You do not have permission for requesting"
     );
     res.status(response.code).send(response);
     return;
@@ -273,8 +275,22 @@ export const blockBidder = async (req: Request, res: Response) => {
     userId: blockedUserId,
     reason: reason,
   };
-  const record = await service.blockUser(data);
+  const record: blockBidderDto = await service.blockUser(data);
   if (record.success) {
+    const content = loadBlockedBidderTemplate(
+      record.data?.user.fullname || " ",
+      record.data?.product.title || " ",
+      req.body.reason
+    );
+
+    if (record.data?.user.email) {
+      sendEmail({
+        email: record.data?.user.email,
+        subject: "Bạn đã bị chặn khỏi đấu giá",
+        content: content,
+      });
+    }
+
     const response = gatewayResponse(
       HttpStatus.accepted,
       {

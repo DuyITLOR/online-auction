@@ -23,6 +23,7 @@ import Review from './review';
 import { useNavigate } from 'react-router-dom';
 
 import type { BidHistory, Product, ProductImage, User, WatchList } from '../../libs/types/types';
+import ImageSlider from './ImageSlider';
 import { useContext, useEffect, useState } from 'react';
 import {
   DialogFooter,
@@ -112,8 +113,8 @@ const isExpired = (date: string) => {
 
 const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) => {
   const minBidPrice = Number(product?.currentPrice) + Number(product?.stepPrice);
-  const [image, setImage] = useState<string>(() => product?.images?.[0]?.url ?? '');
   const [price, setPrice] = useState(minBidPrice);
+  const [currentIdx, setCurrentIdx] = useState(0);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [isBidding, setIsBidding] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -277,15 +278,16 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
     <div className='w-full flex flex-col px-4 md:px-8 mt-4 md:mt-10 mb-10'>
       <div className='flex flex-col lg:flex-row gap-8'>
         <div className='flex flex-col lg:flex-row gap-3 w-full lg:w-3/5'>
+          {/* Left vertical thumbnails - keep all images visible like before */}
           <div className='flex lg:flex-col gap-2 lg:overflow-x-hidden min-w-20 overflow-y-auto w-full lg:w-24 h-20 lg:h-[500px] scrollbar-hide order-2 lg:order-1'>
             {product?.images?.map((item: ProductImage, index: number) => (
               <div
-                onClick={() => setImage(item?.url)}
+                onClick={() => setCurrentIdx(index)}
                 key={index}
                 className={`
                   min-w-17 w-17 h-17 lg:w-full lg:h-24 rounded-xl shrink-0 cursor-pointer
                   bg-gray-200 border-2
-                  ${item?.url === image ? 'border-teal-400 ' : 'border-gray-300'}
+                  ${index === currentIdx ? 'border-teal-400 ' : 'border-gray-300'}
                   transition-all duration-300 ease-in-out
                 `}
               >
@@ -294,8 +296,16 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
             ))}
           </div>
 
+          {/* Main image slider */}
           <div className='relative w-full flex-1 h-[300px] sm:h-[400px] lg:h-[500px] border border-gray-300 rounded-xl bg-gray-200 flex justify-center items-center order-1 lg:order-2 overflow-hidden'>
-            <img src={image} className='w-full h-full object-contain' />
+            <ImageSlider
+              images={(product?.images as ProductImage[]) || []}
+              className='w-full h-full'
+              currentIndex={currentIdx}
+              onChange={setCurrentIdx}
+              autoplay
+              interval={3500}
+            />
             <Heart
               onClick={(e) => {
                 e.preventDefault();

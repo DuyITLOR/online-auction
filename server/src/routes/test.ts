@@ -121,7 +121,7 @@ router.post(
     const askerEmail = req.body.askerEmail;
     const productName = req.body.productName;
     const question = req.body.question;
-    const content = loadAskTemplate(askerEmail, productName, question);
+    const content = loadAskTemplate(askerEmail, productName, question, "");
     const data = {
       email: 'truongthanhdat6879@gmail.com',
       subject: 'Người mua đặt câu hỏi',
@@ -137,7 +137,7 @@ router.post(
     const sellerEmail = req.body.sellerEmail;
     const productName = req.body.productName;
     const answer = req.body.answer;
-    const content = loadAnswerTemplate(sellerEmail, productName, answer);
+    const content = loadAnswerTemplate(sellerEmail, productName, answer, "");
     const data = {
       email: 'truongthanhdat6879@gmail.com',
       subject: 'Người bán trả lời câu hỏi',

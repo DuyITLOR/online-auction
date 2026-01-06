@@ -348,11 +348,13 @@ export const askSeller = async (req: Request, res: Response) => {
     question: question,
   };
   const record = await service.askSeller(data);
+  const productLink = `${process.env.FRONTEND_URL}/product/${productId}`;
   if (record.success) {
     const emailContent = loadAskTemplate(
       record.askerEmail,
       record.productName,
-      record.question
+      record.question,
+      productLink
     );
     const mailData = {
       data: {
@@ -428,11 +430,13 @@ export const answerBidder = async (req: Request, res: Response) => {
     sellerId: id,
   };
   const record = await service.answerBidder(data);
+  const productLink = `${process.env.FRONTEND_URL}/product/${productId}`;
   if (record.success) {
     const emailContent = loadAnswerTemplate(
       record.bidderEmail,
       record.productName,
-      record.answer
+      record.answer,
+      productLink
     );
     const mailData = {
       data: {

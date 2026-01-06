@@ -243,7 +243,8 @@ export const loadOrderTemplate = (
   productName: string,
   winningPrice: string,
   sellerEmail: string,
-  winnerEmail: string
+  winnerEmail: string,
+  orderLink: string
 ) => {
   return `
     <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;background:#fff;">
@@ -260,6 +261,18 @@ export const loadOrderTemplate = (
         <strong>Email người bán:</strong> ${sellerEmail}<br/>
         <strong>Email người thắng:</strong> ${winnerEmail}
       </p>
+
+
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${orderLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Thanh toán ngay
+        </a>
+      </div>
+
+
 
       <p style="margin-top:12px;">
         Vui lòng liên hệ với nhau để tiến hành thanh toán và giao nhận sản phẩm.

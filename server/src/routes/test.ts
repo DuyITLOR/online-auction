@@ -66,7 +66,7 @@ router.post(
     const productName = req.body.productName;
     const reason = req.body.reason;
     const email = req.body.email;
-    const content = loadBidFailedTemplate(userName, productName, reason);
+    const content = loadBidFailedTemplate(userName, productName, "sdcdsc",reason);
     const data = {
       email: email,
       subject: 'Đấu giá thất bại',

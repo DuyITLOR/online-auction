@@ -106,11 +106,12 @@ export const loadBidSuccessTemplateForSeller = (
 export const loadBidFailedTemplate = (
   userName: string,
   productName: string,
+  title: string,
   reason: string
 ) => {
   return `
     <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;">
-      <h3 style="margin-top:0;color:#0ea5a4;">Kết quả đấu giá</h3>
+      <h3 style="margin-top:0;color:#0ea5a4;">${title}</h3>
 
       <p>Xin chào <strong>${userName}</strong>,</p>
 
@@ -362,7 +363,7 @@ export const sendEmail = async (data: {
       html: data.content,
     });
 
-    console.log(`Email: ${data.email} - subject: ${data.subject}` );
+    console.log(`Time: ${new Date().toISOString()} - Email: ${data.email} - subject: ${data.subject}` );
 
     return {
       success: true,

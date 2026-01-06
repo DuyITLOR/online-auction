@@ -1,4 +1,4 @@
-import { prisma } from './db/prisma';
+import { prisma } from "./db/prisma";
 
 export const getAllSettings = async () => {
   try {
@@ -44,4 +44,16 @@ export const updateSetting = async (
   } catch (err) {
     throw err;
   }
+};
+
+export const getSettingByKey = async (key: string) => {
+  const setting = await prisma.settings.findUnique({
+    where: { key },
+  });
+  
+  if (!setting) {
+    throw new Error(`Setting ${key} không tồn tại`);
+  }
+  
+  return setting.value;
 };

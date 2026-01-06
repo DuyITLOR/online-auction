@@ -30,6 +30,7 @@ export interface autoBidResult{
     lastWinner: {
         name: string;
         email: string;
+        type: string;
     }, 
     seller: {
         name: string;
@@ -39,6 +40,7 @@ export interface autoBidResult{
 
 export interface computeBid{
     winner: string,
+    winnerId: string,
     email: string,
     price: number
 }

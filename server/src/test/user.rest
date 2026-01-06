@@ -28,8 +28,8 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:4000/users/blocked/products/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1ODUxNTg2LTJjNDMtNGY1OC04NjhiLTdhNTNmZWM5MzExNiIsImVtYWlsIjoidHJ1b25ndGhhbmhkYXQ2ODc5QGdtYWlsLmNvbSIsImlhdCI6MTc2NDQyMTkyMywiZXhwIjoxNzY0NDI1NTIzfQ.lTnlJLsdY_-sBCXny9prCCr4ejjv0vXvBXTTZGpwG3o
+GET http://localhost:4000/users/blocked/products/58f835b1-3237-41e5-825f-6a5f61785aa9
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU1YmM3NzY4LTIxNTctNDhiMi1iM2VhLTAxYzYwYzZlZjAzOCIsImVtYWlsIjoibnRkYW5nMjNAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NzY5NjM2NywiZXhwIjoxNzcwMjg4MzY3fQ.G38gQCqu6rBRV2YRC7hht5ZHoHmMgiFBOOa4XiBo2NU
 Content-Type: application/json
 
 ###

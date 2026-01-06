@@ -42,7 +42,7 @@ const RatingPage = () => {
           setPos(data.positiveCount);
           setNeg(data.negativeCount);
         } else {
-          const data = await getAllRaters({ token: session.token });
+          const data = await getAllRaters({ token: session.token, page });
           setRaters(data.ratings);
           setPos(data.pos);
           setNeg(data.neg);

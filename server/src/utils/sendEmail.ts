@@ -290,7 +290,8 @@ export const loadOrderTemplate = (
 export const loadAskTemplate = (
   askerEmail: string,
   productName: string,
-  question: string
+  question: string,
+  productLink: string,
 ) => {
   return `
     <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;background:#fff;">
@@ -306,6 +307,17 @@ export const loadAskTemplate = (
       <blockquote style="margin:12px 0;padding:12px;border-left:4px solid #eee;background:#fafafa;">
         ${question}
       </blockquote>
+
+      
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Trả lời ngay
+        </a>
+      </div>
+
 
       <p style="margin-top:12px;">
         Vui lòng phản hồi sớm để người mua có thêm thông tin quyết định.
@@ -323,7 +335,8 @@ export const loadAskTemplate = (
 export const loadAnswerTemplate = (
   sellerEmail: string,
   productName: string,
-  answer: string
+  answer: string,
+  productLink: string
 ) => {
   return `
     <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;background:#fff;">
@@ -343,6 +356,15 @@ export const loadAnswerTemplate = (
       <p style="margin-top:12px;">
         Cảm ơn bạn đã quan tâm đến sản phẩm. Hãy tiếp tục theo dõi phiên đấu giá để cập nhật thêm thông tin.
       </p>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Trả lời ngay
+        </a>
+      </div>
 
       <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
 

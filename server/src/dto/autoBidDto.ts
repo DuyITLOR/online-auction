@@ -19,6 +19,7 @@ export interface bidHistoryQueryDto {
 
 export interface autoBidResult{
     product: {
+        id: string;
         name: string;
         price: number;
     }, 

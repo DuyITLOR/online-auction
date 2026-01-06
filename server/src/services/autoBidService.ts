@@ -234,6 +234,7 @@ export const createAutoBid = async (
   if (product.winnerId === data.bidderId) {
     return {
       product: {
+        id: product.id,
         name: product.title,
         price: Number(product.currentPrice),
       },

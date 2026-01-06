@@ -12,6 +12,7 @@ import {
   loadOutbidTemplate,
 } from '../utils/sendEmail';
 import { autoBidResult } from '../dto/autoBidDto';
+import { formatCurrency } from '../utils/format';
 
 export const createAutoBid = async (req: Request, res: Response) => {
   try {
@@ -61,7 +62,8 @@ export const createAutoBid = async (req: Request, res: Response) => {
       let content = loadBidSuccessTemplateForBidder(
         data.winner.name,
         data.product.name,
-        data.product.price.toString()
+        formatCurrency(data.product.price.toString()),
+        `${process.env.FRONTEND_URL}/product/${data.product.id}`
       );
 
       sendEmail({
@@ -76,7 +78,8 @@ export const createAutoBid = async (req: Request, res: Response) => {
       content = loadBidSuccessTemplateForSeller(
         data.seller.name,
         data.product.name,
-        data.product.price.toString()
+        formatCurrency(data.product.price.toString()),
+        `${process.env.FRONTEND_URL}/product/${data.product.id}`
       );
 
       sendEmail({
@@ -93,7 +96,8 @@ export const createAutoBid = async (req: Request, res: Response) => {
           data.lastWinner.name,
           data.product.name,
           "Thông báo bạn đã bị vượt qua trong cuộc đấu giá",
-          `Sản phẩm của bạn đã có người ra giá cao hơn và giá hiện tại là ${data.product.price} `
+          `Sản phẩm của bạn đã có người ra giá cao hơn và giá hiện tại là ${formatCurrency(data.product.price.toString())}`,
+          `${process.env.FRONTEND_URL}/product/${data.product.id}`
         );
 
         sendEmail({
@@ -106,7 +110,9 @@ export const createAutoBid = async (req: Request, res: Response) => {
           data.lastWinner.name,
           data.product.name,
           "Thông báo bạn đã ra giá thất bại",
-          `Sản phẩm của bạn đã có người ra giá cao hơn và giá hiện tại là ${data.product.price} `
+          `Sản phẩm của bạn đã có người ra giá cao hơn và giá hiện tại là ${formatCurrency(data.product.price.toString())} `,
+          `${process.env.FRONTEND_URL}/product/${data.product.id}`
+
         );
 
         sendEmail({

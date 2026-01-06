@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 // import { Resend } from "resend";
+
 import { sendEmailDto, sendEmailResultDto } from '../dto/sendEmailDto';
 
 export const loadCodeTemplate = (code: string) => {
@@ -35,7 +36,8 @@ export const loadResetTemplate = (link: string) => {
 export const loadBidSuccessTemplateForBidder = (
   userName: string,
   productName: string,
-  price: string
+  price: string,
+  productLink: string,
 ) => {
   return `
     <div style="
@@ -52,9 +54,18 @@ export const loadBidSuccessTemplateForBidder = (
       <p>Xin chào <strong>${userName}</strong>,</p>
 
       <p>
-        Sản phẩm <strong>${productName}</strong> đang có giá 
+        Sản phẩm <strong>${productName}</strong> đang tham giá đấu giá, hiện tại đang có giá 
         <strong style="color:#0ea5a4;">${price} VND</strong>.
       </p>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Xem sản phẩm
+        </a>
+      </div>
 
       <p>Đây là thông báo tự động liên quan đến sản phẩm của bạn.</p>
 
@@ -70,7 +81,8 @@ export const loadBidSuccessTemplateForBidder = (
 export const loadBidSuccessTemplateForSeller = (
   userName: string,
   productName: string,
-  price: string
+  price: string,
+  productLink: string,
 ) => {
   return `
     <div style="
@@ -87,9 +99,18 @@ export const loadBidSuccessTemplateForSeller = (
       <p>Người dùng có tên <strong>${userName}</strong> đã ra giá thành công sản phẩm của bạn</p>
 
       <p>
-        Sản phẩm <strong>${productName}</strong> đang có giá 
+        Sản phẩm <strong>${productName}</strong> đang có giá là
         <strong style="color:#0ea5a4;">${price} VND</strong>.
       </p>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Xem sản phẩm
+        </a>
+      </div>
 
       <p>Đây là thông báo tự động liên quan đến sản phẩm của bạn.</p>
 
@@ -155,7 +176,8 @@ export const loadBidFailedTemplate = (
   userName: string,
   productName: string,
   title: string,
-  reason: string
+  reason: string,
+  productLink: string
 ) => {
   return `
     <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;">
@@ -170,9 +192,19 @@ export const loadBidFailedTemplate = (
 
       <p><strong>Lý do:</strong> ${reason}</p>
 
-      <p style="margin-top:20px;">
-        Cảm ơn bạn đã tham gia phiên đấu giá. Chúc bạn may mắn ở những phiên tiếp theo!
+      <p style="font-size:14px;line-height:1.6;">
+        Hiện tại bạn <strong>không còn là người dẫn đầu</strong> trong phiên đấu giá này.
+        Nếu bạn vẫn quan tâm đến sản phẩm, hãy quay lại SnapBid để đặt giá mới và giành lại vị trí dẫn đầu.
       </p>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Đặt giá ngay
+        </a>
+      </div>
 
       <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
 
@@ -356,76 +388,8 @@ export const loadProductDescriptionChangedTemplate = (
   `;
 };
 
-// export const transporter = nodemailer.createTransport({
-//   host: "smtp.ethereal.email",
-//   port: 465,
-//   secure: true, // true nếu port 465
-//   auth: {
-//     user: process.env.MAIL_USER,        // ví dụ: maddison53@ethereal.email
-//     pass: process.env.MAIL_APP_PASSWORD // ví dụ: jn7jnAPss4f63QBp6D
-//   },
-// });
-
-// export const transporter = nodemailer.createTransport({
-//   host: "smtp.gmail.com",
-//   port: 465,
-//   secure: true,
-//   auth: {
-//     type: "OAuth2",
-//     user: process.env.MAIL_USER,
-//     clientId: process.env.GMAIL_CLIENT_ID,
-//     clientSecret: process.env.GMAIL_CLIENT_SECRET,
-//     refreshToken: process.env.GMAIL_REFRESH_TOKEN,
-//     accessToken: process.env.GMAIL_ACCESS_TOKEN,
-//   },
-// });
-
-// /**
-//  * Verify khi app start (OK với Ethereal)
-//  */
-// transporter.verify((err, success) => {
-//   if (err) {
-//     console.error("SMTP verify failed:", err);
-//   } else {
-//     console.log("SMTP ready (Ethereal)");
-//   }
-// });
-
-// /**
-//  * Hàm gửi email
-//  */
-// export const sendEmail = async (data: {
-//   email: string;
-//   subject?: string;
-//   content: string;
-// }) => {
-//   try {
-//     const info = await transporter.sendMail({
-//       from: '"SnapBid" <no-reply@snapbid.test>',
-//       to: data.email,
-//       subject: data.subject ?? "Verification code",
-//       html: data.content,
-//     });
-
-//     console.log("📧 Message ID:", info.messageId);
-//     console.log("🔗 Preview URL:", nodemailer.getTestMessageUrl(info));
-
-//     return {
-//       success: true,
-//       message: "Send email success",
-//       previewUrl: nodemailer.getTestMessageUrl(info),
-//     };
-//   } catch (err: any) {
-//     console.error("Send email failed:", err);
-//     return {
-//       success: false,
-//       message: err?.message ?? "unknown error",
-//     };
-//   }
-// };
-
 export const transporter = nodemailer.createTransport({
-  service: 'gmail', // 👈 đúng shortcut Gmail
+  service: 'gmail',
   auth: {
     type: 'OAuth2',
     user: process.env.MAIL_USER, // group2hcmus@gmail.com

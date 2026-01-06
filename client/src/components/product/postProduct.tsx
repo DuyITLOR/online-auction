@@ -16,6 +16,7 @@ const PostProduct = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [allowedExtend, setAllowedExtend] = useState(false);
   const [highRatingRequire, setHighRatingRequire] = useState(false);
 
   const [parentCategoryId, setParentCategoryId] = useState('');
@@ -95,6 +96,7 @@ const PostProduct = () => {
       endTime: '',
     });
 
+    setAllowedExtend(false);
     setHighRatingRequire(false);
     setImages([]);
     setPreviewUrls([]);
@@ -167,6 +169,7 @@ const PostProduct = () => {
         buyNowPrice: formData.buyNowPrice ? Number(formData.buyNowPrice) : '',
         startedAt: formData.startTime,
         endAt: formData.endTime,
+        allowedExtend: allowedExtend,
         highRatingRequired: highRatingRequire,
         images: images,
       };
@@ -392,6 +395,15 @@ const PostProduct = () => {
                   </div>
                 </div>
 
+                <label className='flex items-center gap-2'>
+                  <input
+                    onClick={() => setAllowedExtend(!allowedExtend)}
+                    checked={allowedExtend}
+                    type='checkbox'
+                    className='w-4 h-4 accent-teal-600'
+                  />
+                  <span className='text-sm'>Cho phép tự động gia hạn</span>
+                </label>
 
                 <label className='flex items-center gap-2'>
                   <input

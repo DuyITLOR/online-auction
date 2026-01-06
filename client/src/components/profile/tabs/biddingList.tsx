@@ -43,7 +43,7 @@ const BidHistory = ({ token }: { token: string }) => {
       try {
         const res = await getActivitiesOfUser({ page, limit: 10, token });
 
-        const bids: ActivityItem[] = (res.data || []).map((item: any) => ({
+        const bids: ActivityItem[] = (res || []).map((item: any) => ({
           id: item.product?.id,
           title: item.product?.title || 'Unknown Product',
           amount: item.amount,

@@ -54,13 +54,7 @@ const paymentSteps = [
     description: "Giao dịch hoàn tất",
     complete: false,
   },
-  {
-    numberOrder: 7,
-    title: "Hủy giao dịch",
-    description: "Giao dịch bị hủy",
-    complete: false,
-  },
-];
+]
 
 export interface chatInfoDto {
   id: string;
@@ -88,6 +82,7 @@ const PaymentPage = () => {
       const token = typeof session?.token === "string" ? session.token : "";
 
       const orderData: Orders = await getOrderInfo(id, token);
+      console.log("Lấy được orderData:", orderData);
       console.log("Dữ liệu của order", orderData);
       const step = ORDER_STATUS_TO_STEP[orderData.status];
       setOrder(orderData);
@@ -113,10 +108,18 @@ const PaymentPage = () => {
     avtUrl: order?.role === "SELLER" ? order?.buyer.avtUrl || "" : order?.seller.avtUrl || "",
   }
 
-  const computedSteps = paymentSteps.map((s) => ({
-    ...s,
-    complete: s.numberOrder < step,
-  }));
+  const computedSteps = paymentSteps.map((s) => 
+    {
+      if (s.numberOrder === 6) {
+        return {
+          ...s,
+          title: order?.status === "CANCELLED" ? "Hủy giao dịch" : s.title,
+          description: order?.status === "CANCELLED" ? "Giao dịch bị hủy" : s.description,
+          complete: s.numberOrder < step,
+        }
+      }
+      return { ...s, complete: s.numberOrder < step }
+    });
 
   if (loading) return <div className="loader" />;
   if (!order) return <div>Không tìm thấy đơn hàng</div>;
@@ -165,10 +168,23 @@ const PaymentPage = () => {
             order={order}
           />
         )}
-        {step === 6 && <PaymentComplete />}
-        {step === 7 && (
+
+        {step === 6 && order.status === "COMPLETED" && (
+          <PaymentComplete />
+        )}
+
+
+        {step === 6 && order.status === "CANCELLED" && order.role === "BIDDER" && (
           <PaymnentFinalCancle
             reason={order.cancelReason || "Không có lý do"}
+          />
+        )}
+
+        {step === 6 && order.status === "CANCELLED" && order.role === "SELLER" && (
+          <PaymentRating
+            userRole={order.role || "BIDDER"}
+            onComplete={fetchOrder}
+            order={order}
           />
         )}
 
@@ -181,14 +197,14 @@ const PaymentPage = () => {
         onClick={handleOpenChat}
         className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-lg hover:bg-teal-600 z-50"
       >
-        <MessageSquareMore/>
+        <MessageSquareMore />
       </button>
 
-      {isOpenChat && 
+      {isOpenChat &&
         <div className="fixed bottom-20 right-12 w-[400px] h-[500px] bg-white rounded-2xl shadow-xl z-50">
           <ChatBox chatInfor={chatInfor} hideBack />
         </div>
-    }
+      }
     </div>
   );
 };

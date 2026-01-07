@@ -210,6 +210,7 @@ export const getOrderById = async (orderId: string, userId: string) => {
       qrInfo: true,
       qrUrl: true,
       buyerAddress: true,
+      cancelReason: true,
       buyerPhone: true,
       billUrl: true,
       shippingCode: true,

@@ -136,6 +136,7 @@ export const getOrderById = async (req: Request, res: Response) => {
       shippingUrl: order.shippingUrl,
       shippingCode: order.shippingCode,
       productId: order.productId,
+      cancelReason: order.cancelReason,
       role: role,
     };
 

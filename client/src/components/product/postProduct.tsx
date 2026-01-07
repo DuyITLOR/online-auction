@@ -115,7 +115,7 @@ const PostProduct = () => {
     const rawValue = value.replace(/\./g, '');
     if (name === 'name') {
       setFormData((prev) => ({ ...prev, [name]: rawValue ? rawValue : rawValue }));
-      console.log(formData.name);
+      // console.log(formData.name);
     } else setFormData((prev) => ({ ...prev, [name]: rawValue ? rawValue : Number(rawValue) }));
   };
 

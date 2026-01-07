@@ -901,7 +901,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
         </TabsContent>
       </Tabs>
 
-      {!isSeller && <Review seller={product?.seller} productId={product.id} user={user} token={token} />}
+      <Review seller={product?.seller} productId={product.id} user={user} token={token} />
     </div>
   );
 };

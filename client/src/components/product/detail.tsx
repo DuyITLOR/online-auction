@@ -723,8 +723,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
             </div>
           ) : (
             historyBid.map((item: BidHistory, index: number) => (
-              <Link
-                to={`/rating/${item.bidderId}`}
+              <div
                 key={item.id}
                 className={`
                   flex items-center justify-between border px-3 py-3 md:px-6 md:py-4 rounded-xl transition-all
@@ -735,7 +734,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                   }
                 `}
               >
-                <div className='flex items-center gap-2 md:gap-4'>
+                <Link to={`/rating/${item.bidderId}`} className='flex items-center gap-2 md:gap-4'>
                   <div
                     className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center border border-gray-300 justify-center font-bold text-xs md:text-sm ${
                       index === 0 ? 'bg-yellow-400 text-white shadow-sm' : 'bg-gray-200 text-gray-500'
@@ -763,7 +762,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                       {formatDate(item.createdAt, { time: true })}
                     </span>
                   </div>
-                </div>
+                </Link>
                 <div className='flex items-center gap-3'>
                   <div className='text-right'>
                     <p
@@ -789,7 +788,7 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
                     </Button>
                   )}
                 </div>
-              </Link>
+              </div>
             ))
           )}
         </div>

@@ -23,6 +23,9 @@
 | Node.js         | >= 18.x               |
 | pnpm (hoặc npm) | pnpm khuyến khích     |
 | Git             | Dùng để clone source  |
+| Prisma          | 6.19                  |
+
+**⚠️ Lưu ý:** do đồ án sài bản prisma 6.19 nên trong extension prisma của vscode nhớ chỉnh về phiên bản 6.19
 
 **Kiểm tra nhanh:**
 
@@ -35,24 +38,30 @@ pnpm -v      # hoặc npm -v
 ### ✅ 2. Clone repository về máy
 ```bash
 git clone https://github.com/DuyITLOR/online-auction.git
-cd online-auction
 ```
 
 ### ✅ 3. Cài đặt các dependencies
 P/s: install ở thư mục gốc
 ```bash
+cd online-aucation
 pnpm install
 ```
+
 ### ✅ 4. Cài đặt môi trường
-Liên hệ: lenhutduydepzai@gmail.com
+Cần hai file env cho FE và BE
+ - client: .env.local
+- server: .env
+
+(Hai file này sẽ được gửi đính kèm ạ)
+
 
 ### ✅ 5. Cài schema prisma
 ```bash
 cd server
-npx prisma generate
+pnpm prisma generate
 ```
 
-## 🎯 Chạy chương trình
+## 🎯 Chạy chương trình môi trường dev
 ### ✅ Chạy client và server
 ```bash
 cd  online-auction
@@ -71,12 +80,29 @@ cd  online-auction
 pnpm dev:server
 ```
 
-### ✅ Cách migrations
-Thay đổi schema
+### ✅ Cách kéo/đẩy schema của database về
+Kéo 
 ```bash
-pnpm prisma migrate dev --name <Tên migrate>
+cd server
+pnpm prisma db pull
 ```
 
+## 🚀 Build và chạy production
+Do yêu cầu kiến trúc, client và server được build riêng biệt.
+
+### ✅ Build client
+```bash
+cd client
+pnpm run build
+pnpm run preview
+```
+
+### ✅ Build server
+```bash
+cd server
+pnpm run build
+pnpm start
+```
 
 
 

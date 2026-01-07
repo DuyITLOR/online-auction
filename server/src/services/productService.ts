@@ -290,6 +290,7 @@ export const buyNowProuct = async (data: buyNowProuctDto) => {
       status: 'SOLD',
       winnerId: data.buyerId,
       updatedAt: new Date(),
+      currentPrice: new Prisma.Decimal(product.buyNowPrice),
     },
   });
   return order;

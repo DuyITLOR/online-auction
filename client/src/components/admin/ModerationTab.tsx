@@ -246,7 +246,7 @@ const ModerationTab: FC = () => {
                         </div>
                       </td>
                       <td className='px-6 py-3 max-w-xs align-middle'>
-                        <p className='text-gray-600 truncate' title={item.note}>
+                        <p className='text-gray-600 overflow-auto max-h-20' title={item.note}>
                           {item.note || "Không có ghi chú"}
                         </p>
                       </td>

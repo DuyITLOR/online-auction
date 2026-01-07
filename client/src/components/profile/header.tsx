@@ -39,6 +39,7 @@ export const ProfileHeader = ({ session }: { session: any }) => {
   const [previewAvatar, setPreviewAvatar] = useState<string | undefined>(undefined);
   const [fetchedUser, setFetchedUser] = useState<any>(null);
   const [image, setImage] = useState<File>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { user: contextUser, refresh } = useContext(UserContext);
 
@@ -92,12 +93,15 @@ export const ProfileHeader = ({ session }: { session: any }) => {
   }, [currentUser]);
 
   const handleUpgradeSubmit = async () => {
+    setIsSubmitting(true);
     const data = await requestToUpgrade({ note: upgradeReason, token: session.token });
     if (data) {
       toast.success('Gửi yêu cầu thành công');
       setIsUpgradeOpen(false);
+      setIsSubmitting(false);
     } else {
       toast.error('Gửi yêu cầu thất bại');
+      setIsSubmitting(false);
     }
   };
 
@@ -273,7 +277,7 @@ export const ProfileHeader = ({ session }: { session: any }) => {
                 <Button type='button' variant='outline' onClick={() => setIsUpgradeOpen(false)}>
                   Hủy
                 </Button>
-                <Button type='submit' onClick={handleUpgradeSubmit} className='bg-teal-600 text-white'>
+                <Button type='submit' disabled={isSubmitting} onClick={handleUpgradeSubmit} className='bg-teal-600 text-white'>
                   Gửi yêu cầu
                 </Button>
               </DialogFooter>

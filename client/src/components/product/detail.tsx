@@ -179,7 +179,6 @@ const Detail = ({ product, historyBid, token, onRefresh, user }: ProductProp) =>
     try {
       setIsBuying(true);
       const data = await buyNow({ productId: product.id, token });
-      await autoBid({ productId: product.id, maxAutoBidAmount: Number(product.buyNowPrice), token });
       navigate(`/payment/${data.id}`);
     } catch (err) {
       toast.error('Có lỗi trong quá trình mua ngay. Vui lòng thử lại');

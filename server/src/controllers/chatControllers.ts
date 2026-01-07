@@ -28,7 +28,7 @@ export const getAllChats = async (req: Request, res: Response) => {
     res.status(response.code).send(response);
   } catch (err) {
     if (err instanceof Error) {
-      console.log('From chat controller: ', err.message);
+      // console.log('From chat controller: ', err.message);
       const response = gatewayResponse(
         HttpStatus.serviceUnavailable,
         null,
@@ -76,7 +76,7 @@ export const getAllMessage = async (req: Request, res: Response) => {
     res.status(response.code).send(response);
   } catch (err) {
     if (err instanceof Error) {
-      console.log('From chat controller: ', err.message);
+      // console.log('From chat controller: ', err.message);
       const response = gatewayResponse(
         HttpStatus.serviceUnavailable,
         null,
@@ -134,7 +134,7 @@ export const sendMessage = async (req: Request, res: Response) => {
     res.status(response.code).send(response);
   } catch (err) {
     if (err instanceof Error) {
-      console.log('From chat controller: ', err.message);
+      // console.log('From chat controller: ', err.message);
       const response = gatewayResponse(
         HttpStatus.serviceUnavailable,
         null,

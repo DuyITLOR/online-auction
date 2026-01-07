@@ -82,8 +82,8 @@ const PaymentPage = () => {
       const token = typeof session?.token === "string" ? session.token : "";
 
       const orderData: Orders = await getOrderInfo(id, token);
-      console.log("Lấy được orderData:", orderData);
-      console.log("Dữ liệu của order", orderData);
+      // console.log("Lấy được orderData:", orderData);
+      // console.log("Dữ liệu của order", orderData);
       const step = ORDER_STATUS_TO_STEP[orderData.status];
       setOrder(orderData);
       setStep(step);

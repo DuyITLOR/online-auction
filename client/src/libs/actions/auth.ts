@@ -47,7 +47,7 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
         messages: data.message,
       };
     }
-    console.log('data sign in:', data);
+    // console.log('data sign in:', data);
 
     await createSession({
       user: {

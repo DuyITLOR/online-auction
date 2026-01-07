@@ -95,7 +95,7 @@ export const updateUser = async (id: string, Data: updateUserDto) => {
       ...(dateOfBirth !== undefined && { dateOfBirth: new Date(dateOfBirth) }),
     };
 
-    console.log(Data);
+    // console.log(Data);
 
     const updated = await prisma.user.update({
       where: { id },
@@ -154,7 +154,7 @@ export const upgradeUser = async (id: string, note: string) => {
 };
 
 export const checkRating = async (id: string) => {
-  console.log("Checking rating for user:", id);
+  // console.log("Checking rating for user:", id);
   const user = await prisma.user.findUnique({
     where: { id },
   });

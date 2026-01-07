@@ -34,7 +34,7 @@ const Dropdown = ({ label = 'Select option', items = [] }: { label: string; item
               key={index}
               className='px-4 py-1 hover:text-white cursor-pointer hover:bg-gray-300 '
               onClick={() => {
-                console.log('open', item);
+                // console.log('open', item);
                 setOpen(false);
               }}
             >

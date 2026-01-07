@@ -294,7 +294,7 @@ export const getAutoBidsByUserId = async (req: Request, res: Response) => {
       const query = req.query as autoBidQueryDto;
       const userId = req.user.id;
       const data = await autoBidService.getAutoBidsByUserId(userId, query);
-      console.log("Data: ", data);
+      // console.log("Data: ", data);
       if (!data) {
         const response = gatewayResponse(
           HttpStatus.notFound,

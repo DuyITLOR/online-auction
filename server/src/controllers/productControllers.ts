@@ -79,10 +79,10 @@ export const getProductById = async (req: Request, res: Response) => {
 export const updateProduct = async (req: Request, res: Response) => {
   try {
     const sellerId = req.user!.id;
-    console.log('Seller ID:', sellerId);
+    // console.log('Seller ID:', sellerId);
 
     let roles = await checkRole(sellerId);
-    console.log(roles);
+    // console.log(roles);
 
     if (!roles.includes('SELLER')) {
       return res.status(403).json({

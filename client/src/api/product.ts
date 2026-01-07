@@ -83,7 +83,7 @@ interface CreateProductPayload {
 export const createProduct = async ({ product, token }: { product: CreateProductPayload; token: string }) => {
   const formData = new FormData();
 
-  console.log(product.allowedExtend.toString());
+  // console.log(product.allowedExtend.toString());
 
   formData.append('sellerId', product.sellerId);
   formData.append('categoryId', product.categoryId);

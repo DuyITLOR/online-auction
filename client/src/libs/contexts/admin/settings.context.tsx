@@ -63,7 +63,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
   const updateSettingValue = useCallback(
     async (id: string, value: string): Promise<boolean> => {
       try {
-        console.log("Updating setting:", id, value);
+        // console.log("Updating setting:", id, value);
         const response = await updateSetting(id, value);
         // Update local state with the new value
         setSettings((prev) =>

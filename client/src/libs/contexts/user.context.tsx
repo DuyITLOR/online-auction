@@ -33,7 +33,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const userValue = await getRole({ token: token });
       setUserState(userValue);
       if (userValue?.isActive == false && userValue) {
-        console.log(userValue);
+        // console.log(userValue);
         window.location.href = '/banned';
         return;
       }

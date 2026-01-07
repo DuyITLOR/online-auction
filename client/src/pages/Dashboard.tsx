@@ -31,7 +31,7 @@ const Dashboard = () => {
     fetchCategories();
   }, []);
 
-  console.log(categories);
+  // console.log(categories);
   return (
     <>
       {loading && <div className='loader' />}

@@ -71,7 +71,7 @@ export async function deleteCategory(req: Request, res: Response) {
     }
 
     const categoryId = req.params.id;
-    console.log("Deleting category with ID:", categoryId);
+    // console.log("Deleting category with ID:", categoryId);
     const deleted = await Service.deleteCate(categoryId);
     // Return 204 no content on success
     return res

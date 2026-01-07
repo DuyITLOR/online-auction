@@ -69,7 +69,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       const session = await getSession();
       const currentToken = typeof session?.token === 'string' ? session.token : '';
 
-      console.log(currentToken);
+      // console.log(currentToken);
 
       setToken(currentToken);
 

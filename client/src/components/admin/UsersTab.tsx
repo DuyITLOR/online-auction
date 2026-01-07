@@ -103,7 +103,7 @@ const TabUsers = () => {
       setIsSubmiting(true);
       await resetPasswordByAdmin(resetId, newPassword.trim());
 
-      console.log('resettingId', resetId);
+      // console.log('resettingId', resetId);
       toast.success('Đã reset mật khẩu và gửi email cho người dùng');
       setResetId(null);
       setNewPassword('');

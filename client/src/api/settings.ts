@@ -1,4 +1,4 @@
-import { getSession } from "@/libs/session";
+import { getSession } from '@/libs/session';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -8,6 +8,9 @@ export interface Setting {
   value: string;
   updatedAt: string;
   updatedBy: string;
+  user: {
+    fullname: string;
+  };
 }
 
 export interface SettingsResponse {
@@ -27,32 +30,32 @@ export const getSettings = async (): Promise<SettingsResponse> => {
   const token = session?.token;
 
   const res = await fetch(`${API_URL}/settings`, {
-    method: "GET",
+    method: 'GET',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
   });
 
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.message || "Không thể lấy cài đặt");
+    throw new Error(error.message || 'Không thể lấy cài đặt');
   }
 
   return res.json();
 };
 
 export const updateSetting = async (
-    id: string,
+  id: string,
   value: string
 ): Promise<UpdateSettingResponse> => {
   const session = await getSession();
   const token = session?.token;
 
   const res = await fetch(`${API_URL}/settings/${id}`, {
-    method: "PUT",
+    method: 'PUT',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ value }),
@@ -60,7 +63,7 @@ export const updateSetting = async (
 
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.message || "Không thể cập nhật cài đặt");
+    throw new Error(error.message || 'Không thể cập nhật cài đặt');
   }
 
   return res.json();

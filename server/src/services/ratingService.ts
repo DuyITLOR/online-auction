@@ -1,14 +1,19 @@
-import { prisma } from './db/prisma';
-import { ratingDto, updateRatingDto, getRatingDto, deleteRatingDto } from '../dto/ratingDto';
+import { prisma } from "./db/prisma";
+import {
+  ratingDto,
+  updateRatingDto,
+  getRatingDto,
+  deleteRatingDto,
+} from "../dto/ratingDto";
 
 export const getAllRatings = async (data: getRatingDto) => {
   const skip = (data.page - 1) * data.limit;
 
   let whereCondition: any = {};
 
-  if (data.type === 'received') {
+  if (data.type === "received") {
     whereCondition = { rateeId: data.userId };
-  } else if (data.type === 'given') {
+  } else if (data.type === "given") {
     whereCondition = { raterId: data.userId };
   } else {
     whereCondition = {
@@ -16,11 +21,11 @@ export const getAllRatings = async (data: getRatingDto) => {
     };
   }
 
-  const [ratings, totalItem] = await Promise.all([
+  const [ratings, totalItem, positiveCount, negativeCount] = await Promise.all([
     prisma.ratings.findMany({
       where: whereCondition,
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
       skip,
       take: data.limit,
@@ -34,6 +39,18 @@ export const getAllRatings = async (data: getRatingDto) => {
     prisma.ratings.count({
       where: whereCondition,
     }),
+
+    prisma.ratings.count({
+      where: {
+        AND: [whereCondition, { value: 1 }],
+      },
+    }),
+
+    prisma.ratings.count({
+      where: {
+        AND: [whereCondition, { value: -1 }],
+      },
+    }),
   ]);
 
   return {
@@ -41,6 +58,8 @@ export const getAllRatings = async (data: getRatingDto) => {
     limit: data.limit,
     totalItem,
     totalPage: Math.ceil(totalItem / data.limit),
+    positiveCount,
+    negativeCount,
     ratings,
   };
 };
@@ -71,8 +90,18 @@ export const createRating = async (data: ratingDto) => {
   });
 
   if (existCount > 0) {
-    throw new Error('Bạn đã đánh giá người này rồi');
+    throw new Error("Bạn đã đánh giá người này rồi");
   }
+
+  const order = await prisma.orders.findUnique({
+    where: { id: data.orderId },
+    select: { buyerId: true, sellerId: true, productId: true },
+  });
+
+  if (!order) {
+    throw new Error("Đơn hàng không tồn tại");
+  }
+
   if (data.value === 1) {
     await prisma.user.update({
       where: {
@@ -97,16 +126,7 @@ export const createRating = async (data: ratingDto) => {
     });
   }
 
-  await prisma.orders.update({
-    where: {
-      id: data.orderId,
-    },
-    data: {
-      status: 'COMPLETED',
-    },
-  });
-
-  return await prisma.ratings.create({
+  const rating = await prisma.ratings.create({
     data: {
       raterId: data.raterId,
       rateeId: data.rateeId,
@@ -119,6 +139,35 @@ export const createRating = async (data: ratingDto) => {
       product: { select: { title: true } },
     },
   });
+
+  const buyerRating = await prisma.ratings.findFirst({
+    where: {
+      raterId: order?.buyerId,
+      rateeId: order?.sellerId,
+      productId: order?.productId,
+    },
+  });
+
+  const sellerRating = await prisma.ratings.findFirst({
+    where: {
+      raterId: order.sellerId,
+      rateeId: order.buyerId,
+      productId: order.productId,
+    },
+  });
+
+  if (buyerRating && sellerRating) {
+    await prisma.orders.update({
+      where: {
+        id: data.orderId,
+      },
+      data: {
+        status: 'COMPLETED',
+      },
+    });
+  }
+
+  return rating;
 };
 
 export const updateRating = async (Data: updateRatingDto) => {
@@ -126,7 +175,7 @@ export const updateRating = async (Data: updateRatingDto) => {
 
   const rating = await prisma.ratings.findUnique({ where: { id } });
 
-  if (!rating) throw new Error('Rating không tồn tại');
+  if (!rating) throw new Error("Rating không tồn tại");
 
   const user = await prisma.user.findUnique({
     where: {
@@ -134,7 +183,7 @@ export const updateRating = async (Data: updateRatingDto) => {
     },
   });
 
-  if (!user) throw new Error('Server gặp vấn đề');
+  if (!user) throw new Error("Server gặp vấn đề");
 
   if (value !== undefined && Number(value) !== rating.value) {
     const newValue = Number(value);
@@ -190,7 +239,7 @@ export const deleteRating = async (data: deleteRatingDto) => {
     },
   });
   if (check === null) {
-    throw new Error('Bạn không đủ thẩm quyền để xóa đánh giá này');
+    throw new Error("Bạn không đủ thẩm quyền để xóa đánh giá này");
   }
 
   if (check.value === 1) {

@@ -1,10 +1,5 @@
 import './App.css';
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-  RouterProvider,
-} from 'react-router-dom';
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import AuthCallback from './pages/auth/AuthCallback';
 import SignIn from './pages/auth/SignIn';
@@ -23,7 +18,9 @@ import MainLayout from './layouts/MainLayout';
 import NotFoundPage from './pages/NotFound';
 import ShopPage from './pages/product/ShopProduct';
 import ChatPage from './pages/chat/ChatPage';
-
+import RatingPage from './pages/RatingPage';
+import { ProfileSummaryRoute } from './pages/profileSumary';
+import BannedAccount from './pages/BannedAccount';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -32,6 +29,7 @@ const router = createBrowserRouter(
       <Route path='auth/verify' element={<Verify />} />
       <Route path='auth/forget-password' element={<ForgetPassword />} />
       <Route path='auth/reset-password' element={<ResetPassword />} />
+      <Route path='banned' element={<BannedAccount />} />
       <Route path='/' element={<MainLayout />} errorElement={<NotFoundPage />}>
         <Route index element={<Dashboard />} />
         <Route path='products' element={<ProductList />} />
@@ -42,8 +40,10 @@ const router = createBrowserRouter(
         <Route path='auth/google/callback' element={<AuthCallback />} />
         <Route path='products' element={<ProductList />} />
         <Route path='profile' element={<Profile />} />
+        <Route path='rating/:id' element={<RatingPage />} />
         <Route path='payment/:id' element={<PaymentPage />} />
         <Route path='seller/dashboard' element={<SellerDashboard />} />
+        <Route path='profile/:userId' element={<ProfileSummaryRoute />} />
       </Route>
       <Route path='chat' element={<ChatPage />} />
     </>

@@ -1,3 +1,5 @@
+import { getSession } from '../libs/session';
+
 export const getRole = async ({ token }: { token: string }) => {
   try {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
@@ -21,21 +23,31 @@ export const getRole = async ({ token }: { token: string }) => {
   }
 };
 
-export const requestToUpgrade = async ({ note, token }: { note: string; token: string }) => {
+export const requestToUpgrade = async ({
+  note,
+  token,
+}: {
+  note: string;
+  token: string;
+}) => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/upgrade`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ note }),
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/users/upgrade`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ note }),
+      }
+    );
 
     const data = await res.json();
 
     if (!res.ok) {
-      const message = data.message || data.error || 'Failed to fetch api upgrade role';
+      const message =
+        data.message || data.error || 'Failed to fetch api upgrade role';
       throw new Error(message);
     }
 
@@ -54,7 +66,13 @@ interface UpdateUserPayload {
   address: string;
 }
 
-export const updateUser = async ({ user, token }: { user: UpdateUserPayload; token: string }) => {
+export const updateUser = async ({
+  user,
+  token,
+}: {
+  user: UpdateUserPayload;
+  token: string;
+}) => {
   try {
     const formData = new FormData();
 
@@ -64,18 +82,22 @@ export const updateUser = async ({ user, token }: { user: UpdateUserPayload; tok
     formData.append('dateOfBirth', user.dateOfBirth);
     formData.append('address', user.address);
 
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/update`, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/users/update`,
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
 
     const data = await res.json();
 
     if (!res.ok) {
-      const message = data.message || data.error || 'Failed to fetch update user api';
+      const message =
+        data.message || data.error || 'Failed to fetch update user api';
 
       throw new Error(message);
     }
@@ -87,17 +109,21 @@ export const updateUser = async ({ user, token }: { user: UpdateUserPayload; tok
 
 export const getStatisticProfile = async ({ token }: { token: string }) => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/bidder/statistic`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/bidder/statistic`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     const data = await res.json();
     if (!res.ok) {
-      const message = data.message || data.error || 'Failed to get information profile api';
+      const message =
+        data.message || data.error || 'Failed to get information profile api';
       throw new Error(message);
     }
 
@@ -131,21 +157,58 @@ export const getUser = async ({ id }: { id: string }) => {
   }
 };
 
-export const blockUserFromBidding = async (userId: string, productId: string, reason: string, token: string) => {
+export const getUserStatistic = async ({ id }: { id: string }) => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/${userId}/blocked`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ productId, reason }),
-    });
+    const session = await getSession();
+    //
+    const token = session?.token || '';
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/bidder/statistic/${id}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const data = await res.json();
+    if (!res.ok) {
+      const message =
+        data.message || data.error || 'Failed to fetch user statistic';
+      throw new Error(message);
+    }
+    return data.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+export const blockUserFromBidding = async (
+  userId: string,
+  productId: string,
+  reason: string,
+  token: string
+) => {
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/users/${userId}/blocked`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId, reason }),
+      }
+    );
 
     const data = await res.json();
 
     if (!res.ok) {
-      const message = data.message || data.error || 'Failed to block user from bidding';
+      const message =
+        data.message || data.error || 'Failed to block user from bidding';
       throw new Error(message);
     }
 
@@ -153,5 +216,32 @@ export const blockUserFromBidding = async (userId: string, productId: string, re
   } catch (err) {
     console.error(err);
     throw err;
+  }
+};
+
+export const resetPasswordByAdmin = async (
+  userId: string,
+  newPassword: string
+) => {
+  const session = await getSession();
+
+  const res = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/users/${userId}/reset-password`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session?.token}`,
+      },
+      body: JSON.stringify({
+        newPassword,
+      }),
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || 'Reset mật khẩu thất bại');
   }
 };

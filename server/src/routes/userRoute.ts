@@ -31,6 +31,11 @@ router.get(
   authMiddleware,
   controllers.getInforOfProfile
 );
+router.get(
+  API_ROUTES.bidderProfile.path,
+  authMiddleware,
+  controllers.getBidderInfor
+);
 router.post(
   API_ROUTES.requestUpgrade.path,
   authMiddleware,

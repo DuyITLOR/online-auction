@@ -32,6 +32,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       const userValue = await getRole({ token: token });
       setUserState(userValue);
+      if (userValue?.isActive == false && userValue) {
+        // console.log(userValue);
+        window.location.href = '/banned';
+        return;
+      }
       setRatingValue(calRating());
     } catch (err) {
       console.error(err);
@@ -61,6 +66,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       await fetchUserInfor(curToken);
     } catch (err) {
+      window.location.reload();
       console.error(err);
     }
   };
@@ -70,9 +76,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <UserContext.Provider
-      value={{ user: userState, refresh: () => getData(), rating: ratingValue }}
-    >
+    <UserContext.Provider value={{ user: userState, refresh: () => getData(), rating: ratingValue }}>
       {children}
     </UserContext.Provider>
   );

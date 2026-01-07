@@ -10,7 +10,11 @@ import { uploadedImageDto } from '../dto/uploadImageDto';
 import { checkRole } from '../utils/checkRole';
 import { gatewayResponse } from '../utils/response';
 import { HttpStatus } from '../utils/permission';
-import { sendEmail, loadOrderTemplate } from '../utils/sendEmail';
+import {
+  sendEmail,
+  loadOrderTemplate,
+  loadProductDescriptionChangedTemplate,
+} from '../utils/sendEmail';
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
@@ -75,10 +79,10 @@ export const getProductById = async (req: Request, res: Response) => {
 export const updateProduct = async (req: Request, res: Response) => {
   try {
     const sellerId = req.user!.id;
-    console.log('Seller ID:', sellerId);
+    // console.log('Seller ID:', sellerId);
 
     let roles = await checkRole(sellerId);
-    console.log(roles);
+    // console.log(roles);
 
     if (!roles.includes('SELLER')) {
       return res.status(403).json({
@@ -113,6 +117,20 @@ export const updateProduct = async (req: Request, res: Response) => {
 
     const result = await productService.updateProduct(productId, payload);
 
+    const winnerId = result.winnerId || null;
+    if (winnerId) {
+      const productLink = `${process.env.FRONTEND_URL}/product/${result.id}`;
+      const content = loadProductDescriptionChangedTemplate(
+        result.title,
+        productLink
+      );
+      sendEmail({
+        email: result.winner?.email || '',
+        subject: 'Cập nhật mô tả sản phẩm đấu giá',
+        content: content,
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: 'Sản phẩm được cập nhật thành công',
@@ -134,7 +152,8 @@ export const deleteProduct = async (req: Request, res: Response) => {
     if (!roles.includes('SELLER') && !roles.includes('ADMIN')) {
       return res.status(403).json({
         success: false,
-        message: 'Bị cấm: Người dùng không phải là người bán hoặc quản trị viên',
+        message:
+          'Bị cấm: Người dùng không phải là người bán hoặc quản trị viên',
       });
     }
 
@@ -209,16 +228,17 @@ export const buyNowProduct = async (req: Request, res: Response) => {
       buyerId: bidderId,
       sellerId: product.sellerId,
       totalAmount: Number(product.buyNowPrice) || 0,
-      productId: productId
-    }
+      productId: productId,
+    };
 
     const response = await productService.buyNowProuct(data);
-
+    const orderLink = `${process.env.FRONTEND_URL}/payment/${response?.id}`;
     const content = loadOrderTemplate(
       response?.product.title || '',
-      response?.product.buyNowPrice?.toString() || "",
+      response?.product.buyNowPrice?.toString() || '',
       response?.product.seller.email || '',
-      response?.buyer.email || ''
+      response?.buyer.email || '',
+      orderLink
     );
 
     try {

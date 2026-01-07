@@ -7,9 +7,11 @@ import { checkRole } from '../utils/checkRole';
 import {
   loadAskTemplate,
   loadAnswerTemplate,
+  loadBlockedBidderTemplate,
   sendEmail,
 } from '../utils/sendEmail';
 import {
+  blockBidderDto,
   deleteCommentDto,
   getALlCommentsDto,
   updateUserDto,
@@ -86,8 +88,10 @@ export const getSellerStats = async (req: Request, res: Response) => {
     );
 
     const posRatings = ratings.filter((rating) => rating.value === 1).length;
-    const ratingValue = (posRatings / (ratings.length || 1)) * 100;
-
+    let ratingValue = (posRatings / (ratings.length || 1)) * 100;
+    if (ratings.length === 0) {
+      ratingValue = 100;
+    }
     const data = {
       products: products,
       orders: orders,
@@ -241,55 +245,69 @@ export const getAllBlockedUser = async (req: Request, res: Response) => {
   }
 };
 
-  export const blockBidder = async (req: Request, res: Response) => {
-    if (!req.user) {
-      const response = gatewayResponse(
-        HttpStatus.badRequest,
-        null,
-        'Need token before requesting'
-      );
-      res.status(response.code).send(response);
-      return;
-    }
-    const id = req.user.id;
-    // Check role
-    const roles = await checkRole(id);
-    if (!roles.includes('SELLER')) {
-      const response = gatewayResponse(
-        HttpStatus.forbidden,
-        null,
-        'You do not have permission for requesting'
-      );
-      res.status(response.code).send(response);
-      return;
-    }
-    const blockedUserId = req.params.userId;
-    const productId = req.body.productId;
-    const reason = req.body.reason;
-    const data = {
-      productId: productId,
-      userId: blockedUserId,
-      reason: reason,
-    };
-    const record = await service.blockUser(data);
-    if (record.success) {
-      const response = gatewayResponse(
-        HttpStatus.accepted,
-        {
-          record: record.data,
-        },
-        record.message
-      );
-      res.status(response.code).send(response);
-    } else {
-      const response = gatewayResponse(
-        HttpStatus.badRequest,
-        null,
-        record.message
-      );
-      res.status(response.code).send(response);
-    }
+export const blockBidder = async (req: Request, res: Response) => {
+  if (!req.user) {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      "Need token before requesting"
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+  const id = req.user.id;
+  // Check role
+  const roles = await checkRole(id);
+  if (!roles.includes("SELLER")) {
+    const response = gatewayResponse(
+      HttpStatus.forbidden,
+      null,
+      "You do not have permission for requesting"
+    );
+    res.status(response.code).send(response);
+    return;
+  }
+  const blockedUserId = req.params.userId;
+  const productId = req.body.productId;
+  const reason = req.body.reason;
+  const data = {
+    productId: productId,
+    userId: blockedUserId,
+    reason: reason,
   };
+  const record: blockBidderDto = await service.blockUser(data);
+  if (record.success) {
+    const content = loadBlockedBidderTemplate(
+      record.data?.user.fullname || " ",
+      record.data?.product.title || " ",
+      req.body.reason
+    );
+
+    if (record.data?.user.email) {
+      sendEmail({
+        email: record.data?.user.email,
+        subject: "Bạn đã bị chặn khỏi đấu giá",
+        content: content,
+      });
+    }
+
+    const response = gatewayResponse(
+      HttpStatus.accepted,
+      {
+        record: record.data,
+      },
+      record.message
+    );
+    res.status(response.code).send(response);
+  } else {
+    const response = gatewayResponse(
+      HttpStatus.badRequest,
+      null,
+      record.message
+    );
+    res.status(response.code).send(response);
+  }
+};
 
 export const askSeller = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -330,11 +348,13 @@ export const askSeller = async (req: Request, res: Response) => {
     question: question,
   };
   const record = await service.askSeller(data);
+  const productLink = `${process.env.FRONTEND_URL}/product/${productId}`;
   if (record.success) {
     const emailContent = loadAskTemplate(
       record.askerEmail,
       record.productName,
-      record.question
+      record.question,
+      productLink
     );
     const mailData = {
       data: {
@@ -410,11 +430,13 @@ export const answerBidder = async (req: Request, res: Response) => {
     sellerId: id,
   };
   const record = await service.answerBidder(data);
+  const productLink = `${process.env.FRONTEND_URL}/product/${productId}`;
   if (record.success) {
     const emailContent = loadAnswerTemplate(
       record.bidderEmail,
       record.productName,
-      record.answer
+      record.answer,
+      productLink
     );
     const mailData = {
       data: {
@@ -522,11 +544,31 @@ export const deleteComment = async (req: Request, res: Response) => {
 
 export const getInforOfProfile = async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
-      const response = gatewayResponse(400, null, 'Token Invalid');
+    const id = req.params.userId;
+    const data = await service.getInfoProfile(id);
+    if (!data) {
+      const response = gatewayResponse(400, null, 'Bad request');
       return res.status(response.code).send(response);
     }
 
+    const response = gatewayResponse(
+      200,
+      data,
+      'Get profile info successfully'
+    );
+    return res.status(response.code).send(response);
+  } catch (error: any) {
+    const response = gatewayResponse(500, null, error.message);
+    res.status(response.code).send(response);
+  }
+};
+
+export const getBidderInfor = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      const response = gatewayResponse(400, null, 'Bad request');
+      return res.status(response.code).send(response);
+    }
     const id = req.user.id;
     const data = await service.getInfoProfile(id);
     if (!data) {

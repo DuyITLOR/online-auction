@@ -24,7 +24,7 @@ export const createProduct = async (id: string, data: createProductDto) => {
       updatedAt: new Date(),
 
       autoExtendEnabled: data.autoExtendEnabled === 'true',
-      autoExtendMinutes: Number(data.autoExtendMinutes) ?? 0,
+      autoExtendMinutes: Number(data.autoExtendMinutes) || 0,
       highRatingRequired: data.highRatingRequired === 'true',
 
       images: {
@@ -108,6 +108,7 @@ export const updateProduct = async (id: string, data: updateProductDto) => {
     data: updateData,
     include: {
       images: true,
+      winner: true,
     },
   });
 

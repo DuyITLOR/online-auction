@@ -212,7 +212,7 @@ const Dashboard: React.FC = () => {
       </>
     );
   }
-  console.log(user?.role);
+  // console.log(user?.role);
 };
 
 export default Dashboard;

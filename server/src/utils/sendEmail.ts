@@ -1,7 +1,7 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 // import { Resend } from "resend";
-import { sendEmailDto, sendEmailResultDto } from "../dto/sendEmailDto";
 
+import { sendEmailDto, sendEmailResultDto } from '../dto/sendEmailDto';
 
 export const loadCodeTemplate = (code: string) => {
   return `
@@ -36,7 +36,8 @@ export const loadResetTemplate = (link: string) => {
 export const loadBidSuccessTemplateForBidder = (
   userName: string,
   productName: string,
-  price: string
+  price: string,
+  productLink: string
 ) => {
   return `
     <div style="
@@ -53,9 +54,18 @@ export const loadBidSuccessTemplateForBidder = (
       <p>Xin chào <strong>${userName}</strong>,</p>
 
       <p>
-        Sản phẩm <strong>${productName}</strong> đang có giá 
+        Sản phẩm <strong>${productName}</strong>, bạn đang tham giá đấu giá, hiện tại đang có giá 
         <strong style="color:#0ea5a4;">${price} VND</strong>.
       </p>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Xem sản phẩm
+        </a>
+      </div>
 
       <p>Đây là thông báo tự động liên quan đến sản phẩm của bạn.</p>
 
@@ -71,7 +81,8 @@ export const loadBidSuccessTemplateForBidder = (
 export const loadBidSuccessTemplateForSeller = (
   userName: string,
   productName: string,
-  price: string
+  price: string,
+  productLink: string
 ) => {
   return `
     <div style="
@@ -88,9 +99,18 @@ export const loadBidSuccessTemplateForSeller = (
       <p>Người dùng có tên <strong>${userName}</strong> đã ra giá thành công sản phẩm của bạn</p>
 
       <p>
-        Sản phẩm <strong>${productName}</strong> đang có giá 
+        Sản phẩm <strong>${productName}</strong> đang có giá là
         <strong style="color:#0ea5a4;">${price} VND</strong>.
       </p>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Xem sản phẩm
+        </a>
+      </div>
 
       <p>Đây là thông báo tự động liên quan đến sản phẩm của bạn.</p>
 
@@ -103,14 +123,65 @@ export const loadBidSuccessTemplateForSeller = (
   `;
 };
 
+export const loadOutbidTemplate = (
+  userName: string,
+  productName: string,
+  currentPrice: string | number,
+  productLink: string
+) => {
+  return `
+    <div style="max-width:520px;margin:auto;font-family:Arial,sans-serif;padding:24px;border-radius:10px;border:1px solid #eee;background:#ffffff;">
+      
+      <h2 style="margin-top:0;color:#0ea5a4;">
+        Bạn vừa bị vượt giá
+      </h2>
+
+      <p style="font-size:15px;line-height:1.6;">
+        Chào <strong>${userName}</strong>,<br/>
+        Giá đấu của bạn cho sản phẩm <strong>${productName}</strong> đã bị người khác vượt qua.
+      </p>
+
+      <div style="margin:20px 0;padding:16px;border-radius:8px;background:#f9fafb;border:1px solid #eee;">
+        <p style="margin:0;font-size:14px;color:#555;">Giá hiện tại</p>
+        <p style="margin:6px 0 0;font-size:22px;font-weight:bold;color:#0ea5a4;">
+          ${currentPrice}
+        </p>
+      </div>
+
+      <p style="font-size:14px;line-height:1.6;">
+        Hiện tại bạn <strong>không còn là người dẫn đầu</strong> trong phiên đấu giá này.
+        Nếu bạn vẫn quan tâm đến sản phẩm, hãy quay lại SnapBid để đặt giá mới và giành lại vị trí dẫn đầu.
+      </p>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Đặt giá ngay
+        </a>
+      </div>
+
+      <hr style="margin:24px 0;border:none;border-top:1px solid #eee;" />
+
+      <p style="font-size:12px;color:#777;text-align:center;">
+        Đây là email tự động từ SnapBid — vui lòng không phản hồi lại email này.
+      </p>
+
+    </div>
+  `;
+};
+
 export const loadBidFailedTemplate = (
   userName: string,
   productName: string,
-  reason: string
+  title: string,
+  reason: string,
+  productLink: string
 ) => {
   return `
     <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;">
-      <h3 style="margin-top:0;color:#0ea5a4;">Kết quả đấu giá</h3>
+      <h3 style="margin-top:0;color:#0ea5a4;">${title}</h3>
 
       <p>Xin chào <strong>${userName}</strong>,</p>
 
@@ -121,9 +192,19 @@ export const loadBidFailedTemplate = (
 
       <p><strong>Lý do:</strong> ${reason}</p>
 
-      <p style="margin-top:20px;">
-        Cảm ơn bạn đã tham gia phiên đấu giá. Chúc bạn may mắn ở những phiên tiếp theo!
+      <p style="font-size:14px;line-height:1.6;">
+        Hiện tại bạn <strong>không còn là người dẫn đầu</strong> trong phiên đấu giá này.
+        Nếu bạn vẫn quan tâm đến sản phẩm, hãy quay lại SnapBid để đặt giá mới và giành lại vị trí dẫn đầu.
       </p>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Đặt giá ngay
+        </a>
+      </div>
 
       <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
 
@@ -162,7 +243,8 @@ export const loadOrderTemplate = (
   productName: string,
   winningPrice: string,
   sellerEmail: string,
-  winnerEmail: string
+  winnerEmail: string,
+  orderLink: string
 ) => {
   return `
     <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;background:#fff;">
@@ -180,6 +262,18 @@ export const loadOrderTemplate = (
         <strong>Email người thắng:</strong> ${winnerEmail}
       </p>
 
+
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${orderLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Thanh toán ngay
+        </a>
+      </div>
+
+
+
       <p style="margin-top:12px;">
         Vui lòng liên hệ với nhau để tiến hành thanh toán và giao nhận sản phẩm.
       </p>
@@ -196,7 +290,8 @@ export const loadOrderTemplate = (
 export const loadAskTemplate = (
   askerEmail: string,
   productName: string,
-  question: string
+  question: string,
+  productLink: string,
 ) => {
   return `
     <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;background:#fff;">
@@ -212,6 +307,17 @@ export const loadAskTemplate = (
       <blockquote style="margin:12px 0;padding:12px;border-left:4px solid #eee;background:#fafafa;">
         ${question}
       </blockquote>
+
+      
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Trả lời ngay
+        </a>
+      </div>
+
 
       <p style="margin-top:12px;">
         Vui lòng phản hồi sớm để người mua có thêm thông tin quyết định.
@@ -229,7 +335,8 @@ export const loadAskTemplate = (
 export const loadAnswerTemplate = (
   sellerEmail: string,
   productName: string,
-  answer: string
+  answer: string,
+  productLink: string
 ) => {
   return `
     <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;background:#fff;">
@@ -250,6 +357,15 @@ export const loadAnswerTemplate = (
         Cảm ơn bạn đã quan tâm đến sản phẩm. Hãy tiếp tục theo dõi phiên đấu giá để cập nhật thêm thông tin.
       </p>
 
+      <div style="text-align:center;margin:24px 0;">
+        <a 
+          href="${productLink}"
+          style="display:inline-block;padding:12px 24px;background:#0ea5a4;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;"
+        >
+          Trả lời ngay
+        </a>
+      </div>
+
       <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
 
       <p style="font-size:12px;color:#666;">
@@ -259,81 +375,191 @@ export const loadAnswerTemplate = (
   `;
 };
 
+export const loadProductDescriptionChangedTemplate = (
+  productName: string,
+  productLink: string
+) => {
+  return `
+    <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;background:#fff;">
+      <h3 style="margin-top:0;color:#0ea5a4;">Thông báo cập nhật sản phẩm</h3>
 
-// export const transporter = nodemailer.createTransport({
-//   host: "smtp.ethereal.email",
-//   port: 465,
-//   secure: true, // true nếu port 465
-//   auth: {
-//     user: process.env.MAIL_USER,        // ví dụ: maddison53@ethereal.email
-//     pass: process.env.MAIL_APP_PASSWORD // ví dụ: jn7jnAPss4f63QBp6D
-//   },
-// });
+      <p>
+        Mô tả của sản phẩm 
+        <strong>${productName}</strong> đã được người bán cập nhật.
+      </p>
 
-// export const transporter = nodemailer.createTransport({
-//   host: "smtp.gmail.com",
-//   port: 465,
-//   secure: true, 
-//   auth: {
-//     type: "OAuth2",
-//     user: process.env.MAIL_USER,
-//     clientId: process.env.GMAIL_CLIENT_ID,
-//     clientSecret: process.env.GMAIL_CLIENT_SECRET,
-//     refreshToken: process.env.GMAIL_REFRESH_TOKEN,
-//     accessToken: process.env.GMAIL_ACCESS_TOKEN,
-//   },
-// });
+      <p style="margin-top:12px;">
+        Để đảm bảo bạn không bỏ lỡ bất kỳ thông tin quan trọng nào trước khi tham gia hoặc tiếp tục đấu giá,
+        vui lòng xem lại nội dung mô tả mới nhất của sản phẩm.
+      </p>
 
-// /**
-//  * Verify khi app start (OK với Ethereal)
-//  */
-// transporter.verify((err, success) => {
-//   if (err) {
-//     console.error("SMTP verify failed:", err);
-//   } else {
-//     console.log("SMTP ready (Ethereal)");
-//   }
-// });
+      <div style="margin:20px 0;text-align:center;">
+        <a 
+          href="${productLink}" 
+          style="
+            display:inline-block;
+            padding:10px 16px;
+            background:#0ea5a4;
+            color:#fff;
+            text-decoration:none;
+            border-radius:6px;
+            font-weight:bold;
+          "
+        >
+          Xem sản phẩm
+        </a>
+      </div>
 
-// /**
-//  * Hàm gửi email
-//  */
-// export const sendEmail = async (data: {
-//   email: string;
-//   subject?: string;
-//   content: string;
-// }) => {
-//   try {
-//     const info = await transporter.sendMail({
-//       from: '"SnapBid" <no-reply@snapbid.test>',
-//       to: data.email,
-//       subject: data.subject ?? "Verification code",
-//       html: data.content,
-//     });
+      <p style="margin-top:12px;">
+        Nếu bạn đang theo dõi hoặc đã đặt giá cho sản phẩm này, hãy kiểm tra lại để đảm bảo thông tin mới phù hợp với quyết định của bạn.
+      </p>
 
-//     console.log("📧 Message ID:", info.messageId);
-//     console.log("🔗 Preview URL:", nodemailer.getTestMessageUrl(info));
+      <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
 
-//     return {
-//       success: true,
-//       message: "Send email success",
-//       previewUrl: nodemailer.getTestMessageUrl(info),
-//     };
-//   } catch (err: any) {
-//     console.error("Send email failed:", err);
-//     return {
-//       success: false,
-//       message: err?.message ?? "unknown error",
-//     };
-//   }
-// };
+      <p style="font-size:12px;color:#666;">
+        Đây là email tự động — vui lòng không phản hồi lại email này.
+      </p>
+    </div>
+  `;
+};
 
+export const loadPasswordResetSuccessTemplate = (
+  userName: string,
+  email: string,
+  newPassword: string
+) => {
+  return `
+    <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;padding:20px;border-radius:8px;border:1px solid #eee;background:#fff;">
+      <h3 style="margin-top:0;color:#0ea5a4;">Đặt lại mật khẩu thành công</h3>
+
+      <p>
+        Xin chào <strong>${userName}</strong>,
+      </p>
+
+      <p>
+        Chúng tôi đã xử lý thành công yêu cầu đặt lại mật khẩu cho tài khoản:
+        <strong>${email}</strong>
+      </p>
+
+      <p style="margin-top:12px;">
+        Mật khẩu mới của bạn là:
+      </p>
+
+      <div style="margin:16px 0;padding:12px;background:#fafafa;border:1px dashed #0ea5a4;border-radius:6px;text-align:center;font-size:16px;font-weight:bold;">
+        ${newPassword}
+      </div>
+
+      <p style="margin-top:12px;">
+        Vui lòng đăng nhập bằng mật khẩu này và thay đổi lại mật khẩu của bạn ngay để đảm bảo an toàn cho tài khoản.
+      </p>
+
+      <p>
+        Nếu bạn <strong>không phải</strong> là người yêu cầu đặt lại mật khẩu, vui lòng liên hệ ngay với bộ phận hỗ trợ của chúng tôi.
+      </p>
+
+      <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
+
+      <p style="font-size:12px;color:#666;">
+        Đây là email tự động — vui lòng không phản hồi lại email này.
+      </p>
+    </div>
+  `;
+};
+
+export const loadBlockedBidderTemplate = (
+  userName: string,
+  productName: string,
+  reason: string
+) => {
+  return `
+    <div style="
+      max-width:500px;
+      margin:auto;
+      font-family:Arial,sans-serif;
+      padding:20px;
+      border-radius:8px;
+      border:2px solid #dc2626;
+      background:#fef2f2;
+    ">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="
+          display:inline-block;
+          width:60px;
+          height:60px;
+          background:#dc2626;
+          border-radius:50%;
+          line-height:60px;
+          font-size:32px;
+          color:#fff;
+        ">⚠</div>
+      </div>
+
+      <h3 style="
+        margin-top:0;
+        color:#dc2626;
+        text-align:center;
+        font-size:20px;
+      ">Thông báo bị chặn khỏi cuộc đấu giá</h3>
+
+      <p>Xin chào <strong>${userName}</strong>,</p>
+
+      <p style="
+        background:#fff;
+        padding:15px;
+        border-left:4px solid #dc2626;
+        border-radius:4px;
+        margin:20px 0;
+      ">
+        Bạn đã bị <strong style="color:#dc2626;">chặn</strong> khỏi việc tham gia đấu giá sản phẩm 
+        <strong>${productName}</strong>.
+      </p>
+
+      <div style="
+        background:#fff;
+        padding:15px;
+        border-radius:6px;
+        margin:20px 0;
+      ">
+        <p style="margin:0 0 8px 0;color:#666;font-size:13px;"><strong>Lý do:</strong></p>
+        <p style="margin:0;color:#374151;">${
+          reason || 'Không được cung cấp'
+        }</p>
+      </div>
+
+      <div style="
+        background:#fef3c7;
+        border:1px solid #fbbf24;
+        padding:12px;
+        border-radius:6px;
+        margin:20px 0;
+        font-size:14px;
+      ">
+        <strong>📌 Thông tin quan trọng:</strong>
+        <ul style="margin:8px 0 0 0;padding-left:20px;">
+          <li>Tất cả lệnh đấu giá tự động của bạn đã bị hủy</li>
+          <li>Lịch sử ra giá của bạn đã bị xóa khỏi sản phẩm này</li>
+          <li>Bạn không thể tham gia đấu giá sản phẩm này nữa</li>
+        </ul>
+      </div>
+
+      <p style="margin-top:20px;font-size:14px;color:#666;">
+        Nếu bạn cho rằng đây là nhầm lẫn, vui lòng liên hệ với người bán hoặc bộ phận hỗ trợ.
+      </p>
+
+      <hr style="margin:20px 0;border:none;border-top:1px solid #e5e7eb;" />
+
+      <p style="font-size:12px;color:#9ca3af;text-align:center;margin:0;">
+        Đây là email tự động — vui lòng không phản hồi lại email này.
+      </p>
+    </div>
+  `;
+};
 
 export const transporter = nodemailer.createTransport({
-  service: "gmail", // 👈 đúng shortcut Gmail
+  service: 'gmail',
   auth: {
-    type: "OAuth2",
-    user: process.env.MAIL_USER,                 // group2hcmus@gmail.com
+    type: 'OAuth2',
+    user: process.env.MAIL_USER, // group2hcmus@gmail.com
     clientId: process.env.GMAIL_CLIENT_ID,
     clientSecret: process.env.GMAIL_CLIENT_SECRET,
     refreshToken: process.env.GMAIL_REFRESH_TOKEN,
@@ -343,9 +569,9 @@ export const transporter = nodemailer.createTransport({
 // verify khi app start
 transporter.verify((err) => {
   if (err) {
-    console.error("SMTP verify failed:", err);
+    console.error('SMTP verify failed:', err);
   } else {
-    console.log("SMTP ready (Gmail service)");
+    console.log('SMTP ready (Gmail service)');
   }
 });
 
@@ -358,85 +584,25 @@ export const sendEmail = async (data: {
     const info = await transporter.sendMail({
       from: `"SnapBid" <${process.env.MAIL_USER}>`,
       to: data.email,
-      subject: data.subject ?? "Verification code",
+      subject: data.subject ?? 'Verification code',
       html: data.content,
     });
 
-    console.log(`📧 Sent: ${data.email} - Message ID: ${info.messageId}`);
+    console.log(
+      `Time: ${new Date().toISOString()} - Email: ${data.email} - subject: ${
+        data.subject
+      }`
+    );
 
     return {
       success: true,
-      message: "Send email success",
+      message: 'Send email success',
     };
   } catch (err: any) {
-    console.error("Send email failed:", err);
+    console.error('Send email failed:', err);
     return {
       success: false,
-      message: err?.message ?? "unknown error",
+      message: err?.message ?? 'unknown error',
     };
   }
 };
-
-
-// export const sendEmail = async (
-//   data: sendEmailDto
-// ): Promise<sendEmailResultDto> => {
-//   const transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     host: 'smtp.gmail.com',
-//     port: 587,
-//     secure: false, // true for 465, false for other ports
-//     auth: {
-//       user: process.env.MAIL_USER || 'group2hcmus@gmail.com',
-//       pass: process.env.MAIL_APP_PASSWORD || 'tgbpcgszidtfecmr',
-//     },
-//   });
-
-//   try {
-//     const info = await transporter.sendMail({
-//       from: '"SnapBid" <group2hcmus@gmail.com>',
-//       to: data.email,
-//       subject: data.subject ?? "Verification code",
-//       text: "Message from SnapBid", // plain‑text body
-//       html: data.content, // HTML body
-//     });
-
-//     console.log("Dữ liệu email đã được gửi thành công: ", data.email);
-
-//     return {
-//       success: true,
-//       message: "Send email",
-//     };
-//   } catch (err) {
-//     if (err instanceof Error) {
-//       return {
-//         success: false,
-//         message: err.message,
-//       };
-//     }
-//     return {
-//       success: false,
-//       message: "unknown error",
-//     };
-//   }
-// };
-
-
-// const resend = new Resend(process.env.RESEND_API_KEY!);
-
-
-// export const sendEmail = async (data: sendEmailDto) => {
-//   try {
-//     await resend.emails.send({
-//       from: "SnapBid <onboarding@resend.dev>", // test OK ngay
-//       to: data.email,
-//       subject: data.subject ?? "Verification code",
-//       html: data.content,
-//     });
-//     console.log("Dữ liệu email đã được gửi thành công: ", data.email);
-
-//     return { success: true, message: "Send email" };
-//   } catch (err: any) {
-//     return { success: false, message: err.message };
-//   }
-// };

@@ -1,5 +1,5 @@
 import { verify } from 'crypto';
-import { googleCallback } from '../controllers/authControllers';
+import { googleCallback, resetPassword } from '../controllers/authControllers';
 import { updateCate } from '../services/cateService';
 import { updateCategory } from '../controllers/categoryControllers';
 import { get, request } from 'http';
@@ -11,6 +11,7 @@ import { getMaxBidByUser } from '../controllers/autoBiderController';
 import path from 'path';
 import { getAllCommentsByProductId } from '../controllers/userControllers';
 import { getOrderById, uploadBankInfo } from '../services/orderService';
+import { activateUser } from '../services/adminService';
 
 enum Role {
   ADMIN = 'ADMIN',
@@ -270,10 +271,35 @@ export const API_ROUTES = {
     role: [Role.ADMIN],
     method: 'GET',
   },
+  getAllDeactivatedUsers: {
+    path: '/users/deactivated',
+    role: [Role.ADMIN],
+    method: 'GET',
+  },
   profileSummary: {
-    path: '/bidder/statistic',
+    path: '/bidder/statistic/:userId',
     role: [Role.ALL],
     method: 'GET',
+  },
+  bidderProfile: {
+    path: '/bidder/statistic',
+    role: [Role.BIDDER],
+    method: 'GET',
+  },
+  deactivateUser: {
+    path: '/users/:userId/deactivate',
+    role: [Role.ADMIN],
+    method: 'PATCH',
+  },
+  activateUser: {
+    path: '/users/:userId/activate',
+    role: [Role.ADMIN],
+    method: 'PATCH',
+  },
+  resetPasswordByAdmin: {
+    path: '/users/:userId/reset-password',
+    role: [Role.ADMIN],
+    method: 'PATCH',
   },
 
   // system configuration
@@ -313,6 +339,12 @@ export const API_RATING_ROUTES = {
         given: 'returns all ratings that you have given to others.',
       },
     },
+  },
+
+  getRatingByUserId: {
+    path: '/ratings/users/:userId',
+    role: [Role.BIDDER, Role.SELLER],
+    method: 'GET',
   },
 
   rateUser: {
@@ -481,15 +513,21 @@ export const API_AUTO_BID_ROUTES = {
     role: [Role.ALL],
   },
   getMaxBidByUser: {
-    path: '/autoBid/:productId',
+    path: '/autoBid/max/:productId',
     method: 'GET',
     role: [Role.BIDDER],
   },
   getBidHistoryByUserId: {
+    path: '/autoBid/history',
+    method: 'GET',
+    role: [Role.BIDDER],
+  },
+  getAutoBidByUserId: {
     path: '/autoBid',
     method: 'GET',
     role: [Role.BIDDER],
   },
+
 };
 
 export const API_ORDER_ROUTES = {

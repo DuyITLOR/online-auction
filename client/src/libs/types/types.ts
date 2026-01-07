@@ -25,6 +25,7 @@ export interface User {
   watchList?: WatchList[];
   productWinner?: Product[];
   bidHistory?: BidHistory[];
+  isActive?: boolean;
 }
 
 export interface Product {

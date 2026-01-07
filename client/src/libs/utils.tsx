@@ -16,9 +16,12 @@ export function isoToYYYYMMDD(isoString: string | undefined) {
   return `${year}-${month}-${day}`;
 }
 
-export function calculateRating(pos: number | null | undefined, neg: number | null | undefined) {
+export function calculateRating(
+  pos: number | null | undefined,
+  neg: number | null | undefined
+) {
   const posValue = pos ? pos : 0;
   const negValue = neg ? neg : 0;
-  if (posValue + negValue === 0) return 0;
+  if (posValue + negValue === 0) return 10;
   return Number((posValue / (posValue + negValue)) * 10).toFixed(1);
 }

@@ -5,25 +5,10 @@ import * as controllers from '../controllers/ratingControllers';
 
 const router = Router();
 
-router.get(
-  API_RATING_ROUTES.getAllRatings.path,
-  authMiddleware,
-  controllers.getAllRatings
-);
-router.post(
-  API_RATING_ROUTES.rateUser.path,
-  authMiddleware,
-  controllers.rateUser
-);
-router.patch(
-  API_RATING_ROUTES.updateRating.path,
-  authMiddleware,
-  controllers.udpateRaing
-);
-router.delete(
-  API_RATING_ROUTES.deleteRating.path,
-  authMiddleware,
-  controllers.deleteRating
-);
+router.get(API_RATING_ROUTES.getAllRatings.path, authMiddleware, controllers.getAllRatings);
+router.get(API_RATING_ROUTES.getRatingByUserId.path, authMiddleware, controllers.getRatingByUserId);
+router.post(API_RATING_ROUTES.rateUser.path, authMiddleware, controllers.rateUser);
+router.patch(API_RATING_ROUTES.updateRating.path, authMiddleware, controllers.udpateRaing);
+router.delete(API_RATING_ROUTES.deleteRating.path, authMiddleware, controllers.deleteRating);
 
 export default router;

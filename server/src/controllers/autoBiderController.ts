@@ -1,16 +1,18 @@
-import { Request, Response } from "express";
-import * as autoBidService from "../services/autoBidService";
-import { gatewayResponse } from "../utils/response";
-import { HttpStatus } from "../utils/permission";
-import { checkRole } from "../utils/checkRole";
-import { bidHistoryQueryDto } from "../dto/autoBidDto";
+import { Request, Response } from 'express';
+import * as autoBidService from '../services/autoBidService';
+import { gatewayResponse } from '../utils/response';
+import { HttpStatus } from '../utils/permission';
+import { checkRole } from '../utils/checkRole';
+import { bidHistoryQueryDto, autoBidQueryDto } from '../dto/autoBidDto';
 import {
   loadBidSuccessTemplateForSeller,
   loadBidSuccessTemplateForBidder,
   loadBidFailedTemplate,
   sendEmail,
-} from "../utils/sendEmail";
-import { autoBidResult } from "../dto/autoBidDto";
+  loadOutbidTemplate,
+} from '../utils/sendEmail';
+import { autoBidResult } from '../dto/autoBidDto';
+import { formatCurrency } from '../utils/format';
 
 export const createAutoBid = async (req: Request, res: Response) => {
   try {
@@ -18,7 +20,7 @@ export const createAutoBid = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.unauthorized,
         null,
-        "Token không hợp lệ"
+        'Token không hợp lệ'
       );
       return res.status(response.code).send(response);
     }
@@ -26,11 +28,11 @@ export const createAutoBid = async (req: Request, res: Response) => {
     const bidderId = req.user.id;
     let roles = await checkRole(bidderId);
 
-    if (!roles.includes("BIDDER")) {
+    if (!roles.includes('BIDDER')) {
       const response = gatewayResponse(
         HttpStatus.forbidden,
         null,
-        "Bị cấm: Người dùng không phải là người ra giá"
+        'Bị cấm: Người dùng không phải là người ra giá'
       );
       return res.status(response.code).send(response);
     }
@@ -40,7 +42,7 @@ export const createAutoBid = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        "Thiếu các trường bắt buộc"
+        'Thiếu các trường bắt buộc'
       );
       return res.status(response.code).send(response);
     }
@@ -51,74 +53,85 @@ export const createAutoBid = async (req: Request, res: Response) => {
       maxAutoBidAmount: Number(maxAutoBidAmount),
     });
 
-    const emailJobs: (() => Promise<any>)[] = [];
-    // Gửi cho người thắng
-    let content = loadBidSuccessTemplateForBidder(
-      data.winner.name,
-      data.product.name,
-      data.product.price.toString()
-    );
+    // console.log("Auto bid created:", data);
 
-    emailJobs.push(() =>
+    // Gửi cho người thắng
+    let content = "";
+
+    if (data.winner.email !== "N/A") {
+      let content = loadBidSuccessTemplateForBidder(
+        data.winner.name,
+        data.product.name,
+        formatCurrency(data.product.price.toString()),
+        `${process.env.FRONTEND_URL}/product/${data.product.id}`
+      );
+
       sendEmail({
         email: data.winner.email,
         subject: "Thông báo ra giá thành công",
         content,
-      })
-    );
+      });
+    }
 
     // Gửi thông báo cho người bán
-    content = loadBidSuccessTemplateForSeller(
-      data.seller.name,
-      data.product.name,
-      data.product.price.toString()
-    );
+    if (data.seller.email !== "N/A") {
+      content = loadBidSuccessTemplateForSeller(
+        data.seller.name,
+        data.product.name,
+        formatCurrency(data.product.price.toString()),
+        `${process.env.FRONTEND_URL}/product/${data.product.id}`
+      );
 
-    emailJobs.push(() =>
-       sendEmail({
+      sendEmail({
         email: data.seller.email,
         subject: "Thông báo người đấu giá ra giá thành công sản phẩm của bạn",
         content,
-      })
-    );
+      });
+    }
 
     // Gửi thông báo cho người thua cuộc (nếu có)
-
     if (data.lastWinner.email !== "N/A") {
-      content = loadBidFailedTemplate(
-        data.lastWinner.name,
-        data.product.name,
-        `Sản phẩm của bạn đã có người ra giá cao hơn và giá hiện tại là ${data.product.price} `
-      );
-      emailJobs.push(() =>
+      if (data.lastWinner.type === "OVER") {
+        content = loadBidFailedTemplate(
+          data.lastWinner.name,
+          data.product.name,
+          "Thông báo bạn đã bị vượt qua trong cuộc đấu giá",
+          `Sản phẩm của bạn đã có người ra giá cao hơn và giá hiện tại là ${formatCurrency(data.product.price.toString())}`,
+          `${process.env.FRONTEND_URL}/product/${data.product.id}`
+        );
+
         sendEmail({
           email: data.lastWinner.email,
           subject: "Bạn đã bị vượt qua trong cuộc đấu giá",
           content,
-        })
-      );
-    }
+        });
+      } else {
+          content = loadBidFailedTemplate(
+          data.lastWinner.name,
+          data.product.name,
+          "Thông báo bạn đã ra giá thất bại",
+          `Sản phẩm của bạn đã có người ra giá cao hơn và giá hiện tại là ${formatCurrency(data.product.price.toString())} `,
+          `${process.env.FRONTEND_URL}/product/${data.product.id}`
 
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        );
 
-    for (const job of emailJobs) {
-      try {
-        await job();
-        await sleep(400); // 300–500ms
-      } catch (err) {
-        console.error("Send email failed:", err);
+        sendEmail({
+          email: data.lastWinner.email,
+          subject: "Thông báo ra giá thất bại",
+          content,
+        });
       }
     }
 
     const response = gatewayResponse(
       HttpStatus.created,
       data,
-      "Tạo lệnh ra giá tự động thành công"
+      'Tạo lệnh ra giá tự động thành công'
     );
     return res.status(response.code).send(response);
   } catch (error: unknown) {
     const message =
-      error instanceof Error ? error.message : "Internal Server Error";
+      error instanceof Error ? error.message : 'Internal Server Error';
     const response = gatewayResponse(HttpStatus.badRequest, null, message);
     return res.status(response.code).send(response);
   }
@@ -134,7 +147,7 @@ export const getHistoryAutoBisByProduct = async (
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        "Thiếu tham số productId"
+        'Thiếu tham số productId'
       );
       return res.status(response.code).send(response);
     }
@@ -143,12 +156,12 @@ export const getHistoryAutoBisByProduct = async (
     const response = gatewayResponse(
       HttpStatus.ok,
       data,
-      "Lịch sử ra giá tự động được lấy thành công"
+      'Lịch sử ra giá tự động được lấy thành công'
     );
     return res.status(response.code).send(response);
   } catch (error: unknown) {
     const message =
-      error instanceof Error ? error.message : "Internal Server Error";
+      error instanceof Error ? error.message : 'Internal Server Error';
     const response = gatewayResponse(HttpStatus.badRequest, null, message);
     return res.status(response.code).send(response);
   }
@@ -161,7 +174,7 @@ export const getBidCountByProduct = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        "Thiếu tham số productId"
+        'Thiếu tham số productId'
       );
       return res.status(response.code).send(response);
     }
@@ -170,12 +183,12 @@ export const getBidCountByProduct = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       data,
-      "Số lượng ra giá được lấy thành công"
+      'Số lượng ra giá được lấy thành công'
     );
     return res.status(response.code).send(response);
   } catch (error: unknown) {
     const message =
-      error instanceof Error ? error.message : "Internal Server Error";
+      error instanceof Error ? error.message : 'Internal Server Error';
     const response = gatewayResponse(HttpStatus.badRequest, null, message);
     return res.status(response.code).send(response);
   }
@@ -188,11 +201,11 @@ export const getMaxBidByUser = async (req: Request, res: Response) => {
 
     let roles = await checkRole(userId!);
 
-    if (!roles.includes("BIDDER")) {
+    if (!roles.includes('BIDDER')) {
       const response = gatewayResponse(
         HttpStatus.forbidden,
         null,
-        "Bị cấm: Người dùng không phải là người ra giá"
+        'Bị cấm: Người dùng không phải là người ra giá'
       );
       return res.status(response.code).send(response);
     }
@@ -201,7 +214,7 @@ export const getMaxBidByUser = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.badRequest,
         null,
-        "Thiếu tham số productId hoặc userId"
+        'Thiếu tham số productId hoặc userId'
       );
       return res.status(response.code).send(response);
     }
@@ -210,13 +223,13 @@ export const getMaxBidByUser = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       data,
-      "Lấy ra giá tối đa thành công"
+      'Lấy ra giá tối đa thành công'
     );
 
     return res.status(response.code).send(response);
   } catch (error: unknown) {
     const message =
-      error instanceof Error ? error.message : "Internal Server Error";
+      error instanceof Error ? error.message : 'Internal Server Error';
     const response = gatewayResponse(HttpStatus.badRequest, null, message);
     return res.status(response.code).send(response);
   }
@@ -227,11 +240,11 @@ export const getBidHistoryByUserId = async (req: Request, res: Response) => {
     const userId = req.user?.id;
 
     let roles = await checkRole(userId!);
-    if (!roles.includes("BIDDER")) {
+    if (!roles.includes('BIDDER')) {
       const response = gatewayResponse(
         HttpStatus.forbidden,
         null,
-        "Forbidden: User is not a bidder"
+        'Forbidden: User is not a bidder'
       );
 
       return res.status(response.code).send(response);
@@ -247,7 +260,7 @@ export const getBidHistoryByUserId = async (req: Request, res: Response) => {
       const response = gatewayResponse(
         HttpStatus.notFound,
         null,
-        "No bid history found"
+        'No bid history found'
       );
       return res.status(response.code).send(response);
     }
@@ -255,13 +268,52 @@ export const getBidHistoryByUserId = async (req: Request, res: Response) => {
     const response = gatewayResponse(
       HttpStatus.ok,
       data,
-      "Bid history retrieved successfully"
+      'Bid history retrieved successfully'
     );
     return res.status(response.code).send(response);
   } catch (error: unknown) {
     const message =
-      error instanceof Error ? error.message : "Internal Server Error";
+      error instanceof Error ? error.message : 'Internal Server Error';
     const response = gatewayResponse(HttpStatus.badRequest, null, message);
     return res.status(response.code).send(response);
   }
 };
+
+
+export const getAutoBidsByUserId = async (req: Request, res: Response) => {
+    try {
+      if(!req.user){
+        const response = gatewayResponse(
+          HttpStatus.unauthorized,
+          null,
+          'Token không hợp lệ'
+        );
+        return res.status(response.code).send(response);
+      }
+
+      const query = req.query as autoBidQueryDto;
+      const userId = req.user.id;
+      const data = await autoBidService.getAutoBidsByUserId(userId, query);
+      // console.log("Data: ", data);
+      if (!data) {
+        const response = gatewayResponse(
+          HttpStatus.notFound,
+          null,
+          'Không tìm thấy sản phẩm đấu giá hợp lệ'
+        );
+        return res.status(response.code).send(response);
+      }
+
+      const response = gatewayResponse(
+        HttpStatus.ok,
+        data,
+        'Lấy sản phẩm đấu giá thành công'
+      );
+      return res.status(response.code).send(response);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Lấy sản phẩm đấu giá thất bại';
+      const response = gatewayResponse(HttpStatus.badRequest, null, message);
+      return res.status(response.code).send(response);
+    }
+}

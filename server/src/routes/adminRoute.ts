@@ -9,13 +9,33 @@ router.get(
   API_ROUTES.getAllUsers.path,
   authMiddleware,
   controllers.getAllUsers
-)
+);
 router.get(
   API_ROUTES.getAllRequest.path,
   authMiddleware,
   controllers.getAllRequest
 );
+router.get(
+  API_ROUTES.getAdminDashboardData.path,
+  authMiddleware,
+  controllers.getAdminDashboardData
+);
+router.get(
+  API_ROUTES.getAllDeactivatedUsers.path,
+  authMiddleware,
+  controllers.getAllDeactivatedUsers
+);
 
+router.patch(
+  API_ROUTES.deactivateUser.path,
+  authMiddleware,
+  controllers.deactivateUser
+);
+router.patch(
+  API_ROUTES.activateUser.path,
+  authMiddleware,
+  controllers.activateUser
+);
 router.patch(
   API_ROUTES.acceptRequest.path,
   authMiddleware,
@@ -26,11 +46,10 @@ router.patch(
   authMiddleware,
   controllers.refuseRequest
 );
-
-router.get(
-  API_ROUTES.getAdminDashboardData.path,
+router.patch(
+  API_ROUTES.resetPasswordByAdmin.path,
   authMiddleware,
-  controllers.getAdminDashboardData
+  controllers.resetPasswordByAdmin
 );
 
 export default router;

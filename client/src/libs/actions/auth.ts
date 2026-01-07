@@ -47,7 +47,7 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
         messages: data.message,
       };
     }
-    console.log('data sign in:', data);
+    // console.log('data sign in:', data);
 
     await createSession({
       user: {
@@ -60,6 +60,14 @@ export async function SignInFormAction(_state: SignInFormState, formData: FormDa
     });
 
     const role = data.data.user.role as string;
+
+    if (data.data.user.isActive === false) {
+      window.location.href = '/banned';
+      return {
+        success: false,
+        messages: 'Tài khoản chưa được kích hoạt. Vui lòng xác minh email.',
+      };
+    }
 
     return {
       success: true,

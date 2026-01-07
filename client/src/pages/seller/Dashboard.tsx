@@ -5,6 +5,8 @@ import TabBoard from "./TabBoard";
 import { getSellerStats } from "../../api/seller";
 import type { SellerStats } from "../../api/seller";
 
+
+import NotFoundPage from "../NotFound.tsx";
 // Format number to Vietnamese currency
 const formatCurrency = (value: number): string => {
   if (value >= 1000000000) {
@@ -78,12 +80,7 @@ const SellerDashboard: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-red-500 text-center">
-          <p className="text-lg font-semibold">Lỗi</p>
-          <p>{error}</p>
-        </div>
-      </div>
+      <NotFoundPage />
     );
   }
 

@@ -66,13 +66,16 @@ Content-Type: application/json
 
 
 ### Lấy giá cao nhất của 1 bidder trên sản phẩm
-GET http://localhost:4000/autoBid/9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb10
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU1YmM3NzY4LTIxNTctNDhiMi1iM2VhLTAxYzYwYzZlZjAzOCIsImVtYWlsIjoibnRkYW5nMjNAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NDY4NjQ0MSwiZXhwIjoxNzY3Mjc4NDQxfQ.58n_addU49bBqw_4kpelC8TNpuz7CJrGJFxIaWy_Cxw
+GET http://localhost:4000/autoBid/max/58f835b1-3237-41e5-825f-6a5f61785aa9
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU1YmM3NzY4LTIxNTctNDhiMi1iM2VhLTAxYzYwYzZlZjAzOCIsImVtYWlsIjoibnRkYW5nMjNAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NzcwNzExNywiZXhwIjoxNzcwMjk5MTE3fQ.q327Dy-wipMrgSBo-KoOU2DrvMiKNXv3hGdCKzhFVDI
 
 
 ### Lấy lịch sử đấu giá query params
-GET http://localhost:4000/autoBid?limit=5&page=1&sort=price_desc
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU1YmM3NzY4LTIxNTctNDhiMi1iM2VhLTAxYzYwYzZlZjAzOCIsImVtYWlsIjoibnRkYW5nMjNAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NDY4NjQ0MSwiZXhwIjoxNzY3Mjc4NDQxfQ.58n_addU49bBqw_4kpelC8TNpuz7CJrGJFxIaWy_Cxw
+GET http://localhost:4000/autoBid/history?limit=5&page=1&sort=price_desc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA3NTI3MWFlLTIzZmUtNDg2Yy04MDE4LTI5ZTI2NjBjZDY3NyIsImVtYWlsIjoibGVuaHV0ZHV5MTUxMTA1QGdtYWlsLmNvbSIsImlhdCI6MTc2NzcwNTUxNCwiZXhwIjoxNzcwMjk3NTE0fQ.XyQwGzrHXpVQ-VGthYzIcUnBX6isjzkFtMtVK8ERzSQ
 ##############################
 
 
+### Lấy thông tin sản phẩm tham gia đấu giá của một người
+GET http://localhost:4000/autoBid?limit=5&page=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU1YmM3NzY4LTIxNTctNDhiMi1iM2VhLTAxYzYwYzZlZjAzOCIsImVtYWlsIjoibnRkYW5nMjNAY2xjLmZpdHVzLmVkdS52biIsImlhdCI6MTc2NzcwNzExNywiZXhwIjoxNzcwMjk5MTE3fQ.q327Dy-wipMrgSBo-KoOU2DrvMiKNXv3hGdCKzhFVDI

@@ -17,7 +17,6 @@ const PostProduct = () => {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [allowedExtend, setAllowedExtend] = useState(false);
-  const [extendMinutes, setExtendMinutes] = useState(5);
   const [highRatingRequire, setHighRatingRequire] = useState(false);
 
   const [parentCategoryId, setParentCategoryId] = useState('');
@@ -116,7 +115,7 @@ const PostProduct = () => {
     const rawValue = value.replace(/\./g, '');
     if (name === 'name') {
       setFormData((prev) => ({ ...prev, [name]: rawValue ? rawValue : rawValue }));
-      console.log(formData.name);
+      // console.log(formData.name);
     } else setFormData((prev) => ({ ...prev, [name]: rawValue ? rawValue : Number(rawValue) }));
   };
 
@@ -171,7 +170,6 @@ const PostProduct = () => {
         startedAt: formData.startTime,
         endAt: formData.endTime,
         allowedExtend: allowedExtend,
-        extendMinutes: extendMinutes,
         highRatingRequired: highRatingRequire,
         images: images,
       };
@@ -406,19 +404,6 @@ const PostProduct = () => {
                   />
                   <span className='text-sm'>Cho phép tự động gia hạn</span>
                 </label>
-
-                {allowedExtend && (
-                  <label className='flex items-center gap-2'>
-                    <span className='text-sm'>Số phút gia hạn là </span>
-                    <input
-                      onChange={(e) => setExtendMinutes(Number(e.target.value))}
-                      defaultValue={5}
-                      type='number'
-                      className='number w-12 px-2 border text-sm py-1 border-gray-300 rounded-md hover:border-gray-500'
-                    />
-                    <span className='text-sm'>phút</span>
-                  </label>
-                )}
 
                 <label className='flex items-center gap-2'>
                   <input
